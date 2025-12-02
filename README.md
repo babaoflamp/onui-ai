@@ -20,23 +20,24 @@
 
 ### 3. 🎤 발음 연습 (NEW!)
 - **ELSA Speak 스타일** 2단계 학습 인터페이스
-- **Step 1 - 듣기**: TTS로 네이티브 발음 듣기, 음소 분해, 발음 팁
+- **Step 1 - 듣기**: MzTTS 전문 TTS로 네이티브 발음 듣기, 음소 분해, 발음 팁
 - **Step 2 - 말하기**: 녹음 및 AI 발음 평가, 오누이 캐릭터 (👦👧)
 - **20개 필수 표현**: A1~A2 레벨 인사말 및 일상 표현
 - **실시간 검색**: 한글, 로마자, 의미로 단어 검색
 - **레벨 필터링**: 전체, A1, A2 레벨 선택
+- **한나 화자**: 고품질 여성 목소리
 
-### 4. 🤖 AI 통합
+### 4. 🤖 AI & 음성 통합
 - **Ollama 지원**: 로컬 LLM (EXAONE 모델) 사용
-- **Web Speech API**: 브라우저 기반 TTS/STT
+- **MzTTS API**: 전문 한국어 TTS (한나 화자, 22kHz 고품질)
 - **VOSK**: 오프라인 음성 인식 (선택)
 
 ## 기술 스택
 
 - **Backend**: FastAPI (Python)
 - **Frontend**: Jinja2 Templates, Tailwind CSS
-- **AI/ML**: Ollama (EXAONE), Web Speech API, VOSK
-- **Audio**: MediaRecorder API, ffmpeg
+- **AI/ML**: Ollama (EXAONE), MzTTS, VOSK
+- **Audio**: MediaRecorder API, MzTTS API, ffmpeg
 
 ## 설치 및 실행
 
@@ -65,6 +66,9 @@ export MODEL_BACKEND=ollama
 export OLLAMA_URL=http://localhost:11434
 export OLLAMA_MODEL=exaone3.5:2.4b
 
+# MzTTS 설정 (한국어 TTS)
+export MZTTS_API_URL=http://112.220.79.218:56014
+
 # VOSK 음성 인식 (선택)
 export LOCAL_STT=vosk
 export VOSK_MODEL_PATH=/path/to/vosk-model
@@ -73,11 +77,33 @@ export VOSK_MODEL_PATH=/path/to/vosk-model
 # export OPENAI_API_KEY=your-api-key
 ```
 
+### Korean romanizer (발음 표기 개선)
+
+This project can use `korean-romanizer` to produce consistent, accurate Latin-script pronunciations when the model output is absent or unreliable.
+
+Install into the virtualenv:
+
+```bash
+source .venv/bin/activate
+pip install korean-romanizer
+```
+
+Control romanization behavior with the `ROMANIZE_MODE` environment variable:
+
+- `ROMANIZE_MODE=force` (default) — always replace pronunciation fields with the romanizer output for consistent results.
+- `ROMANIZE_MODE=prefer` — keep model-provided Latin pronunciations when they look valid; otherwise fall back to the romanizer.
+
+Example:
+
+```bash
+export ROMANIZE_MODE=force
+```
+
 ### 3. 서버 실행
 
 ```bash
 # 개발 서버 (자동 재로딩)
-uvicorn main:app --host 0.0.0.0 --port 9000 --reload
+source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload
 
 # 또는
 python main.py
@@ -94,7 +120,67 @@ pkill -f uvicorn
 
 ## 접속
 
+### 로컬 접속
 브라우저에서 http://localhost:9000 접속
+
+### 외부 인터넷 접속 (ngrok)
+
+ngrok을 사용하면 로컬 서버를 외부 인터넷에 공개할 수 있습니다.
+
+#### 1. ngrok 설치
+
+```bash
+# 프로젝트 디렉토리에 ngrok 다운로드 및 설치
+cd ~/Projects/onui-ai
+curl -Lo /tmp/ngrok.tgz https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz
+tar xzf /tmp/ngrok.tgz -C .
+chmod +x ngrok
+```
+
+#### 2. ngrok 인증 설정
+
+1. https://ngrok.com/signup 에서 무료 계정 생성
+2. 대시보드에서 인증 토큰 확인 (https://dashboard.ngrok.com/get-started/your-authtoken)
+3. 토큰 설정:
+
+```bash
+./ngrok config add-authtoken <your-auth-token>
+```
+
+#### 3. ngrok 터널 시작
+
+```bash
+# 백그라운드에서 실행
+./ngrok http 9000 --log=stdout &
+
+# 또는 포그라운드에서 실행 (터미널 창 유지 필요)
+./ngrok http 9000
+```
+
+#### 4. 공개 URL 확인
+
+터미널에서 `https://xxxxxxxx.ngrok-free.app` 형태의 URL을 확인할 수 있습니다.
+이 URL을 통해 전 세계 어디서든 접속 가능합니다!
+
+#### 5. ngrok 대시보드
+
+실시간 트래픽 모니터링:
+```
+http://localhost:4040
+```
+
+#### ngrok 중지
+
+```bash
+pkill -f ngrok
+```
+
+#### 주의사항
+
+- **무료 계정**: ngrok 재시작 시마다 URL이 변경됩니다
+- **고정 URL**: 유료 플랜에서 사용 가능
+- **보안**: 프로덕션 환경에서는 인증 시스템 추가 권장
+- **세션 유지**: 애플리케이션(port 9000)과 ngrok이 모두 실행 중이어야 합니다
 
 ## 프로젝트 구조
 
@@ -201,18 +287,32 @@ ollama pull exaone3.5:2.4b
 - 브라우저 설정에서 마이크 권한 허용
 - HTTPS 환경에서만 MediaRecorder API 사용 가능
 
-## 최근 업데이트 (2025-12-02)
+## 최근 업데이트
 
-### ✨ 발음 연습 페이지 추가
+### 2025-12-02
+
+#### 🌐 외부 인터넷 배포 (ngrok 통합)
+- ngrok 설치 및 설정 가이드 추가
+- 로컬 서버를 전 세계에 공개 가능
+- HTTPS 자동 지원
+- 실시간 트래픽 모니터링 대시보드
+
+#### ✨ MzTTS API 통합
+- 전문 한국어 TTS (한나 화자) 통합
+- 발음 연습 페이지에 고품질 음성 추가
+- 단어 꽃밭에서 단어/문장 음성 재생 기능
+- API 테스트 페이지 추가
+
+#### 🎤 발음 연습 페이지
 - ELSA Speak 스타일의 2단계 학습 인터페이스
-- Web Speech API 기반 TTS (브라우저 음성 합성)
+- MzTTS 전문 TTS로 네이티브 발음 듣기
 - MediaRecorder API 기반 녹음 및 AI 발음 평가
 - 20개 한국어 필수 표현 (인사말, 일상 표현)
 - 오누이 캐릭터 (👦👧) 적용
 - 실시간 검색 및 레벨 필터링 (A1/A2)
 - 음소 분해 시각화 및 발음 팁 제공
 
-### 🎨 UI 개선
+#### 🎨 UI 개선
 - 단어 꽃밭: 각 단어에 어울리는 이모지 추가
 - AI 학습 도구: 친근한 placeholder 텍스트
 - 모델 선택: 기본값 exaone3.5:2.4b 설정

@@ -60,12 +60,21 @@
   outline: none;
   cursor: pointer;
   background: radial-gradient(circle at 30% 30%, #fffdf7, #ffdca5);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Flag SVG inserted inside the button when a two-letter country code is used */
+.emoji-flag {
+  width: 42px;
+  height: 42px;
+  display: block;
+  object-fit: contain;
+  margin: 0 auto;
 }
 
 /* Level-based colors */
@@ -84,7 +93,7 @@
 .flower-card.active .flower-btn,
 .flower-card:hover .flower-btn {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
 }
 
 .flower-word {
@@ -180,6 +189,11 @@
 }
 
 @media (max-width: 768px) {
-  .vocab-layout { flex-direction: column; }
-  .vocab-panel-left, .vocab-panel-right { width: 100%; }
+  .vocab-layout {
+    flex-direction: column;
+  }
+  .vocab-panel-left,
+  .vocab-panel-right {
+    width: 100%;
+  }
 }

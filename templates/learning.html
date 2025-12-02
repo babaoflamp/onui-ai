@@ -1,116 +1,177 @@
-{% extends "base.html" %}
-
-{% block title %}AI 학습 도구 - 오누이 한국어{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}AI 학습 도구 - 오누이 한국어{%
+endblock %} {% block content %}
 <div class="max-w-4xl mx-auto px-4">
+  <style>
+    /* Tweak vertical rhythm for learning page content */
+    /* Dialogue text: slightly tighter but readable */
+    #contentResult .dialogue-text {
+      line-height: 1.45;
+    }
+
+    /* Speaker/name and small helper text */
+    #contentResult .dialogue-item p {
+      line-height: 1.25;
+    }
+
+    /* Pronunciation line (italic small text) */
+    #contentResult .pronunciation-text {
+      line-height: 1.2;
+      display: inline-block;
+    }
+
+    /* Model test result (prose) — make paragraphs a bit more airy */
+    #modelTestResult,
+    #modelTestResult p {
+      line-height: 1.6;
+    }
+
+    /* Vocabulary tag labels should be compact */
+    #contentResult .rounded-full {
+      line-height: 1.15;
+    }
+
+    /* Small screens: slightly tighter to save space */
+    @media (max-width: 640px) {
+      #contentResult .dialogue-text {
+        line-height: 1.35;
+      }
+      #modelTestResult,
+      #modelTestResult p {
+        line-height: 1.45;
+      }
+    }
+  </style>
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
     <header class="mb-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+      >
         <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
         ONUI · AI 학습 도구
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">🇰🇷 K-Talk AI 학습 플랫폼</h1>
-      <p class="text-sm text-gray-600">
-        AI를 활용한 맞춤형 한국어 학습 경험
-      </p>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <img
+          src="https://twemoji.maxcdn.com/v/latest/svg/1f1f0-1f1f7.svg"
+          alt="🇰🇷"
+          class="inline-block w-6 h-6 mr-2 align-middle"
+        />오누이 AI 학습 플랫폼
+      </h1>
+      <p class="text-sm text-gray-600">AI를 활용한 맞춤형 한국어 학습 경험</p>
     </header>
 
     <!-- 1. Content Generation Section -->
-    <section class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
+      >
         <span class="text-2xl">📚</span>
         1. 맞춤형 교재 생성
       </h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-3"
+      >
         <input
           id="topic"
           type="text"
           placeholder="관심 주제 (예: K-pop, 여행)"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-3"
+          onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
         />
-        <select id="level" class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+        <select
+          id="level"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
+        >
           <option value="초급">초급</option>
           <option value="중급">중급</option>
           <option value="고급">고급</option>
         </select>
-        <select id="modelSelect" class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+        <select
+          id="modelSelect"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
+        >
           <option value="">(모델 선택)</option>
         </select>
         <button
+          id="generateBtn"
           onclick="generateContent()"
-          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg text-sm font-medium"
+          disabled
+          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg transition-all shadow-md text-sm font-medium lg:col-span-1 opacity-50 cursor-not-allowed"
         >
-          생성하기
+          🪄 생성하기
         </button>
       </div>
 
-      <div id="contentResult" class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"></div>
+      <div
+        id="contentResult"
+        class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"
+      ></div>
 
       <!-- Model Test Section -->
       <div class="mt-4 pt-4 border-t border-blue-200">
-        <label class="text-xs font-semibold text-gray-700 mb-2 block">💬 AI와 대화해보기</label>
-        <div class="flex gap-2">
+        <label class="text-xs font-semibold text-gray-700 mb-2 block"
+          >💬 AI와 대화해보기</label
+        >
+        <div class="grid grid-cols-6 gap-2">
           <input
             id="testPrompt"
             type="text"
-            class="border border-gray-300 p-2 rounded-lg flex-1 focus:ring-2 focus:ring-blue-500 text-sm"
+            class="col-span-5 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
             placeholder="AI에게 물어보고 싶은 것을 자유롭게 입력해 보세요 😊"
+            onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }"
           />
           <button
             onclick="testModel()"
-            class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm"
+            class="col-span-1 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm"
           >
-            물어보기 ✨
+            ✨ 물어보기
           </button>
         </div>
-        <pre
+        <div
           id="modelTestResult"
-          class="mt-2 p-3 bg-gray-50 rounded-lg text-xs hidden whitespace-pre-wrap font-mono border border-gray-200"
-        ></pre>
+          class="mt-2 p-3 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"
+        ></div>
       </div>
     </section>
 
     <!-- 2. Pronunciation Check Section -->
-    <section class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
-      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
+      >
         <span class="text-2xl">🎤</span>
-        2. AI 발음 교정
+        2. 발음 교정
       </h2>
 
-      <div class="mb-3 p-3 bg-white rounded-lg border border-gray-200">
-        <p class="text-xs text-gray-600 mb-1">따라 읽을 문장:</p>
-        <p id="targetText" class="text-base font-bold text-gray-900">안녕하세요, 반갑습니다.</p>
-      </div>
+      <div class="bg-white p-4 rounded-lg shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <div id="targetText" class="text-xl font-bold text-gray-900">연습할 문장을 생성하거나 선택하세요</div>
+            <div id="targetRoman" class="text-sm text-gray-500 mt-1"></div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="listenBtn" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">🔊 다시 듣기</button>
+          </div>
+        </div>
 
-      <div class="flex gap-2 mb-3">
-        <button
-          id="recordBtn"
-          class="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
-        >
-          <span>🔴</span>
-          녹음 시작
-        </button>
-        <button
-          id="stopBtn"
-          class="flex-1 bg-gray-400 text-white px-4 py-3 rounded-lg opacity-50 cursor-not-allowed font-medium flex items-center justify-center gap-2"
-          disabled
-        >
-          <span>⏹</span>
-          정지 및 분석
-        </button>
-      </div>
+        <div class="mt-4 flex items-center gap-2">
+          <button id="recordBtn" class="px-4 py-2 bg-pink-500 text-white rounded-lg">🎤 녹음 시작</button>
+          <button id="stopBtn" disabled class="px-4 py-2 bg-gray-300 text-white rounded-lg opacity-50 cursor-not-allowed">⏹ 정지 및 분석</button>
+        </div>
 
-      <div id="pronResult" class="p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"></div>
+        <div id="pronResult" class="mt-3"></div>
+      </div>
     </section>
-
-    <!-- 3. Fluency Test Section -->
-    <section class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
-      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+      <h2
+        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
+      >
         <span class="text-2xl">✍️</span>
-        3. 유창성(작문) 테스트
+        3. 한국어 작문 테스트
       </h2>
 
       <textarea
@@ -136,23 +197,62 @@
     <section class="p-4 bg-gray-50 rounded-xl border border-gray-200">
       <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 팁</div>
       <div class="text-xs text-gray-700 space-y-1">
-        <p>• <strong>교재 생성</strong>: 관심 주제와 레벨을 선택하면 AI가 맞춤형 대화문과 단어장을 생성합니다</p>
-        <p>• <strong>발음 교정</strong>: 마이크 권한을 허용한 후 문장을 읽고 녹음하여 정확도를 확인하세요</p>
-        <p>• <strong>작문 테스트</strong>: 자유롭게 한국어로 작성하면 AI가 문법과 자연스러움을 평가합니다</p>
-        <p>• <strong>모델 선택</strong>: 다양한 Ollama 모델을 선택하여 최적의 결과를 얻을 수 있습니다</p>
+        <p>
+          • <strong>교재 생성</strong>: 관심 주제와 레벨을 선택하면 AI가 맞춤형
+          대화문과 단어장을 생성합니다
+        </p>
+        <p>
+          • <strong>발음 교정</strong>: 마이크 권한을 허용한 후 문장을 읽고
+          녹음하여 정확도를 확인하세요
+        </p>
+        <p>
+          • <strong>작문 테스트</strong>: 자유롭게 한국어로 작성하면 AI가 문법과
+          자연스러움을 평가합니다
+        </p>
+        <p>
+          • <strong>모델 선택</strong>: 다양한 Ollama 모델을 선택하여 최적의
+          결과를 얻을 수 있습니다
+        </p>
       </div>
     </section>
   </div>
 </div>
 
 <script>
+  // Load lightweight Markdown rendering (marked) and sanitizer (DOMPurify) via CDN.
+  // These are optional; the code falls back to plain text if they are not available.
+  (function loadMarkdownLibs() {
+    const scripts = [
+      { src: "https://cdn.jsdelivr.net/npm/marked/marked.min.js" },
+      {
+        src: "https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js",
+      },
+    ];
+    for (const s of scripts) {
+      const scr = document.createElement("script");
+      scr.src = s.src;
+      scr.async = true;
+      document.head.appendChild(scr);
+    }
+  })();
+  // Helper to escape single/double quotes and newlines when injecting into HTML strings
+  function jsEsc(s) {
+    return (s || "")
+      .toString()
+      .replace(/\\/g, "\\\\")
+      .replace(/'/g, "\\'")
+      .replace(/\"/g, '\\"')
+      .replace(/\n/g, " ")
+      .replace(/\r/g, " ");
+  }
   // 1. Content generation
   async function generateContent() {
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const resultDiv = document.getElementById("contentResult");
 
-    resultDiv.innerHTML = '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div><span class="text-sm text-gray-600">AI가 교재를 만들고 있습니다...</span></div>';
+    resultDiv.innerHTML =
+      '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div><span class="text-sm text-gray-600">AI가 교재를 만들고 있습니다...</span></div>';
     resultDiv.classList.remove("hidden");
 
     const formData = new FormData();
@@ -168,46 +268,155 @@
     });
     const data = await res.json();
 
+    // Robust JSON extraction: handle cases where the server returns JSON
+    // as an object, under `parsed`, or as raw text (possibly fenced).
     let jsonObj = null;
-    if (data.dialogue && data.vocabulary) {
-      jsonObj = data;
-    } else if (data.parsed && data.parsed.dialogue) {
-      jsonObj = data.parsed;
-    } else if (data.text) {
-      try {
-        const match = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-        let candidate = match ? match[1] : data.text;
-        candidate = candidate.trim();
-        const maybe = JSON.parse(candidate);
-        if (maybe.dialogue && maybe.vocabulary) jsonObj = maybe;
-      } catch (e) {}
-    }
 
-    if (!jsonObj) {
-      // Try to extract dialogue and vocabulary from raw text
-      const rawText = data.text || JSON.stringify(data, null, 2);
-
-      // Try to find JSON pattern in the text
-      const jsonMatch = rawText.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
-      if (jsonMatch) {
+    function tryParseJSONFromString(s) {
+      if (!s || typeof s !== "string") return null;
+      // Helper to attempt JSON.parse with some pre-cleaning
+      function tryParseCandidate(candidate) {
         try {
-          const extracted = JSON.parse(jsonMatch[0]);
-          if (extracted.dialogue && extracted.vocabulary) {
-            jsonObj = extracted;
-          }
+          return JSON.parse(candidate);
         } catch (e) {
-          console.error("Failed to parse extracted JSON:", e);
+          return null;
         }
       }
 
-      // If still no valid JSON, show raw output
-      if (!jsonObj) {
-        resultDiv.innerHTML =
-          '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
-          rawText +
-          "</pre>";
-        return;
+      // 1) direct parse
+      try {
+        const parsed = tryParseCandidate(s);
+        if (parsed) return normalizeParsed(parsed);
+      } catch (e) {}
+
+      // 2) fenced JSON (```json ... ```)
+      try {
+        const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+        if (m && m[1]) {
+          try {
+            const parsed = tryParseCandidate(m[1].trim());
+            if (parsed) return normalizeParsed(parsed);
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      // 3) find first {...} that contains both keys
+      try {
+        const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
+        if (m2) {
+          try {
+            // try to repair single quotes and trailing commas
+            let cand = m2[0];
+            // naive single-quote -> double-quote replacement for keys/strings
+            const repaired = cand
+              .replace(/'([^']*)'/g, '"$1"')
+              .replace(/,\s*}/g, "}")
+              .replace(/,\s*\]/g, "]");
+            const parsed =
+              tryParseCandidate(repaired) || tryParseCandidate(cand);
+            if (parsed) return normalizeParsed(parsed);
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      // 4) as a last resort, try extracting from first/last brace
+      try {
+        const first = s.indexOf("{");
+        const last = s.lastIndexOf("}");
+        if (first >= 0 && last > first) {
+          const cand = s.slice(first, last + 1);
+          try {
+            const repaired = cand
+              .replace(/'([^']*)'/g, '"$1"')
+              .replace(/,\s*}/g, "}")
+              .replace(/,\s*\]/g, "]");
+            const parsed =
+              tryParseCandidate(repaired) || tryParseCandidate(cand);
+            if (parsed) return normalizeParsed(parsed);
+          } catch (e) {}
+        }
+      } catch (e) {}
+
+      return null;
+    }
+
+    // Normalize parsed object: map alternative keys (Korean/English variants)
+    function normalizeParsed(obj) {
+      if (!obj) return null;
+      // If obj is an array, treat it as dialogue
+      if (Array.isArray(obj)) return { dialogue: obj, vocabulary: [] };
+
+      const result = { dialogue: null, vocabulary: null };
+
+      // dialogue keys candidates
+      const dlgKeys = [
+        "dialogue",
+        "대화",
+        "대화문",
+        "dialogs",
+        "conversation",
+        "utterances",
+      ];
+      for (const k of dlgKeys) {
+        if (Object.prototype.hasOwnProperty.call(obj, k)) {
+          result.dialogue = obj[k];
+          break;
+        }
       }
+
+      // vocabulary keys candidates
+      const vocabKeys = ["vocabulary", "단어", "단어장", "words"];
+      for (const k of vocabKeys) {
+        if (Object.prototype.hasOwnProperty.call(obj, k)) {
+          result.vocabulary = obj[k];
+          break;
+        }
+      }
+
+      // If dialogue not found but object has numeric-indexed items, try to collect them
+      if (!result.dialogue) {
+        const maybeArr = Object.keys(obj)
+          .filter((k) => /^\d+$/.test(k))
+          .sort((a, b) => Number(a) - Number(b))
+          .map((k) => obj[k]);
+        if (maybeArr.length) result.dialogue = maybeArr;
+      }
+
+      // If still no dialogue but obj has top-level text that contains a JSON string, try recursively
+      if (!result.dialogue && typeof obj === "object") {
+        for (const v of Object.values(obj)) {
+          if (typeof v === "string") {
+            const nested = tryParseJSONFromString(v);
+            if (nested && nested.dialogue) return normalizeParsed(nested);
+          }
+        }
+      }
+
+      // Ensure defaults
+      if (!result.dialogue) return null;
+      if (!result.vocabulary) result.vocabulary = [];
+
+      return result;
+    }
+
+    if (data && typeof data === "object") {
+      if (data.dialogue && data.vocabulary) jsonObj = data;
+      else if (data.parsed && data.parsed.dialogue) jsonObj = data.parsed;
+      else if (data.text && typeof data.text === "string")
+        jsonObj = tryParseJSONFromString(data.text);
+    } else if (typeof data === "string") {
+      jsonObj = tryParseJSONFromString(data);
+    }
+
+    if (!jsonObj) {
+      const rawText =
+        (data && data.text) ||
+        (typeof data === "string" ? data : JSON.stringify(data, null, 2));
+      resultDiv.innerHTML =
+        '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
+        rawText +
+        "</pre>";
+      return;
     }
 
     // Beautiful rendering of dialogue and vocabulary
@@ -222,20 +431,39 @@
           <div class="space-y-2">
     `;
 
-    // Render dialogue with alternating colors
+    // Render dialogue with alternating colors and per-item pronunciation play
     jsonObj.dialogue.forEach((d, index) => {
-      const bgColor = index % 2 === 0 ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200';
-      const speakerColor = index % 2 === 0 ? 'text-blue-700' : 'text-purple-700';
-      const avatarEmoji = d.speaker === 'A' || d.speaker === '학생' || d.speaker === 'Student' ? '👨‍🎓' : '👩‍🏫';
+      const bgColor =
+        index % 2 === 0
+          ? "bg-blue-50 border-blue-200"
+          : "bg-purple-50 border-purple-200";
+      const speakerColor =
+        index % 2 === 0 ? "text-blue-700" : "text-purple-700";
+      const avatarEmoji =
+        d.speaker === "A" || d.speaker === "학생" || d.speaker === "Student"
+          ? "👨‍🎓"
+          : "👩‍🏫";
+
+      const pron = d.pronunciation || "";
 
       html += `
-        <div class="p-3 ${bgColor} border rounded-lg transition-all hover:shadow-md">
+        <div class="p-3 ${bgColor} border rounded-lg transition-all hover:shadow-md dialogue-item" data-text='${jsEsc(
+        d.text
+      )}' data-pron='${jsEsc(pron)}'>
           <div class="flex items-start gap-3">
             <span class="text-2xl">${avatarEmoji}</span>
             <div class="flex-1">
-              <p class="font-semibold ${speakerColor} text-sm mb-1">${d.speaker}</p>
-              <p class="text-gray-900 font-medium">${d.text}</p>
-              ${d.pronunciation ? `<p class="text-gray-500 text-xs mt-2 italic">🔊 ${d.pronunciation}</p>` : ''}
+              <p class="font-semibold ${speakerColor} text-sm mb-1">${
+        d.speaker
+      }</p>
+              <p class="text-gray-900 font-medium dialogue-text">${d.text}</p>
+              ${
+                pron
+                  ? `<div class="mt-2 flex items-center gap-2 text-gray-500 text-xs italic"><button onclick="speakText('${jsEsc(
+                      d.text
+                    )}')" class="text-sm px-2 py-1 bg-gray-100 rounded">🔊</button><span class="pronunciation-text"> ${pron}</span></div>`
+                  : ""
+              }
             </div>
           </div>
         </div>
@@ -257,12 +485,12 @@
 
     // Render vocabulary with colorful tags
     const vocabColors = [
-      'bg-pink-100 text-pink-700 border-pink-200',
-      'bg-indigo-100 text-indigo-700 border-indigo-200',
-      'bg-green-100 text-green-700 border-green-200',
-      'bg-orange-100 text-orange-700 border-orange-200',
-      'bg-purple-100 text-purple-700 border-purple-200',
-      'bg-blue-100 text-blue-700 border-blue-200'
+      "bg-pink-100 text-pink-700 border-pink-200",
+      "bg-indigo-100 text-indigo-700 border-indigo-200",
+      "bg-green-100 text-green-700 border-green-200",
+      "bg-orange-100 text-orange-700 border-orange-200",
+      "bg-purple-100 text-purple-700 border-purple-200",
+      "bg-blue-100 text-blue-700 border-blue-200",
     ];
 
     jsonObj.vocabulary.forEach((word, index) => {
@@ -279,7 +507,13 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex gap-2 pt-2">
+        <div class="flex gap-2 items-center pt-2">
+          <div class="flex items-center gap-2 mr-2">
+            <label for="voiceSelect" class="text-xs text-gray-600">음성 선택</label>
+            <select id="voiceSelect" class="text-sm border border-gray-200 rounded px-2 py-1 bg-white">
+              <option value="">(목소리 불러오는 중...)</option>
+            </select>
+          </div>
           <button onclick="speakDialogue()" class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all text-sm font-medium flex items-center justify-center gap-2">
             <span>🔊</span>
             대화 읽어주기
@@ -292,10 +526,83 @@
       </div>
     `;
 
-    if (jsonObj.dialogue && jsonObj.dialogue[0] && jsonObj.dialogue[0].text) {
-      document.getElementById("targetText").innerText = jsonObj.dialogue[0].text;
+    // Normalize dialogue items: allow simple string items, ensure objects have keys
+    if (Array.isArray(jsonObj.dialogue)) {
+      jsonObj.dialogue = jsonObj.dialogue.map((item, idx) => {
+        if (typeof item === "string") {
+          return {
+            speaker: idx % 2 === 0 ? "A" : "B",
+            text: item,
+            pronunciation: "",
+          };
+        }
+        // if item is object but missing keys, fill defaults
+        const speaker = item.speaker || (idx % 2 === 0 ? "A" : "B");
+        const text = item.text || item.line || "";
+        const pronunciation = item.pronunciation || item.pron || "";
+        return { speaker, text, pronunciation };
+      });
+    }
+
+    // Set targetText to the pronunciation if available, otherwise the plain text
+    if (jsonObj.dialogue && jsonObj.dialogue[0]) {
+      const first = jsonObj.dialogue[0];
+      document.getElementById("targetText").innerText =
+        first.pronunciation || first.text || "";
     }
     resultDiv.innerHTML = html;
+  }
+
+  // Speak a given string using Web Speech API
+  function speakText(txt) {
+    if (!txt) return;
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      // Prefer a Korean voice when available
+      u.lang = "ko-KR";
+      u.rate = 0.95;
+      // pick a voice that matches Korean
+      const pickKoreanVoice = () => {
+        const voices = window.speechSynthesis.getVoices() || [];
+        for (const v of voices) {
+          if (!v) continue;
+          const lname = (v.lang || "").toLowerCase();
+          const n = (v.name || "").toLowerCase();
+          if (
+            lname.startsWith("ko") ||
+            n.includes("korean") ||
+            n.includes("noto") ||
+            n.includes("nanum")
+          ) {
+            return v;
+          }
+        }
+        return null;
+      };
+
+      // If the user selected a voice, prefer it
+      try {
+        const selVal = (document.getElementById("voiceSelect") || {}).value;
+        if (selVal) {
+          const [name, lang] = selVal.split("||");
+          const voices = window.speechSynthesis.getVoices() || [];
+          const found = voices.find((v) => v.name === name && v.lang === lang);
+          if (found) u.voice = found;
+        }
+      } catch (e) {
+        /* ignore */
+      }
+
+      let voice = pickKoreanVoice();
+      if (!u.voice && voice) {
+        u.voice = voice;
+      }
+
+      window.speechSynthesis.speak(u);
+    } else {
+      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
+    }
   }
 
   // Load Ollama models
@@ -341,19 +648,132 @@
         body: form,
       });
       const data = await res.json();
+      // Render response as Markdown (sanitized). If `marked` + `DOMPurify` are
+      // available, use them; otherwise fall back to plain text.
+      function renderMarkdownTo(el, md) {
+        // Friendly header/footer with emoji to make responses more approachable
+        const header = "💬 **AI의 답변** — 친절하게 도와드릴게요!\n\n";
+        const footer = "\n\n---\n\n😊 _궁금한 점이 있으면 이어서 물어보세요!_";
+        const decorated = header + md + footer;
+
+        // Add more emojis: decorate headings, lists, blockquotes, and code blocks
+        let emojiDecorated = decorated
+          // Add sparkle to headings: # -> # ✨
+          .replace(/^(\#{1,6}\s+)/gm, "$1✨ ")
+          // Add a blue diamond to unordered list items
+          .replace(/^(\s*[-*+]\s+)/gm, "$1🔹 ")
+          // Add a number icon to ordered lists
+          .replace(/^(\s*\d+\.\s+)/gm, "$1✅ ")
+          // Add quote emoji to blockquotes
+          .replace(/^>\s*/gm, "> 💬 ")
+          // Prepend an icon before fenced code blocks (emoji on its own line)
+          .replace(/```(\w*)\n/gm, "🧾\n```$1\n")
+          // Inline code gets a tag emoji and a check button emoji
+          .replace(/`([^`]+)`/g, "🔖 ✅ `$1`");
+
+        if (window.marked && window.DOMPurify) {
+          try {
+            el.innerHTML = DOMPurify.sanitize(marked.parse(emojiDecorated));
+            return;
+          } catch (e) {
+            // fall through to plain text
+          }
+        }
+        // basic fallback: render decorated text
+        el.textContent = emojiDecorated;
+      }
+
       if (data.parsed) {
-        outDiv.innerText = JSON.stringify(data.parsed, null, 2);
+        const rawJson = JSON.stringify(data.parsed, null, 2);
+        const md = "```json\n" + rawJson + "\n```";
+        renderMarkdownTo(outDiv, md);
       } else if (data.text) {
-        outDiv.innerText = data.text;
+        renderMarkdownTo(outDiv, data.text);
       } else {
-        outDiv.innerText = JSON.stringify(data, null, 2);
+        renderMarkdownTo(outDiv, JSON.stringify(data, null, 2));
       }
     } catch (e) {
       outDiv.innerText = "모델 테스트 실패: " + e.message;
     }
   }
 
-  window.addEventListener("DOMContentLoaded", loadModels);
+  // On DOMContentLoaded, load models and setup generate button behavior
+  window.addEventListener("DOMContentLoaded", () => {
+    loadModels();
+    setupGenerateButton();
+    populateVoiceList();
+  });
+
+  // Populate voice select and persist choice in localStorage
+  function populateVoiceList() {
+    const sel = document.getElementById("voiceSelect");
+    if (!sel) return;
+    if (!("speechSynthesis" in window)) {
+      sel.innerHTML = '<option value="">음성 지원 불가</option>';
+      return;
+    }
+
+    function refresh() {
+      const voices = window.speechSynthesis.getVoices() || [];
+      // prefer showing Korean voices first
+      voices.sort((a, b) => {
+        const aKo = (a.lang || "").toLowerCase().startsWith("ko");
+        const bKo = (b.lang || "").toLowerCase().startsWith("ko");
+        if (aKo === bKo) return (a.name || "").localeCompare(b.name || "");
+        return aKo ? -1 : 1;
+      });
+
+      const current = localStorage.getItem("onui_voice") || "";
+      sel.innerHTML = "";
+      const emptyOpt = document.createElement("option");
+      emptyOpt.value = "";
+      emptyOpt.innerText = "(시스템 기본 음성)";
+      sel.appendChild(emptyOpt);
+
+      voices.forEach((v) => {
+        const o = document.createElement("option");
+        // store by name|lang to avoid duplicates
+        o.value = `${v.name}||${v.lang}`;
+        o.innerText = `${v.name} (${v.lang})`;
+        if (o.value === current) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+
+    // try to refresh now and again when voices change
+    refresh();
+    window.speechSynthesis.onvoiceschanged = refresh;
+
+    sel.addEventListener("change", () => {
+      localStorage.setItem("onui_voice", sel.value || "");
+    });
+  }
+
+  // Enable/disable the Generate button based on topic input
+  function updateGenerateButton() {
+    const topic = document.getElementById("topic");
+    const btn = document.getElementById("generateBtn");
+    if (!btn || !topic) return;
+    const hasText = topic.value && topic.value.trim().length > 0;
+    btn.disabled = !hasText;
+    if (hasText) {
+      btn.classList.remove("opacity-50", "cursor-not-allowed");
+      btn.classList.add("hover:from-blue-600", "hover:to-indigo-700");
+    } else {
+      btn.classList.add("opacity-50", "cursor-not-allowed");
+      btn.classList.remove("hover:from-blue-600", "hover:to-indigo-700");
+    }
+  }
+
+  function setupGenerateButton() {
+    const topic = document.getElementById("topic");
+    const btn = document.getElementById("generateBtn");
+    if (!topic || !btn) return;
+    // initialize state
+    updateGenerateButton();
+    // update on input
+    topic.addEventListener("input", updateGenerateButton);
+  }
 
   // 2. Pronunciation check (recording logic)
   let mediaRecorder;
@@ -370,21 +790,34 @@
     mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
 
     document.getElementById("recordBtn").disabled = true;
-    document.getElementById("recordBtn").classList.add("opacity-50", "cursor-not-allowed");
+    document
+      .getElementById("recordBtn")
+      .classList.add("opacity-50", "cursor-not-allowed");
     document.getElementById("stopBtn").disabled = false;
-    document.getElementById("stopBtn").classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-400");
-    document.getElementById("stopBtn").classList.add("bg-gradient-to-r", "from-gray-600", "to-gray-700");
-    document.getElementById("pronResult").innerHTML = '<div class="flex items-center gap-2 text-sm text-gray-600"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
+    document
+      .getElementById("stopBtn")
+      .classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-400");
+    document
+      .getElementById("stopBtn")
+      .classList.add("bg-gradient-to-r", "from-gray-600", "to-gray-700");
+    document.getElementById("pronResult").innerHTML =
+      '<div class="flex items-center gap-2 text-sm text-gray-600"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
     document.getElementById("pronResult").classList.remove("hidden");
   };
 
   document.getElementById("stopBtn").onclick = async () => {
     mediaRecorder.stop();
     document.getElementById("recordBtn").disabled = false;
-    document.getElementById("recordBtn").classList.remove("opacity-50", "cursor-not-allowed");
+    document
+      .getElementById("recordBtn")
+      .classList.remove("opacity-50", "cursor-not-allowed");
     document.getElementById("stopBtn").disabled = true;
-    document.getElementById("stopBtn").classList.add("opacity-50", "cursor-not-allowed", "bg-gray-400");
-    document.getElementById("stopBtn").classList.remove("bg-gradient-to-r", "from-gray-600", "to-gray-700");
+    document
+      .getElementById("stopBtn")
+      .classList.add("opacity-50", "cursor-not-allowed", "bg-gray-400");
+    document
+      .getElementById("stopBtn")
+      .classList.remove("bg-gradient-to-r", "from-gray-600", "to-gray-700");
 
     mediaRecorder.onstop = async () => {
       const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
@@ -410,17 +843,26 @@
             <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
               <p class="text-red-600 text-xs mt-1">${data.error}</p>
-              ${data.details ? '<p class="text-gray-600 text-xs mt-1">' + data.details + '</p>' : ''}
+              ${
+                data.details
+                  ? '<p class="text-gray-600 text-xs mt-1">' +
+                    data.details +
+                    "</p>"
+                  : ""
+              }
             </div>
           `;
         } else {
           const score = data.score || 0;
-          const scoreColor = score > 80 ? 'green' : score > 60 ? 'yellow' : 'red';
+          const scoreColor =
+            score > 80 ? "green" : score > 60 ? "yellow" : "red";
           document.getElementById("pronResult").innerHTML = `
             <div class="space-y-2">
               <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p class="text-xs text-gray-600 mb-1">인식된 문장:</p>
-                <p class="font-medium text-gray-900">${data.user_said || '(인식 실패)'}</p>
+                <p class="font-medium text-gray-900">${
+                  data.user_said || "(인식 실패)"
+                }</p>
               </div>
               <div class="p-3 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
                 <p class="text-xs text-gray-600 mb-1">일치율:</p>
@@ -428,7 +870,7 @@
               </div>
               <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
                 <p class="text-xs text-gray-600 mb-1">피드백:</p>
-                <p class="text-sm text-gray-900">${data.feedback || ''}</p>
+                <p class="text-sm text-gray-900">${data.feedback || ""}</p>
               </div>
             </div>
           `;
@@ -444,49 +886,134 @@
     };
   };
 
-  // Helper: Speak dialogue (Text-to-Speech)
-  function speakDialogue() {
-    const dialogueElements = document.querySelectorAll('#contentResult .text-gray-900.font-medium');
-    if (!dialogueElements.length) return;
-
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
+  // Speak a given string using Web Speech API (used by per-item buttons)
+  function speakText(txt) {
+    if (!txt) return;
+    if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = "ko-KR";
+      u.rate = 0.95;
+      const voices = window.speechSynthesis.getVoices() || [];
+      for (const v of voices) {
+        if (!v) continue;
+        const lname = (v.lang || "").toLowerCase();
+        const n = (v.name || "").toLowerCase();
+        if (
+          lname.startsWith("ko") ||
+          n.includes("korean") ||
+          n.includes("noto") ||
+          n.includes("nanum")
+        ) {
+          u.voice = v;
+          break;
+        }
+      }
+      // If voices not yet loaded, try again when available
+      if (!u.voice) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          const vs = window.speechSynthesis.getVoices() || [];
+          for (const v of vs) {
+            const lname = (v.lang || "").toLowerCase();
+            const n = (v.name || "").toLowerCase();
+            if (
+              lname.startsWith("ko") ||
+              n.includes("korean") ||
+              n.includes("noto") ||
+              n.includes("nanum")
+            ) {
+              u.voice = v;
+              break;
+            }
+          }
+          window.speechSynthesis.speak(u);
+        };
+      } else {
+        window.speechSynthesis.speak(u);
+      }
+    } else {
+      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
+    }
+  }
 
-      dialogueElements.forEach((elem, index) => {
-        const utterance = new SpeechSynthesisUtterance(elem.textContent);
-        utterance.lang = 'ko-KR';
-        utterance.rate = 0.9; // Slightly slower for learning
-        utterance.pitch = 1.0;
+  // Speak the whole dialogue sequence; prefers pronunciation if present
+  function speakDialogue() {
+    const items = document.querySelectorAll("#contentResult .dialogue-item");
+    if (!items.length) return;
 
-        // Add a small delay between dialogues
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      items.forEach((item, index) => {
+        // Prefer reading the original Korean text (Hangul). If not available,
+        // fall back to the romanized pronunciation.
+        const textAttr =
+          item.getAttribute("data-text") ||
+          item.querySelector(".dialogue-text")?.textContent ||
+          "";
+        const pron = item.getAttribute("data-pron");
+        const txt = textAttr && textAttr.trim() ? textAttr : pron || "";
+        const u = new SpeechSynthesisUtterance(txt);
+        u.lang = "ko-KR";
+        u.rate = 0.95;
+        // If the user selected a specific voice, prefer that one
+        try {
+          const selVal = (document.getElementById("voiceSelect") || {}).value;
+          if (selVal) {
+            const [name, lang] = selVal.split("||");
+            const voices = window.speechSynthesis.getVoices() || [];
+            const found = voices.find(
+              (v) => v.name === name && v.lang === lang
+            );
+            if (found) u.voice = found;
+          }
+        } catch (e) {}
+
+        const voices = window.speechSynthesis.getVoices() || [];
+        for (const v of voices) {
+          if (!v) continue;
+          const lname = (v.lang || "").toLowerCase();
+          const n = (v.name || "").toLowerCase();
+          if (
+            lname.startsWith("ko") ||
+            n.includes("korean") ||
+            n.includes("noto") ||
+            n.includes("nanum")
+          ) {
+            if (!u.voice) u.voice = v;
+            break;
+          }
+        }
         setTimeout(() => {
-          window.speechSynthesis.speak(utterance);
-        }, index * 2000);
+          window.speechSynthesis.speak(u);
+        }, index * 1800);
       });
     } else {
-      alert('죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.');
+      alert("죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.");
     }
   }
 
   // Helper: Practice vocabulary (copy to pronunciation section)
   function practiceVocab() {
-    const vocabElements = document.querySelectorAll('#contentResult .rounded-full');
+    const vocabElements = document.querySelectorAll(
+      "#contentResult .rounded-full"
+    );
     if (!vocabElements.length) return;
 
-    const words = Array.from(vocabElements).map(el => el.textContent.trim());
+    const words = Array.from(vocabElements).map((el) => el.textContent.trim());
     const randomWord = words[Math.floor(Math.random() * words.length)];
 
     document.getElementById("targetText").innerText = randomWord;
 
     // Scroll to pronunciation section
-    document.querySelector('.from-red-50').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document
+      .querySelector(".from-red-50")
+      .scrollIntoView({ behavior: "smooth", block: "center" });
 
     // Visual feedback
     const targetEl = document.getElementById("targetText");
-    targetEl.classList.add('animate-pulse');
+    targetEl.classList.add("animate-pulse");
     setTimeout(() => {
-      targetEl.classList.remove('animate-pulse');
+      targetEl.classList.remove("animate-pulse");
     }, 1000);
   }
 
@@ -495,7 +1022,8 @@
     const text = document.getElementById("fluencyInput").value;
     const resultDiv = document.getElementById("fluencyResult");
     resultDiv.classList.remove("hidden");
-    resultDiv.innerHTML = '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div><span class="text-sm text-gray-600">채점 중...</span></div>';
+    resultDiv.innerHTML =
+      '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div><span class="text-sm text-gray-600">채점 중...</span></div>';
 
     const formData = new FormData();
     formData.append("user_text", text);
@@ -515,15 +1043,27 @@
       `;
     } else {
       const score = json.score || 0;
-      const scoreColor = score > 80 ? 'green' : score > 60 ? 'yellow' : 'red';
+      const scoreColor = score > 80 ? "green" : score > 60 ? "yellow" : "red";
       resultDiv.innerHTML = `
         <div class="space-y-2">
           <div class="p-3 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
             <p class="text-xs text-gray-600 mb-1">점수:</p>
             <p class="text-2xl font-bold text-${scoreColor}-700">${score}점</p>
           </div>
-          ${json.corrected ? '<div class="p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">교정된 문장:</p><p class="text-sm text-green-700 font-medium">' + json.corrected + '</p></div>' : ''}
-          ${json.feedback ? '<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">피드백:</p><p class="text-sm text-gray-900">' + json.feedback + '</p></div>' : ''}
+          ${
+            json.corrected
+              ? '<div class="p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">교정된 문장:</p><p class="text-sm text-green-700 font-medium">' +
+                json.corrected +
+                "</p></div>"
+              : ""
+          }
+          ${
+            json.feedback
+              ? '<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">피드백:</p><p class="text-sm text-gray-900">' +
+                json.feedback +
+                "</p></div>"
+              : ""
+          }
         </div>
       `;
     }

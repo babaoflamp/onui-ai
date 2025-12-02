@@ -14,6 +14,67 @@ import uvicorn
 import subprocess
 import wave
 
+# Try to provide a server-side romanization fallback for Korean -> Latin
+# We will try to import a lightweight romanizer if available. If not,
+# `romanize_korean` will be a no-op (returns original text) and we will
+# instruct the operator to install `korean_romanizer` for better results.
+try:
+    from korean_romanizer.romanizer import Romanizer
+    def romanize_korean(text: str) -> str:
+        try:
+            r = Romanizer(text)
+            return r.romanize()
+        except Exception:
+            return text
+    ROMANIZER_AVAILABLE = True
+except Exception:
+    # Basic built-in romanizer (Revised Romanization approximations)
+    # This provides a best-effort Latin transcription of Hangul syllables
+    # without requiring external packages. It is not perfect but works
+    # for common phrases and will ensure the UI receives Latin text.
+    L_TABLE = [
+        "g", "kk", "n", "d", "tt", "r", "m", "b", "pp",
+        "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"
+    ]
+    V_TABLE = [
+        "a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o",
+        "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu",
+        "eu", "ui", "i"
+    ]
+    T_TABLE = [
+        "", "k", "k", "ks", "n", "nj", "nh", "t", "l", "lg",
+        "lm", "lb", "ls", "lt", "lp", "lh", "m", "p", "ps",
+        "t", "t", "ng", "t", "ch", "k", "t", "p", "h"
+    ]
+
+    def _romanize_syllable(ch: str) -> str:
+        code = ord(ch)
+        # Hangul syllables range
+        if code < 0xAC00 or code > 0xD7A3:
+            return ch
+
+        SIndex = code - 0xAC00
+        TCount = 28
+        VCount = 21
+        NCount = VCount * TCount
+        LIndex = SIndex // NCount
+        VIndex = (SIndex % NCount) // TCount
+        TIndex = SIndex % TCount
+
+        initial = L_TABLE[LIndex]
+        medial = V_TABLE[VIndex]
+        final = T_TABLE[TIndex]
+
+        return initial + medial + final
+
+    def romanize_korean(text: str) -> str:
+        try:
+            return "".join(_romanize_syllable(ch) if 0xAC00 <= ord(ch) <= 0xD7A3 else ch for ch in text)
+        except Exception:
+            return text
+
+    ROMANIZER_AVAILABLE = False
+
 # ==========================================
 # 설정: 환경변수에서 OpenAI API 키 로드
 # ==========================================
@@ -28,6 +89,12 @@ client = None
 MODEL_BACKEND = os.getenv("MODEL_BACKEND", "openai")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
+# Romanization mode: 'force' = always replace pronunciation with romanizer output;
+# 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
+ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
+
+# MzTTS Configuration
+MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
 
 
 def _list_ollama_models():
@@ -152,6 +219,114 @@ def _transcribe_with_vosk(wav_path: str, model_path: str) -> str:
     return " ".join([r for r in results if r])
 
 
+# ==========================================
+# MzTTS Service Functions
+# ==========================================
+
+def _call_mztts_api(
+    text: str,
+    output_type: str = "file",
+    speaker: int = None,
+    tempo: float = None,
+    pitch: float = None,
+    gain: float = None
+) -> dict:
+    """
+    Call MzTTS API to generate Korean speech.
+
+    Args:
+        text: Korean text to synthesize
+        output_type: "file" (direct WAV), "pcm" (base64), or "path" (file path)
+        speaker: Speaker ID (0: Hanna - female voice)
+        tempo: Speed (0.1-2.0, default 1.0)
+        pitch: Pitch (0.1-2.0, default 1.0)
+        gain: Volume (0.1-2.0, default 1.0)
+
+    Returns:
+        dict with response data or raises exception
+    """
+    # Use defaults if not specified
+    if speaker is None:
+        speaker = 0
+    if tempo is None:
+        tempo = 1.0
+    if pitch is None:
+        pitch = 1.0
+    if gain is None:
+        gain = 1.0
+
+    # Validate parameters (note: actual server may have different speaker range)
+    if speaker < 0:
+        raise ValueError(f"Speaker must be >= 0, got {speaker}")
+    if not (0.1 <= tempo <= 2.0):
+        raise ValueError(f"Tempo must be 0.1-2.0, got {tempo}")
+    if not (0.1 <= pitch <= 2.0):
+        raise ValueError(f"Pitch must be 0.1-2.0, got {pitch}")
+    if not (0.1 <= gain <= 2.0):
+        raise ValueError(f"Gain must be 0.1-2.0, got {gain}")
+
+    payload = {
+        "output_type": output_type,
+        "_MODEL": 0,
+        "_SPEAKER": speaker,
+        "_TEMPO": tempo,
+        "_PITCH": pitch,
+        "_GAIN": gain,
+        "_CONVRATE": 0,
+        "_TEXT": text
+    }
+
+    # Log payload for debugging
+    import sys
+    print(f"[MzTTS] Sending payload: {payload}", file=sys.stderr)
+
+    try:
+        if output_type == "file":
+            # Request WAV file directly
+            response = requests.post(
+                MZTTS_API_URL,
+                json=payload,
+                timeout=30,
+                stream=True
+            )
+            response.raise_for_status()
+
+            # Check if response is JSON (error) or binary (WAV file)
+            content_type = response.headers.get("Content-Type", "")
+            if "application/json" in content_type:
+                # This is an error response
+                error_data = response.json()
+                raise RuntimeError(f"MzTTS API error: {error_data}")
+
+            # Return binary WAV data
+            return {
+                "audio_data": response.content,
+                "content_type": "audio/wav"
+            }
+        else:
+            # Request JSON response (path or pcm)
+            response = requests.post(
+                MZTTS_API_URL,
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            return response.json()
+
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to connect to MzTTS API: {e}")
+
+
+def get_mztts_server_info() -> dict:
+    """Get MzTTS server information (version, speakers, sampling rate, etc.)"""
+    try:
+        response = requests.get(MZTTS_API_URL, timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except Exception as e:
+        raise RuntimeError(f"Failed to get MzTTS server info: {e}")
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -213,25 +388,60 @@ def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
     return templates.TemplateResponse("pronunciation-practice.html", {"request": request})
 
+@app.get("/api-test")
+def api_test_page(request: Request):
+    """API 테스트 도구"""
+    return templates.TemplateResponse("api-test.html", {"request": request})
+
 # ==========================================
 # 2. AI 학습 콘텐츠 자동 생성 API
 # ==========================================
 @app.post("/api/generate-content")
 async def generate_content(topic: str = Form(...), level: str = Form(...), model: str = Form(None)):
+    # Add level-specific guidance to the prompt so the model tailors output
+    lvl = (level or "").strip()
+    if lvl == "초급":
+        level_guidance = (
+            "초급 학습자용으로 답변해주세요. "
+            "문장은 짧고 간단하게(주로 기본 표현), 쉬운 어휘를 사용하고, 각 문장에 대한 짧은 설명은 생략하세요. "
+            "한글을 처음 배우는 학습자도 이해하기 쉬운 수준으로 구성해 주세요."
+        )
+    elif lvl == "중급":
+        level_guidance = (
+            "중급 학습자용으로 답변해주세요. "
+            "문장은 자연스럽고 약간 복잡한 문장 구조를 포함할 수 있으며, 한두 개의 문법 포인트나 표현 설명(짧게)을 포함하세요. "
+            "어휘는 적당히 도전적인 단어를 사용해 주세요."
+        )
+    elif lvl == "고급":
+        level_guidance = (
+            "고급 학습자용으로 답변해주세요. "
+            "보다 풍부한 표현, 관용구, 뉘앙스 설명과 문화적 메모를 포함해 주세요. "
+            "문장은 자연스럽고 복잡할 수 있으며 학습자가 심화 학습할 수 있도록 예시와 설명을 추가하세요."
+        )
+    else:
+        level_guidance = "요구된 레벨에 맞게 적절한 난이도로 작성해 주세요."
+
     prompt = f"""
     한국어 선생님입니다.
     주제: '{topic}'
     레벨: '{level}'
-    
+
+    {level_guidance}
+
     위 조건에 맞는 짧은 한국어 대화문(3~4마디)과 주요 단어 3개를 JSON 형식으로 만들어주세요.
-    형식:
+    각 대사 항목에는 한국어 원문(text)과, 발음 표기를 반드시 포함해 주세요.
+    발음 표기는 한국어 발음을 이해하기 쉬운 영문 로마자(라틴 알파벳)로 표기해 주세요. 예: "안녕" -> "annyeong".
+    (참고: IPA 대신 보편적으로 이해하기 쉬운 로마자 표기를 사용하십시오.)
+    형식 예시:
     {{
         "dialogue": [
-            {{"speaker": "A", "text": "한국어 문장", "pronunciation": "발음 표기"}},
-            {{"speaker": "B", "text": "한국어 문장", "pronunciation": "발음 표기"}}
+            {{"speaker": "A", "text": "한국어 문장", "pronunciation": "romanized pronunciation"}},
+            {{"speaker": "B", "text": "한국어 문장", "pronunciation": "romanized pronunciation"}}
         ],
         "vocabulary": ["단어1", "단어2", "단어3"]
     }}
+    
+    중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ``` )으로 정확하게 반환하세요. 추가 설명이나 여분의 텍스트는 포함하지 마시고, 코드 블럭 외의 다른 출력은 하지 마세요.
     """
     
     # Use Ollama local backend if configured
@@ -257,7 +467,109 @@ async def generate_content(topic: str = Form(...), level: str = Form(...), model
                     out += line
 
             parsed = _parse_model_output(out)
+            # If parser failed to extract JSON, try a fallback extraction of a
+            # JSON substring containing a "dialogue" key. If that still fails,
+            # re-prompt the model once with a very strict instruction asking for
+            # exactly one JSON code block only. This helps when the model
+            # prepends commentary or streams non-JSON content before the JSON.
+            if parsed is None:
+                try:
+                    m = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out)
+                    if m:
+                        candidate = m.group(1)
+                        parsed = json.loads(candidate)
+                except Exception:
+                    parsed = None
+
+            # If still not parsed, perform one retry with a short, strict
+            # re-instruction to the model to only return the single JSON
+            # object in a code block. Avoid infinite retries.
+            if parsed is None:
+                try:
+                    retry_prompt = (
+                        prompt
+                        + "\n\nSECOND REQUEST (STRICT): RETURN ONLY ONE JSON OBJECT INSIDE A SINGLE ```json CODE BLOCK. DO NOT ADD ANY TEXT OUTSIDE THE CODE BLOCK."
+                    )
+                    payload2 = {"model": use_model, "prompt": retry_prompt}
+                    resp2 = requests.post(f"{OLLAMA_URL}/api/generate", json=payload2, stream=True, timeout=30)
+                    if resp2.status_code == 200:
+                        out2 = ""
+                        for line in resp2.iter_lines(decode_unicode=True):
+                            if not line:
+                                continue
+                            try:
+                                obj = json.loads(line)
+                                if isinstance(obj, dict):
+                                    out2 += obj.get("response", "") or obj.get("text", "")
+                                else:
+                                    out2 += str(obj)
+                            except Exception:
+                                out2 += line
+
+                        parsed = _parse_model_output(out2)
+                        if parsed is None:
+                            try:
+                                m2 = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out2)
+                                if m2:
+                                    parsed = json.loads(m2.group(1))
+                            except Exception:
+                                parsed = None
+                except Exception:
+                    # swallow retry errors and continue; we'll return raw text if
+                    # parsing still fails.
+                    parsed = None
+
             if parsed is not None:
+                # Post-process: ensure each dialogue entry has an English
+                # (romanized) pronunciation and normalize whitespace.
+                # If the model returned Hangul or omitted pronunciation,
+                # produce a romanized fallback from the `text` field.
+                try:
+                    dlg = parsed.get("dialogue")
+                    if isinstance(dlg, list):
+                        for item in dlg:
+                            if not isinstance(item, dict):
+                                continue
+                            item_text = item.get("text", "") or ""
+                            # Prefer the model-provided pronunciation if it
+                            # appears to be Latin. If it's missing or contains
+                            # Hangul, derive from `text`.
+                            pron = item.get("pronunciation")
+                            try:
+                                # ROMANIZE_MODE controls behavior:
+                                # - 'force': always overwrite with the romanizer output
+                                # - 'prefer': keep model-provided Latin pronunciation when valid
+                                mode = ROMANIZE_MODE
+                                if mode == "force":
+                                    pron = romanize_korean(item_text)
+                                else:
+                                    # prefer mode: keep model-provided pronunciation
+                                    # if it looks like Latin (has ASCII letters and
+                                    # does not include Hangul), otherwise romanize.
+                                    if pron and isinstance(pron, str):
+                                        if re.search(r"[\uac00-\ud7a3]", pron) or not re.search(r"[A-Za-z]", pron):
+                                            pron = romanize_korean(item_text)
+                                        # else: keep model-provided Latin pronunciation
+                                    else:
+                                        pron = romanize_korean(item_text)
+                            except Exception:
+                                pron = pron or romanize_korean(item_text)
+
+                            # Normalize whitespace & newlines: collapse runs
+                            # of whitespace into a single space and trim.
+                            try:
+                                if isinstance(pron, str):
+                                    # replace newlines/tabs with spaces then collapse
+                                    pron = re.sub(r"\s+", " ", pron.replace("\n", " ").replace("\t", " ")).strip()
+                                else:
+                                    pron = str(pron)
+                            except Exception:
+                                pron = pron if pron is not None else ""
+
+                            item["pronunciation"] = pron
+                except Exception:
+                    # keep parsed as-is on any failure
+                    pass
                 return JSONResponse(content=parsed)
             return JSONResponse(content={"text": out})
         except Exception as e:
@@ -304,6 +616,14 @@ async def ollama_test(prompt: str = Form(...), model: str = Form(None)):
                 out += line
 
         parsed = _parse_model_output(out)
+        if parsed is None:
+            try:
+                m = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out)
+                if m:
+                    parsed = json.loads(m.group(1))
+            except Exception:
+                parsed = None
+
         if parsed is not None:
             return JSONResponse(content={"model": use_model, "parsed": parsed})
         return JSONResponse(content={"model": use_model, "text": out})
@@ -572,6 +892,83 @@ async def get_pronunciation_word(word_id: str):
         return JSONResponse(status_code=404, content={"error": "Word not found"})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "Failed to load pronunciation word", "details": str(e)})
+
+
+# ==========================================
+# MzTTS API Endpoints
+# ==========================================
+
+@app.get("/api/tts/info")
+async def get_tts_info():
+    """Get MzTTS server information"""
+    try:
+        info = get_mztts_server_info()
+        return JSONResponse(content=info)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Failed to get TTS server info", "details": str(e)}
+        )
+
+
+from pydantic import BaseModel
+
+class TTSRequest(BaseModel):
+    text: str
+    speaker: int = 0
+    tempo: float = 1.0
+    pitch: float = 1.0
+    gain: float = 1.0
+
+@app.post("/api/tts/generate")
+async def generate_tts(request: TTSRequest):
+    """
+    Generate Korean speech using MzTTS API.
+
+    Parameters:
+    - text: Korean text to synthesize
+    - speaker: Speaker ID (0: Hanna - female voice, default)
+    - tempo: Speed (0.1-2.0, default 1.0)
+    - pitch: Pitch (0.1-2.0, default 1.0)
+    - gain: Volume (0.1-2.0, default 1.0)
+
+    Returns WAV audio file
+    """
+    try:
+        from fastapi.responses import Response
+
+        # Call MzTTS API
+        result = _call_mztts_api(
+            text=request.text,
+            output_type="file",
+            speaker=request.speaker,
+            tempo=request.tempo,
+            pitch=request.pitch,
+            gain=request.gain
+        )
+
+        # Return WAV file
+        import hashlib
+        filename_hash = hashlib.md5(request.text.encode('utf-8')).hexdigest()[:8]
+        return Response(
+            content=result["audio_data"],
+            media_type=result["content_type"],
+            headers={
+                "Content-Disposition": f'attachment; filename="tts_{filename_hash}.wav"'
+            }
+        )
+
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid parameters", "details": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "TTS generation failed", "details": str(e)}
+        )
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)

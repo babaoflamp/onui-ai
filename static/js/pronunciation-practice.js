@@ -154,32 +154,60 @@
     playAudio();
   }
 
-  // Play audio using Web Speech API (TTS)
-  window.playAudio = function() {
+  // Play audio using MzTTS API
+  window.playAudio = async function() {
     if (!currentWord) {
       alert('먼저 단어를 선택하세요.');
       return;
     }
 
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
+    // Visual feedback
+    listenBtn.style.transform = 'scale(0.95)';
+    listenBtn.disabled = true;
 
-      const utterance = new SpeechSynthesisUtterance(currentWord.word);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.8; // Slower for learning
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+    try {
+      // Create JSON payload
+      const payload = {
+        text: currentWord.word,
+        speaker: 0, // Hanna (female voice)
+        tempo: 0.9, // Slightly slower for learning
+        pitch: 1.0,
+        gain: 1.2 // Slightly louder
+      };
 
-      // Visual feedback
-      listenBtn.style.transform = 'scale(0.95)';
+      // Call MzTTS API
+      const response = await fetch('/api/tts/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('TTS generation failed');
+      }
+
+      // Get audio blob and play
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl); // Clean up
+      };
+
+      await audio.play();
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      alert('음성 재생 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      // Reset button state
       setTimeout(() => {
         listenBtn.style.transform = 'scale(1)';
+        listenBtn.disabled = false;
       }, 200);
-
-      window.speechSynthesis.speak(utterance);
-    } else {
-      alert('죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.');
     }
   };
 

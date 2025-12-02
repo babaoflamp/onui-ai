@@ -1,0 +1,546 @@
+{% extends "base.html" %} {% block title %}API 테스트 - 오누이 한국어{% endblock
+%} {% block content %}
+<div class="max-w-6xl mx-auto px-4">
+  <!-- Header -->
+  <div class="mb-8 text-center">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">🔧 API 테스트 도구</h1>
+    <p class="text-gray-600">모든 API 엔드포인트를 테스트할 수 있습니다</p>
+  </div>
+
+  <!-- API Categories -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Learning Game APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
+
+      <!-- Word Puzzle -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 퍼즐</h3>
+        <button
+          onclick="testAPI('/api/puzzle/sentences', 'puzzle-result')"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2 w-full"
+        >
+          GET /api/puzzle/sentences
+        </button>
+        <button
+          onclick="testAPI('/api/puzzle/sentences?level=A1', 'puzzle-result')"
+          class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 mb-2 w-full text-sm"
+        >
+          GET /api/puzzle/sentences?level=A1
+        </button>
+        <pre
+          id="puzzle-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Daily Expression -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘의 표현</h3>
+        <button
+          onclick="testAPI('/api/expressions', 'expression-result')"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-2 w-full"
+        >
+          GET /api/expressions
+        </button>
+        <button
+          onclick="testAPI('/api/expressions/today', 'expression-result')"
+          class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500 mb-2 w-full text-sm"
+        >
+          GET /api/expressions/today
+        </button>
+        <pre
+          id="expression-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Vocabulary -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 꽃밭</h3>
+        <button
+          onclick="testAPI('/api/vocabulary', 'vocab-result')"
+          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mb-2 w-full"
+        >
+          GET /api/vocabulary
+        </button>
+        <button
+          onclick="testAPI('/api/vocabulary?level=A2', 'vocab-result')"
+          class="bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500 mb-2 w-full text-sm"
+        >
+          GET /api/vocabulary?level=A2
+        </button>
+        <pre
+          id="vocab-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Pronunciation Words -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습</h3>
+        <button
+          onclick="testAPI('/api/pronunciation-words', 'pronunciation-result')"
+          class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-2 w-full"
+        >
+          GET /api/pronunciation-words
+        </button>
+        <button
+          onclick="testAPI('/api/pronunciation-words?level=A1', 'pronunciation-result')"
+          class="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-500 mb-2 w-full text-sm"
+        >
+          GET /api/pronunciation-words?level=A1
+        </button>
+        <pre
+          id="pronunciation-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+    </div>
+
+    <!-- AI & Ollama APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🤖 AI & Ollama API</h2>
+
+      <!-- Ollama Models -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 모델</h3>
+        <button
+          onclick="testAPI('/api/ollama/models', 'ollama-models-result')"
+          class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 mb-2 w-full"
+        >
+          GET /api/ollama/models
+        </button>
+        <pre
+          id="ollama-models-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Content Generation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">콘텐츠 생성</h3>
+        <div class="mb-2">
+          <input
+            type="text"
+            id="content-topic"
+            placeholder="주제 (예: 카페에서)"
+            class="border rounded px-3 py-2 w-full mb-2"
+          />
+          <select
+            id="content-level"
+            class="border rounded px-3 py-2 w-full mb-2"
+          >
+            <option value="초급">초급</option>
+            <option value="중급">중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <button
+          onclick="testGenerateContent()"
+          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
+        >
+          POST /api/generate-content
+        </button>
+        <pre
+          id="content-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Fluency Check -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          한국어 문장 테스트
+        </h3>
+        <textarea
+          id="fluency-text"
+          placeholder="한국어 문장을 입력하세요"
+          class="border rounded px-3 py-2 w-full mb-2"
+          rows="3"
+        ></textarea>
+        <button
+          onclick="testFluencyCheck()"
+          class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 w-full"
+        >
+          POST /api/fluency-check
+        </button>
+        <pre
+          id="fluency-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Ollama Test -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 테스트</h3>
+        <textarea
+          id="ollama-prompt"
+          placeholder="테스트 프롬프트 입력"
+          class="border rounded px-3 py-2 w-full mb-2"
+          rows="2"
+        ></textarea>
+        <select
+          id="ollama-model-select"
+          class="border rounded px-3 py-2 w-full mb-2"
+        >
+          <option value="">(자동 선택)</option>
+        </select>
+        <button
+          onclick="testOllamaTest()"
+          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
+        >
+          POST /api/ollama/test
+        </button>
+        <pre
+          id="ollama-test-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
+      </div>
+    </div>
+
+    <!-- MzTTS API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🔊 MzTTS API</h2>
+
+      <!-- TTS Server Info -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">서버 정보</h3>
+        <button
+          onclick="testAPI('/api/tts/info', 'tts-info-result')"
+          class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 mb-2 w-full"
+        >
+          GET /api/tts/info
+        </button>
+        <pre
+          id="tts-info-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60"
+        ></pre>
+      </div>
+
+      <!-- TTS Generation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">음성 생성</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="tts-text"
+            placeholder="한국어 텍스트 입력 (예: 안녕하세요)"
+            class="border rounded px-3 py-2 w-full"
+            value="안녕하세요"
+          />
+        </div>
+        <button
+          onclick="testTTSGeneration()"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+        >
+          POST /api/tts/generate (음성 재생)
+        </button>
+        <div
+          id="tts-result"
+          class="mt-2 p-3 rounded text-sm bg-gray-100"
+        ></div>
+      </div>
+
+      <!-- Speaker Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">🎙️ 화자 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• 한나 (Hanna): 여성 목소리</li>
+          <li>• 고품질 한국어 음성 합성</li>
+          <li>• 샘플링 레이트: 22,050Hz</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Documentation Section -->
+  <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">📖 API 문서</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div>
+        <h3 class="font-semibold text-gray-800 mb-2">학습 게임 API</h3>
+        <ul class="space-y-1 text-gray-600">
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/puzzle/sentences</code
+            >
+            - 퍼즐 문장 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/expressions</code
+            >
+            - 표현 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/expressions/today</code
+            >
+            - 오늘의 표현
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/vocabulary</code
+            >
+            - 단어 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/pronunciation-words</code
+            >
+            - 발음 단어 목록
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 mb-2">AI API</h3>
+        <ul class="space-y-1 text-gray-600">
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/ollama/models</code
+            >
+            - Ollama 모델 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/generate-content</code
+            >
+            - 콘텐츠 생성
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/fluency-check</code
+            >
+            - 유창성 평가
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/ollama/test</code
+            >
+            - Ollama 모델 테스트
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 mb-2">MzTTS API</h3>
+        <ul class="space-y-1 text-gray-600">
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/tts/info</code
+            >
+            - TTS 서버 정보
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/tts/generate</code
+            >
+            - 음성 생성 (한나 화자, 고품질 음성)
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple GET API test
+  async function testAPI(endpoint, resultId) {
+    const resultElement = document.getElementById(resultId);
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Test content generation
+  async function testGenerateContent() {
+    const resultElement = document.getElementById("content-result");
+    const topic = document.getElementById("content-topic").value || "카페에서";
+    const level = document.getElementById("content-level").value;
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const formData = new FormData();
+      formData.append("topic", topic);
+      formData.append("level", level);
+
+      const response = await fetch("/api/generate-content", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Test fluency check
+  async function testFluencyCheck() {
+    const resultElement = document.getElementById("fluency-result");
+    const text = document.getElementById("fluency-text").value;
+
+    if (!text) {
+      resultElement.textContent = "문장을 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const formData = new FormData();
+      formData.append("user_text", text);
+
+      const response = await fetch("/api/fluency-check", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Test Ollama
+  async function testOllamaTest() {
+    const resultElement = document.getElementById("ollama-test-result");
+    const prompt = document.getElementById("ollama-prompt").value;
+    const model = document.getElementById("ollama-model-select")?.value || "";
+
+    if (!prompt) {
+      resultElement.textContent = "프롬프트를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const formData = new FormData();
+      formData.append("prompt", prompt);
+      if (model) {
+        formData.append("model", model);
+      }
+
+      const response = await fetch("/api/ollama/test", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Load available Ollama models into the select on page load
+  async function loadOllamaModels() {
+    const select = document.getElementById("ollama-model-select");
+    if (!select) return;
+    try {
+      const res = await fetch("/api/ollama/models");
+      if (!res.ok) return;
+      const data = await res.json();
+
+      let models = [];
+      if (Array.isArray(data)) {
+        models = data;
+      } else if (Array.isArray(data.models)) {
+        models = data.models;
+      } else if (data && typeof data === "object") {
+        // try common shapes
+        if (Array.isArray(data.items)) models = data.items;
+        else if (Array.isArray(data.available)) models = data.available;
+      }
+
+      // Populate select, keep the first auto option
+      select.innerHTML = '<option value="">(자동 선택)</option>';
+      models.forEach((m) => {
+        const opt = document.createElement("option");
+        let id = m;
+        let label = m;
+        if (m && typeof m === "object") {
+          id = m.id || m.name || m.model || JSON.stringify(m);
+          // Prefer a human-friendly label if available
+          label =
+            m.id ||
+            m.name ||
+            (m.description ? `${m.id} — ${m.description}` : id);
+        }
+        opt.value = id;
+        opt.textContent = label;
+        select.appendChild(opt);
+      });
+    } catch (err) {
+      console.error("Failed to load Ollama models", err);
+    }
+  }
+
+  // Test TTS generation
+  async function testTTSGeneration() {
+    const resultElement = document.getElementById("tts-result");
+    const text = document.getElementById("tts-text").value;
+
+    if (!text) {
+      resultElement.textContent = "텍스트를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "음성 생성 중...";
+
+    try {
+      const payload = {
+        text: text,
+        speaker: 0,
+        tempo: 1.0,
+        pitch: 1.0,
+        gain: 1.0
+      };
+
+      const response = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        resultElement.textContent = `Error: ${JSON.stringify(errorData, null, 2)}`;
+        return;
+      }
+
+      // Get audio blob and play
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        resultElement.textContent = "재생 완료 ✓";
+      };
+
+      audio.onerror = () => {
+        resultElement.textContent = "오디오 재생 실패";
+      };
+
+      await audio.play();
+      resultElement.textContent = "재생 중... 🔊";
+
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Populate models now
+  loadOllamaModels();
+</script>
+{% endblock %}
