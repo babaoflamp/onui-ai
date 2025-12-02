@@ -1,0 +1,507 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>오누이 · 오늘의 한국어 표현 카드 슬라이더</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg1: #ffe7c2;
+      --bg2: #ffd6f5;
+      --card: #ffffff;
+      --text-main: #22293a;
+      --text-sub: #6b7280;
+      --accent: #f97316;
+      --accent2: #4f46e5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans KR", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 12px;
+      background: radial-gradient(circle at 0% 0%, #fff7db, transparent 50%),
+                  radial-gradient(circle at 100% 100%, #e0e7ff, transparent 50%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 22px;
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 움직이는 해/달 아이콘 (장식) */
+    .sun,
+    .moon {
+      position: absolute;
+      font-size: 26px;
+      opacity: 0.35;
+      pointer-events: none;
+      animation: float 14s linear infinite;
+    }
+    .sun {
+      top: 8px;
+      right: 8%;
+      animation-delay: 0s;
+    }
+    .moon {
+      bottom: 38%;
+      left: 4%;
+      animation-delay: -7s;
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    header {
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fee2ba;
+      color: #9a5b08;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fb923c;
+    }
+
+    h1 {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 카드 슬라이더 레이아웃 */
+    .slider-wrapper {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .slider-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .slider-caption {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .slider-frame {
+      margin-top: 8px;
+      position: relative;
+      padding: 10px 42px; /* 좌우 화살표 공간 확보 */
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px 18px 18px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+      min-height: 150px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 26px rgba(0,0,0,0.16);
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-type {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .sentence-kr {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .sentence-en {
+      font-size: 13px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .culture-note {
+      font-size: 12px;
+      padding-top: 4px;
+      margin-top: 4px;
+      border-top: 1px dashed #e5e7eb;
+      color: #4b5563;
+    }
+
+    .meta-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    /* 화살표 버튼 */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #374151;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .nav-btn:hover {
+      background: #fef3c7;
+      transform: translateY(-50%) scale(1.04);
+    }
+    .nav-btn.left {
+      left: 8px;
+    }
+    .nav-btn.right {
+      right: 8px;
+    }
+
+    /* 진행 점(dot) */
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: width 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      width: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+
+    /* 설명 섹션 (5번 내용) */
+    .panel-desc {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px dashed #e5e7eb;
+      background: #fdfdfd;
+      padding: 12px 12px 14px;
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .panel-desc-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .panel-desc strong {
+      font-weight: 700;
+    }
+
+    .panel-desc ul {
+      margin: 4px 0 6px 16px;
+      list-style: disc;
+    }
+
+    .panel-desc li {
+      margin-bottom: 2px;
+    }
+
+    .panel-desc .sub-list {
+      margin-left: 16px;
+      list-style: circle;
+    }
+
+    footer {
+      margin-top: 10px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 8px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 600px) {
+      .slider-frame {
+        padding: 10px 34px;
+      }
+      .card {
+        padding: 14px 14px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 장식용 해/달 -->
+    <div class="sun">☀️</div>
+    <div class="moon">🌙</div>
+
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        ONUI · 오늘의 한국어 표현
+      </div>
+      <h1>오늘의 한국어 표현 카드 슬라이더</h1>
+      <p class="subtitle">
+        매일 한 장씩 넘겨 보면서, 자연스럽게 표현과 문화를 같이 익혀 보세요.
+      </p>
+    </header>
+
+    <!-- 카드 슬라이더 영역 -->
+    <section class="slider-wrapper">
+      <div class="slider-header">
+        <div class="slider-title">오늘의 표현</div>
+        <div class="slider-caption" id="sliderCaption">1 / 5</div>
+      </div>
+
+      <div class="slider-frame">
+        <button class="nav-btn left" id="prevBtn" aria-label="이전 표현">&lt;</button>
+        <button class="nav-btn right" id="nextBtn" aria-label="다음 표현">&gt;</button>
+
+        <div class="card" id="expressionCard">
+          <div class="card-label">
+            <span>한국어 문장</span>
+            <span class="pill-type" id="levelChip">CEFR A1</span>
+          </div>
+          <div class="sentence-kr" id="sentenceKr">…</div>
+          <div class="sentence-en" id="sentenceEn"></div>
+          <div class="culture-note" id="cultureNote"></div>
+
+          <div class="meta-row">
+            <span id="situationLabel"></span>
+            <span id="tagLabel"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+    </section>
+
+    <!-- 설명 텍스트 섹션 (요청하신 5번 문구) -->
+    <section class="panel-desc">
+      <div class="panel-desc-title">5. “오늘의 한국어 표현” 카드 슬라이더</div>
+      <div>
+        <p><strong>용도:</strong> 데일리 학습 위젯</p>
+
+        <p><strong>기능 아이디어</strong></p>
+        <ul>
+          <li>중앙에 큰 카드 하나:
+            <ul class="sub-list">
+              <li>한국어 문장</li>
+              <li>아래에 해석 + 간단한 문화 설명 1줄</li>
+            </ul>
+          </li>
+          <li>좌우에 &lt; &gt; 버튼으로 카드 넘기기</li>
+          <li>배경은 해/달이 천천히 움직이는 그라디언트</li>
+          <li>카드 하단에 작은 진행점(dot)으로 전체 카드 개수 표시</li>
+        </ul>
+
+        <p><strong>장점</strong></p>
+        <ul>
+          <li>사이트 어디에나 붙일 수 있는 컴포넌트</li>
+          <li>Swiper 없이도 간단한 슬라이더 구현 가능</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <span>오누이 한국어 · Daily Expression Card Slider</span>
+      <span>HTML · CSS · JavaScript 데모</span>
+    </footer>
+  </div>
+
+  <script>
+    // ===== 오늘의 표현 데이터 =====
+    const expressions = [
+      {
+        level: "A1",
+        sentenceKr: "안녕하세요? 처음 뵙겠습니다.",
+        sentenceEn: "Hello, nice to meet you for the first time.",
+        cultureNote: "한국에서는 처음 만날 때 가볍게 인사와 함께 고개를 살짝 숙이는 예절이 자연스럽습니다.",
+        situation: "상황: 처음 인사하기",
+        tag: "#기초인사"
+      },
+      {
+        level: "A2",
+        sentenceKr: "아메리카노 한 잔 주세요. 뜨거운 걸로요.",
+        sentenceEn: "One Americano, please. Hot, please.",
+        cultureNote: "카페에서는 주문할 때 ‘주세요’를 붙이면 공손하고 자연스럽게 들립니다.",
+        situation: "상황: 카페에서 주문",
+        tag: "#카페표현"
+      },
+      {
+        level: "A2",
+        sentenceKr: "한국어 정말 잘하시네요! 얼마나 공부하셨어요?",
+        sentenceEn: "Your Korean is really good! How long have you been studying?",
+        cultureNote: "상대방의 한국어 실력을 칭찬해 주면 대화 분위기가 훨씬 부드러워집니다.",
+        situation: "상황: 칭찬하기",
+        tag: "#칭찬표현"
+      },
+      {
+        level: "B1",
+        sentenceKr: "이번 주말에 시간 있으시면 같이 전시회 보러 가실래요?",
+        sentenceEn: "If you have time this weekend, would you like to go to an exhibition together?",
+        cultureNote: "직접적인 ‘데이트’라는 말 대신, 전시회·영화 등 활동을 제안하는 표현이 자연스럽게 쓰입니다.",
+        situation: "상황: 약속 잡기",
+        tag: "#초대표현"
+      },
+      {
+        level: "B1",
+        sentenceKr: "오늘은 미세먼지가 심해서 마스크를 꼭 쓰고 나가는 게 좋겠어요.",
+        sentenceEn: "Fine dust is severe today, so it’s better to go out with a mask on.",
+        cultureNote: "한국에서는 뉴스와 앱을 통해 미세먼지 지수를 자주 확인하고, 일상 대화에서도 자주 언급합니다.",
+        situation: "상황: 날씨·건강 이야기",
+        tag: "#날씨표현"
+      }
+    ];
+
+    const card = document.getElementById("expressionCard");
+    const sentenceKrEl = document.getElementById("sentenceKr");
+    const sentenceEnEl = document.getElementById("sentenceEn");
+    const cultureNoteEl = document.getElementById("cultureNote");
+    const levelChipEl = document.getElementById("levelChip");
+    const situationLabelEl = document.getElementById("situationLabel");
+    const tagLabelEl = document.getElementById("tagLabel");
+    const sliderCaptionEl = document.getElementById("sliderCaption");
+    const dotsContainer = document.getElementById("dots");
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    let currentIndex = 0;
+
+    // 진행 점(dot) 생성
+    expressions.forEach((_, idx) => {
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      dot.dataset.index = idx;
+      dot.addEventListener("click", () => {
+        currentIndex = idx;
+        renderCard();
+      });
+      dotsContainer.appendChild(dot);
+    });
+
+    function renderCard() {
+      const data = expressions[currentIndex];
+
+      sentenceKrEl.textContent = data.sentenceKr;
+      sentenceEnEl.textContent = data.sentenceEn;
+      cultureNoteEl.textContent = data.cultureNote;
+      levelChipEl.textContent = "CEFR " + data.level;
+      situationLabelEl.textContent = data.situation;
+      tagLabelEl.textContent = data.tag;
+
+      sliderCaptionEl.textContent = `${currentIndex + 1} / ${expressions.length}`;
+
+      // dot 상태 업데이트
+      document.querySelectorAll(".dot").forEach((d, idx) => {
+        d.classList.toggle("active", idx === currentIndex);
+      });
+
+      // 살짝 애니메이션 효과
+      card.style.opacity = "0";
+      card.style.transform = "translateY(8px)";
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          card.style.opacity = "1";
+          card.style.transform = "translateY(0)";
+        }, 30);
+      });
+    }
+
+    prevBtn.addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + expressions.length) % expressions.length;
+      renderCard();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % expressions.length;
+      renderCard();
+    });
+
+    // 초기 렌더링
+    renderCard();
+  </script>
+</body>
+</html>

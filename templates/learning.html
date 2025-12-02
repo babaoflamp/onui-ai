@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+
+{% block title %}AI 학습 도구 - 오누이 한국어{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+        ONUI · AI 학습 도구
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">🇰🇷 K-Talk AI 학습 플랫폼</h1>
+      <p class="text-sm text-gray-600">
+        AI를 활용한 맞춤형 한국어 학습 경험
+      </p>
+    </header>
+
+    <!-- 1. Content Generation Section -->
+    <section class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+        <span class="text-2xl">📚</span>
+        1. 맞춤형 교재 생성
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
+        <input
+          id="topic"
+          type="text"
+          placeholder="관심 주제 (예: K-pop, 여행)"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+        />
+        <select id="level" class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+          <option value="초급">초급</option>
+          <option value="중급">중급</option>
+          <option value="고급">고급</option>
+        </select>
+        <select id="modelSelect" class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+          <option value="">(모델 선택)</option>
+        </select>
+        <button
+          onclick="generateContent()"
+          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg text-sm font-medium"
+        >
+          생성하기
+        </button>
+      </div>
+
+      <div id="contentResult" class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"></div>
+
+      <!-- Model Test Section -->
+      <div class="mt-4 pt-4 border-t border-blue-200">
+        <label class="text-xs font-semibold text-gray-700 mb-2 block">💬 AI와 대화해보기</label>
+        <div class="flex gap-2">
+          <input
+            id="testPrompt"
+            type="text"
+            class="border border-gray-300 p-2 rounded-lg flex-1 focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="AI에게 물어보고 싶은 것을 자유롭게 입력해 보세요 😊"
+          />
+          <button
+            onclick="testModel()"
+            class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm"
+          >
+            물어보기 ✨
+          </button>
+        </div>
+        <pre
+          id="modelTestResult"
+          class="mt-2 p-3 bg-gray-50 rounded-lg text-xs hidden whitespace-pre-wrap font-mono border border-gray-200"
+        ></pre>
+      </div>
+    </section>
+
+    <!-- 2. Pronunciation Check Section -->
+    <section class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200">
+      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+        <span class="text-2xl">🎤</span>
+        2. AI 발음 교정
+      </h2>
+
+      <div class="mb-3 p-3 bg-white rounded-lg border border-gray-200">
+        <p class="text-xs text-gray-600 mb-1">따라 읽을 문장:</p>
+        <p id="targetText" class="text-base font-bold text-gray-900">안녕하세요, 반갑습니다.</p>
+      </div>
+
+      <div class="flex gap-2 mb-3">
+        <button
+          id="recordBtn"
+          class="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-red-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium flex items-center justify-center gap-2"
+        >
+          <span>🔴</span>
+          녹음 시작
+        </button>
+        <button
+          id="stopBtn"
+          class="flex-1 bg-gray-400 text-white px-4 py-3 rounded-lg opacity-50 cursor-not-allowed font-medium flex items-center justify-center gap-2"
+          disabled
+        >
+          <span>⏹</span>
+          정지 및 분석
+        </button>
+      </div>
+
+      <div id="pronResult" class="p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"></div>
+    </section>
+
+    <!-- 3. Fluency Test Section -->
+    <section class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+      <h2 class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2">
+        <span class="text-2xl">✍️</span>
+        3. 유창성(작문) 테스트
+      </h2>
+
+      <textarea
+        id="fluencyInput"
+        placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
+        class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
+      ></textarea>
+
+      <button
+        onclick="checkFluency()"
+        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
+      >
+        제출 및 채점
+      </button>
+
+      <div
+        id="fluencyResult"
+        class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
+      ></div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>교재 생성</strong>: 관심 주제와 레벨을 선택하면 AI가 맞춤형 대화문과 단어장을 생성합니다</p>
+        <p>• <strong>발음 교정</strong>: 마이크 권한을 허용한 후 문장을 읽고 녹음하여 정확도를 확인하세요</p>
+        <p>• <strong>작문 테스트</strong>: 자유롭게 한국어로 작성하면 AI가 문법과 자연스러움을 평가합니다</p>
+        <p>• <strong>모델 선택</strong>: 다양한 Ollama 모델을 선택하여 최적의 결과를 얻을 수 있습니다</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // 1. Content generation
+  async function generateContent() {
+    const topic = document.getElementById("topic").value;
+    const level = document.getElementById("level").value;
+    const resultDiv = document.getElementById("contentResult");
+
+    resultDiv.innerHTML = '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div><span class="text-sm text-gray-600">AI가 교재를 만들고 있습니다...</span></div>';
+    resultDiv.classList.remove("hidden");
+
+    const formData = new FormData();
+    formData.append("topic", topic);
+    formData.append("level", level);
+    const modelSelect = document.getElementById("modelSelect");
+    if (modelSelect && modelSelect.value)
+      formData.append("model", modelSelect.value);
+
+    const res = await fetch("/api/generate-content", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+
+    let jsonObj = null;
+    if (data.dialogue && data.vocabulary) {
+      jsonObj = data;
+    } else if (data.parsed && data.parsed.dialogue) {
+      jsonObj = data.parsed;
+    } else if (data.text) {
+      try {
+        const match = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+        let candidate = match ? match[1] : data.text;
+        candidate = candidate.trim();
+        const maybe = JSON.parse(candidate);
+        if (maybe.dialogue && maybe.vocabulary) jsonObj = maybe;
+      } catch (e) {}
+    }
+
+    if (!jsonObj) {
+      // Try to extract dialogue and vocabulary from raw text
+      const rawText = data.text || JSON.stringify(data, null, 2);
+
+      // Try to find JSON pattern in the text
+      const jsonMatch = rawText.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const extracted = JSON.parse(jsonMatch[0]);
+          if (extracted.dialogue && extracted.vocabulary) {
+            jsonObj = extracted;
+          }
+        } catch (e) {
+          console.error("Failed to parse extracted JSON:", e);
+        }
+      }
+
+      // If still no valid JSON, show raw output
+      if (!jsonObj) {
+        resultDiv.innerHTML =
+          '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
+          rawText +
+          "</pre>";
+        return;
+      }
+    }
+
+    // Beautiful rendering of dialogue and vocabulary
+    let html = `
+      <div class="space-y-4">
+        <!-- Dialogue Section -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-2xl">💬</span>
+            <h3 class="font-bold text-base text-gray-900">대화문</h3>
+          </div>
+          <div class="space-y-2">
+    `;
+
+    // Render dialogue with alternating colors
+    jsonObj.dialogue.forEach((d, index) => {
+      const bgColor = index % 2 === 0 ? 'bg-blue-50 border-blue-200' : 'bg-purple-50 border-purple-200';
+      const speakerColor = index % 2 === 0 ? 'text-blue-700' : 'text-purple-700';
+      const avatarEmoji = d.speaker === 'A' || d.speaker === '학생' || d.speaker === 'Student' ? '👨‍🎓' : '👩‍🏫';
+
+      html += `
+        <div class="p-3 ${bgColor} border rounded-lg transition-all hover:shadow-md">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">${avatarEmoji}</span>
+            <div class="flex-1">
+              <p class="font-semibold ${speakerColor} text-sm mb-1">${d.speaker}</p>
+              <p class="text-gray-900 font-medium">${d.text}</p>
+              ${d.pronunciation ? `<p class="text-gray-500 text-xs mt-2 italic">🔊 ${d.pronunciation}</p>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+          </div>
+        </div>
+
+        <!-- Vocabulary Section -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-2xl">📚</span>
+            <h3 class="font-bold text-base text-gray-900">단어장</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+    `;
+
+    // Render vocabulary with colorful tags
+    const vocabColors = [
+      'bg-pink-100 text-pink-700 border-pink-200',
+      'bg-indigo-100 text-indigo-700 border-indigo-200',
+      'bg-green-100 text-green-700 border-green-200',
+      'bg-orange-100 text-orange-700 border-orange-200',
+      'bg-purple-100 text-purple-700 border-purple-200',
+      'bg-blue-100 text-blue-700 border-blue-200'
+    ];
+
+    jsonObj.vocabulary.forEach((word, index) => {
+      const colorClass = vocabColors[index % vocabColors.length];
+      html += `
+        <span class="px-4 py-2 ${colorClass} border rounded-full text-sm font-semibold transition-all hover:scale-110 hover:shadow-md cursor-default">
+          ${word}
+        </span>
+      `;
+    });
+
+    html += `
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 pt-2">
+          <button onclick="speakDialogue()" class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all text-sm font-medium flex items-center justify-center gap-2">
+            <span>🔊</span>
+            대화 읽어주기
+          </button>
+          <button onclick="practiceVocab()" class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all text-sm font-medium flex items-center justify-center gap-2">
+            <span>✏️</span>
+            단어 연습하기
+          </button>
+        </div>
+      </div>
+    `;
+
+    if (jsonObj.dialogue && jsonObj.dialogue[0] && jsonObj.dialogue[0].text) {
+      document.getElementById("targetText").innerText = jsonObj.dialogue[0].text;
+    }
+    resultDiv.innerHTML = html;
+  }
+
+  // Load Ollama models
+  async function loadModels() {
+    const sel = document.getElementById("modelSelect");
+    if (!sel) return;
+    try {
+      const res = await fetch("/api/ollama/models");
+      const data = await res.json();
+      sel.innerHTML = '<option value="">(모델 선택)</option>';
+      (data.models || []).forEach((m) => {
+        let id = m.id || m;
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.innerText = id;
+        sel.appendChild(opt);
+      });
+      // Set default model to exaone3.5:2.4b
+      if (sel.querySelector('option[value="exaone3.5:2.4b"]')) {
+        sel.value = "exaone3.5:2.4b";
+      }
+    } catch (e) {
+      console.warn("Failed to load models", e);
+    }
+  }
+
+  // Test model
+  async function testModel() {
+    const prompt = document.getElementById("testPrompt").value || "안녕하세요";
+    const sel = document.getElementById("modelSelect");
+    const model = sel && sel.value ? sel.value : "";
+    const outDiv = document.getElementById("modelTestResult");
+    outDiv.classList.remove("hidden");
+    outDiv.innerText = "모델 호출 중...";
+
+    const form = new FormData();
+    form.append("prompt", prompt);
+    if (model) form.append("model", model);
+
+    try {
+      const res = await fetch("/api/ollama/test", {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+      if (data.parsed) {
+        outDiv.innerText = JSON.stringify(data.parsed, null, 2);
+      } else if (data.text) {
+        outDiv.innerText = data.text;
+      } else {
+        outDiv.innerText = JSON.stringify(data, null, 2);
+      }
+    } catch (e) {
+      outDiv.innerText = "모델 테스트 실패: " + e.message;
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", loadModels);
+
+  // 2. Pronunciation check (recording logic)
+  let mediaRecorder;
+  let audioChunks = [];
+
+  document.getElementById("recordBtn").onclick = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+    });
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+
+    document.getElementById("recordBtn").disabled = true;
+    document.getElementById("recordBtn").classList.add("opacity-50", "cursor-not-allowed");
+    document.getElementById("stopBtn").disabled = false;
+    document.getElementById("stopBtn").classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-400");
+    document.getElementById("stopBtn").classList.add("bg-gradient-to-r", "from-gray-600", "to-gray-700");
+    document.getElementById("pronResult").innerHTML = '<div class="flex items-center gap-2 text-sm text-gray-600"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
+    document.getElementById("pronResult").classList.remove("hidden");
+  };
+
+  document.getElementById("stopBtn").onclick = async () => {
+    mediaRecorder.stop();
+    document.getElementById("recordBtn").disabled = false;
+    document.getElementById("recordBtn").classList.remove("opacity-50", "cursor-not-allowed");
+    document.getElementById("stopBtn").disabled = true;
+    document.getElementById("stopBtn").classList.add("opacity-50", "cursor-not-allowed", "bg-gray-400");
+    document.getElementById("stopBtn").classList.remove("bg-gradient-to-r", "from-gray-600", "to-gray-700");
+
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+      const formData = new FormData();
+      formData.append("file", audioBlob, "recording.wav");
+      formData.append(
+        "target_text",
+        document.getElementById("targetText").innerText
+      );
+
+      document.getElementById("pronResult").innerHTML =
+        '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600"></div><span class="text-sm text-gray-600">AI가 분석 중입니다...</span></div>';
+
+      try {
+        const res = await fetch("/api/pronunciation-check", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById("pronResult").innerHTML = `
+            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+              <p class="text-red-600 text-xs mt-1">${data.error}</p>
+              ${data.details ? '<p class="text-gray-600 text-xs mt-1">' + data.details + '</p>' : ''}
+            </div>
+          `;
+        } else {
+          const score = data.score || 0;
+          const scoreColor = score > 80 ? 'green' : score > 60 ? 'yellow' : 'red';
+          document.getElementById("pronResult").innerHTML = `
+            <div class="space-y-2">
+              <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-xs text-gray-600 mb-1">인식된 문장:</p>
+                <p class="font-medium text-gray-900">${data.user_said || '(인식 실패)'}</p>
+              </div>
+              <div class="p-3 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
+                <p class="text-xs text-gray-600 mb-1">일치율:</p>
+                <p class="text-2xl font-bold text-${scoreColor}-700">${score}점</p>
+              </div>
+              <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                <p class="text-xs text-gray-600 mb-1">피드백:</p>
+                <p class="text-sm text-gray-900">${data.feedback || ''}</p>
+              </div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        document.getElementById("pronResult").innerHTML = `
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+            <p class="text-red-600 text-xs mt-1">발음 분석 중 문제가 발생했습니다.</p>
+          </div>
+        `;
+      }
+    };
+  };
+
+  // Helper: Speak dialogue (Text-to-Speech)
+  function speakDialogue() {
+    const dialogueElements = document.querySelectorAll('#contentResult .text-gray-900.font-medium');
+    if (!dialogueElements.length) return;
+
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      dialogueElements.forEach((elem, index) => {
+        const utterance = new SpeechSynthesisUtterance(elem.textContent);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.9; // Slightly slower for learning
+        utterance.pitch = 1.0;
+
+        // Add a small delay between dialogues
+        setTimeout(() => {
+          window.speechSynthesis.speak(utterance);
+        }, index * 2000);
+      });
+    } else {
+      alert('죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.');
+    }
+  }
+
+  // Helper: Practice vocabulary (copy to pronunciation section)
+  function practiceVocab() {
+    const vocabElements = document.querySelectorAll('#contentResult .rounded-full');
+    if (!vocabElements.length) return;
+
+    const words = Array.from(vocabElements).map(el => el.textContent.trim());
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+
+    document.getElementById("targetText").innerText = randomWord;
+
+    // Scroll to pronunciation section
+    document.querySelector('.from-red-50').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Visual feedback
+    const targetEl = document.getElementById("targetText");
+    targetEl.classList.add('animate-pulse');
+    setTimeout(() => {
+      targetEl.classList.remove('animate-pulse');
+    }, 1000);
+  }
+
+  // 3. Fluency test
+  async function checkFluency() {
+    const text = document.getElementById("fluencyInput").value;
+    const resultDiv = document.getElementById("fluencyResult");
+    resultDiv.classList.remove("hidden");
+    resultDiv.innerHTML = '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div><span class="text-sm text-gray-600">채점 중...</span></div>';
+
+    const formData = new FormData();
+    formData.append("user_text", text);
+
+    const res = await fetch("/api/fluency-check", {
+      method: "POST",
+      body: formData,
+    });
+    const json = await res.json();
+
+    if (json.error) {
+      resultDiv.innerHTML = `
+        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+          <p class="text-red-600 text-xs mt-1">${json.error}</p>
+        </div>
+      `;
+    } else {
+      const score = json.score || 0;
+      const scoreColor = score > 80 ? 'green' : score > 60 ? 'yellow' : 'red';
+      resultDiv.innerHTML = `
+        <div class="space-y-2">
+          <div class="p-3 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">점수:</p>
+            <p class="text-2xl font-bold text-${scoreColor}-700">${score}점</p>
+          </div>
+          ${json.corrected ? '<div class="p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">교정된 문장:</p><p class="text-sm text-green-700 font-medium">' + json.corrected + '</p></div>' : ''}
+          ${json.feedback ? '<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">피드백:</p><p class="text-sm text-gray-900">' + json.feedback + '</p></div>' : ''}
+        </div>
+      `;
+    }
+  }
+</script>
+{% endblock %}

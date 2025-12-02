@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "level": "A1",
+    "words": ["오늘", "친구를", "만났어요."],
+    "translation": "I met a friend today.",
+    "hint": "친구와 만난 사실을 말할 때 쓰는 표현입니다.",
+    "situation": "상황: 오늘 있었던 일을 말하기"
+  },
+  {
+    "id": 2,
+    "level": "A1",
+    "words": ["저는", "한국어를", "공부하고", "있어요."],
+    "translation": "I am studying Korean.",
+    "hint": "-고 있다 표현(진행형)을 연습해 보세요.",
+    "situation": "상황: 자기소개 / 근황 말하기"
+  },
+  {
+    "id": 3,
+    "level": "A2",
+    "words": ["주말에", "가족과", "함께", "식사를", "했어요."],
+    "translation": "I had a meal with my family on the weekend.",
+    "hint": "언제 / 누구와 / 무엇을 했는지 어순을 생각해 보세요.",
+    "situation": "상황: 주말에 한 일 이야기"
+  },
+  {
+    "id": 4,
+    "level": "B1",
+    "words": ["시간이", "되시면", "같이", "전시회를", "보러", "가실래요?"],
+    "translation": "If you have time, would you like to go to an exhibition together?",
+    "hint": "공손하게 제안할 때 쓰는 표현입니다.",
+    "situation": "상황: 약속 잡기 / 초대하기"
+  }
+]

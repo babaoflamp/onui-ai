@@ -1,0 +1,700 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>오누이 · 단어 순서 맞추기 (Word Order Puzzle)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg1: #ffe7c2;
+      --bg2: #ffd6f5;
+      --panel: #ffffff;
+      --text-main: #22293a;
+      --text-sub: #6b7280;
+      --accent: #fb923c;
+      --accent2: #6366f1;
+      --correct: #bbf7d0;
+      --incorrect: #fee2e2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans KR", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 12px;
+      background: radial-gradient(circle at 0% 0%, #fff7db, transparent 50%),
+                  radial-gradient(circle at 100% 100%, #e0e7ff, transparent 50%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 950px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 22px;
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    header {
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fee2ba;
+      color: #9a5b08;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fb923c;
+    }
+
+    h1 {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 상단 타이머 영역 */
+    .timer-area {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #fefce8, #e0f2fe);
+      border: 1px solid #feeab3;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timer-label-top {
+      font-size: 11px;
+      font-weight: 600;
+      color: #854d0e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-track {
+      margin-top: 2px;
+      position: relative;
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      overflow: hidden;
+    }
+
+    .timer-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.18s linear;
+    }
+
+    .timer-sun,
+    .timer-moon {
+      position: absolute;
+      top: -4px;
+      font-size: 18px;
+      pointer-events: none;
+      transition: left 0.18s linear, opacity 0.3s ease;
+    }
+
+    .timer-text {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* 퍼즐 패널 */
+    .puzzle-panel {
+      margin-top: 6px;
+      padding: 14px 14px 16px;
+      background: var(--panel);
+      border-radius: 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+
+    .puzzle-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .puzzle-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .puzzle-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .sentence-hint {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .words-row {
+      margin-top: 8px;
+      min-height: 60px;
+      border-radius: 14px;
+      padding: 10px 8px;
+      background: #f9fafb;
+      border: 1px dashed #d1d5db;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .word-card {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      font-size: 13px;
+      cursor: grab;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .word-card:active {
+      cursor: grabbing;
+      transform: scale(1.03);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.14);
+    }
+
+    .word-card.dragging {
+      opacity: 0.7;
+      background: #fef3c7;
+      border-style: dashed;
+    }
+
+    /* 클릭 선택 시 하이라이트 */
+    .word-card.selected {
+      border-color: var(--accent);
+      background: #fff7ed;
+      box-shadow: 0 6px 14px rgba(251, 146, 60, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .words-row.correct .word-card {
+      background: var(--correct);
+      border-color: #22c55e;
+      animation: pop 0.22s ease-out;
+    }
+
+    .words-row.incorrect {
+      animation: shake 0.18s ease-in-out;
+    }
+
+    @keyframes pop {
+      0% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-3px) scale(1.03); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    .buttons-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      font-size: 12px;
+      padding: 7px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.12s ease,
+        box-shadow 0.12s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #ffffff;
+      box-shadow: 0 5px 12px rgba(99,102,241,0.35);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 14px rgba(99,102,241,0.45);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+    .btn-outline:hover {
+      background: #f3f4f6;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .feedback.good {
+      color: #15803d;
+      font-weight: 600;
+    }
+    .feedback.bad {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+
+    .translation-row {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .translation-row span.label {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    /* 설명 섹션 (4번 내용) */
+    .panel-desc {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px dashed #e5e7eb;
+      background: #fdfdfd;
+      padding: 12px 12px 14px;
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .panel-desc-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .panel-desc strong {
+      font-weight: 700;
+    }
+
+    .panel-desc ul {
+      margin: 4px 0 6px 16px;
+      list-style: disc;
+    }
+
+    .panel-desc li {
+      margin-bottom: 2px;
+    }
+
+    .panel-desc .sub-list {
+      margin-left: 16px;
+      list-style: circle;
+    }
+
+    footer {
+      margin-top: 10px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 8px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 600px) {
+      .puzzle-panel {
+        padding: 12px 10px 14px;
+      }
+      .words-row {
+        padding: 8px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        ONUI · 단어 순서 맞추기
+      </div>
+      <h1>단어 순서 맞추기 (Word Order Puzzle)</h1>
+      <p class="subtitle">
+        단어를 드래그하거나, 단어 두 개를 차례로 클릭해서 순서를 바꿔 보세요.
+      </p>
+    </header>
+
+    <!-- 해·달 애니메이션 타이머 -->
+    <section class="timer-area">
+      <div class="timer-label-top">
+        ⏱ 해·달 타이머 · 연습용
+      </div>
+      <div class="timer-track">
+        <div class="timer-progress" id="timerProgress"></div>
+        <div class="timer-sun" id="timerSun">☀️</div>
+        <div class="timer-moon" id="timerMoon">🌙</div>
+      </div>
+      <div class="timer-text">
+        <span>30초 주기로 해가 지고 달이 떠요.</span>
+        <span id="timerText">00:00</span>
+      </div>
+    </section>
+
+    <!-- 퍼즐 패널 -->
+    <section class="puzzle-panel">
+      <div class="puzzle-header-row">
+        <div class="puzzle-title" id="puzzleTitle">문장 1 / 4</div>
+        <div class="puzzle-meta" id="puzzleMeta">레벨: A1 · 어순 연습</div>
+      </div>
+
+      <div class="sentence-hint" id="sentenceHint">
+        상황 힌트와 영어 번역이 여기에 표시됩니다.
+      </div>
+
+      <div class="words-row" id="wordsRow">
+        <!-- 단어 카드 생성 영역 -->
+      </div>
+
+      <div class="buttons-row">
+        <button class="btn btn-outline" id="shuffleBtn">섞기 다시</button>
+        <button class="btn btn-primary" id="checkBtn">정답 확인</button>
+        <button class="btn btn-outline" id="nextBtn">다음 문장</button>
+      </div>
+
+      <div class="feedback" id="feedback">카드를 드래그하거나 클릭해서 순서를 바꿔 보세요.</div>
+
+      <div class="translation-row" id="translationRow">
+        <span class="label">영어 번역:</span>
+        <span id="translationText">…</span>
+      </div>
+    </section>
+
+    <!-- 설명 텍스트 섹션 (4번 내용) -->
+    <section class="panel-desc">
+      <div class="panel-desc-title">4. 단어 순서 맞추기(Word Order Puzzle)</div>
+      <div>
+        <p><strong>용도:</strong> 어순 연습</p>
+
+        <p><strong>기능 아이디어</strong></p>
+        <ul>
+          <li>한국어 문장을 어절 단위 카드로 분리해서 섞어 놓음</li>
+          <li>예: 오늘 / 친구를 / 만났어요.</li>
+          <li>사용자가 드래그&amp;드롭으로 순서를 맞추면
+            <ul class="sub-list">
+              <li>정답 체크 → 애니메이션으로 카드가 “착”하고 맞춰지는 연출</li>
+            </ul>
+          </li>
+          <li>상단에는 예쁜 타이머(해가 지고, 달이 뜨는 애니메이션용 타이머)</li>
+        </ul>
+
+        <p><strong>장점</strong></p>
+        <ul>
+          <li>UX적으로 재밌고, 드래그&amp;드롭 연습용으로도 좋음</li>
+          <li>JS 조금만 쓰면 충분히 구현 가능</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <span>오누이 한국어 · Word Order Puzzle</span>
+      <span>HTML · CSS · JavaScript 데모</span>
+    </footer>
+  </div>
+
+  <script>
+    // ===== 연습용 문장 데이터 =====
+    const sentences = [
+      {
+        id: 1,
+        level: "A1",
+        words: ["오늘", "친구를", "만났어요."],
+        translation: "I met a friend today.",
+        hint: "친구와 만난 사실을 말할 때 쓰는 표현입니다.",
+        situation: "상황: 오늘 있었던 일을 말하기"
+      },
+      {
+        id: 2,
+        level: "A1",
+        words: ["저는", "한국어를", "공부하고", "있어요."],
+        translation: "I am studying Korean.",
+        hint: "-고 있다 표현(진행형)을 연습해 보세요.",
+        situation: "상황: 자기소개 / 근황 말하기"
+      },
+      {
+        id: 3,
+        level: "A2",
+        words: ["주말에", "가족과", "함께", "식사를", "했어요."],
+        translation: "I had a meal with my family on the weekend.",
+        hint: "언제 / 누구와 / 무엇을 했는지 어순을 생각해 보세요.",
+        situation: "상황: 주말에 한 일 이야기"
+      },
+      {
+        id: 4,
+        level: "B1",
+        words: ["시간이", "되시면", "같이", "전시회를", "보러", "가실래요?"],
+        translation: "If you have time, would you like to go to an exhibition together?",
+        hint: "공손하게 제안할 때 쓰는 표현입니다.",
+        situation: "상황: 약속 잡기 / 초대하기"
+      }
+    ];
+
+    let currentIndex = 0;
+    let draggedCard = null;
+    let selectedCard = null; // 클릭 선택용
+
+    const wordsRow = document.getElementById("wordsRow");
+    const puzzleTitle = document.getElementById("puzzleTitle");
+    const puzzleMeta = document.getElementById("puzzleMeta");
+    const sentenceHint = document.getElementById("sentenceHint");
+    const translationText = document.getElementById("translationText");
+    const feedback = document.getElementById("feedback");
+
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const checkBtn = document.getElementById("checkBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // 타이머 요소
+    const timerProgress = document.getElementById("timerProgress");
+    const timerSun = document.getElementById("timerSun");
+    const timerMoon = document.getElementById("timerMoon");
+    const timerText = document.getElementById("timerText");
+
+    const TIMER_TOTAL = 30000; // 30초
+    let timerStart = Date.now();
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      if (arr.join(" ") === array.join(" ")) {
+        return shuffleArray(array);
+      }
+      return arr;
+    }
+
+    function renderSentence() {
+      const data = sentences[currentIndex];
+      puzzleTitle.textContent = `문장 ${currentIndex + 1} / ${sentences.length}`;
+      puzzleMeta.textContent = `레벨: ${data.level} · 어순 연습`;
+      sentenceHint.textContent = `${data.situation} — ${data.hint}`;
+      translationText.textContent = data.translation;
+
+      feedback.textContent = "카드를 드래그하거나 클릭해서 순서를 바꿔 보세요.";
+      feedback.className = "feedback";
+      wordsRow.classList.remove("correct", "incorrect");
+      selectedCard = null;
+
+      wordsRow.innerHTML = "";
+      const shuffled = shuffleArray(data.words);
+      shuffled.forEach((w) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.draggable = true;
+        card.innerHTML = `<span class="word-text">${w}</span>`;
+        addCardEvents(card);
+        wordsRow.appendChild(card);
+      });
+
+      resetTimer();
+    }
+
+    function addCardEvents(card) {
+      // 드래그
+      card.addEventListener("dragstart", (e) => {
+        draggedCard = card;
+        card.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      card.addEventListener("dragend", () => {
+        if (draggedCard) {
+          draggedCard.classList.remove("dragging");
+          draggedCard = null;
+        }
+      });
+      card.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+      card.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const targetCard = card;
+        if (!draggedCard || draggedCard === targetCard) return;
+        swapCardTexts(draggedCard, targetCard);
+      });
+
+      // 클릭으로 선택/교환
+      card.addEventListener("click", () => {
+        // 이미 선택된 카드가 없으면, 이 카드를 선택
+        if (!selectedCard) {
+          selectedCard = card;
+          card.classList.add("selected");
+          return;
+        }
+
+        // 같은 카드를 다시 클릭하면 선택 해제
+        if (selectedCard === card) {
+          card.classList.remove("selected");
+          selectedCard = null;
+          return;
+        }
+
+        // 다른 카드를 클릭하면 두 카드의 단어 교환
+        swapCardTexts(selectedCard, card);
+        selectedCard.classList.remove("selected");
+        selectedCard = null;
+      });
+    }
+
+    function swapCardTexts(cardA, cardB) {
+      const spanA = cardA.querySelector(".word-text");
+      const spanB = cardB.querySelector(".word-text");
+      const tmp = spanA.textContent;
+      spanA.textContent = spanB.textContent;
+      spanB.textContent = tmp;
+    }
+
+    function getCurrentOrder() {
+      return Array.from(wordsRow.querySelectorAll(".word-card .word-text")).map(
+        (span) => span.textContent
+      );
+    }
+
+    function checkAnswer() {
+      const data = sentences[currentIndex];
+      const current = getCurrentOrder();
+      const correct = data.words;
+
+      if (current.join(" ") === correct.join(" ")) {
+        wordsRow.classList.remove("incorrect");
+        wordsRow.classList.add("correct");
+        feedback.textContent = "정답입니다! 아주 잘하셨어요. 👏";
+        feedback.className = "feedback good";
+      } else {
+        wordsRow.classList.remove("correct");
+        wordsRow.classList.add("incorrect");
+        feedback.textContent = "조금 더 생각해 보세요. 어순을 다시 한 번 확인해 보세요.";
+        feedback.className = "feedback bad";
+        setTimeout(() => {
+          wordsRow.classList.remove("incorrect");
+        }, 220);
+      }
+    }
+
+    shuffleBtn.addEventListener("click", () => {
+      const data = sentences[currentIndex];
+      const shuffled = shuffleArray(data.words);
+      const cards = wordsRow.querySelectorAll(".word-card .word-text");
+      shuffled.forEach((w, i) => {
+        if (cards[i]) cards[i].textContent = w;
+      });
+      feedback.textContent = "다시 섞었습니다. 올바른 순서를 맞춰 보세요.";
+      feedback.className = "feedback";
+      wordsRow.classList.remove("correct", "incorrect");
+      selectedCard = null;
+      resetTimer();
+    });
+
+    checkBtn.addEventListener("click", () => {
+      checkAnswer();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % sentences.length;
+      renderSentence();
+    });
+
+    // ===== 타이머 로직 =====
+    function resetTimer() {
+      timerStart = Date.now();
+    }
+
+    function updateTimer() {
+      const now = Date.now();
+      let elapsed = now - timerStart;
+      if (elapsed > TIMER_TOTAL) {
+        elapsed = elapsed % TIMER_TOTAL;
+        timerStart = now - elapsed;
+      }
+      const progress = elapsed / TIMER_TOTAL;
+
+      timerProgress.style.width = `${progress * 100}%`;
+
+      const sunPos = 5 + progress * 70;
+      const moonPos = 25 + progress * 70;
+
+      timerSun.style.left = sunPos + "%";
+      timerMoon.style.left = moonPos + "%";
+
+      timerSun.style.opacity = String(1 - progress);
+      timerMoon.style.opacity = String(progress);
+
+      const seconds = Math.floor(elapsed / 1000);
+      const secStr = seconds.toString().padStart(2, "0");
+      timerText.textContent = `00:${secStr}`;
+
+      requestAnimationFrame(updateTimer);
+    }
+
+    // 초기 렌더링 및 타이머 시작
+    renderSentence();
+    resetTimer();
+    requestAnimationFrame(updateTimer);
+  </script>
+</body>
+</html>

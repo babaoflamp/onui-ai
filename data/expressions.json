@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "level": "A1",
+    "sentenceKr": "안녕하세요? 처음 뵙겠습니다.",
+    "sentenceEn": "Hello, nice to meet you for the first time.",
+    "cultureNote": "한국에서는 처음 만날 때 가볍게 인사와 함께 고개를 살짝 숙이는 예절이 자연스럽습니다.",
+    "situation": "상황: 처음 인사하기",
+    "tag": "#기초인사"
+  },
+  {
+    "id": 2,
+    "level": "A2",
+    "sentenceKr": "아메리카노 한 잔 주세요. 뜨거운 걸로요.",
+    "sentenceEn": "One Americano, please. Hot, please.",
+    "cultureNote": "카페에서는 주문할 때 '주세요'를 붙이면 공손하고 자연스럽게 들립니다.",
+    "situation": "상황: 카페에서 주문",
+    "tag": "#카페표현"
+  },
+  {
+    "id": 3,
+    "level": "A2",
+    "sentenceKr": "한국어 정말 잘하시네요! 얼마나 공부하셨어요?",
+    "sentenceEn": "Your Korean is really good! How long have you been studying?",
+    "cultureNote": "상대방의 한국어 실력을 칭찬해 주면 대화 분위기가 훨씬 부드러워집니다.",
+    "situation": "상황: 칭찬하기",
+    "tag": "#칭찬표현"
+  },
+  {
+    "id": 4,
+    "level": "B1",
+    "sentenceKr": "이번 주말에 시간 있으시면 같이 전시회 보러 가실래요?",
+    "sentenceEn": "If you have time this weekend, would you like to go to an exhibition together?",
+    "cultureNote": "직접적인 '데이트'라는 말 대신, 전시회·영화 등 활동을 제안하는 표현이 자연스럽게 쓰입니다.",
+    "situation": "상황: 약속 잡기",
+    "tag": "#초대표현"
+  },
+  {
+    "id": 5,
+    "level": "B1",
+    "sentenceKr": "오늘은 미세먼지가 심해서 마스크를 꼭 쓰고 나가는 게 좋겠어요.",
+    "sentenceEn": "Fine dust is severe today, so it's better to go out with a mask on.",
+    "cultureNote": "한국에서는 뉴스와 앱을 통해 미세먼지 지수를 자주 확인하고, 일상 대화에서도 자주 언급합니다.",
+    "situation": "상황: 날씨·건강 이야기",
+    "tag": "#날씨표현"
+  }
+]

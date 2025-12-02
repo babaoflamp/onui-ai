@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}오누이 단어 꽃밭 - 오누이 한국어{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/vocab-garden.css">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+        ONUI · 단어 꽃밭
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">오누이 단어 꽃밭 🌸</h1>
+      <p class="text-sm text-gray-600">꽃을 눌러 단어와 CEFR 레벨을 확인해 보세요.</p>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="vocab-layout">
+      <!-- Left Panel: Word Selection (Flowers) -->
+      <section class="vocab-panel vocab-panel-left">
+        <div class="vocab-panel-header">
+          <div class="vocab-panel-title">단어 선택</div>
+          <div class="vocab-panel-caption">CEFR 레벨이 아래에 표시됩니다.</div>
+        </div>
+
+        <div class="flower-grid" id="flowerGrid">
+          <p class="text-gray-500">단어를 불러오는 중...</p>
+        </div>
+      </section>
+
+      <!-- Right Panel: Word Details -->
+      <section class="vocab-panel vocab-panel-right">
+        <div class="vocab-panel-header">
+          <div class="vocab-panel-title">단어 정보</div>
+          <div class="vocab-panel-caption" id="infoCaption">왼쪽에서 단어를 선택해 주세요.</div>
+        </div>
+
+        <div id="details">
+          <div class="main-word">…</div>
+          <div class="roman"></div>
+          <div class="meaning"></div>
+          <div class="tag-wrap"></div>
+
+          <div class="sentence-box">
+            <div class="sentence-label">예문</div>
+            <div class="sentence-kr"></div>
+            <div class="sentence-en"></div>
+          </div>
+
+          <p class="hint">TIP: 예문을 소리 내어 읽어 보고, 한국어 어순도 함께 느껴보세요.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Description Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• 레벨별 색상: <span class="text-green-600">초록(A1)</span>, <span class="text-blue-600">파랑(A2)</span>, <span class="text-purple-600">보라(B1)</span></p>
+        <p>• 단어를 클릭하면 발음(로마자), 뜻, 예문을 확인할 수 있습니다</p>
+        <p>• 예문을 통해 단어가 실제로 어떻게 사용되는지 학습하세요</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/vocab-garden.js"></script>
+{% endblock %}

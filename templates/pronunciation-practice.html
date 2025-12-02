@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}발음 연습 - 오누이 한국어{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/pronunciation-practice.css">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+        ONUI · 발음 연습
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">연습할 단어를 입력하세요 🎤</h1>
+      <p class="text-sm text-gray-600">
+        단어를 검색하거나 목록에서 선택하여 발음 연습을 시작하세요.
+      </p>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="mb-6">
+      <div class="relative">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="연습할 단어를 입력하세요... (예: 안녕하세요)"
+          class="w-full px-4 py-3 pl-12 border-2 border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+        />
+        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-500 text-xl">🔍</span>
+      </div>
+    </div>
+
+    <!-- Word Selection Buttons -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-gray-700">빠른 선택</h3>
+        <div class="flex gap-2">
+          <button onclick="filterByLevel('all')" class="level-filter-btn active" data-level="all">
+            전체
+          </button>
+          <button onclick="filterByLevel('A1')" class="level-filter-btn" data-level="A1">
+            A1
+          </button>
+          <button onclick="filterByLevel('A2')" class="level-filter-btn" data-level="A2">
+            A2
+          </button>
+        </div>
+      </div>
+      <div id="wordButtons" class="flex flex-wrap gap-2">
+        <p class="text-gray-500 text-sm">단어를 불러오는 중...</p>
+      </div>
+    </div>
+
+    <!-- Main Practice Area: 2-Step Layout (ELSA Style) -->
+    <div class="practice-layout">
+      <!-- Step 1: Listen to the word -->
+      <section class="practice-panel practice-panel-left">
+        <div class="step-header">
+          <span class="step-badge">Step 1</span>
+          <h2 class="step-title">듣기 (Listen to the word)</h2>
+        </div>
+
+        <div class="word-display" id="wordDisplay">
+          <div class="main-word" id="mainWord">단어를 선택하세요</div>
+          <div class="roman-text" id="romanText"></div>
+        </div>
+
+        <div class="word-info">
+          <div class="info-row">
+            <span class="info-label">의미 (Korean):</span>
+            <span class="info-value" id="meaningKo">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Meaning (English):</span>
+            <span class="info-value" id="meaningEn">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">레벨:</span>
+            <span class="info-value">
+              <span class="level-badge" id="levelBadge">-</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="phoneme-breakdown" id="phonemeBreakdown">
+          <!-- Phoneme boxes will be inserted here -->
+        </div>
+
+        <div class="tips-section" id="tipsSection">
+          <div class="tips-label">💡 발음 팁</div>
+          <div class="tips-text" id="tipsText">단어를 선택하면 발음 팁이 표시됩니다.</div>
+        </div>
+
+        <button id="listenBtn" class="action-btn action-btn-listen" onclick="playAudio()">
+          <span class="btn-icon">🔊</span>
+          <span class="btn-text">다시 듣기</span>
+        </button>
+      </section>
+
+      <!-- Step 2: Let's hear how you pronounce -->
+      <section class="practice-panel practice-panel-right">
+        <div class="step-header">
+          <span class="step-badge step-badge-pink">Step 2</span>
+          <h2 class="step-title">말하기 (Let's hear how you pronounce)</h2>
+        </div>
+
+        <div class="speech-bubble" id="speechBubble">
+          <div class="bubble-word" id="bubbleWord">단어를 선택하세요</div>
+        </div>
+
+        <div class="character-container">
+          <div class="character-emoji">👦👧</div>
+          <div class="character-label">오누이가 듣고 있어요!</div>
+        </div>
+
+        <div class="recording-controls">
+          <button id="recordBtn" class="action-btn action-btn-record" onclick="startRecording()">
+            <span class="btn-icon">🎤</span>
+            <span class="btn-text">녹음 시작</span>
+          </button>
+          <button id="stopBtn" class="action-btn action-btn-stop" onclick="stopRecording()" disabled>
+            <span class="btn-icon">⏹</span>
+            <span class="btn-text">정지 및 분석</span>
+          </button>
+        </div>
+
+        <div id="scoreResult" class="score-result hidden">
+          <!-- Score display will be inserted here -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Description Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 방법</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>Step 1</strong>: 위 검색창이나 빠른 선택 버튼으로 단어를 선택하세요</p>
+        <p>• <strong>듣기</strong>: "다시 듣기" 버튼을 눌러 네이티브 발음을 들어보세요 (브라우저 TTS 사용)</p>
+        <p>• <strong>Step 2</strong>: "녹음 시작" 버튼을 누르고 단어를 따라 읽으세요</p>
+        <p>• <strong>평가</strong>: "정지 및 분석" 버튼을 누르면 AI가 발음 정확도를 평가합니다</p>
+        <p>• <strong>연습</strong>: 점수가 낮으면 발음 팁을 참고하여 다시 연습해보세요!</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/pronunciation-practice.js"></script>
+{% endblock %}

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "hakgyo",
+    "word": "학교",
+    "emoji": "🏫",
+    "roman": "hak-kkyo",
+    "meaningKo": "학생들이 공부하는 곳",
+    "meaningEn": "school",
+    "level": "A1",
+    "tags": ["장소", "교육"],
+    "sentenceKr": "저는 아침 일찍 학교에 가요.",
+    "sentenceEn": "I go to school early in the morning."
+  },
+  {
+    "id": "chingu",
+    "word": "친구",
+    "emoji": "👥",
+    "roman": "chin-gu",
+    "meaningKo": "서로 잘 알고 함께 지내는 사람",
+    "meaningEn": "friend",
+    "level": "A1",
+    "tags": ["사람", "관계"],
+    "sentenceKr": "주말에 친구를 만나서 영화를 봤어요.",
+    "sentenceEn": "I met my friend on the weekend and watched a movie."
+  },
+  {
+    "id": "gongbu",
+    "word": "공부",
+    "emoji": "📚",
+    "roman": "gong-bu",
+    "meaningKo": "지식을 배우고 익히는 일",
+    "meaningEn": "study",
+    "level": "A1",
+    "tags": ["활동"],
+    "sentenceKr": "저는 저녁마다 한국어 공부를 해요.",
+    "sentenceEn": "I study Korean every evening."
+  },
+  {
+    "id": "gajok",
+    "word": "가족",
+    "emoji": "👨‍👩‍👧‍👦",
+    "roman": "ga-jok",
+    "meaningKo": "한 집에서 함께 사는 사람들",
+    "meaningEn": "family",
+    "level": "A2",
+    "tags": ["사람", "관계"],
+    "sentenceKr": "저는 주말마다 가족과 함께 식사를 해요.",
+    "sentenceEn": "I eat with my family every weekend."
+  },
+  {
+    "id": "hanguk",
+    "word": "한국",
+    "emoji": "🇰🇷",
+    "roman": "han-guk",
+    "meaningKo": "우리가 배우는 언어의 나라",
+    "meaningEn": "Korea",
+    "level": "A2",
+    "tags": ["나라", "문화"],
+    "sentenceKr": "저는 한국에 여행을 가고 싶어요.",
+    "sentenceEn": "I want to travel to Korea."
+  },
+  {
+    "id": "seonsaengnim",
+    "word": "선생님",
+    "emoji": "👨‍🏫",
+    "roman": "seon-saeng-nim",
+    "meaningKo": "학생을 가르치는 분을 높여 부르는 말",
+    "meaningEn": "teacher",
+    "level": "A1",
+    "tags": ["사람", "학교"],
+    "sentenceKr": "우리 한국어 선생님은 아주 친절하세요.",
+    "sentenceEn": "Our Korean teacher is very kind."
+  },
+  {
+    "id": "chaek",
+    "word": "책",
+    "emoji": "📖",
+    "roman": "chaek",
+    "meaningKo": "글이나 그림을 모아 만든 것",
+    "meaningEn": "book",
+    "level": "A1",
+    "tags": ["물건", "읽기"],
+    "sentenceKr": "저는 카페에서 책 읽는 것을 좋아해요.",
+    "sentenceEn": "I like reading books at a café."
+  },
+  {
+    "id": "eoneo",
+    "word": "언어",
+    "emoji": "🗣️",
+    "roman": "eon-eo",
+    "meaningKo": "생각을 말과 글로 표현하는 체계",
+    "meaningEn": "language",
+    "level": "B1",
+    "tags": ["개념", "학문"],
+    "sentenceKr": "새 언어를 배우면 새로운 세계가 열려요.",
+    "sentenceEn": "Learning a new language opens a new world."
+  }
+]

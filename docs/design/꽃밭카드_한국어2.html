@@ -1,0 +1,549 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>오누이 단어 꽃밭</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg1: #fff3d7;
+      --bg2: #ffe9f2;
+      --panel: #ffffff;
+      --border-soft: #f4d9aa;
+      --text-main: #22293a;
+      --text-sub: #6b7280;
+      --accent-a1: #26b87a; /* A1: 초록 */
+      --accent-a2: #4c8dff; /* A2: 파랑 */
+      --accent-b1: #a855f7; /* B1: 보라 */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Noto Sans KR", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 12px;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text-main);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1000px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 22px;
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    header {
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fff3c7;
+      color: #9a5b08;
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ffb23c;
+    }
+
+    h1 {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+    }
+
+    .panel-left {
+      flex: 3 1 320px;
+      border: 1px solid var(--border-soft);
+    }
+    .panel-right {
+      flex: 2 1 260px;
+      border: 1px solid #dbeafe;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .panel-caption {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .flower-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .flower-card {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .flower-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: radial-gradient(circle at 30% 30%, #fffdf7, #ffdca5);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* 난이도별 배경색 (초록 A1, 파랑 A2, 보라 B1) */
+    .flower-card[data-level="A1"] .flower-btn {
+      background: radial-gradient(circle at 30% 30%, #f3fff7, #bff4cf);
+    }
+    .flower-card[data-level="A2"] .flower-btn {
+      background: radial-gradient(circle at 30% 30%, #f5f9ff, #bed6ff);
+    }
+    .flower-card[data-level="B1"] .flower-btn {
+      background: radial-gradient(circle at 30% 30%, #faf5ff, #d8b4fe);
+    }
+
+    .flower-card.active .flower-btn,
+    .flower-card:hover .flower-btn {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.18);
+    }
+
+    .flower-word {
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cefr-pill {
+      margin-top: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #facc15;
+      background: #fef9c3;
+      color: #854d0e;
+    }
+    .cefr-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #eab308;
+    }
+
+    /* 오른쪽 패널 */
+    .main-word {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .roman {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+    .meaning {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .tag-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .tag {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #1d4ed8;
+    }
+    .tag.level {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .sentence-box {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 9px;
+      background: #ffffff;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .sentence-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 3px;
+    }
+    .sentence-en {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 3px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 설명 섹션 */
+    .panel-desc {
+      margin-top: 14px;
+      border: 1px dashed #e5e7eb;
+      background: #fdfdfd;
+    }
+
+    .desc-body {
+      font-size: 12px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .desc-body strong {
+      font-weight: 700;
+    }
+
+    .desc-body ul {
+      margin: 4px 0 6px 16px;
+      list-style: disc;
+    }
+
+    .desc-body li {
+      margin-bottom: 2px;
+    }
+
+    .desc-body .sub-list {
+      margin-left: 16px;
+      list-style: circle;
+    }
+
+    footer {
+      margin-top: 10px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 8px;
+      font-size: 10px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .panel-left, .panel-right { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        ONUI · 단어 꽃밭
+      </div>
+      <h1>오누이 단어 꽃밭 🌸</h1>
+      <p class="subtitle">꽃을 눌러 단어와 CEFR 레벨을 확인해 보세요.</p>
+    </header>
+
+    <div class="layout">
+      <!-- 왼쪽: 단어 선택(꽃) -->
+      <section class="panel panel-left">
+        <div class="panel-header">
+          <div class="panel-title">단어 선택</div>
+          <div class="panel-caption">CEFR 레벨이 아래에 표시됩니다.</div>
+        </div>
+
+        <div class="flower-grid" id="flowerGrid"></div>
+      </section>
+
+      <!-- 오른쪽: 단어 정보 -->
+      <section class="panel panel-right">
+        <div class="panel-header">
+          <div class="panel-title">단어 정보</div>
+          <div class="panel-caption" id="infoCaption">왼쪽에서 단어를 선택해 주세요.</div>
+        </div>
+
+        <div id="details">
+          <div class="main-word">…</div>
+          <div class="roman"></div>
+          <div class="meaning"></div>
+          <div class="tag-wrap"></div>
+
+          <div class="sentence-box">
+            <div class="sentence-label">예문</div>
+            <div class="sentence-kr"></div>
+            <div class="sentence-en"></div>
+          </div>
+
+          <p class="hint">TIP: 예문을 소리 내어 읽어 보고, 한국어 어순도 함께 느껴보세요.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- 설명 텍스트 섹션 -->
+    <section class="panel panel-desc">
+      <div class="panel-header">
+        <div class="panel-title">3. 단어 꽃밭 (Vocabulary Flower Garden)</div>
+      </div>
+      <div class="desc-body">
+        <p><strong>용도:</strong> 단어 암기 + 예쁜 UI 데모</p>
+
+        <p><strong>기능 아이디어</strong></p>
+        <ul>
+          <li>화면에 꽃 여러 송이 (카드) 배치</li>
+          <li>꽃 가운데에 한국어 단어 (예: 학교, 친구, 공부…)</li>
+          <li>각 꽃을 클릭하면 아래에
+            <ul class="sub-list">
+              <li>뜻 (모국어)</li>
+              <li>예문 1개</li>
+              <li>발음(로마자)</li>
+            </ul>
+          </li>
+          <li>배경은 연한 그라디언트 + 초승달/해 아이콘</li>
+          <li>단어 난이도(색상)
+            <ul class="sub-list">
+              <li>초록: A1</li>
+              <li>파랑: A2</li>
+              <li>보라: B1 …처럼 표시</li>
+            </ul>
+          </li>
+        </ul>
+
+        <p><strong>장점</strong></p>
+        <ul>
+          <li>비주얼이 화사해서 “예쁜 UI” 강조 가능</li>
+          <li>나중에 DB나 API로 단어를 바꾸기도 쉬움</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <span>오누이 한국어 · Vocabulary Flower Garden</span>
+      <span>HTML · CSS · JavaScript 데모</span>
+    </footer>
+  </div>
+
+  <script>
+    // ===== 단어 데이터 =====
+    const vocabList = [
+      {
+        id: "hakgyo",
+        word: "학교",
+        roman: "hak-kkyo",
+        meaningKo: "학생들이 공부하는 곳",
+        meaningEn: "school",
+        level: "A1",
+        tags: ["장소", "교육"],
+        sentenceKr: "저는 아침 일찍 학교에 가요.",
+        sentenceEn: "I go to school early in the morning."
+      },
+      {
+        id: "chingu",
+        word: "친구",
+        roman: "chin-gu",
+        meaningKo: "서로 잘 알고 함께 지내는 사람",
+        meaningEn: "friend",
+        level: "A1",
+        tags: ["사람", "관계"],
+        sentenceKr: "주말에 친구를 만나서 영화를 봤어요.",
+        sentenceEn: "I met my friend on the weekend and watched a movie."
+      },
+      {
+        id: "gongbu",
+        word: "공부",
+        roman: "gong-bu",
+        meaningKo: "지식을 배우고 익히는 일",
+        meaningEn: "study",
+        level: "A1",
+        tags: ["활동"],
+        sentenceKr: "저는 저녁마다 한국어 공부를 해요.",
+        sentenceEn: "I study Korean every evening."
+      },
+      {
+        id: "gajok",
+        word: "가족",
+        roman: "ga-jok",
+        meaningKo: "한 집에서 함께 사는 사람들",
+        meaningEn: "family",
+        level: "A2",
+        tags: ["사람", "관계"],
+        sentenceKr: "저는 주말마다 가족과 함께 식사를 해요.",
+        sentenceEn: "I eat with my family every weekend."
+      },
+      {
+        id: "hanguk",
+        word: "한국",
+        roman: "han-guk",
+        meaningKo: "우리가 배우는 언어의 나라",
+        meaningEn: "Korea",
+        level: "A2",
+        tags: ["나라", "문화"],
+        sentenceKr: "저는 한국에 여행을 가고 싶어요.",
+        sentenceEn: "I want to travel to Korea."
+      },
+      {
+        id: "seonsaengnim",
+        word: "선생님",
+        roman: "seon-saeng-nim",
+        meaningKo: "학생을 가르치는 분을 높여 부르는 말",
+        meaningEn: "teacher",
+        level: "A1",
+        tags: ["사람", "학교"],
+        sentenceKr: "우리 한국어 선생님은 아주 친절하세요.",
+        sentenceEn: "Our Korean teacher is very kind."
+      },
+      {
+        id: "chaek",
+        word: "책",
+        roman: "chaek",
+        meaningKo: "글이나 그림을 모아 만든 것",
+        meaningEn: "book",
+        level: "A1",
+        tags: ["물건", "읽기"],
+        sentenceKr: "저는 카페에서 책 읽는 것을 좋아해요.",
+        sentenceEn: "I like reading books at a café."
+      },
+      {
+        id: "eoneo",
+        word: "언어",
+        roman: "eon-eo",
+        meaningKo: "생각을 말과 글로 표현하는 체계",
+        meaningEn: "language",
+        level: "B1",
+        tags: ["개념", "학문"],
+        sentenceKr: "새 언어를 배우면 새로운 세계가 열려요.",
+        sentenceEn: "Learning a new language opens a new world."
+      }
+    ];
+
+    const flowerGrid = document.getElementById("flowerGrid");
+    const detailsBox = document.getElementById("details");
+    const infoCaption = document.getElementById("infoCaption");
+
+    // ===== 단어 꽃(버튼) 만들기 =====
+    vocabList.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "flower-card";
+      card.dataset.id = item.id;
+      card.dataset.level = item.level;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "flower-btn";
+      btn.setAttribute("aria-label", item.word + " 선택");
+
+      const wordLabel = document.createElement("div");
+      wordLabel.className = "flower-word";
+      wordLabel.textContent = item.word;
+
+      const cefr = document.createElement("div");
+      cefr.className = "cefr-pill";
+      cefr.innerHTML = `<span class="cefr-dot"></span> CEFR ${item.level}`;
+
+      card.appendChild(btn);
+      card.appendChild(wordLabel);
+      card.appendChild(cefr);
+
+      flowerGrid.appendChild(card);
+
+      // 첫 번째 단어 자동 선택
+      if (index === 0) {
+        card.classList.add("active");
+        showDetails(item);
+      }
+
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".flower-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        showDetails(item);
+      });
+    });
+
+    // ===== 오른쪽 정보 표시 함수 =====
+    function showDetails(item) {
+      const mainWord = detailsBox.querySelector(".main-word");
+      const roman = detailsBox.querySelector(".roman");
+      const meaning = detailsBox.querySelector(".meaning");
+      const tagWrap = detailsBox.querySelector(".tag-wrap");
+      const sentKr = detailsBox.querySelector(".sentence-kr");
+      const sentEn = detailsBox.querySelector(".sentence-en");
+
+      mainWord.textContent = item.word;
+      roman.textContent = item.roman ? `발음 (romanization): ${item.roman}` : "";
+      meaning.textContent = `뜻: ${item.meaningKo} (${item.meaningEn})`;
+
+      // 태그
+      tagWrap.innerHTML = "";
+      const levelTag = document.createElement("span");
+      levelTag.className = "tag level";
+      levelTag.textContent = `CEFR ${item.level}`;
+      tagWrap.appendChild(levelTag);
+
+      item.tags.forEach(t => {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = t;
+        tagWrap.appendChild(tag);
+      });
+
+      sentKr.textContent = item.sentenceKr;
+      sentEn.textContent = item.sentenceEn;
+
+      infoCaption.textContent = `"${item.word}" 단어가 선택되었습니다.`;
+    }
+  </script>
+</body>
+</html>

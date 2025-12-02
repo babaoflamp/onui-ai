@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}단어 순서 맞추기 - 오누이 한국어{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/word-puzzle.css">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+        ONUI · 단어 순서 맞추기
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">단어 순서 맞추기 (Word Order Puzzle)</h1>
+      <p class="text-sm text-gray-600">
+        단어를 드래그하거나, 단어 두 개를 차례로 클릭해서 순서를 바꿔 보세요.
+      </p>
+    </header>
+
+    <!-- Timer Area -->
+    <section class="timer-area">
+      <div class="timer-label-top">
+        ⏱ 해·달 타이머 · 연습용
+      </div>
+      <div class="timer-track">
+        <div class="timer-progress" id="timerProgress"></div>
+        <div class="timer-sun" id="timerSun">☀️</div>
+        <div class="timer-moon" id="timerMoon">🌙</div>
+      </div>
+      <div class="timer-text">
+        <span>30초 주기로 해가 지고 달이 떠요.</span>
+        <span id="timerText">00:00</span>
+      </div>
+    </section>
+
+    <!-- Puzzle Panel -->
+    <section class="puzzle-panel">
+      <div class="puzzle-header-row">
+        <div class="puzzle-title" id="puzzleTitle">문장 1 / 4</div>
+        <div class="puzzle-meta" id="puzzleMeta">레벨: A1 · 어순 연습</div>
+      </div>
+
+      <div class="sentence-hint" id="sentenceHint">
+        상황 힌트와 영어 번역이 여기에 표시됩니다.
+      </div>
+
+      <div class="words-row" id="wordsRow">
+        <p class="text-gray-500">문장을 불러오는 중...</p>
+      </div>
+
+      <div class="buttons-row">
+        <button class="btn btn-outline" id="shuffleBtn">섞기 다시</button>
+        <button class="btn btn-primary" id="checkBtn">정답 확인</button>
+        <button class="btn btn-outline" id="nextBtn">다음 문장</button>
+      </div>
+
+      <div class="feedback" id="feedback">카드를 드래그하거나 클릭해서 순서를 바꿔 보세요.</div>
+
+      <div class="translation-row">
+        <span class="label">영어 번역:</span>
+        <span id="translationText">…</span>
+      </div>
+    </section>
+
+    <!-- Description Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>드래그 앤 드롭</strong>: 단어 카드를 드래그하여 순서를 바꾸세요</p>
+        <p>• <strong>클릭 방식</strong>: 모바일에서는 두 단어를 차례로 클릭하여 교환할 수 있습니다</p>
+        <p>• <strong>어순 연습</strong>: 한국어의 기본 어순 (주어-목적어-동사)을 익혀보세요</p>
+        <p>• <strong>타이머</strong>: 상단 타이머는 연습용으로, 30초마다 리셋됩니다</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/word-puzzle.js"></script>
+{% endblock %}

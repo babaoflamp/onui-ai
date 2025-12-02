@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}오누이 한국어 학습 플랫폼{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Hero Section -->
+  <div class="text-center py-12">
+    <h1 class="text-5xl font-bold text-gray-900 mb-4">
+      🌸 오누이 한국어 학습 플랫폼
+    </h1>
+    <p class="text-xl text-gray-600 mb-8">
+      AI와 함께하는 즐거운 한국어 학습 여정
+    </p>
+  </div>
+
+  <!-- Learning Modes Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    <!-- AI 학습 도구 -->
+    <a href="/learning" class="block">
+      <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500">
+        <div class="text-4xl mb-4">🤖</div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">AI 학습 도구</h3>
+        <p class="text-gray-600 text-sm mb-4">
+          AI 기반 맞춤형 교재 생성, 발음 교정, 작문 유창성 테스트
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">콘텐츠 생성</span>
+          <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">발음 교정</span>
+          <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">작문 테스트</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 단어 순서 맞추기 -->
+    <a href="/word-puzzle" class="block">
+      <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500">
+        <div class="text-4xl mb-4">🎯</div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">단어 순서 맞추기</h3>
+        <p class="text-gray-600 text-sm mb-4">
+          드래그 앤 드롭으로 한국어 문장의 어순을 연습하세요
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">A1-B1</span>
+          <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">어순 연습</span>
+          <span class="inline-block bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded">게임</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 오늘의 표현 -->
+    <a href="/daily-expression" class="block">
+      <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500">
+        <div class="text-4xl mb-4">💬</div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">오늘의 표현</h3>
+        <p class="text-gray-600 text-sm mb-4">
+          매일 새로운 한국어 표현과 문화를 배워보세요
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">일상 표현</span>
+          <span class="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">문화 노트</span>
+          <span class="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded">데일리</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- 단어 꽃밭 -->
+    <a href="/vocab-garden" class="block">
+      <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500">
+        <div class="text-4xl mb-4">🌸</div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">단어 꽃밭</h3>
+        <p class="text-gray-600 text-sm mb-4">
+          예쁜 꽃 카드와 함께 단어를 암기하고 예문을 학습하세요
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">단어 암기</span>
+          <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">레벨별</span>
+          <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">예문</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Features Section -->
+  <div class="bg-white rounded-2xl p-8 shadow-lg mb-12">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+      🎓 학습 플랫폼 특징
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="text-center">
+        <div class="text-3xl mb-3">🤖</div>
+        <h4 class="font-bold text-gray-900 mb-2">AI 기반 학습</h4>
+        <p class="text-sm text-gray-600">
+          로컬 LLM(Ollama EXAONE)을 활용한 맞춤형 학습 콘텐츠 생성
+        </p>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl mb-3">🎮</div>
+        <h4 class="font-bold text-gray-900 mb-2">재미있는 게임</h4>
+        <p class="text-sm text-gray-600">
+          드래그 앤 드롭, 슬라이더 등 인터랙티브한 학습 경험
+        </p>
+      </div>
+      <div class="text-center">
+        <div class="text-3xl mb-3">📊</div>
+        <h4 class="font-bold text-gray-900 mb-2">레벨 시스템</h4>
+        <p class="text-sm text-gray-600">
+          CEFR 기준(A1, A2, B1) 체계적인 난이도 관리
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Start Guide -->
+  <div class="bg-gradient-to-r from-orange-50 to-pink-50 rounded-2xl p-8 shadow-lg">
+    <h2 class="text-2xl font-bold text-gray-900 mb-4 text-center">
+      🚀 시작하기
+    </h2>
+    <div class="space-y-3 max-w-2xl mx-auto">
+      <div class="flex items-start">
+        <span class="inline-block bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0 mt-1">1</span>
+        <p class="text-gray-700">
+          <strong>AI 학습 도구</strong>로 시작하여 관심사에 맞는 교재를 생성하세요
+        </p>
+      </div>
+      <div class="flex items-start">
+        <span class="inline-block bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0 mt-1">2</span>
+        <p class="text-gray-700">
+          <strong>단어 꽃밭</strong>에서 기초 단어를 익히고 예문을 학습하세요
+        </p>
+      </div>
+      <div class="flex items-start">
+        <span class="inline-block bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0 mt-1">3</span>
+        <p class="text-gray-700">
+          <strong>단어 순서 맞추기</strong>로 한국어 어순을 게임처럼 연습하세요
+        </p>
+      </div>
+      <div class="flex items-start">
+        <span class="inline-block bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-sm mr-3 flex-shrink-0 mt-1">4</span>
+        <p class="text-gray-700">
+          매일 <strong>오늘의 표현</strong>을 확인하여 실용적인 한국어 표현을 배우세요
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

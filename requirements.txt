@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+# Pin `openai` to a version that doesn't require a missing `jiter` dependency
+openai==0.27.8
+python-dotenv
+requests
+jinja2
+vosk

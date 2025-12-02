@@ -1,0 +1,185 @@
+/* 오늘의 표현 - Daily Expression Card Slider Styles */
+
+.slider-wrapper {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.slider-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.slider-caption {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+.slider-frame {
+  margin-top: 8px;
+  position: relative;
+  padding: 10px 42px;
+}
+
+.expression-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  min-height: 150px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.3s ease;
+}
+
+.expression-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 26px rgba(0,0,0,0.16);
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill-type {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.sentence-kr {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sentence-en {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-bottom: 6px;
+}
+
+.culture-note {
+  font-size: 12px;
+  padding-top: 4px;
+  margin-top: 4px;
+  border-top: 1px dashed #e5e7eb;
+  color: #4b5563;
+}
+
+.meta-row {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-sub);
+}
+
+/* 화살표 버튼 */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #374151;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.nav-btn:hover {
+  background: #fef3c7;
+  transform: translateY(-50%) scale(1.04);
+}
+
+.nav-btn.left {
+  left: 8px;
+}
+
+.nav-btn.right {
+  right: 8px;
+}
+
+/* 진행 점(dot) */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  transition: width 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+}
+
+.dot.active {
+  width: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}
+
+/* Floating decoration */
+.sun, .moon {
+  position: absolute;
+  font-size: 26px;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: float 14s linear infinite;
+}
+
+.sun {
+  top: 8px;
+  right: 8%;
+  animation-delay: 0s;
+}
+
+.moon {
+  bottom: 38%;
+  left: 4%;
+  animation-delay: -7s;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+@media (max-width: 600px) {
+  .slider-frame {
+    padding: 10px 34px;
+  }
+  .expression-card {
+    padding: 14px 14px 16px;
+  }
+}

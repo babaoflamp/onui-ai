@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}오늘의 한국어 표현 - 오누이 한국어{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/daily-expression.css">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+    <!-- Floating decorations -->
+    <div class="sun">☀️</div>
+    <div class="moon">🌙</div>
+
+    <!-- Header -->
+    <header class="mb-6 relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+        ONUI · 오늘의 한국어 표현
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">오늘의 한국어 표현 카드 슬라이더</h1>
+      <p class="text-sm text-gray-600">
+        매일 한 장씩 넘겨 보면서, 자연스럽게 표현과 문화를 같이 익혀 보세요.
+      </p>
+    </header>
+
+    <!-- Card Slider -->
+    <section class="slider-wrapper">
+      <div class="slider-header">
+        <div class="slider-title">오늘의 표현</div>
+        <div class="slider-caption" id="sliderCaption">1 / 5</div>
+      </div>
+
+      <div class="slider-frame">
+        <button class="nav-btn left" id="prevBtn" aria-label="이전 표현">&lt;</button>
+        <button class="nav-btn right" id="nextBtn" aria-label="다음 표현">&gt;</button>
+
+        <div class="expression-card" id="expressionCard">
+          <div class="card-label">
+            <span>한국어 문장</span>
+            <span class="pill-type" id="levelChip">CEFR A1</span>
+          </div>
+          <div class="sentence-kr" id="sentenceKr">표현을 불러오는 중...</div>
+          <div class="sentence-en" id="sentenceEn"></div>
+          <div class="culture-note" id="cultureNote"></div>
+
+          <div class="meta-row">
+            <span id="situationLabel"></span>
+            <span id="tagLabel"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dots" id="dots"></div>
+    </section>
+
+    <!-- Description Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• 좌우 화살표 버튼 또는 하단 점을 클릭하여 카드를 넘겨보세요</p>
+        <p>• 각 표현의 문화 노트를 읽고 한국 문화를 이해해보세요</p>
+        <p>• 매일 새로운 표현을 확인하여 일상 한국어 실력을 향상시키세요</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/daily-expression.js"></script>
+{% endblock %}

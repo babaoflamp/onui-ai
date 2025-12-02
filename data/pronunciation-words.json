@@ -1,0 +1,202 @@
+[
+  {
+    "id": "annyeong",
+    "word": "안녕하세요",
+    "roman": "an-nyeong-ha-se-yo",
+    "meaningKo": "아침부터 저녁까지 쓰는 정중한 인사말",
+    "meaningEn": "Hello / How are you",
+    "level": "A1",
+    "phonemes": ["안", "녕", "하", "세", "요"],
+    "tips": "'하세요'는 빠르게 연결해서 발음하세요. '안녕'의 'ㅇ'은 비음으로 발음됩니다."
+  },
+  {
+    "id": "gamsahamnida",
+    "word": "감사합니다",
+    "roman": "gam-sa-ham-ni-da",
+    "meaningKo": "고마움을 표현하는 정중한 말",
+    "meaningEn": "Thank you",
+    "level": "A1",
+    "phonemes": ["감", "사", "합", "니", "다"],
+    "tips": "'ㅁ' 발음 시 입술을 완전히 닫고, '니다'는 연결해서 발음하세요."
+  },
+  {
+    "id": "mianhamnida",
+    "word": "미안합니다",
+    "roman": "mi-an-ham-ni-da",
+    "meaningKo": "잘못을 인정하고 사과하는 말",
+    "meaningEn": "I'm sorry",
+    "level": "A1",
+    "phonemes": ["미", "안", "합", "니", "다"],
+    "tips": "'미안'은 두 음절을 명확하게 구분하고, '합니다'는 빠르게 이어서 발음하세요."
+  },
+  {
+    "id": "juseyo",
+    "word": "주세요",
+    "roman": "ju-se-yo",
+    "meaningKo": "무언가를 정중하게 요청할 때 쓰는 말",
+    "meaningEn": "Please give me",
+    "level": "A1",
+    "phonemes": ["주", "세", "요"],
+    "tips": "'주'의 'ㅈ'은 영어 'j'와 비슷하게, '세요'는 한 번에 발음하세요."
+  },
+  {
+    "id": "ne",
+    "word": "네",
+    "roman": "ne",
+    "meaningKo": "긍정하거나 대답할 때 쓰는 말",
+    "meaningEn": "Yes",
+    "level": "A1",
+    "phonemes": ["네"],
+    "tips": "짧고 명확하게 발음하세요. '네'와 '내'를 구분하는 것이 중요합니다."
+  },
+  {
+    "id": "anio",
+    "word": "아니요",
+    "roman": "a-ni-yo",
+    "meaningKo": "부정하거나 거절할 때 쓰는 말",
+    "meaningEn": "No",
+    "level": "A1",
+    "phonemes": ["아", "니", "요"],
+    "tips": "세 음절을 명확하게 구분해서 발음하세요. '아-니-요'처럼요."
+  },
+  {
+    "id": "joesonghamnida",
+    "word": "죄송합니다",
+    "roman": "joe-song-ham-ni-da",
+    "meaningKo": "미안합니다보다 더 정중한 사과의 말",
+    "meaningEn": "I'm very sorry (formal)",
+    "level": "A2",
+    "phonemes": ["죄", "송", "합", "니", "다"],
+    "tips": "'죄송'의 'ㅈ'과 'ㅅ'을 명확하게 발음하고, '합니다'는 빠르게 이어서 발음하세요."
+  },
+  {
+    "id": "sillyehamnida",
+    "word": "실례합니다",
+    "roman": "sil-lye-ham-ni-da",
+    "meaningKo": "예의를 갖춰 양해를 구할 때 쓰는 말",
+    "meaningEn": "Excuse me",
+    "level": "A2",
+    "phonemes": ["실", "례", "합", "니", "다"],
+    "tips": "'ㄹ' 받침 후 'ㄹ'이 이어질 때는 하나의 긴 'ㄹ' 소리로 발음됩니다."
+  },
+  {
+    "id": "mannaseobanggapseumnida",
+    "word": "만나서 반갑습니다",
+    "roman": "man-na-seo ban-gap-seum-ni-da",
+    "meaningKo": "처음 만난 사람에게 하는 인사",
+    "meaningEn": "Nice to meet you",
+    "level": "A1",
+    "phonemes": ["만", "나", "서", "반", "갑", "습", "니", "다"],
+    "tips": "'만나서'와 '반갑습니다'를 각각 끊어서 발음하되, 자연스럽게 이어주세요."
+  },
+  {
+    "id": "jal",
+    "word": "잘 부탁합니다",
+    "roman": "jal bu-tak-ham-ni-da",
+    "meaningKo": "앞으로 잘 지내자는 의미의 인사",
+    "meaningEn": "Please take care of me",
+    "level": "A2",
+    "phonemes": ["잘", "부", "탁", "합", "니", "다"],
+    "tips": "'잘'과 '부탁'을 명확히 구분하고, '합니다'는 빠르게 발음하세요."
+  },
+  {
+    "id": "sugohaseyo",
+    "word": "수고하세요",
+    "roman": "su-go-ha-se-yo",
+    "meaningKo": "일하는 사람에게 격려하는 말",
+    "meaningEn": "Good work / Keep it up",
+    "level": "A2",
+    "phonemes": ["수", "고", "하", "세", "요"],
+    "tips": "'수고'는 천천히, '하세요'는 빠르게 이어서 발음하세요."
+  },
+  {
+    "id": "jalmeokkesseumnida",
+    "word": "잘 먹겠습니다",
+    "roman": "jal meok-ges-seum-ni-da",
+    "meaningKo": "식사 전에 하는 인사",
+    "meaningEn": "I will eat well (before meal)",
+    "level": "A1",
+    "phonemes": ["잘", "먹", "겠", "습", "니", "다"],
+    "tips": "'먹겠습니다'는 받침 'ㄱ'과 'ㅅ'을 명확하게 발음하세요."
+  },
+  {
+    "id": "jalmeogeosseumnida",
+    "word": "잘 먹었습니다",
+    "roman": "jal meo-geo-sseum-ni-da",
+    "meaningKo": "식사 후에 하는 인사",
+    "meaningEn": "I ate well (after meal)",
+    "level": "A1",
+    "phonemes": ["잘", "먹", "었", "습", "니", "다"],
+    "tips": "'먹었습니다'에서 '었'은 짧게, '습니다'는 빠르게 발음하세요."
+  },
+  {
+    "id": "annyeonghi",
+    "word": "안녕히 가세요",
+    "roman": "an-nyeong-hi ga-se-yo",
+    "meaningKo": "떠나는 사람에게 하는 작별 인사",
+    "meaningEn": "Goodbye (to someone leaving)",
+    "level": "A1",
+    "phonemes": ["안", "녕", "히", "가", "세", "요"],
+    "tips": "'안녕히'와 '가세요'를 각각 끊어서 발음하세요."
+  },
+  {
+    "id": "annyeonghigye",
+    "word": "안녕히 계세요",
+    "roman": "an-nyeong-hi gye-se-yo",
+    "meaningKo": "남아있는 사람에게 하는 작별 인사",
+    "meaningEn": "Goodbye (to someone staying)",
+    "level": "A1",
+    "phonemes": ["안", "녕", "히", "계", "세", "요"],
+    "tips": "'계세요'의 '계'는 '게'가 아닌 '계'로 명확하게 발음하세요."
+  },
+  {
+    "id": "cheonmaneyo",
+    "word": "천만에요",
+    "roman": "cheon-ma-ne-yo",
+    "meaningKo": "감사 인사에 대한 겸손한 답례",
+    "meaningEn": "You're welcome",
+    "level": "A2",
+    "phonemes": ["천", "만", "에", "요"],
+    "tips": "'천만'은 명확하게, '에요'는 가볍게 발음하세요."
+  },
+  {
+    "id": "gwaenchanhayo",
+    "word": "괜찮아요",
+    "roman": "gwaen-chan-a-yo",
+    "meaningKo": "문제없다는 의미의 긍정 표현",
+    "meaningEn": "It's okay / I'm fine",
+    "level": "A1",
+    "phonemes": ["괜", "찮", "아", "요"],
+    "tips": "'괜찮'의 받침 'ㄴ'과 'ㅎ'은 [ㄴ찬]으로 발음됩니다."
+  },
+  {
+    "id": "algesseumnida",
+    "word": "알겠습니다",
+    "roman": "al-ges-seum-ni-da",
+    "meaningKo": "이해했다는 의미의 정중한 표현",
+    "meaningEn": "I understand / Got it",
+    "level": "A1",
+    "phonemes": ["알", "겠", "습", "니", "다"],
+    "tips": "'알겠'은 [알겓]으로, '습니다'는 빠르게 발음하세요."
+  },
+  {
+    "id": "doemmnida",
+    "word": "됩니다",
+    "roman": "doem-ni-da",
+    "meaningKo": "가능하다는 의미의 긍정 표현",
+    "meaningEn": "It's possible / It works",
+    "level": "A2",
+    "phonemes": ["됩", "니", "다"],
+    "tips": "'됩'의 받침 'ㅂ'을 명확하게 발음하고 '니다'로 이어주세요."
+  },
+  {
+    "id": "hwangyeonghamnida",
+    "word": "환영합니다",
+    "roman": "hwan-yeong-ham-ni-da",
+    "meaningKo": "반갑게 맞이한다는 의미",
+    "meaningEn": "Welcome",
+    "level": "A2",
+    "phonemes": ["환", "영", "합", "니", "다"],
+    "tips": "'환영'의 'ㅇ'은 비음으로, '합니다'는 빠르게 발음하세요."
+  }
+]
