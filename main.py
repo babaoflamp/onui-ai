@@ -105,7 +105,7 @@ MODEL_BACKEND = os.getenv("MODEL_BACKEND", "openai")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -593,7 +593,12 @@ def api_test_page(request: Request):
 # 2. AI 학습 콘텐츠 자동 생성 API
 # ==========================================
 @app.post("/api/generate-content")
-async def generate_content(topic: str = Form(...), level: str = Form(...), model: str = Form(None)):
+async def generate_content(
+    topic: str = Form(...), 
+    level: str = Form(...), 
+    model: str = Form(None),
+    backend: str = Form(None)
+):
     # Add level-specific guidance to the prompt so the model tailors output
     lvl = (level or "").strip()
     if lvl == "초급":
@@ -640,18 +645,34 @@ async def generate_content(topic: str = Form(...), level: str = Form(...), model
     중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ``` )으로 정확하게 반환하세요. 추가 설명이나 여분의 텍스트는 포함하지 마시고, 코드 블럭 외의 다른 출력은 하지 마세요.
     """
     
+    # Determine which backend to use
+    selected_backend = backend or MODEL_BACKEND
+    
     # Use Gemini backend if configured
-    if MODEL_BACKEND == "gemini":
+    if selected_backend == "gemini":
         try:
             if not GEMINI_API_KEY:
                 return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
             
-            import google.generativeai as genai
-            genai.configure(api_key=GEMINI_API_KEY)
-            model_instance = genai.GenerativeModel(GEMINI_MODEL)
+            # Use REST API for Python 3.8 compatibility
+            gemini_model = model or GEMINI_MODEL
+            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={GEMINI_API_KEY}"
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }]
+            }
             
-            response = model_instance.generate_content(prompt)
-            out = response.text
+            resp = requests.post(url, json=payload, timeout=60)
+            resp.raise_for_status()
+            result = resp.json()
+            
+            if "candidates" in result and len(result["candidates"]) > 0:
+                out = result["candidates"][0]["content"]["parts"][0]["text"]
+            else:
+                return JSONResponse(status_code=500, content={"error": "No response from Gemini", "details": result})
             
             parsed = _parse_model_output(out)
             if parsed is None:
@@ -702,7 +723,7 @@ async def generate_content(topic: str = Form(...), level: str = Form(...), model
             return JSONResponse(status_code=500, content={"error": "generate-content (gemini) failed", "details": str(e)})
     
     # Use Ollama local backend if configured
-    elif MODEL_BACKEND == "ollama":
+    elif selected_backend == "ollama":
         try:
             use_model = model or OLLAMA_MODEL
             payload = {"model": use_model, "prompt": prompt}
@@ -886,6 +907,69 @@ async def ollama_test(prompt: str = Form(...), model: str = Form(None)):
         return JSONResponse(content={"model": use_model, "text": out})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "ollama test failed", "details": str(e)})
+
+@app.post("/api/chat/test")
+async def chat_test(prompt: str = Form(...), model: str = Form(None), backend: str = Form(None)):
+    """Send a quick test prompt to the selected model (Gemini or Ollama) and return the raw text."""
+    selected_backend = backend or MODEL_BACKEND
+    
+    # Use Gemini backend
+    if selected_backend == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            gemini_model = model or GEMINI_MODEL
+            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={GEMINI_API_KEY}"
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }]
+            }
+            
+            resp = requests.post(url, json=payload, timeout=60)
+            resp.raise_for_status()
+            result = resp.json()
+            
+            if "candidates" in result and len(result["candidates"]) > 0:
+                out = result["candidates"][0]["content"]["parts"][0]["text"]
+                return JSONResponse(content={"model": gemini_model, "text": out})
+            else:
+                return JSONResponse(status_code=500, content={"error": "No response from Gemini", "details": result})
+                
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "gemini test failed", "details": str(e)})
+    
+    # Use Ollama backend
+    elif selected_backend == "ollama":
+        use_model = model or OLLAMA_MODEL
+        try:
+            payload = {"model": use_model, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=30)
+            if resp.status_code != 200:
+                return JSONResponse(status_code=500, content={"error": "ollama generate failed", "status": resp.status_code, "body": resp.text})
+
+            out = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        out += obj.get("response", "") or obj.get("text", "")
+                    else:
+                        out += str(obj)
+                except Exception:
+                    out += line
+
+            return JSONResponse(content={"model": use_model, "text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "ollama test failed", "details": str(e)})
+    
+    else:
+        return JSONResponse(status_code=400, content={"error": f"Unknown backend: {selected_backend}"})
 
 # ==========================================
 # 3. 유창성 테스트 (작문 교정) API

@@ -37,10 +37,9 @@
       filteredWords = [...allWords];
       renderWordButtons();
 
-      // Auto-select first word
-      if (allWords.length > 0) {
-        selectWord(allWords[0]);
-      }
+      // Don't auto-select any word on page load
+      // User should manually select a word to practice
+    }
     } catch (error) {
       console.error("Error loading pronunciation words:", error);
       wordButtons.innerHTML =
