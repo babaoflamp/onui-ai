@@ -1,9 +1,11 @@
 import os
 import shutil
+import csv
+from functools import lru_cache
 from fastapi import FastAPI, UploadFile, File, Form, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 # from openai import OpenAI
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
@@ -13,6 +15,19 @@ import re
 import uvicorn
 import subprocess
 import wave
+import base64
+import tempfile
+
+# SpeechPro 서비스 임포트
+from backend.services.speechpro_service import (
+    call_speechpro_gtp,
+    call_speechpro_model,
+    call_speechpro_score,
+    speechpro_full_workflow,
+    get_speechpro_url,
+    set_speechpro_url,
+    normalize_spaces,
+)
 
 # Try to provide a server-side romanization fallback for Korean -> Latin
 # We will try to import a lightweight romanizer if available. If not,
@@ -85,10 +100,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # restore `client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None`.
 client = None
 
-# Backend selection: set MODEL_BACKEND=ollama to use local Ollama server
+# Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
 MODEL_BACKEND = os.getenv("MODEL_BACKEND", "openai")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -185,6 +202,26 @@ def _ensure_wav_16k_mono(src_path: str, dst_path: str):
         dst_path,
     ]
     subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
+    """Convert arbitrary audio bytes (webm/opus etc.) to 16k mono WAV via ffmpeg."""
+    if not audio_bytes:
+        raise ValueError("audio bytes empty")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        src_path = os.path.join(tmpdir, "input.bin")
+        dst_path = os.path.join(tmpdir, "output.wav")
+
+        with open(src_path, "wb") as f:
+            f.write(audio_bytes)
+
+        try:
+            _ensure_wav_16k_mono(src_path, dst_path)
+            with open(dst_path, "rb") as f:
+                return f.read()
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"ffmpeg 변환 실패: {e}")
 
 
 def _transcribe_with_vosk(wav_path: str, model_path: str) -> str:
@@ -355,6 +392,160 @@ def load_json_data(filename):
         print(f"Error loading {filename}: {e}")
         return []
 
+
+@lru_cache(maxsize=1)
+def load_speechpro_precomputed_sentences():
+    """Load precomputed SpeechPro sentences (with syllables/FST) from CSV"""
+    path = "data/sp_ko_questions.csv"
+    sentences = []
+
+    if not os.path.exists(path):
+        return sentences
+
+    try:
+        with open(path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sentence_kr = normalize_spaces(row.get("sentence", ""))
+                try:
+                    base_id = int(row.get("ko_id", 0))
+                except Exception:
+                    base_id = 0
+
+                try:
+                    order = int(row.get("order", base_id))
+                except Exception:
+                    order = base_id
+
+                sentences.append({
+                    "id": 1000 + base_id if base_id else order,
+                    "order": order,
+                    "sentenceKr": sentence_kr,
+                    "sentenceEn": "",
+                    "level": "PRESET",
+                    "difficulty": "SpeechPro",
+                    "category": "프리셋",
+                    "tags": ["speechpro", "preset"],
+                    "tips": "SpeechPro 서버의 프리셋 문장입니다.",
+                    "syll_ltrs": row.get("syll_ltrs", ""),
+                    "syll_phns": row.get("syll_phns", ""),
+                    "fst": row.get("fst", ""),
+                    "source": "precomputed"
+                })
+    except Exception as e:
+        print(f"Error loading {path}: {e}")
+
+    # Order by given order, then id
+    sentences.sort(key=lambda s: (s.get("order", 0), s.get("id", 0)))
+    return sentences
+
+
+def find_precomputed_sentence(text: str):
+    """Find precomputed sentence entry by normalized text"""
+    normalized = normalize_spaces(text or "")
+    for item in load_speechpro_precomputed_sentences():
+        if normalize_spaces(item.get("sentenceKr", "")) == normalized:
+            return item
+    return None
+
+
+async def _generate_pronunciation_feedback(text: str, score_result) -> str:
+    """
+    Generate AI feedback for pronunciation evaluation using configured AI backend.
+    
+    Args:
+        text: Original Korean text
+        score_result: ScoreResult object with score and details
+        
+    Returns:
+        AI-generated feedback string in Korean
+    """
+    if MODEL_BACKEND not in ("ollama", "gemini"):
+        return None
+    
+    try:
+        # Extract key metrics
+        overall_score = round(score_result.score or 0)
+        details = score_result.details if isinstance(score_result.details, dict) else {}
+        
+        # Build analysis summary
+        fluency_info = ""
+        if details.get("fluency"):
+            f = details["fluency"]
+            fluency_info = f"""
+- 발화 속도: {f.get('speech rate', 0):.1f} 음절/초
+- 정확 음절: {f.get('correct syllable count', 0)}/{f.get('syllable count', 0)}"""
+        
+        word_scores = []
+        if details.get("quality", {}).get("sentences"):
+            for sent in details["quality"]["sentences"]:
+                if sent.get("text") != "!SIL" and sent.get("words"):
+                    for word in sent["words"]:
+                        if word.get("text") and word.get("text") != "!SIL":
+                            word_scores.append({
+                                "text": word["text"],
+                                "score": round(word.get("score", 0))
+                            })
+        
+        word_summary = ""
+        if word_scores:
+            low_words = [w for w in word_scores if w["score"] < 70]
+            if low_words:
+                word_summary = "\n- 개선 필요 단어: " + ", ".join([f"{w['text']}({w['score']}점)" for w in low_words[:3]])
+        
+        prompt = f"""당신은 한국어 발음 교육 전문가입니다. 다음 발음 평가 결과를 분석하고 학습자에게 도움이 되는 피드백을 제공해주세요.
+
+**평가 대상 문장:** {text}
+
+**평가 결과:**
+- 전체 점수: {overall_score}점{fluency_info}{word_summary}
+
+**요구사항:**
+1. 점수에 따른 격려 메시지 (1-2문장)
+2. 구체적인 발음 개선 포인트 (2-3가지)
+3. 연습 방법 제안 (1-2가지)
+
+간결하고 친절하게 300자 이내로 작성해주세요. JSON이나 특수 포맷 없이 일반 텍스트로만 작성하세요."""
+
+        if MODEL_BACKEND == "ollama":
+            payload = {
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False
+            }
+            
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=15)
+            if resp.status_code != 200:
+                return None
+            
+            result = resp.json()
+            feedback = result.get("response", "").strip()
+            
+        elif MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return None
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            feedback = response.text.strip()
+        
+        else:
+            return None
+        
+        # Remove any markdown/json artifacts
+        feedback = re.sub(r'```.*?```', '', feedback, flags=re.DOTALL)
+        feedback = re.sub(r'\{.*?\}', '', feedback, flags=re.DOTALL)
+        feedback = feedback.strip()
+        
+        return feedback if feedback else None
+        
+    except Exception as e:
+        print(f"[AI Feedback] Error: {e}")
+        return None
+
 # ==========================================
 # 페이지 라우트 (Routes)
 # ==========================================
@@ -387,6 +578,11 @@ def vocab_garden_page(request: Request):
 def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
     return templates.TemplateResponse("pronunciation-practice.html", {"request": request})
+
+@app.get("/speechpro-practice")
+def speechpro_practice_page(request: Request):
+    """SpeechPro 발음 평가"""
+    return templates.TemplateResponse("speechpro-practice.html", {"request": request})
 
 @app.get("/api-test")
 def api_test_page(request: Request):
@@ -444,8 +640,69 @@ async def generate_content(topic: str = Form(...), level: str = Form(...), model
     중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ``` )으로 정확하게 반환하세요. 추가 설명이나 여분의 텍스트는 포함하지 마시고, 코드 블럭 외의 다른 출력은 하지 마세요.
     """
     
+    # Use Gemini backend if configured
+    if MODEL_BACKEND == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model_instance = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model_instance.generate_content(prompt)
+            out = response.text
+            
+            parsed = _parse_model_output(out)
+            if parsed is None:
+                try:
+                    m = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out)
+                    if m:
+                        parsed = json.loads(m.group(1))
+                except Exception:
+                    parsed = None
+            
+            if parsed is not None:
+                # Post-process pronunciation
+                try:
+                    dlg = parsed.get("dialogue")
+                    if isinstance(dlg, list):
+                        for item in dlg:
+                            if not isinstance(item, dict):
+                                continue
+                            item_text = item.get("text", "") or ""
+                            pron = item.get("pronunciation")
+                            try:
+                                mode = ROMANIZE_MODE
+                                if mode == "force":
+                                    pron = romanize_korean(item_text)
+                                else:
+                                    if pron and isinstance(pron, str):
+                                        if re.search(r"[\uac00-\ud7a3]", pron) or not re.search(r"[A-Za-z]", pron):
+                                            pron = romanize_korean(item_text)
+                                    else:
+                                        pron = romanize_korean(item_text)
+                            except Exception:
+                                pron = pron or romanize_korean(item_text)
+
+                            try:
+                                if isinstance(pron, str):
+                                    pron = re.sub(r"\s+", " ", pron.replace("\n", " ").replace("\t", " ")).strip()
+                                else:
+                                    pron = str(pron)
+                            except Exception:
+                                pron = pron if pron is not None else ""
+
+                            item["pronunciation"] = pron
+                except Exception:
+                    pass
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "generate-content (gemini) failed", "details": str(e)})
+    
     # Use Ollama local backend if configured
-    if MODEL_BACKEND == "ollama":
+    elif MODEL_BACKEND == "ollama":
         try:
             use_model = model or OLLAMA_MODEL
             payload = {"model": use_model, "prompt": prompt}
@@ -670,6 +927,26 @@ async def fluency_check(user_text: str = Form(...)):
             return JSONResponse(content={"text": out})
         except Exception as e:
             return JSONResponse(status_code=500, content={"error": "fluency-check (ollama) failed", "details": str(e)})
+    
+    # Use Gemini backend if configured
+    elif MODEL_BACKEND == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            out = response.text
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "fluency-check (gemini) failed", "details": str(e)})
 
     # Fallback / default: OpenAI (disabled)
     return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
@@ -895,6 +1172,44 @@ async def get_pronunciation_word(word_id: str):
 
 
 # ==========================================
+# SpeechPro Evaluation Sentences
+# ==========================================
+
+@app.get("/api/speechpro/sentences")
+async def get_speechpro_sentences():
+    """Get all SpeechPro evaluation sentences"""
+    try:
+        precomputed = load_speechpro_precomputed_sentences()
+        return JSONResponse(content=precomputed)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
+
+
+@app.get("/api/speechpro/sentences/{sentence_id}")
+async def get_speechpro_sentence(sentence_id: int):
+    """Get a specific SpeechPro evaluation sentence by ID"""
+    try:
+        sentences = load_speechpro_precomputed_sentences()
+        sentence = next((s for s in sentences if s.get("id") == sentence_id), None)
+        if sentence:
+            return JSONResponse(content=sentence)
+        return JSONResponse(status_code=404, content={"error": "Sentence not found"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentence", "details": str(e)})
+
+
+@app.get("/api/speechpro/sentences/level/{level}")
+async def get_speechpro_sentences_by_level(level: str):
+    """Get SpeechPro evaluation sentences by level (A1, A2, B1, etc.)"""
+    try:
+        sentences = load_speechpro_precomputed_sentences()
+        filtered = [s for s in sentences if s.get("level") == level.upper()]
+        return JSONResponse(content=filtered)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
+
+
+# ==========================================
 # MzTTS API Endpoints
 # ==========================================
 
@@ -967,6 +1282,355 @@ async def generate_tts(request: TTSRequest):
         return JSONResponse(
             status_code=500,
             content={"error": "TTS generation failed", "details": str(e)}
+        )
+
+
+# ==========================================
+# SpeechPro API 엔드포인트
+# ==========================================
+
+@app.post("/api/speechpro/gtp")
+async def speechpro_gtp(data: dict = None):
+    """
+    GTP (Grapheme-to-Phoneme) API
+    한국어 텍스트를 음소로 변환합니다.
+    
+    Request: {"text": "안녕하세요"}
+    Response: {"id": "...", "text": "...", "syll_ltrs": "...", "syll_phns": "..."}
+    """
+    try:
+        if data is None:
+            data = {}
+        
+        text = data.get("text", "").strip()
+        if not text:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text is required"}
+            )
+        
+        result = call_speechpro_gtp(text)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"GTP processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/model")
+async def speechpro_model(data: dict = None):
+    """
+    Model API - FST 발음 모델 생성
+    GTP 결과를 바탕으로 발음 평가 모델을 생성합니다.
+    
+    Request: {
+        "text": "안녕하세요",
+        "syll_ltrs": "안_녕_하_세_요",
+        "syll_phns": "..."
+    }
+    Response: {"id": "...", "text": "...", "fst": "..."}
+    """
+    try:
+        if data is None:
+            data = {}
+        
+        text = data.get("text", "").strip()
+        syll_ltrs = data.get("syll_ltrs", "").strip()
+        syll_phns = data.get("syll_phns", "").strip()
+        
+        if not all([text, syll_ltrs, syll_phns]):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text, syll_ltrs, syll_phns are required"}
+            )
+        
+        result = call_speechpro_model(text, syll_ltrs, syll_phns)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Model processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/score")
+async def speechpro_score(
+    text: str = Form(...),
+    syll_ltrs: str = Form(...),
+    syll_phns: str = Form(...),
+    fst: str = Form(...),
+    audio: UploadFile = File(...)
+):
+    """
+    Score JSON API - 발음 평가
+    사용자의 음성 데이터를 전송하여 발음 정확도를 평가합니다.
+    
+    Form Data:
+        - text: 평가 대상 텍스트
+        - syll_ltrs: 음절 글자
+        - syll_phns: 음절 음소
+        - fst: FST 모델 데이터
+        - audio: WAV 오디오 파일
+    
+    Response: {"score": 85.5, "details": {...}}
+    """
+    try:
+        # 오디오 파일 읽기
+        audio_content_raw = await audio.read()
+        
+        if not audio_content_raw:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "audio file is required"}
+            )
+
+        try:
+            audio_content = _convert_audio_bytes_to_wav16(audio_content_raw)
+        except Exception as conv_err:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"audio convert failed: {conv_err}"}
+            )
+        
+        # 필수 파라미터 검증
+        text = text.strip()
+        if not all([text, syll_ltrs, syll_phns, fst]):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text, syll_ltrs, syll_phns, fst are required"}
+            )
+        
+        result = call_speechpro_score(text, syll_ltrs, syll_phns, fst, audio_content)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Score processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/evaluate")
+async def speechpro_evaluate(
+    text: str = Form(...),
+    audio: UploadFile = File(...),
+    syll_ltrs: str = Form(None),
+    syll_phns: str = Form(None),
+    fst: str = Form(None)
+):
+    """
+    통합 발음 평가 API
+    텍스트와 음성을 전송하여 전체 워크플로우를 실행합니다.
+    
+    Form Data:
+        - text: 평가 대상 텍스트
+        - audio: WAV 오디오 파일
+    
+    Response: {
+        "gtp": {...},
+        "model": {...},
+        "score": {...},
+        "overall_score": 85.5
+    }
+    """
+    try:
+        # 오디오 파일 읽기
+        audio_content_raw = await audio.read()
+        
+        text = text.strip()
+        
+        if not text:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text is required"}
+            )
+        
+        if not audio_content_raw:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "audio file is required"}
+            )
+
+        try:
+            audio_content = _convert_audio_bytes_to_wav16(audio_content_raw)
+        except Exception as conv_err:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"audio convert failed: {conv_err}"}
+            )
+        
+        # 1) 요청에 사전 계산 정보가 함께 왔다면 그대로 사용
+        pre_syll_ltrs = syll_ltrs.strip() if syll_ltrs else None
+        pre_syll_phns = syll_phns.strip() if syll_phns else None
+        pre_fst = fst.strip() if fst else None
+
+        print(f"[Evaluate] Text: {text}")
+        print(f"[Evaluate] Received FST from client: {bool(pre_fst)}")
+        print(f"[Evaluate] FST length: {len(pre_fst) if pre_fst else 0}")
+
+        preset = None
+        if pre_syll_ltrs and pre_syll_phns and pre_fst:
+            print(f"[Evaluate] Using client-provided precomputed data")
+            preset = {
+                "sentenceKr": text,
+                "syll_ltrs": pre_syll_ltrs,
+                "syll_phns": pre_syll_phns,
+                "fst": pre_fst,
+                "source": "client-precomputed"
+            }
+        else:
+            print(f"[Evaluate] Searching for precomputed sentence match")
+            preset = find_precomputed_sentence(text)
+            if preset:
+                print(f"[Evaluate] Found preset: {preset.get('sentence', '')}")
+
+        if preset and preset.get("fst"):
+            print(f"[Evaluate] Using preset for scoring")
+            request_id = f"preset_{preset.get('id', 'score')}"
+
+            gtp_dict = {
+                "id": f"gtp_{request_id}",
+                "text": text,
+                "syll_ltrs": preset.get("syll_ltrs", ""),
+                "syll_phns": preset.get("syll_phns", ""),
+                "error_code": 0,
+            }
+            model_dict = {
+                "id": f"model_{request_id}",
+                "text": text,
+                "syll_ltrs": preset.get("syll_ltrs", ""),
+                "syll_phns": preset.get("syll_phns", ""),
+                "fst": preset.get("fst", ""),
+                "error_code": 0,
+            }
+
+            print(f"[Evaluate] Calling score API...")
+            score_result = call_speechpro_score(
+                text=text,
+                syll_ltrs=preset.get("syll_ltrs", ""),
+                syll_phns=preset.get("syll_phns", ""),
+                fst=preset.get("fst", ""),
+                audio_data=audio_content,
+                request_id=request_id,
+            )
+
+            print(f"[Evaluate] Score result: score={score_result.score}, error_code={score_result.error_code}")
+
+            if score_result.error_code != 0:
+                print(f"[Evaluate] Score error detected: {score_result.error_code}")
+                raise RuntimeError(f"Score 오류: error_code={score_result.error_code}")
+
+            # AI 피드백 생성
+            ai_feedback = None
+            if MODEL_BACKEND == "ollama":
+                try:
+                    ai_feedback = await _generate_pronunciation_feedback(text, score_result)
+                    print(f"[Evaluate] AI feedback generated: {ai_feedback[:100] if ai_feedback else 'None'}")
+                except Exception as fb_err:
+                    print(f"[Evaluate] AI feedback failed: {fb_err}")
+
+            print(f"[Evaluate] Success - returning response")
+            response_data = {
+                "gtp": gtp_dict,
+                "model": model_dict,
+                "score": score_result.to_dict(),
+                "overall_score": score_result.score,
+                "success": True,
+                "source": preset.get("source", "precomputed")
+            }
+            if ai_feedback:
+                response_data["ai_feedback"] = ai_feedback
+            
+            return JSONResponse(content=response_data)
+
+        # 2) 프리셋이 없으면 기존 전체 워크플로우 수행
+        print(f"[Evaluate] No preset found, using full workflow")
+        result = speechpro_full_workflow(text, audio_content)
+        return JSONResponse(content=result)
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e), "success": False}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e), "success": False}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Evaluation failed: {str(e)}", "success": False}
+        )
+
+
+@app.get("/api/speechpro/config")
+async def speechpro_config():
+    """SpeechPro API 설정 조회"""
+    return JSONResponse(content={
+        "url": get_speechpro_url(),
+        "status": "configured"
+    })
+
+
+@app.post("/api/speechpro/config")
+async def set_speechpro_config(data: dict = None):
+    """SpeechPro API URL 설정"""
+    try:
+        if data is None:
+            data = {}
+        
+        url = data.get("url", "").strip()
+        if not url:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "url is required"}
+            )
+        
+        set_speechpro_url(url)
+        return JSONResponse(content={
+            "url": get_speechpro_url(),
+            "status": "updated"
+        })
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
         )
 
 

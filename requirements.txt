@@ -7,3 +7,4 @@ python-dotenv
 requests
 jinja2
 vosk
+google-generativeai

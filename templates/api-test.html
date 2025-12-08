@@ -8,7 +8,7 @@
   </div>
 
   <!-- API Categories -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <!-- Learning Game APIs -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
@@ -252,12 +252,94 @@
         </ul>
       </div>
     </div>
+
+    <!-- SpeechPro API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🎤 SpeechPro API</h2>
+
+      <!-- Sentences List -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">문장 목록</h3>
+        <button
+          onclick="testAPI('/api/speechpro/sentences', 'speechpro-sentences-result')"
+          class="bg-violet-500 text-white px-4 py-2 rounded hover:bg-violet-600 mb-2 w-full"
+        >
+          GET /api/speechpro/sentences
+        </button>
+        <pre
+          id="speechpro-sentences-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Config -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">API 설정</h3>
+        <button
+          onclick="testAPI('/api/speechpro/config', 'speechpro-config-result')"
+          class="bg-violet-400 text-white px-4 py-2 rounded hover:bg-violet-500 mb-2 w-full"
+        >
+          GET /api/speechpro/config
+        </button>
+        <pre
+          id="speechpro-config-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Evaluation Test -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 평가 테스트</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="speechpro-text"
+            placeholder="평가할 텍스트 (예: 안녕하세요)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="안녕하세요"
+          />
+          <div class="flex gap-2">
+            <button
+              id="speechpro-record-btn"
+              onclick="toggleSpeechProRecording()"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
+            >
+              🎙️ 녹음 시작
+            </button>
+          </div>
+          <div id="speechpro-recording-status" class="text-sm text-gray-600"></div>
+        </div>
+        <button
+          id="speechpro-evaluate-btn"
+          onclick="testSpeechProEvaluate()"
+          class="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700 w-full"
+          disabled
+        >
+          POST /api/speechpro/evaluate
+        </button>
+        <pre
+          id="speechpro-evaluate-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
+      <div class="bg-violet-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 SpeechPro API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• GTP: 텍스트→음소 변환</li>
+          <li>• Model: FST 발음 모델 생성</li>
+          <li>• Score: 발음 점수 평가</li>
+          <li>• AI 피드백 자동 생성</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <!-- API Documentation Section -->
   <div class="mt-8 bg-white rounded-lg shadow-md p-6">
     <h2 class="text-2xl font-bold text-gray-900 mb-4">📖 API 문서</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
       <div>
         <h3 class="font-semibold text-gray-800 mb-2">학습 게임 API</h3>
         <ul class="space-y-1 text-gray-600">
@@ -339,11 +421,128 @@
           </li>
         </ul>
       </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 mb-2">SpeechPro API</h3>
+        <ul class="space-y-1 text-gray-600">
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/speechpro/sentences</code
+            >
+            - 프리셋 문장 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/speechpro/config</code
+            >
+            - API 설정 조회
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/speechpro/evaluate</code
+            >
+            - 발음 평가 (텍스트 + 오디오)
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+  // SpeechPro recording state
+  let speechProRecorder = null;
+  let speechProChunks = [];
+
+  // Toggle SpeechPro recording
+  async function toggleSpeechProRecording() {
+    const btn = document.getElementById("speechpro-record-btn");
+    const status = document.getElementById("speechpro-recording-status");
+    const evaluateBtn = document.getElementById("speechpro-evaluate-btn");
+
+    if (!speechProRecorder || speechProRecorder.state === "inactive") {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        speechProRecorder = new MediaRecorder(stream);
+        speechProChunks = [];
+
+        speechProRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            speechProChunks.push(e.data);
+          }
+        };
+
+        speechProRecorder.onstop = () => {
+          const audioBlob = new Blob(speechProChunks, { type: "audio/webm" });
+          window.speechProAudioBlob = audioBlob;
+          status.textContent = `녹음 완료 (${(audioBlob.size / 1024).toFixed(1)} KB)`;
+          evaluateBtn.disabled = false;
+          
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        speechProRecorder.start();
+        btn.textContent = "⏹️ 녹음 중지";
+        btn.classList.remove("bg-red-500", "hover:bg-red-600");
+        btn.classList.add("bg-gray-500", "hover:bg-gray-600");
+        status.textContent = "녹음 중... 🔴";
+        evaluateBtn.disabled = true;
+      } catch (error) {
+        status.textContent = `마이크 접근 실패: ${error.message}`;
+      }
+    } else {
+      // Stop recording
+      speechProRecorder.stop();
+      btn.textContent = "🎙️ 녹음 시작";
+      btn.classList.remove("bg-gray-500", "hover:bg-gray-600");
+      btn.classList.add("bg-red-500", "hover:bg-red-600");
+    }
+  }
+
+  // Test SpeechPro evaluation
+  async function testSpeechProEvaluate() {
+    const resultElement = document.getElementById("speechpro-evaluate-result");
+    const text = document.getElementById("speechpro-text").value;
+    const audioBlob = window.speechProAudioBlob;
+
+    if (!text) {
+      resultElement.textContent = "텍스트를 입력하세요.";
+      return;
+    }
+
+    if (!audioBlob) {
+      resultElement.textContent = "먼저 녹음을 완료하세요.";
+      return;
+    }
+
+    resultElement.textContent = "평가 중...";
+
+    try {
+      const formData = new FormData();
+      formData.append("text", text);
+      formData.append("audio", audioBlob, "recording.webm");
+
+      const response = await fetch("/api/speechpro/evaluate", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      // Format result nicely
+      let displayText = JSON.stringify(data, null, 2);
+      if (data.success) {
+        const score = data.overall_score || 0;
+        const feedback = data.ai_feedback || "피드백 없음";
+        displayText = `✅ 평가 성공\n\n점수: ${Math.round(score)}점\n\n${feedback}\n\n전체 응답:\n${displayText}`;
+      }
+      
+      resultElement.textContent = displayText;
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
   // Simple GET API test
   async function testAPI(endpoint, resultId) {
     const resultElement = document.getElementById(resultId);
