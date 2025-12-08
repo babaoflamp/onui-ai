@@ -64,12 +64,15 @@ endblock %} {% block content %}
     <section
       class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
     >
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">📚</span>
-        1. 맞춤형 교재 생성
-      </h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">📚</span>
+          1. 맞춤형 교재 생성
+        </h2>
+        <a href="/content-generation" class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition">
+          전체 보기 →
+        </a>
+      </div>
 
       <div
         class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-3"
@@ -94,8 +97,8 @@ endblock %} {% block content %}
           id="modelSelect"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
         >
-          <option value="gemini-2.5-flash" data-backend="gemini" selected>Gemini Flash</option>
-          <option value="exaone3.5:2.4b" data-backend="ollama">EXAONE 3.5</option>
+          <option value="exaone3.5:2.4b" data-backend="ollama" selected>EXAONE 3.5</option>
+          <option value="gemini-2.5-flash" data-backend="gemini">Gemini Flash</option>
         </select>
         <button
           id="generateBtn"
@@ -142,12 +145,15 @@ endblock %} {% block content %}
     <section
       class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200"
     >
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">🎤</span>
-        2. 발음 교정
-      </h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">🎤</span>
+          2. 발음 교정
+        </h2>
+        <a href="/pronunciation-check" class="text-sm px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition">
+          전체 보기 →
+        </a>
+      </div>
 
       <div class="bg-white p-4 rounded-lg shadow-sm">
         <div class="mb-4">
@@ -190,6 +196,12 @@ endblock %} {% block content %}
         <span class="text-2xl">✍️</span>
         3. 한국어 작문 테스트
       </h2>
+
+      <div class="flex items-center justify-between mb-3">
+        <a href="/fluency-test" class="text-sm px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition">
+          전체 보기 →
+        </a>
+      </div>
 
       <textarea
         id="fluencyInput"

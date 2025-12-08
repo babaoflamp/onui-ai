@@ -1,8 +1,13 @@
 import os
 import shutil
 import csv
+import sqlite3
+import hashlib
+import hmac
 from functools import lru_cache
-from fastapi import FastAPI, UploadFile, File, Form, Request
+from pathlib import Path
+from datetime import datetime
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
@@ -13,6 +18,7 @@ import requests
 import json
 import re
 import uvicorn
+import asyncio
 import subprocess
 import wave
 import base64
@@ -101,7 +107,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = None
 
 # Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
-MODEL_BACKEND = os.getenv("MODEL_BACKEND", "openai")
+MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -364,6 +370,211 @@ def get_mztts_server_info() -> dict:
         raise RuntimeError(f"Failed to get MzTTS server info: {e}")
 
 
+# ==========================================
+# Auth & Signup storage (SQLite + PBKDF2)
+# ==========================================
+DB_PATH = Path("data/users.db")
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+PBKDF_ITERATIONS = 120_000
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _init_user_db():
+    """Ensure the users table exists."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                nickname TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                native_lang TEXT,
+                affiliation TEXT,
+                time_pref TEXT,
+                interests TEXT,
+                goal TEXT,
+                exam_level TEXT,
+                reason TEXT,
+                style TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _hash_password(password: str) -> str:
+    salt = os.urandom(16)
+    derived = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
+    )
+    return f"{base64.b64encode(salt).decode()}${base64.b64encode(derived).decode()}"
+
+
+def _normalize_interests(raw):
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        return [str(v) for v in raw if str(v).strip()]
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                return [str(v) for v in parsed if str(v).strip()]
+        except Exception:
+            pass
+        return [v.strip() for v in raw.split(",") if v.strip()]
+    return []
+
+
+def _store_user_signup(payload: dict) -> dict:
+    email = (payload.get("email") or "").strip().lower()
+    nickname = (payload.get("nickname") or "").strip()
+    password = payload.get("password") or ""
+
+    if not email or not EMAIL_REGEX.match(email):
+        raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
+    if not nickname:
+        raise HTTPException(status_code=400, detail="닉네임을 입력하세요.")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="비밀번호는 8자 이상이어야 합니다.")
+
+    native_lang = (payload.get("native_lang") or "").strip()
+    affiliation = (payload.get("affiliation") or "").strip()
+    time_pref = (payload.get("time_pref") or "").strip()
+    interests = _normalize_interests(payload.get("interests"))
+    goal = (payload.get("goal") or "").strip()
+    exam_level = (payload.get("exam_level") or "").strip()
+    reason = (payload.get("reason") or "").strip()
+    style = (payload.get("style") or "").strip()
+
+    password_hash = _hash_password(password)
+    created_at = datetime.utcnow().isoformat()
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            INSERT INTO users (
+                email, nickname, password_hash, native_lang, affiliation,
+                time_pref, interests, goal, exam_level, reason, style, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                email,
+                nickname,
+                password_hash,
+                native_lang,
+                affiliation,
+                time_pref,
+                json.dumps(interests, ensure_ascii=False),
+                goal,
+                exam_level,
+                reason,
+                style,
+                created_at,
+            ),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
+    finally:
+        conn.close()
+
+    return {"email": email, "nickname": nickname}
+
+
+def _verify_password(stored_hash: str, password: str) -> bool:
+    """Verify password against stored PBKDF2 hash."""
+    try:
+        parts = stored_hash.split("$")
+        if len(parts) != 2:
+            return False
+        salt = base64.b64decode(parts[0])
+        stored_derived = base64.b64decode(parts[1])
+        
+        derived = hashlib.pbkdf2_hmac(
+            "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
+        )
+        return hmac.compare_digest(derived, stored_derived)
+    except Exception:
+        return False
+
+
+def _get_user_by_email(email: str) -> dict:
+    """Fetch user by email, return dict with id/email/nickname/password_hash or None."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, email, nickname, password_hash FROM users WHERE email = ?",
+            ((email or "").strip().lower(),)
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def _create_session_token(user_id: int, email: str) -> str:
+    """Create a simple JWT-like session token (in production, use proper JWT library)."""
+    import secrets
+    import time
+    
+    # Simple format: base64(id|email|timestamp|random)
+    timestamp = str(int(time.time()))
+    random_str = secrets.token_hex(16)
+    data = f"{user_id}|{email}|{timestamp}|{random_str}"
+    return base64.b64encode(data.encode()).decode()
+
+
+def _parse_session_token(token: str) -> dict:
+    """Parse session token, return dict with user_id/email or None."""
+    try:
+        data = base64.b64decode(token.encode()).decode()
+        parts = data.split("|")
+        if len(parts) >= 2:
+            return {"user_id": int(parts[0]), "email": parts[1]}
+    except Exception:
+        pass
+    return None
+
+
+def _get_user_by_id(user_id: int) -> dict:
+    """Fetch full user profile by ID."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, email, nickname, native_lang, affiliation, time_pref,
+                   interests, goal, exam_level, reason, style, created_at
+            FROM users WHERE id = ?
+            """,
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            data = dict(row)
+            # Parse interests JSON
+            if data.get("interests"):
+                try:
+                    data["interests"] = json.loads(data["interests"])
+                except Exception:
+                    data["interests"] = []
+            return data
+        return None
+    finally:
+        conn.close()
+
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -379,6 +590,10 @@ def startup_event():
             _auto_select_ollama_model()
         except Exception as e:
             print(f"Ollama auto-select failed: {e}")
+    try:
+        _init_user_db()
+    except Exception as e:
+        print(f"User DB init failed: {e}")
 
 # ==========================================
 # 학습 데이터 로드 헬퍼 함수
@@ -559,6 +774,36 @@ def learning_page(request: Request):
     """기존 AI 학습 도구 (콘텐츠 생성, 발음 교정, 작문 테스트)"""
     return templates.TemplateResponse("learning.html", {"request": request})
 
+@app.get("/content-generation")
+def content_generation_page(request: Request):
+    """맞춤형 교재 생성 페이지"""
+    return templates.TemplateResponse("content-generation.html", {"request": request})
+
+@app.get("/pronunciation-check")
+def pronunciation_check_page(request: Request):
+    """발음 교정 페이지"""
+    return templates.TemplateResponse("pronunciation-check.html", {"request": request})
+
+@app.get("/fluency-test")
+def fluency_test_page(request: Request):
+    """한국어 작문 테스트 페이지"""
+    return templates.TemplateResponse("fluency-test.html", {"request": request})
+
+@app.get("/custom-materials")
+def custom_materials_page(request: Request):
+    """맞춤형 교재 생성 페이지"""
+    return templates.TemplateResponse("custom-materials.html", {"request": request})
+
+@app.get("/essay-test")
+def essay_test_page(request: Request):
+    """한국어 작문 테스트 페이지"""
+    return templates.TemplateResponse("essay-test.html", {"request": request})
+
+@app.get("/pronunciation-correction")
+def pronunciation_correction_page(request: Request):
+    """발음 교정 페이지"""
+    return templates.TemplateResponse("pronunciation-correction.html", {"request": request})
+
 @app.get("/word-puzzle")
 def word_puzzle_page(request: Request):
     """단어 순서 맞추기 게임"""
@@ -579,6 +824,16 @@ def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
     return templates.TemplateResponse("pronunciation-practice.html", {"request": request})
 
+@app.get("/pronunciation-stages")
+def pronunciation_stages_page(request: Request):
+    """단계별 발음 학습"""
+    return templates.TemplateResponse("pronunciation-stages.html", {"request": request})
+
+@app.get("/pronunciation-rules")
+def pronunciation_rules_page(request: Request):
+    """발음 규칙 학습"""
+    return templates.TemplateResponse("pronunciation-rules.html", {"request": request})
+
 @app.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
     """SpeechPro 발음 평가"""
@@ -589,9 +844,231 @@ def api_test_page(request: Request):
     """API 테스트 도구"""
     return templates.TemplateResponse("api-test.html", {"request": request})
 
-# ==========================================
-# 2. AI 학습 콘텐츠 자동 생성 API
-# ==========================================
+@app.get("/sitemap")
+def sitemap_page(request: Request):
+    """사이트맵 페이지"""
+    return templates.TemplateResponse("sitemap.html", {"request": request})
+
+@app.get("/login")
+def login_page(request: Request):
+    """로그인 페이지"""
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/mypage")
+def mypage(request: Request):
+    """사용자 프로필 페이지"""
+    return templates.TemplateResponse("mypage.html", {"request": request})
+
+@app.get("/change-password")
+def change_password_page(request: Request):
+    """비밀번호 변경 페이지"""
+    return templates.TemplateResponse("change-password.html", {"request": request})
+
+# ------------------------------------------
+# 회원가입 (실제 계정 생성)
+# ------------------------------------------
+@app.post("/api/signup")
+async def signup(payload: dict):
+    user = _store_user_signup(payload)
+    return {"success": True, "email": user["email"], "nickname": user["nickname"]}
+
+
+@app.post("/api/landing-intake")
+async def landing_intake(payload: dict):
+    """Backward compatibility: reuse signup handler."""
+    return await signup(payload)
+
+
+# ------------------------------------------
+# 로그인 (계정 인증)
+# ------------------------------------------
+@app.post("/api/login")
+async def login(payload: dict):
+    """사용자 로그인: 이메일과 비밀번호로 인증."""
+    email = (payload.get("email") or "").strip().lower()
+    password = payload.get("password") or ""
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="이메일과 비밀번호를 입력하세요.")
+
+    user = _get_user_by_email(email)
+    if not user or not _verify_password(user["password_hash"], password):
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
+
+    # Create session token
+    token = _create_session_token(user["id"], user["email"])
+    
+    return {
+        "success": True,
+        "token": token,
+        "email": user["email"],
+        "nickname": user["nickname"],
+    }
+
+
+@app.post("/api/logout")
+async def logout(request: Request):
+    """로그아웃 (클라이언트에서 토큰 삭제)."""
+    # In a real system, invalidate token in backend
+    # For now, just return success
+    return {"success": True}
+
+
+# ------------------------------------------
+# 사용자 프로필 (mypage)
+# ------------------------------------------
+@app.get("/api/user/profile")
+async def get_user_profile(request: Request):
+    """로그인한 사용자의 프로필 조회."""
+    # Get token from header or query (header preferred for security)
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user = _get_user_by_id(parsed["user_id"])
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Remove sensitive fields
+    user.pop("password_hash", None)
+    return {"success": True, "user": user}
+
+
+@app.post("/api/user/profile/update")
+async def update_user_profile(request: Request, payload: dict):
+    """사용자 프로필 업데이트 (비밀번호 제외)."""
+    # Get token
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user_id = parsed["user_id"]
+    user = _get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Update allowed fields
+    nickname = (payload.get("nickname") or "").strip()
+    native_lang = (payload.get("native_lang") or "").strip()
+    affiliation = (payload.get("affiliation") or "").strip()
+    time_pref = (payload.get("time_pref") or "").strip()
+    interests = _normalize_interests(payload.get("interests"))
+    goal = (payload.get("goal") or "").strip()
+    exam_level = (payload.get("exam_level") or "").strip()
+    reason = (payload.get("reason") or "").strip()
+    style = (payload.get("style") or "").strip()
+    
+    if nickname and len(nickname) > 50:
+        raise HTTPException(status_code=400, detail="닉네임은 50자 이하여야 합니다.")
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        
+        if nickname:
+            updates.append("nickname = ?")
+            values.append(nickname)
+        if native_lang:
+            updates.append("native_lang = ?")
+            values.append(native_lang)
+        if affiliation:
+            updates.append("affiliation = ?")
+            values.append(affiliation)
+        if time_pref:
+            updates.append("time_pref = ?")
+            values.append(time_pref)
+        updates.append("interests = ?")
+        values.append(json.dumps(interests, ensure_ascii=False))
+        if goal:
+            updates.append("goal = ?")
+            values.append(goal)
+        if exam_level:
+            updates.append("exam_level = ?")
+            values.append(exam_level)
+        if reason:
+            updates.append("reason = ?")
+            values.append(reason)
+        if style:
+            updates.append("style = ?")
+            values.append(style)
+        
+        values.append(user_id)
+        
+        cursor.execute(
+            f"UPDATE users SET {', '.join(updates)} WHERE id = ?",
+            values
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    
+    # Return updated user
+    updated = _get_user_by_id(user_id)
+    updated.pop("password_hash", None)
+    return {"success": True, "user": updated}
+
+
+@app.post("/api/user/password/change")
+async def change_password(request: Request, payload: dict):
+    """사용자 비밀번호 변경."""
+    # Get token
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user_id = parsed["user_id"]
+    user = _get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Validate inputs
+    current_password = payload.get("current_password") or ""
+    new_password = payload.get("new_password") or ""
+    confirm_password = payload.get("confirm_password") or ""
+    
+    if not current_password:
+        raise HTTPException(status_code=400, detail="현재 비밀번호를 입력하세요.")
+    if not new_password:
+        raise HTTPException(status_code=400, detail="새 비밀번호를 입력하세요.")
+    if new_password != confirm_password:
+        raise HTTPException(status_code=400, detail="새 비밀번호가 일치하지 않습니다.")
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="새 비밀번호는 8자 이상이어야 합니다.")
+    
+    # Verify current password
+    user_with_hash = _get_user_by_email(user["email"])
+    if not user_with_hash or not _verify_password(user_with_hash["password_hash"], current_password):
+        raise HTTPException(status_code=401, detail="현재 비밀번호가 올바르지 않습니다.")
+    
+    # Update password
+    new_hash = _hash_password(new_password)
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (new_hash, user_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    
+    return {"success": True, "message": "비밀번호가 변경되었습니다."}
+
 @app.post("/api/generate-content")
 async def generate_content(
     topic: str = Form(...), 
@@ -1679,6 +2156,90 @@ async def speechpro_evaluate(
         return JSONResponse(
             status_code=500,
             content={"error": f"Evaluation failed: {str(e)}", "success": False}
+        )
+
+
+@app.get("/chatbot")
+def chatbot_page(request: Request):
+    """AI 챗봇 페이지"""
+    return templates.TemplateResponse("chatbot.html", {"request": request})
+
+
+@app.post("/api/chatbot")
+async def chatbot_api(request: Request):
+    """EXAONE 기반 챗봇 API"""
+    try:
+        data = await request.json()
+        user_message = data.get("message", "").strip()
+        
+        if not user_message:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "메시지를 입력해주세요."}
+            )
+        
+        # Call Ollama API (EXAONE)
+        system_prompt = """당신은 한국어 교육 AI 튜터입니다. 간결하고 명확하게 답변해주세요."""
+        
+        prompt = f"{system_prompt}\n\n질문: {user_message}"
+        
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "temperature": 0.7
+        }
+        
+        print(f"[Chatbot] Sending request to Ollama API: {OLLAMA_URL}/api/generate")
+        print(f"[Chatbot] User message: {user_message}")
+        
+        response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
+        
+        print(f"[Chatbot] Response status: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"[Chatbot] Error response: {response.text[:200]}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": "AI 서버 연결 오류"}
+            )
+        
+        result = response.json()
+        
+        # Extract text from Ollama response
+        if "response" in result:
+            ai_response = result["response"].strip()
+            print(f"[Chatbot] AI response: {ai_response[:100]}...")
+            return JSONResponse(content={
+                "response": ai_response,
+                "success": True
+            })
+        
+        print(f"[Chatbot] Failed to extract text from response: {result}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "AI 응답을 처리할 수 없습니다."}
+        )
+        
+    except requests.exceptions.Timeout:
+        print("[Chatbot] Timeout error")
+        return JSONResponse(
+            status_code=504,
+            content={"error": "AI 서버 응답 시간이 초과되었습니다."}
+        )
+    except requests.exceptions.RequestException as e:
+        print(f"[Chatbot] Request error: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"AI 서버 연결 오류: {str(e)}"}
+        )
+    except Exception as e:
+        print(f"[Chatbot] Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"오류가 발생했습니다: {str(e)}"}
         )
 
 
