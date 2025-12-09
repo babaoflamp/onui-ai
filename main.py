@@ -35,6 +35,9 @@ from backend.services.speechpro_service import (
     normalize_spaces,
 )
 
+# 학습 진도 서비스 임포트
+from backend.services.learning_progress_service import LearningProgressService
+
 # Try to provide a server-side romanization fallback for Korean -> Latin
 # We will try to import a lightweight romanizer if available. If not,
 # `romanize_korean` will be a no-op (returns original text) and we will
@@ -2305,6 +2308,96 @@ async def set_speechpro_config(data: dict = None):
             content={"error": str(e)}
         )
 
+
+# ============================================================================
+# 학습 진도 및 캐릭터 Pop-Up API
+# ============================================================================
+
+learning_service = LearningProgressService()
+
+@app.post("/api/learning/pronunciation-completed")
+async def record_pronunciation_completed(
+    user_id: str = Form(...),
+    score: int = Form(...)
+):
+    """발음 연습 완료 기록"""
+    try:
+        result = learning_service.update_pronunciation_practice(user_id, score)
+        
+        # Pop-Up 트리거 확인
+        popup_trigger = learning_service.check_popup_trigger(user_id)
+        
+        return JSONResponse({
+            "success": True,
+            "updated": result,
+            "popup": popup_trigger
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.post("/api/learning/popup-shown")
+async def record_popup_shown(request: Request):
+    """Pop-Up 표시 기록"""
+    try:
+        data = await request.json()
+        user_id = data.get("user_id", "anonymous")
+        popup_type = data.get("popup_type")
+        character = data.get("character")
+        message = data.get("message")
+        trigger_reason = data.get("trigger_reason", "user_activity")
+        
+        learning_service.record_popup_shown(
+            user_id, popup_type, character, message, trigger_reason
+        )
+        
+        return JSONResponse({"success": True})
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.get("/api/learning/user-stats/{user_id}")
+async def get_user_learning_stats(user_id: str):
+    """사용자 학습 통계 조회"""
+    try:
+        stats = learning_service.get_user_stats(user_id)
+        return JSONResponse(stats)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.get("/api/learning/today-progress/{user_id}")
+async def get_today_progress(user_id: str):
+    """오늘의 학습 진도 조회"""
+    try:
+        progress = learning_service.get_or_create_today_progress(user_id)
+        return JSONResponse(progress)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.post("/api/learning/check-popup/{user_id}")
+async def check_popup_trigger(user_id: str):
+    """Pop-Up 트리거 확인"""
+    try:
+        popup = learning_service.check_popup_trigger(user_id)
+        return JSONResponse({
+            "should_show": popup is not None,
+            "popup": popup
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)

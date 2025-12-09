@@ -218,20 +218,30 @@
 
           <!-- SpeechPro 분석 -->
           <div class="border-t pt-6 mt-6">
-            <h3 class="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+            <h3
+              class="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2"
+            >
               <span class="text-2xl">🎯</span> SpeechPro 정확도 분석
             </h3>
-            <div id="speechpro-content" class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800">
+            <div
+              id="speechpro-content"
+              class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800"
+            >
               <!-- 동적으로 생성됨 -->
             </div>
           </div>
 
           <!-- FluencyPro 분석 -->
           <div class="border-t pt-6 mt-6">
-            <h3 class="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+            <h3
+              class="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2"
+            >
               <span class="text-2xl">🌊</span> FluencyPro 유창성 분석
             </h3>
-            <div id="fluencypro-content" class="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4 space-y-2 text-purple-800">
+            <div
+              id="fluencypro-content"
+              class="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4 space-y-2 text-purple-800"
+            >
               <!-- 동적으로 생성됨 -->
             </div>
           </div>
@@ -698,10 +708,14 @@
       const sent = quality.sentences[0];
       speechproHtml += `<div class="text-sm space-y-1">`;
       if (sent.accuracy_percentage !== undefined) {
-        speechproHtml += `<div>✓ 정확 발음: <strong>${sent.accuracy_percentage.toFixed(1)}%</strong></div>`;
+        speechproHtml += `<div>✓ 정확 발음: <strong>${sent.accuracy_percentage.toFixed(
+          1
+        )}%</strong></div>`;
       }
       if (sent.completeness_percentage !== undefined) {
-        speechproHtml += `<div>✓ 완성도: <strong>${sent.completeness_percentage.toFixed(1)}%</strong></div>`;
+        speechproHtml += `<div>✓ 완성도: <strong>${sent.completeness_percentage.toFixed(
+          1
+        )}%</strong></div>`;
       }
       if (sent.syllable_count !== undefined) {
         speechproHtml += `<div>✓ 음절 수: <strong>${sent.syllable_count}</strong></div>`;
@@ -719,12 +733,16 @@
     if (Object.keys(fluency).length > 0) {
       fluencyHtml += `<div class="text-sm space-y-1">`;
       const speechRate = fluency["speech rate"] || fluency.speech_rate || 0;
-      const correctSyll = fluency["correct syllable count"] || fluency.correct_syllables || 0;
-      const totalSyll = fluency["syllable count"] || fluency.total_syllables || 1;
-      const syllAcc = (correctSyll / totalSyll * 100).toFixed(1);
-      
+      const correctSyll =
+        fluency["correct syllable count"] || fluency.correct_syllables || 0;
+      const totalSyll =
+        fluency["syllable count"] || fluency.total_syllables || 1;
+      const syllAcc = ((correctSyll / totalSyll) * 100).toFixed(1);
+
       if (speechRate > 0) {
-        fluencyHtml += `<div>🎯 발화 속도: <strong>${speechRate.toFixed(1)}</strong> 음절/초</div>`;
+        fluencyHtml += `<div>🎯 발화 속도: <strong>${speechRate.toFixed(
+          1
+        )}</strong> 음절/초</div>`;
       }
       fluencyHtml += `<div>✓ 정확 음절: <strong>${correctSyll}/${totalSyll}</strong> (${syllAcc}%)</div>`;
       fluencyHtml += `</div>`;
