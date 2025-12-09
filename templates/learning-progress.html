@@ -261,18 +261,17 @@ endblock %} {% block content %}
 
   async function loadProgressData() {
     try {
-      // Check if user is logged in
-      const userResponse = await fetch("/api/user/profile");
-      if (!userResponse.ok) {
-        if (userResponse.status === 401) {
-          window.location.href = "/login?redirect=/learning-progress";
-          return;
-        }
-        throw new Error("프로필을 불러올 수 없습니다");
+      // Check if user is logged in using localStorage
+      const token = localStorage.getItem("auth_token");
+      const nickname = localStorage.getItem("user_nickname");
+      
+      if (!token || !nickname) {
+        window.location.href = "/login?redirect=/learning-progress";
+        return;
       }
 
-      const userData = await userResponse.json();
-      const userId = userData.id || userData.user_id || "anonymous";
+      // Use nickname or email as userId
+      const userId = nickname || "anonymous";
 
       // Load today's progress
       const todayResponse = await fetch(
