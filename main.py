@@ -2394,9 +2394,9 @@ async def get_fluency_metrics(user_id: str):
             """
             SELECT 
                 COUNT(*) as total_practices,
-                AVG(CAST(pronunciation_score AS FLOAT)) as avg_fluency_score,
-                MAX(CAST(pronunciation_score AS FLOAT)) as best_fluency_score,
-                MIN(CAST(pronunciation_score AS FLOAT)) as worst_fluency_score
+                AVG(CAST(pronunciation_avg_score AS FLOAT)) as avg_fluency_score,
+                MAX(CAST(pronunciation_avg_score AS FLOAT)) as best_fluency_score,
+                MIN(CAST(pronunciation_avg_score AS FLOAT)) as worst_fluency_score
             FROM user_learning_progress
             WHERE user_id = ?
             """,

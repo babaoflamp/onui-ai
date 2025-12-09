@@ -781,3 +781,23 @@ INFO:     112.220.79.218:0 - "POST /api/learning/pronunciation-completed HTTP/1.
 INFO:     112.220.79.218:0 - "POST /api/learning/check-popup/testuser HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/testuser HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/learning/today-progress/testuser HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 500 Internal Server Error
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 500 Internal Server Error
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 500 Internal Server Error
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [246591]
+INFO:     Started server process [254461]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [254461]
