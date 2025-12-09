@@ -292,11 +292,11 @@ endblock %} {% block content %}
 
       // Update today's summary
       document.getElementById("todayPractices").textContent =
-        todayData.pronunciation_practices || 0;
+        todayData.pronunciation_practice_count || 0;
       document.getElementById("todayAvgScore").textContent =
-        Math.round(todayData.avg_score || 0) + "%";
+        Math.round(todayData.pronunciation_avg_score || 0) + "%";
       document.getElementById("todayDuration").textContent = Math.round(
-        todayData.total_duration || 0
+        todayData.total_learning_time || 0
       );
       document.getElementById("todayLevel").textContent =
         todayData.achievement_level || "-";
