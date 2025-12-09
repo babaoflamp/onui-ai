@@ -98,158 +98,6 @@
       </div>
     </div>
 
-    <!-- AI & Ollama APIs -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">🤖 AI & Ollama API</h2>
-
-      <!-- Ollama Models -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 모델</h3>
-        <button
-          onclick="testAPI('/api/ollama/models', 'ollama-models-result')"
-          class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 mb-2 w-full"
-        >
-          GET /api/ollama/models
-        </button>
-        <pre
-          id="ollama-models-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
-        ></pre>
-      </div>
-
-      <!-- Content Generation -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">콘텐츠 생성</h3>
-        <div class="mb-2">
-          <input
-            type="text"
-            id="content-topic"
-            placeholder="주제 (예: 카페에서)"
-            class="border rounded px-3 py-2 w-full mb-2"
-          />
-          <select
-            id="content-level"
-            class="border rounded px-3 py-2 w-full mb-2"
-          >
-            <option value="초급">초급</option>
-            <option value="중급">중급</option>
-            <option value="고급">고급</option>
-          </select>
-        </div>
-        <button
-          onclick="testGenerateContent()"
-          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
-        >
-          POST /api/generate-content
-        </button>
-        <pre
-          id="content-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
-        ></pre>
-      </div>
-
-      <!-- Fluency Check -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">
-          한국어 문장 테스트
-        </h3>
-        <textarea
-          id="fluency-text"
-          placeholder="한국어 문장을 입력하세요"
-          class="border rounded px-3 py-2 w-full mb-2"
-          rows="3"
-        ></textarea>
-        <button
-          onclick="testFluencyCheck()"
-          class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 w-full"
-        >
-          POST /api/fluency-check
-        </button>
-        <pre
-          id="fluency-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
-        ></pre>
-      </div>
-
-      <!-- Ollama Test -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 테스트</h3>
-        <textarea
-          id="ollama-prompt"
-          placeholder="테스트 프롬프트 입력"
-          class="border rounded px-3 py-2 w-full mb-2"
-          rows="2"
-        ></textarea>
-        <select
-          id="ollama-model-select"
-          class="border rounded px-3 py-2 w-full mb-2"
-        >
-          <option value="">(자동 선택)</option>
-        </select>
-        <button
-          onclick="testOllamaTest()"
-          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
-        >
-          POST /api/ollama/test
-        </button>
-        <pre
-          id="ollama-test-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
-        ></pre>
-      </div>
-    </div>
-
-    <!-- MzTTS API -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">🔊 MzTTS API</h2>
-
-      <!-- TTS Server Info -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">서버 정보</h3>
-        <button
-          onclick="testAPI('/api/tts/info', 'tts-info-result')"
-          class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 mb-2 w-full"
-        >
-          GET /api/tts/info
-        </button>
-        <pre
-          id="tts-info-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60"
-        ></pre>
-      </div>
-
-      <!-- TTS Generation -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">음성 생성</h3>
-        <div class="space-y-2 mb-2">
-          <input
-            type="text"
-            id="tts-text"
-            placeholder="한국어 텍스트 입력 (예: 안녕하세요)"
-            class="border rounded px-3 py-2 w-full"
-            value="안녕하세요"
-          />
-        </div>
-        <button
-          onclick="testTTSGeneration()"
-          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
-        >
-          POST /api/tts/generate (음성 재생)
-        </button>
-        <div id="tts-result" class="mt-2 p-3 rounded text-sm bg-gray-100"></div>
-      </div>
-
-      <!-- Speaker Guide -->
-      <div class="bg-blue-50 p-3 rounded text-xs">
-        <div class="font-semibold mb-1">🎙️ 화자 정보</div>
-        <ul class="space-y-0.5 text-gray-700">
-          <li>• 한나 (Hanna): 여성 목소리</li>
-          <li>• 고품질 한국어 음성 합성</li>
-          <li>• 샘플링 레이트: 22,050Hz</li>
-        </ul>
-      </div>
-    </div>
-
     <!-- SpeechPro API -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">🎤 SpeechPro API</h2>
@@ -418,6 +266,158 @@
           <li>• Correct Syllables: 정확한 음절 비율</li>
           <li>• Fluency Score: 종합 유창성 점수</li>
         </ul>
+      </div>
+    </div>
+
+    <!-- MzTTS API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🔊 MzTTS API</h2>
+
+      <!-- TTS Server Info -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">서버 정보</h3>
+        <button
+          onclick="testAPI('/api/tts/info', 'tts-info-result')"
+          class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 mb-2 w-full"
+        >
+          GET /api/tts/info
+        </button>
+        <pre
+          id="tts-info-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60"
+        ></pre>
+      </div>
+
+      <!-- TTS Generation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">음성 생성</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="tts-text"
+            placeholder="한국어 텍스트 입력 (예: 안녕하세요)"
+            class="border rounded px-3 py-2 w-full"
+            value="안녕하세요"
+          />
+        </div>
+        <button
+          onclick="testTTSGeneration()"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+        >
+          POST /api/tts/generate (음성 재생)
+        </button>
+        <div id="tts-result" class="mt-2 p-3 rounded text-sm bg-gray-100"></div>
+      </div>
+
+      <!-- Speaker Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">🎙️ 화자 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• 한나 (Hanna): 여성 목소리</li>
+          <li>• 고품질 한국어 음성 합성</li>
+          <li>• 샘플링 레이트: 22,050Hz</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- AI & Ollama APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🤖 AI & Ollama API</h2>
+
+      <!-- Ollama Models -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 모델</h3>
+        <button
+          onclick="testAPI('/api/ollama/models', 'ollama-models-result')"
+          class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 mb-2 w-full"
+        >
+          GET /api/ollama/models
+        </button>
+        <pre
+          id="ollama-models-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Content Generation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">콘텐츠 생성</h3>
+        <div class="mb-2">
+          <input
+            type="text"
+            id="content-topic"
+            placeholder="주제 (예: 카페에서)"
+            class="border rounded px-3 py-2 w-full mb-2"
+          />
+          <select
+            id="content-level"
+            class="border rounded px-3 py-2 w-full mb-2"
+          >
+            <option value="초급">초급</option>
+            <option value="중급">중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <button
+          onclick="testGenerateContent()"
+          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
+        >
+          POST /api/generate-content
+        </button>
+        <pre
+          id="content-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Fluency Check -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          한국어 문장 테스트
+        </h3>
+        <textarea
+          id="fluency-text"
+          placeholder="한국어 문장을 입력하세요"
+          class="border rounded px-3 py-2 w-full mb-2"
+          rows="3"
+        ></textarea>
+        <button
+          onclick="testFluencyCheck()"
+          class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 w-full"
+        >
+          POST /api/fluency-check
+        </button>
+        <pre
+          id="fluency-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Ollama Test -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ollama 테스트</h3>
+        <textarea
+          id="ollama-prompt"
+          placeholder="테스트 프롬프트 입력"
+          class="border rounded px-3 py-2 w-full mb-2"
+          rows="2"
+        ></textarea>
+        <select
+          id="ollama-model-select"
+          class="border rounded px-3 py-2 w-full mb-2"
+        >
+          <option value="">(자동 선택)</option>
+        </select>
+        <button
+          onclick="testOllamaTest()"
+          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 w-full"
+        >
+          POST /api/ollama/test
+        </button>
+        <pre
+          id="ollama-test-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
       </div>
     </div>
 
