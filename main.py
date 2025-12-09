@@ -2321,12 +2321,13 @@ async def set_speechpro_config(data: dict = None):
 learning_service = LearningProgressService()
 
 @app.post("/api/learning/pronunciation-completed")
-async def record_pronunciation_completed(
-    user_id: str = Form(...),
-    score: int = Form(...)
-):
+async def record_pronunciation_completed(request: Request):
     """발음 연습 완료 기록"""
     try:
+        data = await request.json()
+        user_id = data.get("user_id", "anonymous")
+        score = int(data.get("score", 0))
+        
         result = learning_service.update_pronunciation_practice(user_id, score)
         
         # Pop-Up 트리거 확인
@@ -2394,11 +2395,24 @@ async def check_popup_trigger(user_id: str):
     """Pop-Up 트리거 확인"""
     try:
         popup = learning_service.check_popup_trigger(user_id)
-        return JSONResponse({
-            "should_show": popup is not None,
-            "popup": popup
-        })
+        if popup:
+            return JSONResponse({
+                "should_show_popup": True,
+                "character": popup.get("character", "오빠"),
+                "popup_message": popup.get("message", ""),
+                "popup_type": popup.get("type", "info"),
+                "trigger": popup.get("trigger", "")
+            })
+        else:
+            return JSONResponse({
+                "should_show_popup": False,
+                "character": None,
+                "popup_message": None,
+                "popup_type": None,
+                "trigger": None
+            })
     except Exception as e:
+        print(f"Error checking popup: {e}")
         return JSONResponse(
             status_code=500,
             content={"error": str(e)}
