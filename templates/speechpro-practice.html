@@ -15,7 +15,9 @@ endblock %} {% block content %}
     </div>
 
     <!-- SpeechPro 장점 섹션 -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-l-4 border-blue-500 mb-8">
+    <div
+      class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-l-4 border-blue-500 mb-8"
+    >
       <h3 class="text-lg font-bold text-blue-900 mb-4">
         🎤 SpeechPro 발음 정확도 평가의 장점
       </h3>
@@ -159,18 +161,41 @@ endblock %} {% block content %}
       <!-- 레코딩 섹션 -->
       <div class="mb-8">
         <label class="block text-lg font-semibold text-[var(--text-main)] mb-4">
-          음성 녹음
+          🎙️ 음성 녹음
         </label>
 
         <div
           class="border-2 border-dashed border-[var(--accent)] rounded-lg p-8 text-center bg-gray-50"
         >
           <div id="recording-status" class="mb-4">
-            <div class="text-6xl mb-2">🎤</div>
-            <p class="text-gray-600">녹음 준비 완료</p>
+            <p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>
           </div>
 
-          <!-- 녹음 시간 표시 -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <button
+              id="start-recording"
+              onclick="startRecording()"
+              class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition flex-1 sm:flex-none"
+            >
+              🎙️ 녹음 시작
+            </button>
+            <button
+              id="stop-recording"
+              onclick="stopRecording()"
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition flex-1 sm:flex-none hidden"
+            >
+              ⏹️ 녹음 중지
+            </button>
+            <button
+              id="clear-recording"
+              onclick="clearRecording()"
+              class="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition flex-1 sm:flex-none"
+            >
+              🗑️ 초기화
+            </button>
+          </div>
+
+          <!-- 녹음 시간 표시 (숨김) -->
           <div
             id="recording-timer"
             class="text-2xl font-mono text-[var(--accent)] mb-4 hidden"
@@ -178,32 +203,7 @@ endblock %} {% block content %}
             00:00
           </div>
 
-          <!-- 녹음 버튼들 -->
-          <div class="flex justify-center gap-3 flex-wrap">
-            <button
-              id="start-recording"
-              onclick="startRecording()"
-              class="px-6 py-3 bg-[var(--accent)] text-white rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              ▶️ 녹음 시작
-            </button>
-            <button
-              id="stop-recording"
-              onclick="stopRecording()"
-              class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:opacity-90 transition hidden"
-            >
-              ⏹️ 녹음 중지
-            </button>
-            <button
-              id="clear-recording"
-              onclick="clearRecording()"
-              class="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:opacity-90 transition hidden"
-            >
-              🗑️ 초기화
-            </button>
-          </div>
-
-          <!-- 재생 버튼 -->
+          <!-- 재생 섹션 -->
           <div id="playback-section" class="mt-6 hidden">
             <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
             <audio
