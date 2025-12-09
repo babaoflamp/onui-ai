@@ -337,6 +337,86 @@
       </div>
     </div>
 
+    <!-- FluencyPro API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🗣️ FluencyPro API</h2>
+
+      <!-- Fluency Analysis Test -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">유창성 분석 테스트</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="fluency-text"
+            placeholder="분석할 텍스트 (예: 안녕하세요, 제 이름은 김스캇입니다)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="안녕하세요"
+          />
+          <div class="flex gap-2">
+            <button
+              id="fluency-record-btn"
+              onclick="toggleFluencyRecording()"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+            >
+              🎙️ 녹음 시작
+            </button>
+          </div>
+          <div
+            id="fluency-recording-status"
+            class="text-sm text-gray-600"
+          ></div>
+        </div>
+        <button
+          id="fluency-analyze-btn"
+          onclick="testFluencyAnalyze()"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+          disabled
+        >
+          POST /api/fluencypro/analyze
+        </button>
+        <pre
+          id="fluency-analyze-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Fluency Metrics -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">유창성 지표 조회</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="fluency-metrics-user"
+            placeholder="User ID (닉네임)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testFluencyMetrics()"
+          class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 w-full"
+        >
+          GET /api/fluencypro/metrics/{user_id}
+        </button>
+        <pre
+          id="fluency-metrics-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 FluencyPro API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• Speech Rate: 발화 속도 (음절/초)</li>
+          <li>• Articulation Rate: 조음 속도</li>
+          <li>• Pause Distribution: 쉼표 분포 분석</li>
+          <li>• Correct Syllables: 정확한 음절 비율</li>
+          <li>• Fluency Score: 종합 유창성 점수</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- Learning Progress APIs -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">📊 학습 진도 API</h2>
@@ -964,6 +1044,105 @@
 
     try {
       const response = await fetch(`/api/learning/today-progress/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // FluencyPro API Functions
+  let fluencyRecorder = null;
+  let fluencyAudioBlob = null;
+
+  function toggleFluencyRecording() {
+    const btn = document.getElementById("fluency-record-btn");
+    const statusDiv = document.getElementById("fluency-recording-status");
+    const analyzeBtn = document.getElementById("fluency-analyze-btn");
+
+    if (!fluencyRecorder) {
+      // Start recording
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          fluencyRecorder = new MediaRecorder(stream);
+          const audioChunks = [];
+
+          fluencyRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          fluencyRecorder.onstop = () => {
+            fluencyAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            statusDiv.textContent =
+              "✓ 녹음 완료 (" +
+              (fluencyAudioBlob.size / 1024).toFixed(1) +
+              " KB)";
+            analyzeBtn.disabled = false;
+            btn.textContent = "🎙️ 녹음 다시";
+            fluencyRecorder = null;
+          };
+
+          fluencyRecorder.start();
+          btn.textContent = "⏹️ 녹음 중지";
+          statusDiv.textContent = "⏺️ 녹음 중...";
+        })
+        .catch((error) => {
+          statusDiv.textContent =
+            "마이크 접근 권한이 필요합니다: " + error.message;
+        });
+    } else {
+      // Stop recording
+      fluencyRecorder.stop();
+    }
+  }
+
+  async function testFluencyAnalyze() {
+    const resultElement = document.getElementById("fluency-analyze-result");
+    const textInput = document.getElementById("fluency-text").value;
+
+    if (!textInput) {
+      resultElement.textContent = "분석할 텍스트를 입력하세요.";
+      return;
+    }
+
+    if (!fluencyAudioBlob) {
+      resultElement.textContent = "음성을 녹음해주세요.";
+      return;
+    }
+
+    resultElement.textContent = "분석 중...";
+
+    try {
+      const formData = new FormData();
+      formData.append("text", textInput);
+      formData.append("audio", fluencyAudioBlob, "fluency.wav");
+
+      const response = await fetch("/api/fluencypro/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testFluencyMetrics() {
+    const resultElement = document.getElementById("fluency-metrics-result");
+    const userId = document.getElementById("fluency-metrics-user").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "조회 중...";
+
+    try {
+      const response = await fetch(`/api/fluencypro/metrics/${userId}`);
       const data = await response.json();
       resultElement.textContent = JSON.stringify(data, null, 2);
     } catch (error) {

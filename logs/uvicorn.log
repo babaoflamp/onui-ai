@@ -745,3 +745,18 @@ INFO:     112.220.79.218:0 - "GET /login?redirect=/learning-progress HTTP/1.1" 2
 INFO:     112.220.79.218:0 - "GET /mypage HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/user/profile HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /mypage HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [218202]
+INFO:     Started server process [239228]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.

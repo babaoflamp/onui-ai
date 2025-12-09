@@ -2315,6 +2315,138 @@ async def set_speechpro_config(data: dict = None):
 
 
 # ============================================================================
+# FluencyPro API (유창성 평가)
+# ============================================================================
+
+@app.post("/api/fluencypro/analyze")
+async def fluency_analyze(request: Request):
+    """음성 유창성 분석 - FluencyPro API"""
+    try:
+        form_data = await request.form()
+        text = form_data.get("text", "").strip()
+        audio_file = form_data.get("audio")
+
+        if not text or not audio_file:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text and audio are required"}
+            )
+
+        # 실제 FluencyPro API 호출 (테스트용 더미 응답)
+        # TODO: 실제 FluencyPro 서비스 연동
+        audio_data = await audio_file.read()
+        
+        fluency_result = {
+            "text": text,
+            "audio_length_ms": len(audio_data) // 16,  # 대략적인 오디오 길이 (16KB ≈ 1초)
+            "speech_rate": round(len(text.split()) / (len(audio_data) / 16000), 2),  # 음절/초
+            "correct_syllables_rate": round((len(text.replace(" ", "")) / len(text.split())) * 100, 1),  # 정확한 음절 비율
+            "articulation_rate": round(len(text.split()) / (len(audio_data) / 16000) * 0.95, 2),  # 조음 속도
+            "pause_count": len(text.split()) - 1,
+            "pause_duration_ms": round(len(audio_data) / 32),  # 쉼표 총 시간
+            "fluency_score": round(65 + (len(audio_data) / 16000) * 5, 1),  # 유창성 점수
+            "confidence": 0.85,
+            "recommendations": [
+                "음절을 더 명확하게 발음해주세요.",
+                "자연스러운 속도로 말씀해주세요.",
+                "적절한 쉼표를 사용하세요."
+            ],
+            "timestamp": datetime.now().isoformat()
+        }
+
+        return JSONResponse(content=fluency_result)
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+@app.get("/api/fluencypro/metrics/{user_id}")
+async def get_fluency_metrics(user_id: str):
+    """사용자 유창성 지표 조회"""
+    try:
+        # 데이터베이스에서 사용자의 유창성 데이터 조회
+        # TODO: 실제 데이터베이스 연동
+        
+        db_path = "data/users.db"
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # 사용자 정보 조회
+        cursor.execute(
+            "SELECT id, nickname FROM users WHERE nickname = ?",
+            (user_id,)
+        )
+        user_row = cursor.fetchone()
+        
+        if not user_row:
+            return JSONResponse(
+                status_code=404,
+                content={"error": f"User {user_id} not found"}
+            )
+        
+        actual_user_id = user_row[0]
+        
+        # 학습 진도에서 발음 연습 데이터 조회
+        cursor.execute(
+            """
+            SELECT 
+                COUNT(*) as total_practices,
+                AVG(CAST(pronunciation_score AS FLOAT)) as avg_fluency_score,
+                MAX(CAST(pronunciation_score AS FLOAT)) as best_fluency_score,
+                MIN(CAST(pronunciation_score AS FLOAT)) as worst_fluency_score
+            FROM user_learning_progress
+            WHERE user_id = ?
+            """,
+            (actual_user_id,)
+        )
+        metrics_row = cursor.fetchone()
+        conn.close()
+        
+        total = metrics_row[0] or 0
+        avg_score = round(metrics_row[1] or 0, 1)
+        best_score = round(metrics_row[2] or 0, 1)
+        worst_score = round(metrics_row[3] or 0, 1)
+        
+        # 유창성 평가 등급
+        if avg_score >= 90:
+            grade = "A+ (매우 좋음)"
+        elif avg_score >= 80:
+            grade = "A (좋음)"
+        elif avg_score >= 70:
+            grade = "B (보통)"
+        elif avg_score >= 60:
+            grade = "C (개선필요)"
+        else:
+            grade = "D (많은 개선필요)"
+        
+        fluency_metrics = {
+            "user_id": user_id,
+            "total_practices": total,
+            "average_fluency_score": avg_score,
+            "best_fluency_score": best_score,
+            "worst_fluency_score": worst_score,
+            "fluency_grade": grade,
+            "practice_frequency": "매일" if total >= 7 else "주 3-4회" if total >= 3 else "불규칙",
+            "improvement_trend": "상승" if total >= 3 else "데이터 부족",
+            "speech_rate_average": round(4.5 + (avg_score / 100), 2),
+            "articulation_rate_average": round(4.2 + (avg_score / 120), 2),
+            "accuracy_score": round(avg_score, 1),
+            "last_practice": datetime.now().isoformat()
+        }
+        
+        return JSONResponse(content=fluency_metrics)
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+# ============================================================================
 # 학습 진도 및 캐릭터 Pop-Up API
 # ============================================================================
 
