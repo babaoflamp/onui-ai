@@ -772,3 +772,12 @@ INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
 INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/fluencypro/analyze HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "POST /api/learning/pronunciation-completed HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/learning/check-popup/testuser HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/testuser HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/learning/today-progress/testuser HTTP/1.1" 200 OK
