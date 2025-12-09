@@ -1558,6 +1558,93 @@ async def fluency_check(user_text: str = Form(...)):
     return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
 
 # ==========================================
+# 3-2. 상황별 컨텐츠 생성 API
+# ==========================================
+@app.post("/api/situational-content")
+async def situational_content(situation: str = Form(...), level: str = Form(...), model: str = Form(...)):
+    """
+    상황(예: 카페, 식당, 병원)과 난이도를 입력받아 
+    상황에 맞는 표현, 대화, 어휘를 생성합니다.
+    """
+    situation_prompts = {
+        "카페": "카페에서 커피를 주문하는 상황",
+        "식당": "식당에서 음식을 예약하고 주문하는 상황",
+        "병원": "병원 진료를 받는 상황",
+        "은행": "은행에서 업무를 보는 상황",
+        "여행": "여행을 계획하고 호텔을 예약하는 상황",
+        "면접": "면접을 보는 상황",
+    }
+    
+    situation_desc = situation_prompts.get(situation, situation)
+    
+    prompt = f"""
+    한국어 학습자를 위한 상황별 학습 컨텐츠를 생성해주세요.
+    
+    상황: {situation_desc}
+    난이도: {level}
+    
+    다음 정보를 JSON 형식으로 제공해주세요:
+    {{
+        "situation_description": "상황에 대한 설명",
+        "key_expressions": [
+            {{"korean": "네, 잠깐만요.", "romanization": "Ne, jamskkaman yo.", "meaning": "Yes, wait a moment"}},
+            ...
+        ],
+        "example_dialogue": [
+            {{"role": "A", "text": "안녕하세요! 무엇을 도와드릴까요?"}},
+            {{"role": "B", "text": "아이스 아메리카노 한 잔 주세요."}},
+            ...
+        ],
+        "vocabulary": ["단어1", "단어2", ...]
+    }}
+    """
+    
+    try:
+        if MODEL_BACKEND == "ollama":
+            payload = {"model": model or OLLAMA_MODEL, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=60)
+            if resp.status_code != 200:
+                return JSONResponse(status_code=500, content={"error": "ollama generate failed"})
+            
+            out = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        out += obj.get("response", "") or obj.get("text", "")
+                except Exception:
+                    out += line
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"error": "Failed to parse response"})
+        
+        elif MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            gemini_model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = gemini_model.generate_content(prompt)
+            out = response.text
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"error": "Failed to parse response"})
+        
+        else:
+            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+    
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "situational-content failed", "details": str(e)})
+
+# ==========================================
 # 4. 발음 교정 API (음성 업로드 -> STT -> 비교)
 # ==========================================
 @app.post("/api/pronunciation-check")
