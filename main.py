@@ -640,7 +640,7 @@ def load_speechpro_precomputed_sentences():
                     "order": order,
                     "sentenceKr": sentence_kr,
                     "sentenceEn": "",
-                    "level": "PRESET",
+                    "level": "초급",
                     "difficulty": "SpeechPro",
                     "category": "프리셋",
                     "tags": ["speechpro", "preset"],
