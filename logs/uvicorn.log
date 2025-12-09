@@ -801,3 +801,48 @@ INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
 INFO:     Finished server process [254461]
+INFO:     Started server process [254569]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [254569]
+INFO:     Started server process [263305]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 기본 한국어 인사말 알려줘.
+[Chatbot] Response status: 200
+[Chatbot] AI response: 안녕하세요! 기본 한국어 인사말 몇 가지입니다:
+
+* **안녕하세요?** (Annyeonghaseyo?) - 인사
+* **잘 지내세요?** (Jal jinaeseyo?) - 안녕,...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK

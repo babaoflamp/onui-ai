@@ -866,8 +866,13 @@ def pronunciation_rules_page(request: Request):
 
 @app.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
-    """SpeechPro 발음 평가"""
+    """SpeechPro 발음 정확도 평가"""
     return templates.TemplateResponse("speechpro-practice.html", {"request": request})
+
+@app.get("/fluency-practice")
+def fluency_practice_page(request: Request):
+    """FluencyPro 유창성 평가"""
+    return templates.TemplateResponse("fluency-practice.html", {"request": request})
 
 @app.get("/api-test")
 def api_test_page(request: Request):
