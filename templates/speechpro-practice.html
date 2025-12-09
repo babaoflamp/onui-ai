@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}발음 평가 - 오누이 AI{% endblock %}
+{% extends "base.html" %} {% block title %}발음 정확도 평가 - 오누이 AI{% endblock %}
 {% block content %}
 <div
   class="min-h-screen bg-gradient-to-br from-[var(--bg1)] via-white to-[var(--bg2)] p-6"
@@ -7,10 +7,10 @@
     <!-- 헤더 -->
     <div class="text-center mb-12">
       <h1 class="text-4xl font-bold text-[var(--text-main)] mb-2">
-        🗣️ 발음 평가
+        🎤 발음 정확도 평가
       </h1>
       <p class="text-[var(--text-sub)] text-lg">
-        한국어 발음을 평가받고 개선점을 찾아보세요
+        한국어 발음의 정확도를 평가받고 개별 음소별 피드백을 얻어보세요
       </p>
     </div>
 
@@ -148,7 +148,7 @@
       </div>
 
       <!-- 평가 버튼 -->
-      <div class="flex justify-center gap-3">
+      <div class="flex justify-center gap-3 mb-8">
         <button
           id="evaluate-button"
           onclick="evaluatePronunciation()"
@@ -157,6 +157,60 @@
         >
           🎯 발음 평가하기
         </button>
+      </div>
+
+      <!-- SpeechPro 정보 섹션 -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-l-4 border-blue-500">
+        <h3 class="text-lg font-bold text-blue-900 mb-4">🎤 SpeechPro 발음 정확도 평가의 장점</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-2xl">✓</span>
+              <div>
+                <h4 class="font-semibold text-gray-800">개별 음소 분석</h4>
+                <p class="text-sm text-gray-600">각 음소별 정확성을 상세히 분석하여 어떤 발음이 틀렸는지 정확히 파악할 수 있습니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-2xl">✓</span>
+              <div>
+                <h4 class="font-semibold text-gray-800">AI 기반 피드백</h4>
+                <p class="text-sm text-gray-600">AI가 발음의 특정 문제점을 분석하고 개선 방법을 제시해줍니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-2xl">✓</span>
+              <div>
+                <h4 class="font-semibold text-gray-800">음향 특성 분석</h4>
+                <p class="text-sm text-gray-600">기본주파수(F0)와 에너지 같은 음향 특성을 분석하여 음질을 평가합니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-sm">
+            <div class="flex items-start gap-2">
+              <span class="text-2xl">✓</span>
+              <div>
+                <h4 class="font-semibold text-gray-800">발음 모델 기반 평가</h4>
+                <p class="text-sm text-gray-600">FST(Finite State Transducer) 발음 모델을 사용하여 과학적인 평가를 제공합니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg border-t-2 border-blue-200">
+          <p class="text-sm text-gray-700">
+            <strong>💡 TIP:</strong> 정확한 발음 기초를 다지려면 SpeechPro로 음소별 정확도를 먼저 확인하고, 
+            그 후 FluencyPro로 자연스러운 발화를 연습하는 것이 효과적입니다.
+          </p>
+        </div>
       </div>
     </div>
 

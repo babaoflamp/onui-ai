@@ -1,5 +1,4 @@
-{% extends "base.html" %}
-{% block title %}유창성 평가 - 오누이 AI{% endblock %}
+{% extends "base.html" %} {% block title %}유창성 평가 - 오누이 AI{% endblock %}
 {% block content %}
 <div
   class="min-h-screen bg-gradient-to-br from-[var(--bg1)] via-white to-[var(--bg2)] p-6"
@@ -84,19 +83,28 @@
 
       <!-- 결과 섹션 -->
       <div id="fluency-results" class="hidden">
-        <div class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500">
+        <div
+          class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500"
+        >
           <h3 class="text-2xl font-bold text-blue-900 mb-4">📊 평가 결과</h3>
 
           <!-- 핵심 점수 -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div class="bg-white p-4 rounded-lg">
               <div class="text-sm text-gray-600">유창성 점수</div>
-              <div class="text-3xl font-bold text-blue-600" id="fluency-score">0</div>
+              <div class="text-3xl font-bold text-blue-600" id="fluency-score">
+                0
+              </div>
               <div class="text-xs text-gray-500 mt-1">/ 100</div>
             </div>
             <div class="bg-white p-4 rounded-lg">
               <div class="text-sm text-gray-600">신뢰도</div>
-              <div class="text-3xl font-bold text-green-600" id="fluency-confidence">0%</div>
+              <div
+                class="text-3xl font-bold text-green-600"
+                id="fluency-confidence"
+              >
+                0%
+              </div>
             </div>
           </div>
 
@@ -106,23 +114,43 @@
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-600">발화 속도</span>
-                <span class="font-semibold text-gray-900" id="fluency-speech-rate">0 음절/초</span>
+                <span
+                  class="font-semibold text-gray-900"
+                  id="fluency-speech-rate"
+                  >0 음절/초</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">조음 속도</span>
-                <span class="font-semibold text-gray-900" id="fluency-articulation">0 음절/초</span>
+                <span
+                  class="font-semibold text-gray-900"
+                  id="fluency-articulation"
+                  >0 음절/초</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">정확한 음절 비율</span>
-                <span class="font-semibold text-gray-900" id="fluency-correct-syllables">0%</span>
+                <span
+                  class="font-semibold text-gray-900"
+                  id="fluency-correct-syllables"
+                  >0%</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">쉼표 개수</span>
-                <span class="font-semibold text-gray-900" id="fluency-pause-count">0</span>
+                <span
+                  class="font-semibold text-gray-900"
+                  id="fluency-pause-count"
+                  >0</span
+                >
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-600">오디오 길이</span>
-                <span class="font-semibold text-gray-900" id="fluency-audio-length">0초</span>
+                <span
+                  class="font-semibold text-gray-900"
+                  id="fluency-audio-length"
+                  >0초</span
+                >
               </div>
             </div>
           </div>
@@ -131,8 +159,12 @@
           <div class="bg-white p-4 rounded-lg">
             <h4 class="font-semibold text-gray-800 mb-3">💡 개선 권장사항</h4>
             <ul id="fluency-recommendations" class="space-y-2">
-              <li class="text-sm text-gray-600">• 음절을 더 명확하게 발음해주세요.</li>
-              <li class="text-sm text-gray-600">• 자연스러운 속도로 말씀해주세요.</li>
+              <li class="text-sm text-gray-600">
+                • 음절을 더 명확하게 발음해주세요.
+              </li>
+              <li class="text-sm text-gray-600">
+                • 자연스러운 속도로 말씀해주세요.
+              </li>
               <li class="text-sm text-gray-600">• 적절한 쉼표를 사용하세요.</li>
             </ul>
           </div>
@@ -145,7 +177,9 @@
         <ul class="space-y-1 text-sm text-blue-800">
           <li>• <strong>발화 속도</strong>: 1초당 발음하는 음절 개수</li>
           <li>• <strong>조음 속도</strong>: 실제 발음하는 속도</li>
-          <li>• <strong>정확한 음절 비율</strong>: 올바르게 발음한 음절의 비율</li>
+          <li>
+            • <strong>정확한 음절 비율</strong>: 올바르게 발음한 음절의 비율
+          </li>
           <li>• <strong>쉼표 분포</strong>: 자연스러운 호흡 패턴</li>
           <li>• <strong>유창성 점수</strong>: 전반적인 발화 자연스러움 점수</li>
         </ul>
@@ -255,16 +289,26 @@
       const data = await response.json();
 
       // 결과 표시
-      document.getElementById("fluency-score").textContent = Math.round(data.fluency_score || 0);
-      document.getElementById("fluency-confidence").textContent = Math.round((data.confidence || 0.85) * 100) + "%";
-      document.getElementById("fluency-speech-rate").textContent = (data.speech_rate || 0).toFixed(2) + " 음절/초";
-      document.getElementById("fluency-articulation").textContent = (data.articulation_rate || 0).toFixed(2) + " 음절/초";
-      document.getElementById("fluency-correct-syllables").textContent = (data.correct_syllables_rate || 0).toFixed(1) + "%";
-      document.getElementById("fluency-pause-count").textContent = data.pause_count || 0;
-      document.getElementById("fluency-audio-length").textContent = (data.audio_length_ms / 1000 || 0).toFixed(1) + "초";
+      document.getElementById("fluency-score").textContent = Math.round(
+        data.fluency_score || 0
+      );
+      document.getElementById("fluency-confidence").textContent =
+        Math.round((data.confidence || 0.85) * 100) + "%";
+      document.getElementById("fluency-speech-rate").textContent =
+        (data.speech_rate || 0).toFixed(2) + " 음절/초";
+      document.getElementById("fluency-articulation").textContent =
+        (data.articulation_rate || 0).toFixed(2) + " 음절/초";
+      document.getElementById("fluency-correct-syllables").textContent =
+        (data.correct_syllables_rate || 0).toFixed(1) + "%";
+      document.getElementById("fluency-pause-count").textContent =
+        data.pause_count || 0;
+      document.getElementById("fluency-audio-length").textContent =
+        (data.audio_length_ms / 1000 || 0).toFixed(1) + "초";
 
       // 개선 권장사항 표시
-      const recommendationsDiv = document.getElementById("fluency-recommendations");
+      const recommendationsDiv = document.getElementById(
+        "fluency-recommendations"
+      );
       recommendationsDiv.innerHTML = "";
       if (data.recommendations && data.recommendations.length > 0) {
         data.recommendations.forEach((rec) => {
