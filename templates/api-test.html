@@ -236,10 +236,7 @@
         >
           POST /api/tts/generate (음성 재생)
         </button>
-        <div
-          id="tts-result"
-          class="mt-2 p-3 rounded text-sm bg-gray-100"
-        ></div>
+        <div id="tts-result" class="mt-2 p-3 rounded text-sm bg-gray-100"></div>
       </div>
 
       <!-- Speaker Guide -->
@@ -289,7 +286,9 @@
 
       <!-- Evaluation Test -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 평가 테스트</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          발음 평가 테스트
+        </h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
@@ -307,7 +306,10 @@
               🎙️ 녹음 시작
             </button>
           </div>
-          <div id="speechpro-recording-status" class="text-sm text-gray-600"></div>
+          <div
+            id="speechpro-recording-status"
+            class="text-sm text-gray-600"
+          ></div>
         </div>
         <button
           id="speechpro-evaluate-btn"
@@ -374,7 +376,9 @@
 
       <!-- Check Popup Trigger -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Pop-Up 표시 확인</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          Pop-Up 표시 확인
+        </h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
@@ -398,7 +402,9 @@
 
       <!-- Get User Stats -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">사용자 통계 조회</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          사용자 통계 조회
+        </h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
@@ -529,9 +535,7 @@
         <h3 class="font-semibold text-gray-800 mb-2">MzTTS API</h3>
         <ul class="space-y-1 text-gray-600">
           <li>
-            <code class="bg-gray-100 px-2 py-1 rounded"
-              >GET /api/tts/info</code
-            >
+            <code class="bg-gray-100 px-2 py-1 rounded">GET /api/tts/info</code>
             - TTS 서버 정보
           </li>
           <li>
@@ -583,7 +587,9 @@
     if (!speechProRecorder || speechProRecorder.state === "inactive") {
       // Start recording
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
         speechProRecorder = new MediaRecorder(stream);
         speechProChunks = [];
 
@@ -596,10 +602,12 @@
         speechProRecorder.onstop = () => {
           const audioBlob = new Blob(speechProChunks, { type: "audio/webm" });
           window.speechProAudioBlob = audioBlob;
-          status.textContent = `녹음 완료 (${(audioBlob.size / 1024).toFixed(1)} KB)`;
+          status.textContent = `녹음 완료 (${(audioBlob.size / 1024).toFixed(
+            1
+          )} KB)`;
           evaluateBtn.disabled = false;
-          
-          stream.getTracks().forEach(track => track.stop());
+
+          stream.getTracks().forEach((track) => track.stop());
         };
 
         speechProRecorder.start();
@@ -649,15 +657,17 @@
       });
 
       const data = await response.json();
-      
+
       // Format result nicely
       let displayText = JSON.stringify(data, null, 2);
       if (data.success) {
         const score = data.overall_score || 0;
         const feedback = data.ai_feedback || "피드백 없음";
-        displayText = `✅ 평가 성공\n\n점수: ${Math.round(score)}점\n\n${feedback}\n\n전체 응답:\n${displayText}`;
+        displayText = `✅ 평가 성공\n\n점수: ${Math.round(
+          score
+        )}점\n\n${feedback}\n\n전체 응답:\n${displayText}`;
       }
-      
+
       resultElement.textContent = displayText;
     } catch (error) {
       resultElement.textContent = `Error: ${error.message}`;
@@ -821,20 +831,24 @@
         speaker: 0,
         tempo: 1.0,
         pitch: 1.0,
-        gain: 1.0
+        gain: 1.0,
       };
 
       const response = await fetch("/api/tts/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        resultElement.textContent = `Error: ${JSON.stringify(errorData, null, 2)}`;
+        resultElement.textContent = `Error: ${JSON.stringify(
+          errorData,
+          null,
+          2
+        )}`;
         return;
       }
 
@@ -854,7 +868,6 @@
 
       await audio.play();
       resultElement.textContent = "재생 중... 🔊";
-
     } catch (error) {
       resultElement.textContent = `Error: ${error.message}`;
     }
@@ -862,7 +875,9 @@
 
   // Learning Progress API Tests
   async function testRecordPronunciation() {
-    const resultElement = document.getElementById("learning-pronunciation-result");
+    const resultElement = document.getElementById(
+      "learning-pronunciation-result"
+    );
     const userId = document.getElementById("learning-user-id").value;
     const score = parseInt(document.getElementById("learning-score").value);
 
@@ -877,13 +892,13 @@
       const response = await fetch("/api/learning/pronunciation-completed", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           user_id: userId,
           score: score,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        }),
       });
 
       const data = await response.json();
@@ -906,7 +921,7 @@
 
     try {
       const response = await fetch(`/api/learning/check-popup/${userId}`, {
-        method: "POST"
+        method: "POST",
       });
 
       const data = await response.json();
