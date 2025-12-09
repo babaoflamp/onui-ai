@@ -2452,11 +2452,109 @@ async def fluency_analyze(request: Request):
         }
 
         return JSONResponse(content=fluency_result)
-
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"error": str(e)}
+        )
+
+
+@app.post("/api/fluencypro/combined-feedback")
+async def get_combined_feedback(request: Request):
+    """FluencyPro와 SpeechPro 결과를 종합하여 AI 피드백 생성"""
+    try:
+        data = await request.json()
+        
+        # FluencyPro와 SpeechPro 결과 받기
+        text = data.get("text", "")
+        fluency_data = data.get("fluency_data", {})
+        speechpro_data = data.get("speechpro_data", {})
+        
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "text is required"})
+        
+        # 복합 피드백을 생성할 프롬프트
+        prompt = f"""
+사용자가 발음한 한국어 문장에 대한 복합 피드백을 생성해주세요.
+
+[사용자 발음 텍스트]
+"{text}"
+
+[FluencyPro 유창성 분석]
+- 유창성 점수: {fluency_data.get('fluency_score', 0)}/100
+- 발화 속도: {fluency_data.get('speech_rate', 0):.2f} 음절/초
+- 조음 속도: {fluency_data.get('articulation_rate', 0):.2f} 음절/초
+- 정확한 음절 비율: {fluency_data.get('correct_syllables_rate', 0):.1f}%
+- 쉼표 개수: {fluency_data.get('pause_count', 0)}개
+
+[SpeechPro 정확도 분석]
+- 발음 정확도 점수: {speechpro_data.get('score', 0)}/100
+- 발음 상세 피드백: {speechpro_data.get('feedback', 'N/A')}
+
+[생성 요청]
+학습자에게 제공할 종합적인 피드백을 다음 형식으로 작성해주세요:
+
+{{
+  "overall_comment": "전체 평가를 한 문장으로 (50자 이내)",
+  "strengths": ["강점 1", "강점 2"],
+  "improvements": ["개선점 1", "개선점 2"],
+  "tips": ["실습 팁 1", "실습 팁 2"],
+  "encouragement": "격려 메시지 (한 문장)"
+}}
+
+음성과 발음이 모두 자연스러운 경우 칭찬하고, 특정 부분이 부자연스러운 경우 구체적으로 지적해주세요.
+한국어 학습자이므로 친근하고 이해하기 쉬운 표현으로 작성하세요.
+"""
+        
+        # Gemini 또는 Ollama를 사용하여 피드백 생성
+        if MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            response_text = response.text
+        
+        elif MODEL_BACKEND == "ollama":
+            payload = {"model": OLLAMA_MODEL, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=60)
+            
+            response_text = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        response_text += obj.get("response", "") or obj.get("text", "")
+                except Exception:
+                    response_text += line
+        
+        else:
+            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+        
+        # 응답에서 JSON 추출
+        parsed_feedback = _parse_model_output(response_text)
+        
+        if parsed_feedback:
+            return JSONResponse(content=parsed_feedback)
+        else:
+            # 파싱 실패시 기본 구조로 반환
+            return JSONResponse(content={
+                "overall_comment": "좋은 연습이었습니다!",
+                "strengths": ["발음을 명확하게 했습니다"],
+                "improvements": ["더 자연스러운 속도로 연습해보세요"],
+                "tips": ["매일 꾸준히 연습하세요"],
+                "encouragement": "계속 화이팅!"
+            })
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "combined-feedback failed", "details": str(e)}
         )
 
 
