@@ -9,95 +9,6 @@
 
   <!-- API Categories -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <!-- Learning Game APIs -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
-
-      <!-- Word Puzzle -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 퍼즐</h3>
-        <button
-          onclick="testAPI('/api/puzzle/sentences', 'puzzle-result')"
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2 w-full"
-        >
-          GET /api/puzzle/sentences
-        </button>
-        <button
-          onclick="testAPI('/api/puzzle/sentences?level=A1', 'puzzle-result')"
-          class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 mb-2 w-full text-sm"
-        >
-          GET /api/puzzle/sentences?level=A1
-        </button>
-        <pre
-          id="puzzle-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
-        ></pre>
-      </div>
-
-      <!-- Daily Expression -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘의 표현</h3>
-        <button
-          onclick="testAPI('/api/expressions', 'expression-result')"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-2 w-full"
-        >
-          GET /api/expressions
-        </button>
-        <button
-          onclick="testAPI('/api/expressions/today', 'expression-result')"
-          class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500 mb-2 w-full text-sm"
-        >
-          GET /api/expressions/today
-        </button>
-        <pre
-          id="expression-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
-        ></pre>
-      </div>
-
-      <!-- Vocabulary -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 꽃밭</h3>
-        <button
-          onclick="testAPI('/api/vocabulary', 'vocab-result')"
-          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mb-2 w-full"
-        >
-          GET /api/vocabulary
-        </button>
-        <button
-          onclick="testAPI('/api/vocabulary?level=A2', 'vocab-result')"
-          class="bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500 mb-2 w-full text-sm"
-        >
-          GET /api/vocabulary?level=A2
-        </button>
-        <pre
-          id="vocab-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
-        ></pre>
-      </div>
-
-      <!-- Pronunciation Words -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습</h3>
-        <button
-          onclick="testAPI('/api/pronunciation-words', 'pronunciation-result')"
-          class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-2 w-full"
-        >
-          GET /api/pronunciation-words
-        </button>
-        <button
-          onclick="testAPI('/api/pronunciation-words?level=A1', 'pronunciation-result')"
-          class="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-500 mb-2 w-full text-sm"
-        >
-          GET /api/pronunciation-words?level=A1
-        </button>
-        <pre
-          id="pronunciation-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
-        ></pre>
-      </div>
-    </div>
-
     <!-- SpeechPro API -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-4">🎤 SpeechPro API</h2>
@@ -1158,3 +1069,92 @@
   loadOllamaModels();
 </script>
 {% endblock %}
+    <!-- Learning Game APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
+
+      <!-- Word Puzzle -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 퍼즐</h3>
+        <button
+          onclick="testAPI('/api/puzzle/sentences', 'puzzle-result')"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2 w-full"
+        >
+          GET /api/puzzle/sentences
+        </button>
+        <button
+          onclick="testAPI('/api/puzzle/sentences?level=A1', 'puzzle-result')"
+          class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 mb-2 w-full text-sm"
+        >
+          GET /api/puzzle/sentences?level=A1
+        </button>
+        <pre
+          id="puzzle-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Daily Expression -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘의 표현</h3>
+        <button
+          onclick="testAPI('/api/expressions', 'expression-result')"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-2 w-full"
+        >
+          GET /api/expressions
+        </button>
+        <button
+          onclick="testAPI('/api/expressions/today', 'expression-result')"
+          class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500 mb-2 w-full text-sm"
+        >
+          GET /api/expressions/today
+        </button>
+        <pre
+          id="expression-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Vocabulary -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 꽃밭</h3>
+        <button
+          onclick="testAPI('/api/vocabulary', 'vocab-result')"
+          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mb-2 w-full"
+        >
+          GET /api/vocabulary
+        </button>
+        <button
+          onclick="testAPI('/api/vocabulary?level=A2', 'vocab-result')"
+          class="bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500 mb-2 w-full text-sm"
+        >
+          GET /api/vocabulary?level=A2
+        </button>
+        <pre
+          id="vocab-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Pronunciation Words -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습</h3>
+        <button
+          onclick="testAPI('/api/pronunciation-words', 'pronunciation-result')"
+          class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-2 w-full"
+        >
+          GET /api/pronunciation-words
+        </button>
+        <button
+          onclick="testAPI('/api/pronunciation-words?level=A1', 'pronunciation-result')"
+          class="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-500 mb-2 w-full text-sm"
+        >
+          GET /api/pronunciation-words?level=A1
+        </button>
+        <pre
+          id="pronunciation-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+    </div>
+
