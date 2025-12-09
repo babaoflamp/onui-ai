@@ -153,90 +153,137 @@
 
       <!-- 결과 섹션 -->
       <div id="fluency-results" class="hidden">
-        <div
-          class="mb-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-l-4 border-blue-500"
+        <!-- 녹음 완료 안내 -->
+        <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+          <p class="text-green-700 font-semibold">✅ 음성 분석이 완료되었습니다!</p>
+          <p class="text-sm text-gray-600 mt-2">아래의 "결과 보기" 버튼을 클릭하여 자세한 평가 결과를 확인하세요.</p>
+        </div>
+        <button
+          onclick="showFluencyResultModal()"
+          class="w-full mt-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-700 transition-all shadow-md hover:shadow-lg font-medium"
         >
-          <h3 class="text-2xl font-bold text-blue-900 mb-4">📊 평가 결과</h3>
+          📊 결과 보기
+        </button>
+      </div>
 
-          <!-- 핵심 점수 -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div class="bg-white p-4 rounded-lg">
-              <div class="text-sm text-gray-600">유창성 점수</div>
-              <div class="text-3xl font-bold text-blue-600" id="fluency-score">
-                0
+      <!-- 유창성 평가 결과 모달 -->
+      <div
+        id="fluency-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        >
+          <!-- 모달 헤더 -->
+          <div class="sticky top-0 bg-gradient-to-r from-blue-500 to-cyan-600 px-6 py-4 flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-white">📊 유창성 평가 결과</h2>
+            <button
+              onclick="closeFluencyResultModal()"
+              class="text-white hover:text-gray-200 text-2xl"
+              aria-label="닫기"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- 모달 콘텐츠 -->
+          <div class="p-6">
+            <!-- 핵심 점수 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div class="text-sm text-gray-600">유창성 점수</div>
+                <div class="text-3xl font-bold text-blue-600" id="fluency-score-modal">
+                  0
+                </div>
+                <div class="text-xs text-gray-500 mt-1">/ 100</div>
               </div>
-              <div class="text-xs text-gray-500 mt-1">/ 100</div>
+              <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="text-sm text-gray-600">신뢰도</div>
+                <div
+                  class="text-3xl font-bold text-green-600"
+                  id="fluency-confidence-modal"
+                >
+                  0%
+                </div>
+              </div>
             </div>
-            <div class="bg-white p-4 rounded-lg">
-              <div class="text-sm text-gray-600">신뢰도</div>
-              <div
-                class="text-3xl font-bold text-green-600"
-                id="fluency-confidence"
+
+            <!-- 상세 지표 -->
+            <div class="bg-white p-4 rounded-lg mb-4 border border-gray-200">
+              <h4 class="font-semibold text-gray-800 mb-3">📈 상세 지표</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">발화 속도</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-speech-rate-modal"
+                    >0 음절/초</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">조음 속도</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-articulation-modal"
+                    >0 음절/초</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">정확한 음절 비율</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-correct-syllables-modal"
+                    >0%</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">쉼표 개수</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-pause-count-modal"
+                    >0</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">오디오 길이</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-audio-length-modal"
+                    >0초</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- 개선 권장사항 -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 class="font-semibold text-gray-800 mb-3">💡 개선 권장사항</h4>
+              <ul id="fluency-recommendations-modal" class="space-y-2">
+                <li class="text-sm text-gray-600">
+                  • 음절을 더 명확하게 발음해주세요.
+                </li>
+                <li class="text-sm text-gray-600">
+                  • 자연스러운 속도로 말씀해주세요.
+                </li>
+                <li class="text-sm text-gray-600">• 적절한 쉼표를 사용하세요.</li>
+              </ul>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="mt-6 flex gap-3">
+              <button
+                onclick="closeFluencyResultModal()"
+                class="flex-1 bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-medium"
               >
-                0%
-              </div>
+                닫기
+              </button>
+              <button
+                onclick="retryFluencyEvaluation()"
+                class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition font-medium"
+              >
+                🔄 다시 평가하기
+              </button>
             </div>
-          </div>
-
-          <!-- 상세 지표 -->
-          <div class="bg-white p-4 rounded-lg mb-4">
-            <h4 class="font-semibold text-gray-800 mb-3">📈 상세 지표</h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600">발화 속도</span>
-                <span
-                  class="font-semibold text-gray-900"
-                  id="fluency-speech-rate"
-                  >0 음절/초</span
-                >
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">조음 속도</span>
-                <span
-                  class="font-semibold text-gray-900"
-                  id="fluency-articulation"
-                  >0 음절/초</span
-                >
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">정확한 음절 비율</span>
-                <span
-                  class="font-semibold text-gray-900"
-                  id="fluency-correct-syllables"
-                  >0%</span
-                >
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">쉼표 개수</span>
-                <span
-                  class="font-semibold text-gray-900"
-                  id="fluency-pause-count"
-                  >0</span
-                >
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">오디오 길이</span>
-                <span
-                  class="font-semibold text-gray-900"
-                  id="fluency-audio-length"
-                  >0초</span
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- 개선 권장사항 -->
-          <div class="bg-white p-4 rounded-lg">
-            <h4 class="font-semibold text-gray-800 mb-3">💡 개선 권장사항</h4>
-            <ul id="fluency-recommendations" class="space-y-2">
-              <li class="text-sm text-gray-600">
-                • 음절을 더 명확하게 발음해주세요.
-              </li>
-              <li class="text-sm text-gray-600">
-                • 자연스러운 속도로 말씀해주세요.
-              </li>
-              <li class="text-sm text-gray-600">• 적절한 쉼표를 사용하세요.</li>
-            </ul>
           </div>
         </div>
       </div>
@@ -344,26 +391,26 @@
 
       const data = await response.json();
 
-      // 결과 표시
-      document.getElementById("fluency-score").textContent = Math.round(
+      // 모달에 결과 표시
+      document.getElementById("fluency-score-modal").textContent = Math.round(
         data.fluency_score || 0
       );
-      document.getElementById("fluency-confidence").textContent =
+      document.getElementById("fluency-confidence-modal").textContent =
         Math.round((data.confidence || 0.85) * 100) + "%";
-      document.getElementById("fluency-speech-rate").textContent =
+      document.getElementById("fluency-speech-rate-modal").textContent =
         (data.speech_rate || 0).toFixed(2) + " 음절/초";
-      document.getElementById("fluency-articulation").textContent =
+      document.getElementById("fluency-articulation-modal").textContent =
         (data.articulation_rate || 0).toFixed(2) + " 음절/초";
-      document.getElementById("fluency-correct-syllables").textContent =
+      document.getElementById("fluency-correct-syllables-modal").textContent =
         (data.correct_syllables_rate || 0).toFixed(1) + "%";
-      document.getElementById("fluency-pause-count").textContent =
+      document.getElementById("fluency-pause-count-modal").textContent =
         data.pause_count || 0;
-      document.getElementById("fluency-audio-length").textContent =
+      document.getElementById("fluency-audio-length-modal").textContent =
         (data.audio_length_ms / 1000 || 0).toFixed(1) + "초";
 
       // 개선 권장사항 표시
       const recommendationsDiv = document.getElementById(
-        "fluency-recommendations"
+        "fluency-recommendations-modal"
       );
       recommendationsDiv.innerHTML = "";
       if (data.recommendations && data.recommendations.length > 0) {
@@ -375,7 +422,9 @@
         });
       }
 
-      resultsDiv.classList.remove("hidden");
+      // 결과 컨테이너 표시 및 모달 열기
+      document.getElementById("fluency-results").classList.remove("hidden");
+      showFluencyResultModal();
 
       // 학습 진도 기록
       recordFluencyProgress(Math.round(data.fluency_score || 0));
@@ -405,5 +454,36 @@
       console.error("학습 진도 기록 실패:", error);
     }
   }
+
+  // 모달 제어 함수
+  function showFluencyResultModal() {
+    document.getElementById("fluency-modal").classList.remove("hidden");
+  }
+
+  function closeFluencyResultModal() {
+    document.getElementById("fluency-modal").classList.add("hidden");
+  }
+
+  function retryFluencyEvaluation() {
+    closeFluencyResultModal();
+    document.getElementById("fluency-results").classList.add("hidden");
+    resetFluencyRecording();
+  }
+
+  function resetFluencyRecording() {
+    document.getElementById("record-btn").textContent = "🎙️ 녹음 시작";
+    document.getElementById("record-btn").disabled = false;
+    document.getElementById("play-btn").disabled = true;
+    document.getElementById("fluency-recording-status").textContent =
+      "마이크를 통해 문장을 읽어주세요";
+    fluencyAudioBlob = null;
+  }
+
+  // 모달 외부 클릭 시 닫기
+  document.getElementById("fluency-modal")?.addEventListener("click", (e) => {
+    if (e.target.id === "fluency-modal") {
+      closeFluencyResultModal();
+    }
+  });
 </script>
 {% endblock %}
