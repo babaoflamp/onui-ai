@@ -889,6 +889,11 @@ def mypage(request: Request):
     """사용자 프로필 페이지"""
     return templates.TemplateResponse("mypage.html", {"request": request})
 
+@app.get("/learning-progress")
+def learning_progress(request: Request):
+    """학습 진도 대시보드"""
+    return templates.TemplateResponse("learning-progress.html", {"request": request})
+
 @app.get("/change-password")
 def change_password_page(request: Request):
     """비밀번호 변경 페이지"""

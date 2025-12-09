@@ -484,6 +484,7 @@
   // 결과 표시
   function displayResults(result) {
     const score = Math.round(result.overall_score || 0);
+    const details = result.details || {};
 
     // 점수 업데이트
     document.getElementById("overall-score").textContent = score;
