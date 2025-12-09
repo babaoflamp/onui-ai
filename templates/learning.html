@@ -69,7 +69,10 @@ endblock %} {% block content %}
           <span class="text-2xl">📚</span>
           1. 맞춤형 교재 생성
         </h2>
-        <a href="/content-generation" class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition">
+        <a
+          href="/content-generation"
+          class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+        >
           전체 보기 →
         </a>
       </div>
@@ -97,8 +100,12 @@ endblock %} {% block content %}
           id="modelSelect"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
         >
-          <option value="exaone3.5:2.4b" data-backend="ollama" selected>EXAONE 3.5</option>
-          <option value="gemini-2.5-flash" data-backend="gemini">Gemini Flash</option>
+          <option value="exaone3.5:2.4b" data-backend="ollama" selected>
+            EXAONE 3.5
+          </option>
+          <option value="gemini-2.5-flash" data-backend="gemini">
+            Gemini Flash
+          </option>
         </select>
         <button
           id="generateBtn"
@@ -141,85 +148,42 @@ endblock %} {% block content %}
       </div>
     </section>
 
-    <!-- 2. Pronunciation Check Section -->
+    <!-- 2. Essay Test Section -->
     <section
-      class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200"
+      class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200"
     >
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <span class="text-2xl">🎤</span>
-          2. 발음 교정
+          <span class="text-2xl">✍️</span>
+          2. 한국어 작문 테스트
         </h2>
-        <a href="/pronunciation-check" class="text-sm px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition">
+        <a
+          href="/essay-test"
+          class="text-sm px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition"
+        >
           전체 보기 →
         </a>
       </div>
 
       <div class="bg-white p-4 rounded-lg shadow-sm">
-        <div class="mb-4">
-          <label for="practiceText" class="text-sm font-semibold text-gray-700 mb-2 block">연습할 문장 입력</label>
-          <div class="flex gap-2">
-            <input
-              id="practiceText"
-              type="text"
-              class="flex-1 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-              placeholder="연습할 문장을 입력하세요 (예: 안녕하세요)"
-              onkeydown="if (event.key === 'Enter') { event.preventDefault(); setPracticeText(); }"
-            />
-            <button onclick="setPracticeText()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm">
-              설정
-            </button>
-          </div>
-        </div>
-        
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <div id="targetText" class="text-xl font-bold text-gray-900">문장을 입력하고 설정 버튼을 누르세요</div>
-            <div id="targetRoman" class="text-sm text-gray-500 mt-1"></div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="listenBtn" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">🔊 다시 듣기</button>
-          </div>
-        </div>
+        <textarea
+          id="fluencyInput"
+          placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
+          class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
+        ></textarea>
 
-        <div class="flex items-center gap-2">
-          <button id="recordBtn" class="px-4 py-2 bg-pink-500 text-white rounded-lg">🎤 녹음 시작</button>
-          <button id="stopBtn" disabled class="px-4 py-2 bg-gray-300 text-white rounded-lg opacity-50 cursor-not-allowed">⏹ 정지 및 분석</button>
-        </div>
+        <button
+          onclick="checkFluency()"
+          class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
+        >
+          제출 및 채점
+        </button>
 
-        <div id="pronResult" class="mt-3"></div>
+        <div
+          id="fluencyResult"
+          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
+        ></div>
       </div>
-    </section>
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">✍️</span>
-        3. 한국어 작문 테스트
-      </h2>
-
-      <div class="flex items-center justify-between mb-3">
-        <a href="/fluency-test" class="text-sm px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition">
-          전체 보기 →
-        </a>
-      </div>
-
-      <textarea
-        id="fluencyInput"
-        placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
-        class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
-      ></textarea>
-
-      <button
-        onclick="checkFluency()"
-        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
-      >
-        제출 및 채점
-      </button>
-
-      <div
-        id="fluencyResult"
-        class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
-      ></div>
     </section>
 
     <!-- Tips Section -->
@@ -231,12 +195,12 @@ endblock %} {% block content %}
           대화문과 단어장을 생성합니다
         </p>
         <p>
-          • <strong>발음 교정</strong>: 마이크 권한을 허용한 후 문장을 읽고
-          녹음하여 정확도를 확인하세요
-        </p>
-        <p>
           • <strong>작문 테스트</strong>: 자유롭게 한국어로 작성하면 AI가 문법과
           자연스러움을 평가합니다
+        </p>
+        <p>
+          • <strong>발음 평가</strong>: SpeechPro(발음 정확도)와
+          FluencyPro(유창성)에서 음성 평가를 진행하세요
         </p>
         <p>
           • <strong>모델 선택</strong>: 다양한 Ollama 모델을 선택하여 최적의
@@ -263,9 +227,7 @@ endblock %} {% block content %}
       ✕
     </button>
 
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">
-      📊 발음 평가 결과
-    </h2>
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 발음 평가 결과</h2>
 
     <!-- 점수 카드 -->
     <div class="bg-white rounded-2xl shadow p-6 mb-6">
@@ -275,7 +237,10 @@ endblock %} {% block content %}
           <div class="text-6xl font-bold text-blue-600 mb-2">
             <span id="sp-overall-score">0</span>/100
           </div>
-          <p id="sp-score-feedback" class="text-lg text-gray-600 font-semibold"></p>
+          <p
+            id="sp-score-feedback"
+            class="text-lg text-gray-600 font-semibold"
+          ></p>
         </div>
 
         <!-- 점수 게이지 -->
@@ -300,9 +265,17 @@ endblock %} {% block content %}
     </div>
 
     <!-- AI 피드백 섹션 -->
-    <div id="sp-ai-feedback-section" class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden">
-      <h3 class="text-lg font-semibold text-blue-900 mb-3">🤖 AI 개선 피드백</h3>
-      <div id="sp-ai-feedback-content" class="text-blue-800 whitespace-pre-wrap">
+    <div
+      id="sp-ai-feedback-section"
+      class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden"
+    >
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">
+        🤖 AI 개선 피드백
+      </h3>
+      <div
+        id="sp-ai-feedback-content"
+        class="text-blue-800 whitespace-pre-wrap"
+      >
         <!-- 동적으로 생성됨 -->
       </div>
     </div>
@@ -345,11 +318,11 @@ endblock %} {% block content %}
       .replace(/\n/g, " ")
       .replace(/\r/g, " ");
   }
-  
+
   // Generation control
   let abortController = null;
   let isGenerating = false;
-  
+
   // Toggle generation/stop
   function toggleGeneration() {
     if (isGenerating) {
@@ -358,7 +331,7 @@ endblock %} {% block content %}
       generateContent();
     }
   }
-  
+
   // Stop generation
   function stopGeneration() {
     if (abortController) {
@@ -367,42 +340,63 @@ endblock %} {% block content %}
     }
     isGenerating = false;
     updateGenerateButton();
-    
+
     const resultDiv = document.getElementById("contentResult");
-    resultDiv.innerHTML = '<div class="text-sm text-gray-600">생성이 중단되었습니다.</div>';
+    resultDiv.innerHTML =
+      '<div class="text-sm text-gray-600">생성이 중단되었습니다.</div>';
   }
-  
+
   // Update button state
   function updateGenerateButtonState(generating) {
     const btn = document.getElementById("generateBtn");
     if (!btn) return;
-    
+
     isGenerating = generating;
-    
+
     if (generating) {
-      btn.innerHTML = '⏹️ 중지';
-      btn.classList.remove('from-blue-500', 'to-indigo-600', 'hover:from-blue-600', 'hover:to-indigo-700');
-      btn.classList.add('from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700');
+      btn.innerHTML = "⏹️ 중지";
+      btn.classList.remove(
+        "from-blue-500",
+        "to-indigo-600",
+        "hover:from-blue-600",
+        "hover:to-indigo-700"
+      );
+      btn.classList.add(
+        "from-red-500",
+        "to-red-600",
+        "hover:from-red-600",
+        "hover:to-red-700"
+      );
     } else {
-      btn.innerHTML = '🪄 생성하기';
-      btn.classList.remove('from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700');
-      btn.classList.add('from-blue-500', 'to-indigo-600', 'hover:from-blue-600', 'hover:to-indigo-700');
+      btn.innerHTML = "🪄 생성하기";
+      btn.classList.remove(
+        "from-red-500",
+        "to-red-600",
+        "hover:from-red-600",
+        "hover:to-red-700"
+      );
+      btn.classList.add(
+        "from-blue-500",
+        "to-indigo-600",
+        "hover:from-blue-600",
+        "hover:to-indigo-700"
+      );
     }
   }
-  
+
   // 1. Content generation
   async function generateContent() {
     console.log("generateContent() called");
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const resultDiv = document.getElementById("contentResult");
-    
+
     console.log("Topic:", topic, "Level:", level);
-    
+
     // Create new abort controller
     abortController = new AbortController();
     updateGenerateButtonState(true);
-    
+
     // Record start time
     const startTime = performance.now();
 
@@ -413,15 +407,15 @@ endblock %} {% block content %}
     const formData = new FormData();
     formData.append("topic", topic);
     formData.append("level", level);
-    
+
     // Get selected model and its backend
     const modelSelect = document.getElementById("modelSelect");
     const selectedOption = modelSelect.options[modelSelect.selectedIndex];
     const backend = selectedOption.getAttribute("data-backend");
     const model = selectedOption.value;
-    
+
     console.log("Backend:", backend, "Model:", model);
-    
+
     if (backend) formData.append("backend", backend);
     if (model) formData.append("model", model);
 
@@ -429,181 +423,181 @@ endblock %} {% block content %}
       const res = await fetch("/api/generate-content", {
         method: "POST",
         body: formData,
-        signal: abortController.signal
+        signal: abortController.signal,
       });
-      
+
       console.log("Response status:", res.status, res.ok);
-      
+
       if (!res.ok) {
-        throw new Error('Generation failed');
+        throw new Error("Generation failed");
       }
-      
+
       const data = await res.json();
       console.log("Data received:", data);
-    
-    // Calculate elapsed time
-    const endTime = performance.now();
-    const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(1);
 
-    // Robust JSON extraction: handle cases where the server returns JSON
-    // as an object, under `parsed`, or as raw text (possibly fenced).
-    let jsonObj = null;
+      // Calculate elapsed time
+      const endTime = performance.now();
+      const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(1);
 
-    function tryParseJSONFromString(s) {
-      if (!s || typeof s !== "string") return null;
-      // Helper to attempt JSON.parse with some pre-cleaning
-      function tryParseCandidate(candidate) {
-        try {
-          return JSON.parse(candidate);
-        } catch (e) {
-          return null;
-        }
-      }
+      // Robust JSON extraction: handle cases where the server returns JSON
+      // as an object, under `parsed`, or as raw text (possibly fenced).
+      let jsonObj = null;
 
-      // 1) direct parse
-      try {
-        const parsed = tryParseCandidate(s);
-        if (parsed) return normalizeParsed(parsed);
-      } catch (e) {}
-
-      // 2) fenced JSON (```json ... ```)
-      try {
-        const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-        if (m && m[1]) {
+      function tryParseJSONFromString(s) {
+        if (!s || typeof s !== "string") return null;
+        // Helper to attempt JSON.parse with some pre-cleaning
+        function tryParseCandidate(candidate) {
           try {
-            const parsed = tryParseCandidate(m[1].trim());
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      // 3) find first {...} that contains both keys
-      try {
-        const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
-        if (m2) {
-          try {
-            // try to repair single quotes and trailing commas
-            let cand = m2[0];
-            // naive single-quote -> double-quote replacement for keys/strings
-            const repaired = cand
-              .replace(/'([^']*)'/g, '"$1"')
-              .replace(/,\s*}/g, "}")
-              .replace(/,\s*\]/g, "]");
-            const parsed =
-              tryParseCandidate(repaired) || tryParseCandidate(cand);
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      // 4) as a last resort, try extracting from first/last brace
-      try {
-        const first = s.indexOf("{");
-        const last = s.lastIndexOf("}");
-        if (first >= 0 && last > first) {
-          const cand = s.slice(first, last + 1);
-          try {
-            const repaired = cand
-              .replace(/'([^']*)'/g, '"$1"')
-              .replace(/,\s*}/g, "}")
-              .replace(/,\s*\]/g, "]");
-            const parsed =
-              tryParseCandidate(repaired) || tryParseCandidate(cand);
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      return null;
-    }
-
-    // Normalize parsed object: map alternative keys (Korean/English variants)
-    function normalizeParsed(obj) {
-      if (!obj) return null;
-      // If obj is an array, treat it as dialogue
-      if (Array.isArray(obj)) return { dialogue: obj, vocabulary: [] };
-
-      const result = { dialogue: null, vocabulary: null };
-
-      // dialogue keys candidates
-      const dlgKeys = [
-        "dialogue",
-        "대화",
-        "대화문",
-        "dialogs",
-        "conversation",
-        "utterances",
-      ];
-      for (const k of dlgKeys) {
-        if (Object.prototype.hasOwnProperty.call(obj, k)) {
-          result.dialogue = obj[k];
-          break;
-        }
-      }
-
-      // vocabulary keys candidates
-      const vocabKeys = ["vocabulary", "단어", "단어장", "words"];
-      for (const k of vocabKeys) {
-        if (Object.prototype.hasOwnProperty.call(obj, k)) {
-          result.vocabulary = obj[k];
-          break;
-        }
-      }
-
-      // If dialogue not found but object has numeric-indexed items, try to collect them
-      if (!result.dialogue) {
-        const maybeArr = Object.keys(obj)
-          .filter((k) => /^\d+$/.test(k))
-          .sort((a, b) => Number(a) - Number(b))
-          .map((k) => obj[k]);
-        if (maybeArr.length) result.dialogue = maybeArr;
-      }
-
-      // If still no dialogue but obj has top-level text that contains a JSON string, try recursively
-      if (!result.dialogue && typeof obj === "object") {
-        for (const v of Object.values(obj)) {
-          if (typeof v === "string") {
-            const nested = tryParseJSONFromString(v);
-            if (nested && nested.dialogue) return normalizeParsed(nested);
+            return JSON.parse(candidate);
+          } catch (e) {
+            return null;
           }
         }
+
+        // 1) direct parse
+        try {
+          const parsed = tryParseCandidate(s);
+          if (parsed) return normalizeParsed(parsed);
+        } catch (e) {}
+
+        // 2) fenced JSON (```json ... ```)
+        try {
+          const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+          if (m && m[1]) {
+            try {
+              const parsed = tryParseCandidate(m[1].trim());
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        // 3) find first {...} that contains both keys
+        try {
+          const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
+          if (m2) {
+            try {
+              // try to repair single quotes and trailing commas
+              let cand = m2[0];
+              // naive single-quote -> double-quote replacement for keys/strings
+              const repaired = cand
+                .replace(/'([^']*)'/g, '"$1"')
+                .replace(/,\s*}/g, "}")
+                .replace(/,\s*\]/g, "]");
+              const parsed =
+                tryParseCandidate(repaired) || tryParseCandidate(cand);
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        // 4) as a last resort, try extracting from first/last brace
+        try {
+          const first = s.indexOf("{");
+          const last = s.lastIndexOf("}");
+          if (first >= 0 && last > first) {
+            const cand = s.slice(first, last + 1);
+            try {
+              const repaired = cand
+                .replace(/'([^']*)'/g, '"$1"')
+                .replace(/,\s*}/g, "}")
+                .replace(/,\s*\]/g, "]");
+              const parsed =
+                tryParseCandidate(repaired) || tryParseCandidate(cand);
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        return null;
       }
 
-      // Ensure defaults
-      if (!result.dialogue) return null;
-      if (!result.vocabulary) result.vocabulary = [];
+      // Normalize parsed object: map alternative keys (Korean/English variants)
+      function normalizeParsed(obj) {
+        if (!obj) return null;
+        // If obj is an array, treat it as dialogue
+        if (Array.isArray(obj)) return { dialogue: obj, vocabulary: [] };
 
-      return result;
-    }
+        const result = { dialogue: null, vocabulary: null };
 
-    if (data && typeof data === "object") {
-      if (data.dialogue && data.vocabulary) jsonObj = data;
-      else if (data.parsed && data.parsed.dialogue) jsonObj = data.parsed;
-      else if (data.text && typeof data.text === "string")
-        jsonObj = tryParseJSONFromString(data.text);
-    } else if (typeof data === "string") {
-      jsonObj = tryParseJSONFromString(data);
-    }
+        // dialogue keys candidates
+        const dlgKeys = [
+          "dialogue",
+          "대화",
+          "대화문",
+          "dialogs",
+          "conversation",
+          "utterances",
+        ];
+        for (const k of dlgKeys) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) {
+            result.dialogue = obj[k];
+            break;
+          }
+        }
 
-    if (!jsonObj) {
-      const rawText =
-        (data && data.text) ||
-        (typeof data === "string" ? data : JSON.stringify(data, null, 2));
-      resultDiv.innerHTML =
-        '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
-        rawText +
-        "</pre>";
-      return;
-    }
+        // vocabulary keys candidates
+        const vocabKeys = ["vocabulary", "단어", "단어장", "words"];
+        for (const k of vocabKeys) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) {
+            result.vocabulary = obj[k];
+            break;
+          }
+        }
 
-    // Beautiful rendering of dialogue and vocabulary
-    let html = `
+        // If dialogue not found but object has numeric-indexed items, try to collect them
+        if (!result.dialogue) {
+          const maybeArr = Object.keys(obj)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => obj[k]);
+          if (maybeArr.length) result.dialogue = maybeArr;
+        }
+
+        // If still no dialogue but obj has top-level text that contains a JSON string, try recursively
+        if (!result.dialogue && typeof obj === "object") {
+          for (const v of Object.values(obj)) {
+            if (typeof v === "string") {
+              const nested = tryParseJSONFromString(v);
+              if (nested && nested.dialogue) return normalizeParsed(nested);
+            }
+          }
+        }
+
+        // Ensure defaults
+        if (!result.dialogue) return null;
+        if (!result.vocabulary) result.vocabulary = [];
+
+        return result;
+      }
+
+      if (data && typeof data === "object") {
+        if (data.dialogue && data.vocabulary) jsonObj = data;
+        else if (data.parsed && data.parsed.dialogue) jsonObj = data.parsed;
+        else if (data.text && typeof data.text === "string")
+          jsonObj = tryParseJSONFromString(data.text);
+      } else if (typeof data === "string") {
+        jsonObj = tryParseJSONFromString(data);
+      }
+
+      if (!jsonObj) {
+        const rawText =
+          (data && data.text) ||
+          (typeof data === "string" ? data : JSON.stringify(data, null, 2));
+        resultDiv.innerHTML =
+          '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
+          rawText +
+          "</pre>";
+        return;
+      }
+
+      // Beautiful rendering of dialogue and vocabulary
+      let html = `
       <div class="space-y-4">
         <!-- Generated Time -->
         <div class="text-xs text-gray-500 text-right pb-2 border-b border-gray-200">
           ${elapsedSeconds}초 만에 생성됨
         </div>
-        
+
         <!-- Dialogue Section -->
         <div>
           <div class="flex items-center gap-2 mb-3">
@@ -613,31 +607,31 @@ endblock %} {% block content %}
           <div class="space-y-2">
     `;
 
-    // Render dialogue with alternating colors and per-item pronunciation play
-    jsonObj.dialogue.forEach((d, index) => {
-      const bgColor =
-        index % 2 === 0
-          ? "bg-blue-50 border-blue-200"
-          : "bg-purple-50 border-purple-200";
-      const speakerColor =
-        index % 2 === 0 ? "text-blue-700" : "text-purple-700";
-      const avatarEmoji =
-        d.speaker === "A" || d.speaker === "학생" || d.speaker === "Student"
-          ? "👨‍🎓"
-          : "👩‍🏫";
+      // Render dialogue with alternating colors and per-item pronunciation play
+      jsonObj.dialogue.forEach((d, index) => {
+        const bgColor =
+          index % 2 === 0
+            ? "bg-blue-50 border-blue-200"
+            : "bg-purple-50 border-purple-200";
+        const speakerColor =
+          index % 2 === 0 ? "text-blue-700" : "text-purple-700";
+        const avatarEmoji =
+          d.speaker === "A" || d.speaker === "학생" || d.speaker === "Student"
+            ? "👨‍🎓"
+            : "👩‍🏫";
 
-      const pron = d.pronunciation || "";
+        const pron = d.pronunciation || "";
 
-      html += `
+        html += `
         <div class="p-3 ${bgColor} border rounded-lg transition-all hover:shadow-md dialogue-item" data-text='${jsEsc(
-        d.text
-      )}' data-pron='${jsEsc(pron)}'>
+          d.text
+        )}' data-pron='${jsEsc(pron)}'>
           <div class="flex items-start gap-3">
             <span class="text-2xl">${avatarEmoji}</span>
             <div class="flex-1">
               <p class="font-semibold ${speakerColor} text-sm mb-1">${
-        d.speaker
-      }</p>
+          d.speaker
+        }</p>
               <p class="text-gray-900 font-medium dialogue-text">${d.text}</p>
               ${
                 pron
@@ -650,9 +644,9 @@ endblock %} {% block content %}
           </div>
         </div>
       `;
-    });
+      });
 
-    html += `
+      html += `
           </div>
         </div>
 
@@ -665,26 +659,26 @@ endblock %} {% block content %}
           <div class="flex flex-wrap gap-2">
     `;
 
-    // Render vocabulary with colorful tags
-    const vocabColors = [
-      "bg-pink-100 text-pink-700 border-pink-200",
-      "bg-indigo-100 text-indigo-700 border-indigo-200",
-      "bg-green-100 text-green-700 border-green-200",
-      "bg-orange-100 text-orange-700 border-orange-200",
-      "bg-purple-100 text-purple-700 border-purple-200",
-      "bg-blue-100 text-blue-700 border-blue-200",
-    ];
+      // Render vocabulary with colorful tags
+      const vocabColors = [
+        "bg-pink-100 text-pink-700 border-pink-200",
+        "bg-indigo-100 text-indigo-700 border-indigo-200",
+        "bg-green-100 text-green-700 border-green-200",
+        "bg-orange-100 text-orange-700 border-orange-200",
+        "bg-purple-100 text-purple-700 border-purple-200",
+        "bg-blue-100 text-blue-700 border-blue-200",
+      ];
 
-    jsonObj.vocabulary.forEach((word, index) => {
-      const colorClass = vocabColors[index % vocabColors.length];
-      html += `
+      jsonObj.vocabulary.forEach((word, index) => {
+        const colorClass = vocabColors[index % vocabColors.length];
+        html += `
         <span class="px-4 py-2 ${colorClass} border rounded-full text-sm font-semibold transition-all hover:scale-110 hover:shadow-md cursor-default">
           ${word}
         </span>
       `;
-    });
+      });
 
-    html += `
+      html += `
           </div>
         </div>
 
@@ -708,44 +702,46 @@ endblock %} {% block content %}
       </div>
     `;
 
-    // Normalize dialogue items: allow simple string items, ensure objects have keys
-    if (Array.isArray(jsonObj.dialogue)) {
-      jsonObj.dialogue = jsonObj.dialogue.map((item, idx) => {
-        if (typeof item === "string") {
-          return {
-            speaker: idx % 2 === 0 ? "A" : "B",
-            text: item,
-            pronunciation: "",
-          };
-        }
-        // if item is object but missing keys, fill defaults
-        const speaker = item.speaker || (idx % 2 === 0 ? "A" : "B");
-        const text = item.text || item.line || "";
-        const pronunciation = item.pronunciation || item.pron || "";
-        return { speaker, text, pronunciation };
-      });
-    }
+      // Normalize dialogue items: allow simple string items, ensure objects have keys
+      if (Array.isArray(jsonObj.dialogue)) {
+        jsonObj.dialogue = jsonObj.dialogue.map((item, idx) => {
+          if (typeof item === "string") {
+            return {
+              speaker: idx % 2 === 0 ? "A" : "B",
+              text: item,
+              pronunciation: "",
+            };
+          }
+          // if item is object but missing keys, fill defaults
+          const speaker = item.speaker || (idx % 2 === 0 ? "A" : "B");
+          const text = item.text || item.line || "";
+          const pronunciation = item.pronunciation || item.pron || "";
+          return { speaker, text, pronunciation };
+        });
+      }
 
-    // Set targetText to the pronunciation if available, otherwise the plain text
-    if (jsonObj.dialogue && jsonObj.dialogue[0]) {
-      const first = jsonObj.dialogue[0];
-      document.getElementById("targetText").innerText =
-        first.pronunciation || first.text || "";
-    }
-    resultDiv.innerHTML = html;
-    
-    // Restore button state after successful generation
-    updateGenerateButtonState(false);
-    
+      // Set targetText to the pronunciation if available, otherwise the plain text
+      if (jsonObj.dialogue && jsonObj.dialogue[0]) {
+        const first = jsonObj.dialogue[0];
+        document.getElementById("targetText").innerText =
+          first.pronunciation || first.text || "";
+      }
+      resultDiv.innerHTML = html;
+
+      // Restore button state after successful generation
+      updateGenerateButtonState(false);
     } catch (error) {
-      if (error.name === 'AbortError') {
+      if (error.name === "AbortError") {
         // Request was aborted, already handled in stopGeneration
         return;
       }
-      
+
       // Handle other errors
       updateGenerateButtonState(false);
-      resultDiv.innerHTML = '<div class="text-sm text-red-600">오류가 발생했습니다: ' + error.message + '</div>';
+      resultDiv.innerHTML =
+        '<div class="text-sm text-red-600">오류가 발생했습니다: ' +
+        error.message +
+        "</div>";
     }
   }
 
@@ -809,9 +805,9 @@ endblock %} {% block content %}
     const selectedOption = sel.options[sel.selectedIndex];
     const backend = selectedOption.getAttribute("data-backend");
     const model = selectedOption.value;
-    
+
     console.log("Prompt:", prompt, "Backend:", backend, "Model:", model);
-    
+
     const outDiv = document.getElementById("modelTestResult");
     outDiv.classList.remove("hidden");
     outDiv.innerText = "모델 호출 중...";
@@ -883,7 +879,7 @@ endblock %} {% block content %}
     setupGenerateButton();
     populateVoiceList();
     initializeRecordingButtons();
-    
+
     // Force update after a short delay to ensure DOM is fully ready
     setTimeout(() => {
       const btn = document.getElementById("generateBtn");
@@ -921,7 +917,7 @@ endblock %} {% block content %}
       } catch (e) {
         // localStorage not available, skip
       }
-      
+
       sel.innerHTML = "";
       const emptyOpt = document.createElement("option");
       emptyOpt.value = "";
@@ -977,146 +973,7 @@ endblock %} {% block content %}
     topic.addEventListener("input", updateGenerateButton);
   }
 
-  // Set practice text from input
-  function setPracticeText() {
-    const input = document.getElementById("practiceText");
-    const text = input.value.trim();
-    
-    if (!text) {
-      alert("연습할 문장을 입력해주세요.");
-      return;
-    }
-    
-    const targetText = document.getElementById("targetText");
-    const targetRoman = document.getElementById("targetRoman");
-    
-    targetText.innerText = text;
-    // Simple romanization placeholder - you can enhance this
-    targetRoman.innerText = "";
-    
-    // Clear previous results
-    document.getElementById("pronResult").innerHTML = "";
-  }
-
-  // SpeechPro Modal functions
-  function showSpeechProModal(data, targetText) {
-    const modal = document.getElementById("speechpro-modal");
-    const score = data.score || 0;
-    
-    // Update score
-    document.getElementById("sp-overall-score").textContent = score;
-    document.getElementById("sp-score-bar").style.width = score + "%";
-    
-    // Score feedback
-    let feedback = "";
-    if (score >= 90) feedback = "🎉 훌륭합니다!";
-    else if (score >= 80) feedback = "👍 아주 좋아요!";
-    else if (score >= 70) feedback = "😊 잘하고 있어요!";
-    else if (score >= 60) feedback = "💪 조금만 더 연습해요!";
-    else feedback = "📚 연습이 필요해요!";
-    document.getElementById("sp-score-feedback").textContent = feedback;
-    
-    // Details content
-    let detailsHtml = "";
-    
-    if (data.fluency !== undefined) {
-      detailsHtml += `<div class="flex justify-between"><span>🎯 유창성:</span><span class="font-semibold">${data.fluency}%</span></div>`;
-    }
-    
-    if (data.sentence_scores && data.sentence_scores.length > 0) {
-      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">문장별 점수:</p>`;
-      data.sentence_scores.forEach((s, idx) => {
-        const barWidth = Math.round(s);
-        detailsHtml += `
-          <div class="mb-2">
-            <div class="flex justify-between text-sm mb-1">
-              <span>문장 ${idx + 1}</span>
-              <span class="font-semibold">${s}점</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full" style="width: ${barWidth}%"></div>
-            </div>
-          </div>
-        `;
-      });
-      detailsHtml += `</div>`;
-    }
-    
-    if (data.words && data.words.length > 0) {
-      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">단어별 분석:</p><div class="space-y-2">`;
-      data.words.forEach(word => {
-        if (word.text && word.text !== "!SIL") {
-          detailsHtml += `<div class="text-sm"><span class="font-medium">${word.text}:</span> <span class="text-blue-600">${Math.round(word.score || 0)}점</span></div>`;
-        }
-      });
-      detailsHtml += `</div></div>`;
-    }
-    
-    document.getElementById("sp-details-content").innerHTML = detailsHtml || "<p class='text-gray-500'>상세 정보가 없습니다.</p>";
-    
-    // AI Feedback
-    if (data.ai_feedback) {
-      document.getElementById("sp-ai-feedback-section").classList.remove("hidden");
-      document.getElementById("sp-ai-feedback-content").textContent = data.ai_feedback;
-    } else {
-      document.getElementById("sp-ai-feedback-section").classList.add("hidden");
-    }
-    
-    // Show modal
-    modal.classList.remove("hidden");
-  }
-  
-  function closeSpeechProModal() {
-    document.getElementById("speechpro-modal").classList.add("hidden");
-  }
-
-  // 2. Pronunciation check (recording logic)
-  let mediaRecorder;
-  let audioChunks = [];
-  let mediaStream = null;
-
-  function initializeRecordingButtons() {
-    const recordBtn = document.getElementById("recordBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    
-    if (!recordBtn || !stopBtn) {
-      console.warn("Recording buttons not found");
-      return;
-    }
-
-    recordBtn.onclick = async () => {
-      try {
-        // Request microphone access
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        
-        mediaRecorder = new MediaRecorder(mediaStream);
-        audioChunks = [];
-        
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunks.push(event.data);
-          }
-        };
-
-        mediaRecorder.start();
-
-        recordBtn.disabled = true;
-        recordBtn.classList.add("opacity-50", "cursor-not-allowed");
-        stopBtn.disabled = false;
-        stopBtn.classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-400");
-        stopBtn.classList.add("bg-gradient-to-r", "from-gray-600", "to-gray-700");
-        document.getElementById("pronResult").innerHTML =
-          '<div class="flex items-center gap-2 text-sm text-gray-600"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
-        document.getElementById("pronResult").classList.remove("hidden");
-      } catch (error) {
-        console.error("마이크 접근 오류:", error);
-        alert("마이크에 접근할 수 없습니다. 브라우저 설정을 확인해주세요.");
-        document.getElementById("pronResult").innerHTML =
-          '<div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">마이크 접근 실패: ' + error.message + '</div>';
-      }
-    };
+  // 2. Essay test functions
 
     stopBtn.onclick = async () => {
       try {
@@ -1124,13 +981,21 @@ endblock %} {% block content %}
         recordBtn.disabled = false;
         recordBtn.classList.remove("opacity-50", "cursor-not-allowed");
         stopBtn.disabled = true;
-        stopBtn.classList.add("opacity-50", "cursor-not-allowed", "bg-gray-400");
-        stopBtn.classList.remove("bg-gradient-to-r", "from-gray-600", "to-gray-700");
+        stopBtn.classList.add(
+          "opacity-50",
+          "cursor-not-allowed",
+          "bg-gray-400"
+        );
+        stopBtn.classList.remove(
+          "bg-gradient-to-r",
+          "from-gray-600",
+          "to-gray-700"
+        );
 
         mediaRecorder.onstop = async () => {
           // Stop all tracks in the media stream
           if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream.getTracks().forEach((track) => track.stop());
             mediaStream = null;
           }
 
@@ -1167,7 +1032,7 @@ endblock %} {% block content %}
             } else {
               // Show modal with SpeechPro results
               showSpeechProModal(data, targetText);
-              
+
               // Also show brief result in pronResult
               const score = data.score || 0;
               document.getElementById("pronResult").innerHTML = `
