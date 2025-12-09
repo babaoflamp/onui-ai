@@ -264,7 +264,7 @@ endblock %} {% block content %}
       // Check if user is logged in using localStorage
       const token = localStorage.getItem("auth_token");
       const nickname = localStorage.getItem("user_nickname");
-      
+
       if (!token || !nickname) {
         window.location.href = "/login?redirect=/learning-progress";
         return;

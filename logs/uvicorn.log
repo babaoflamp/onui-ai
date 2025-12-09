@@ -471,3 +471,41 @@ INFO:     112.220.79.218:0 - "GET /login?redirect=/learning-progress HTTP/1.1" 2
 INFO:     112.220.79.218:0 - "GET /learning-progress HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/user/profile HTTP/1.1" 401 Unauthorized
 INFO:     112.220.79.218:0 - "GET /login?redirect=/learning-progress HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning-progress HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/learning/today-progress/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 나의 학습 진도 진행상황이 어떻게 되지?
+[Chatbot] Response status: 200
+[Chatbot] AI response: 학습 진도 확인을 위해 구체적인 항목이나 기준을 알려주세요!  
+
+예를 들어, 
+
+* **특정 단원별 성취도**
+* **실습 횟수**
+* **퀴즈 성적**
+
+등을 알려주시면 정확한...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/pronunciation-practice.css HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/js/pronunciation-practice.js HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /content-generation HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /fluency-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK

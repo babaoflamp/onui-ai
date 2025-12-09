@@ -782,6 +782,9 @@
       feedbackContent.innerHTML = `<div>${defaultFeedback}</div>`;
     }
 
+    // 학습 진도 기록 및 Pop-Up 표시
+    recordLearningProgress(score);
+
     // 결과 모달 표시
     document.getElementById("results-modal").classList.remove("hidden");
   }
@@ -908,6 +911,134 @@
     }
   }
 
+  // 학습 진도 기록 및 캐릭터 Pop-Up 표시
+  async function recordLearningProgress(score) {
+    try {
+      const nickname = localStorage.getItem("user_nickname");
+      if (!nickname) return;
+
+      // 1. 학습 진도 기록
+      const progressResponse = await fetch(
+        "/api/learning/pronunciation-completed",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: nickname,
+            score: score,
+            timestamp: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!progressResponse.ok) {
+        console.error("Failed to record learning progress");
+        return;
+      }
+
+      const progressData = await progressResponse.json();
+
+      // 2. Pop-Up 표시 여부 확인
+      const popupCheckResponse = await fetch(
+        `/api/learning/check-popup/${nickname}`,
+        { method: "POST" }
+      );
+
+      if (!popupCheckResponse.ok) return;
+
+      const popupData = await popupCheckResponse.json();
+
+      if (popupData.should_show_popup && popupData.popup_message) {
+        // Pop-Up 표시
+        showCharacterPopup(
+          popupData.character || "오빠",
+          popupData.popup_message,
+          popupData.popup_type || "info"
+        );
+
+        // Pop-Up 표시 기록
+        await fetch("/api/learning/popup-shown", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: nickname,
+            character: popupData.character || "오빠",
+            popup_type: popupData.popup_type || "info",
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Error recording learning progress:", error);
+    }
+  }
+
+  // 캐릭터별 메시지 스타일 정의
+  const CHARACTER_STYLES = {
+    오빠: {
+      emoji: "🧑",
+      color: "bg-blue-100",
+      sealColor: "bg-blue-500",
+      borderColor: "border-blue-900",
+      role: "현재 상황 안내",
+    },
+    호랑이: {
+      emoji: "🐯",
+      color: "bg-orange-100",
+      sealColor: "bg-orange-500",
+      borderColor: "border-orange-900",
+      role: "경고와 독려",
+    },
+    동생: {
+      emoji: "👧",
+      color: "bg-pink-100",
+      sealColor: "bg-pink-500",
+      borderColor: "border-pink-900",
+      role: "칭찬",
+    },
+  };
+
+  // 캐릭터 Pop-Up 표시 함수
+  function showCharacterPopup(character, message, popupType = "info") {
+    const style = CHARACTER_STYLES[character] || CHARACTER_STYLES["오빠"];
+
+    // Pop-Up 요소 업데이트
+    const modal = document.getElementById("character-popup-modal");
+    const letter = document.getElementById("popup-letter");
+    const charDiv = document.getElementById("popup-character");
+    const senderDiv = document.getElementById("popup-sender");
+    const messageDiv = document.getElementById("popup-message");
+    const sealDiv = document.getElementById("popup-seal");
+    const dateDiv = document.getElementById("popup-date");
+
+    if (modal && letter && charDiv && senderDiv && messageDiv && sealDiv) {
+      // 색상 및 스타일 업데이트
+      letter.className = `bg-yellow-50 rounded-none border-8 ${style.borderColor} p-8 shadow-2xl relative`;
+      sealDiv.className = `absolute -top-4 -right-4 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-3xl font-bold ${style.sealColor} text-white`;
+
+      // 캐릭터 및 메시지 업데이트
+      charDiv.textContent = style.emoji;
+      senderDiv.textContent = `${character}로부터`;
+      messageDiv.textContent = message;
+
+      if (dateDiv) {
+        const today = new Date().toLocaleDateString("ko-KR");
+        dateDiv.textContent = today;
+      }
+
+      // 모달 표시
+      modal.classList.remove("hidden");
+      modal.addEventListener("click", closeCharacterPopup);
+    }
+  }
+
+  // Pop-Up 닫기
+  function closeCharacterPopup() {
+    const modal = document.getElementById("character-popup-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+    }
+  }
+
   // 초기화
   document.addEventListener("DOMContentLoaded", () => {
     // 평가 버튼 초기 상태
@@ -915,6 +1046,78 @@
 
     // 문장 데이터 로드
     loadSentences();
+
+    // Pop-Up 닫기 버튼 이벤트
+    const modal = document.getElementById("character-popup-modal");
+    if (modal) {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) {
+          closeCharacterPopup();
+        }
+      });
+    }
   });
 </script>
+
+<!-- 캐릭터 Pop-Up 모달 -->
+<div
+  id="character-popup-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+>
+  <div class="relative w-full max-w-2xl">
+    <!-- 조선시대 편지 스타일 박스 -->
+    <div
+      id="popup-letter"
+      class="bg-yellow-50 rounded-none border-8 border-blue-900 p-8 shadow-2xl relative"
+    >
+      <!-- 왁스 씰 (상단 우측) -->
+      <div
+        id="popup-seal"
+        class="absolute -top-4 -right-4 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-3xl font-bold bg-blue-500 text-white"
+      ></div>
+
+      <!-- 캐릭터 영역 -->
+      <div class="flex items-start gap-6 mb-6">
+        <div id="popup-character" class="text-8xl flex-shrink-0">🧑</div>
+
+        <!-- 메시지 영역 -->
+        <div class="flex-1">
+          <!-- 발신자 정보 -->
+          <div
+            id="popup-header"
+            class="text-sm text-gray-700 mb-4 pb-3 border-b-2 border-blue-900"
+          >
+            <div id="popup-sender" class="font-semibold">오빠로부터</div>
+            <div id="popup-date" class="text-xs text-gray-500"></div>
+          </div>
+
+          <!-- 메시지 본문 -->
+          <div
+            id="popup-message"
+            class="text-lg leading-loose text-gray-800 font-serif mb-6"
+          >
+            안녕하세요!
+          </div>
+
+          <!-- 서명 -->
+          <div
+            id="popup-signature"
+            class="text-right text-sm text-gray-700 italic"
+          >
+            — 너의 한국어 학습 도우미 —
+          </div>
+        </div>
+      </div>
+
+      <!-- 닫기 버튼 -->
+      <button
+        onclick="closeCharacterPopup()"
+        class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-2xl cursor-pointer hover:opacity-70 transition"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
