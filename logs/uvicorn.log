@@ -583,3 +583,19 @@ INFO:     112.220.79.218:0 - "GET /api/learning/today-progress/%EA%B9%80%EC%8A%A
 INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
 INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 200 OK
 INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/%EA%B9%80%EC%8A%A4%EC%BA%87 HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'backend/services/learning_progress_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [180665]
+INFO:     Started server process [214077]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'backend/services/learning_progress_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [214077]
+INFO:     Started server process [218202]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.

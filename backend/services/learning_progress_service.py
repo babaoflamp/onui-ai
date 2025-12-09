@@ -194,24 +194,53 @@ class LearningProgressService:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
+        # 기본 통계
         cursor.execute(
             """SELECT SUM(total_learning_time) as total_time,
                       SUM(pronunciation_practice_count) as total_practices,
                       AVG(pronunciation_avg_score) as avg_score,
-                      COUNT(DISTINCT date) as learning_days
+                      MAX(pronunciation_avg_score) as best_score,
+                      COUNT(DISTINCT date) as learning_days,
+                      MAX(consecutive_days) as max_consecutive_days
                FROM user_learning_progress
                WHERE user_id = ?""",
             (user_id,)
         )
         
         row = cursor.fetchone()
+        
+        # 배지 및 업적 정보
+        cursor.execute(
+            """SELECT badges FROM user_learning_progress
+               WHERE user_id = ? AND badges IS NOT NULL
+               LIMIT 1""",
+            (user_id,)
+        )
+        badges_row = cursor.fetchone()
+        badges = []
+        if badges_row and badges_row[0]:
+            try:
+                badges = json.loads(badges_row[0])
+            except:
+                badges = []
+        
         conn.close()
         
         return {
-            'total_learning_time': row[0] or 0,
-            'total_pronunciation_practices': row[1] or 0,
-            'average_pronunciation_score': round(row[2] or 0, 1),
-            'total_learning_days': row[3] or 0
+            'total_practices': int(row[1] or 0),
+            'avg_score': round(row[2] or 0, 1),
+            'best_score': round(row[3] or 0, 1),
+            'total_duration': int(row[0] or 0),
+            'learning_days': int(row[4] or 0),
+            'consecutive_days': int(row[5] or 0),
+            'achievements': badges,
+            'accuracy_distribution': {
+                'excellent': 0,  # 90점 이상
+                'good': 0,       # 80-89점
+                'fair': 0,       # 70-79점
+                'need_improvement': 0  # 70점 미만
+            },
+            'daily_log': []
         }
     
     def _row_to_dict(self, row) -> Dict:
