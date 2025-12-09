@@ -159,21 +159,21 @@
   <body class="bg-gray-100">
     <!-- Navigation Header -->
     <nav class="sticky top-0 z-40 bg-white shadow-md">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
+      <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div class="flex justify-between h-14">
+          <div class="flex items-center">
             <!-- Logo -->
             <div class="flex-shrink-0 flex items-center">
-              <a href="/" class="text-2xl font-bold text-orange-500">
+              <a href="/" class="text-lg sm:text-2xl font-bold text-orange-500 whitespace-nowrap">
                 🌸 오누이 한국어
               </a>
             </div>
 
             <!-- Desktop Navigation -->
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-6">
+            <div class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4">
               <a
                 href="/"
-                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-900"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap"
               >
                 🏠 홈
               </a>
@@ -181,7 +181,7 @@
               <!-- 발음 학습 드롭다운 -->
               <div class="dropdown inline-flex items-center">
                 <button
-                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
                   🗣️ 발음 학습 ▾
                 </button>
@@ -196,7 +196,7 @@
               <!-- AI 학습 드롭다운 -->
               <div class="dropdown inline-flex items-center">
                 <button
-                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
                   🤖 AI 학습 ▾
                 </button>
@@ -211,7 +211,7 @@
               <!-- 활동하기 드롭다운 -->
               <div class="dropdown inline-flex items-center">
                 <button
-                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
                   🎲 활동하기 ▾
                 </button>
@@ -266,7 +266,7 @@
               <!-- 도움말 드롭다운 -->
               <div class="dropdown inline-flex items-center">
                 <button
-                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
                   🆘 도움말 ▾
                 </button>
@@ -294,14 +294,14 @@
 
               <a
                 href="/api-test"
-                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
                 🔧 API 테스트
               </a>
 
               <a
                 href="/sitemap"
-                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-900"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
                 📍 사이트맵
               </a>
@@ -309,11 +309,11 @@
           </div>
 
           <!-- Auth Links (Desktop) -->
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2 sm:space-x-3">
             <a
               href="/learning-progress"
               id="progress-link"
-              class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
               📊 학습 진도
@@ -321,19 +321,19 @@
             <a
               href="/mypage"
               id="mypage-link"
-              class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
               내 프로필
             </a>
             <span
               id="user-display"
-              class="text-sm text-gray-600"
+              class="text-xs sm:text-sm text-gray-600"
               style="display: none"
             ></span>
             <button
               id="logout-btn"
-              class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900"
               style="display: none"
             >
               로그아웃
@@ -341,7 +341,7 @@
             <a
               href="/login"
               id="login-link"
-              class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium hover:bg-orange-600"
+              class="px-2 sm:px-4 py-2 rounded-lg bg-orange-500 text-white text-xs sm:text-sm font-medium hover:bg-orange-600 whitespace-nowrap"
             >
               로그인
             </a>
