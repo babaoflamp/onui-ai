@@ -19,6 +19,46 @@ class LearningProgressService:
         # 스키마 생성
         cursor.executescript("""
             CREATE TABLE IF NOT EXISTS user_learning_progress (
+
+        # Static dataset paths for coverage calculations
+        DATA_DIR = Path("data")
+        VOCAB_PATH = DATA_DIR / "vocabulary.json"
+        SENTENCE_PATH = DATA_DIR / "sentences.json"
+
+
+        @lru_cache(maxsize=1)
+        def _load_dataset_totals():
+            """Load total counts for vocab/sentences once."""
+            vocab_total = 0
+            sentence_total = 0
+            try:
+                if VOCAB_PATH.exists():
+                    with open(VOCAB_PATH, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        if isinstance(data, list):
+                            vocab_total = len(data)
+                        elif isinstance(data, dict):
+                            vocab_total = len(data.get("words", []))
+            except Exception:
+                vocab_total = 0
+
+            try:
+                if SENTENCE_PATH.exists():
+                    with open(SENTENCE_PATH, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        if isinstance(data, list):
+                            sentence_total = len(data)
+                        elif isinstance(data, dict):
+                            sentence_total = len(data.get("sentences", []))
+            except Exception:
+                sentence_total = 0
+
+            return {
+                "vocab_total": vocab_total,
+                "sentence_total": sentence_total,
+                # 콘텐츠 생성 목표치는 명시적 데이터가 없으므로 기본 20건으로 설정
+                "content_total": 20,
+            }
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT NOT NULL,
                 date TEXT NOT NULL,
@@ -224,8 +264,25 @@ class LearningProgressService:
             except:
                 badges = []
         
+        # 추가 합계: 사용자가 학습한 단어/문장/콘텐츠 건수 합산
+        cursor.execute(
+            """SELECT
+                    SUM(words_learned) as words_learned,
+                    SUM(sentences_learned) as sentences_learned,
+                    SUM(content_generated) as content_generated
+                 FROM user_learning_progress
+                 WHERE user_id = ?""",
+            (user_id,)
+        )
+        totals_row = cursor.fetchone()
+        words_learned = int(totals_row[0] or 0)
+        sentences_learned = int(totals_row[1] or 0)
+        content_generated = int(totals_row[2] or 0)
+
         conn.close()
-        
+
+        dataset_totals = _load_dataset_totals()
+
         return {
             'total_practices': int(row[1] or 0),
             'avg_score': round(row[2] or 0, 1),
@@ -240,7 +297,14 @@ class LearningProgressService:
                 'fair': 0,       # 70-79점
                 'need_improvement': 0  # 70점 미만
             },
-            'daily_log': []
+            'daily_log': [],
+            # 커버리지용 필드
+            'words_learned': words_learned,
+            'words_total': dataset_totals.get('vocab_total', 0),
+            'sentences_learned': sentences_learned,
+            'sentences_total': dataset_totals.get('sentence_total', 0),
+            'content_completed': content_generated,
+            'content_total': dataset_totals.get('content_total', 20),
         }
     
     def _row_to_dict(self, row) -> Dict:
