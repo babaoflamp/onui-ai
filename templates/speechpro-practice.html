@@ -935,12 +935,20 @@ endblock %} {% block content %}
       // 옵션 초기화
       select.innerHTML = '<option value="">-- 문장 선택 --</option>';
 
+      // 프리셋 문장 카운트
+      let presetCount = 0;
+      
       // 문장 옵션 추가
       sentences.forEach((sentence) => {
         const option = document.createElement("option");
         option.value = JSON.stringify(sentence);
-        const sourceLabel =
-          sentence.source === "precomputed" ? "📌 " : "";
+        let sourceLabel = "";
+        
+        if (sentence.source === "precomputed") {
+          presetCount++;
+          sourceLabel = `#${presetCount} `;
+        }
+        
         option.textContent = `${sourceLabel}[${sentence.level}] ${sentence.sentenceKr}`;
         select.appendChild(option);
       });
