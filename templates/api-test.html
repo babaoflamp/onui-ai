@@ -334,6 +334,127 @@
         </ul>
       </div>
     </div>
+
+    <!-- Learning Progress APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">📊 학습 진도 API</h2>
+
+      <!-- Record Pronunciation Practice -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습 기록</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+          <input
+            type="number"
+            id="learning-score"
+            placeholder="점수 (0-100)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="85"
+            min="0"
+            max="100"
+          />
+        </div>
+        <button
+          onclick="testRecordPronunciation()"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
+        >
+          POST /api/learning/pronunciation-completed
+        </button>
+        <pre
+          id="learning-pronunciation-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Check Popup Trigger -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Pop-Up 표시 확인</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-popup-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testCheckPopup()"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
+        >
+          POST /api/learning/check-popup/{user_id}
+        </button>
+        <pre
+          id="learning-popup-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Get User Stats -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">사용자 통계 조회</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-stats-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testGetUserStats()"
+          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 w-full"
+        >
+          GET /api/learning/user-stats/{user_id}
+        </button>
+        <pre
+          id="learning-stats-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Get Today Progress -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘 진도 조회</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-today-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testGetTodayProgress()"
+          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
+        >
+          GET /api/learning/today-progress/{user_id}
+        </button>
+        <pre
+          id="learning-today-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 학습 진도 API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• 발음 연습 완료 시 자동으로 학습 진도 기록</li>
+          <li>• 조건 충족 시 캐릭터별 Pop-Up 자동 표시</li>
+          <li>• 오빠: 현재 상황 안내, 호랑이: 경고와 독려, 동생: 칭찬</li>
+          <li>• 학습 진도 대시보드에서 통계 조회 가능</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
   <!-- API Documentation Section -->
@@ -734,6 +855,102 @@
       await audio.play();
       resultElement.textContent = "재생 중... 🔊";
 
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // Learning Progress API Tests
+  async function testRecordPronunciation() {
+    const resultElement = document.getElementById("learning-pronunciation-result");
+    const userId = document.getElementById("learning-user-id").value;
+    const score = parseInt(document.getElementById("learning-score").value);
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch("/api/learning/pronunciation-completed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          score: score,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testCheckPopup() {
+    const resultElement = document.getElementById("learning-popup-result");
+    const userId = document.getElementById("learning-popup-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/check-popup/${userId}`, {
+        method: "POST"
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testGetUserStats() {
+    const resultElement = document.getElementById("learning-stats-result");
+    const userId = document.getElementById("learning-stats-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/user-stats/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testGetTodayProgress() {
+    const resultElement = document.getElementById("learning-today-result");
+    const userId = document.getElementById("learning-today-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/today-progress/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
     } catch (error) {
       resultElement.textContent = `Error: ${error.message}`;
     }
