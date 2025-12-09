@@ -1,0 +1,213 @@
+{% extends "base.html" %} {% block title %}발음 교정 | 오누이 한국어{% endblock
+%} {% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">🎤 발음 교정</h1>
+    <p class="text-gray-600">
+      AI가 당신의 한국어 발음을 평가하고 피드백을 제공합니다!
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <!-- Pronunciation Check Section -->
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
+      >
+        <span class="text-2xl">🎙️</span>
+        발음 연습
+      </h2>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >연습 문장</label
+        >
+        <input
+          id="targetText"
+          type="text"
+          placeholder="예: 안녕하세요, 만나서 반갑습니다"
+          value="안녕하세요"
+          class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+        />
+        <p class="text-xs text-gray-500 mt-1">
+          읽을 문장을 입력하거나 선택하세요
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >마이크</label
+          >
+          <button
+            id="recordBtn"
+            onclick="toggleRecording()"
+            class="w-full bg-gradient-to-r from-red-500 to-orange-600 text-white px-6 py-3 rounded-lg transition-all shadow-md font-medium hover:shadow-lg"
+          >
+            🎙️ 녹음 시작
+          </button>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >시간: <span id="recordTime">0:00</span></label
+          >
+          <div id="audioPlayback" class="w-full"></div>
+        </div>
+      </div>
+
+      <button
+        id="submitBtn"
+        onclick="submitPronunciation()"
+        disabled
+        class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg transition-all shadow-md font-medium hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ✨ 발음 평가받기
+      </button>
+
+      <div
+        id="feedbackResult"
+        class="bg-white p-4 rounded-lg shadow-sm hidden border border-red-200 mt-4 max-h-[600px] overflow-y-auto"
+      ></div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+      <h3 class="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+        <span>💡</span>
+        발음 평가 팁
+      </h3>
+      <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+        <li>마이크 권한을 허용해주세요.</li>
+        <li>조용한 환경에서 녹음하면 더 정확한 평가를 받을 수 있습니다.</li>
+        <li>자연스럽게 한 번 읽어주시면 됩니다.</li>
+        <li>정확하지 않은 발음은 AI가 교정해줍니다.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+  let recorder;
+  let audioChunks = [];
+  let isRecording = false;
+  let recordStartTime = 0;
+  let recordTimer = null;
+
+  async function toggleRecording() {
+    const btn = document.getElementById("recordBtn");
+
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        recorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        recorder.ondataavailable = (e) => audioChunks.push(e.data);
+        recorder.start();
+
+        isRecording = true;
+        btn.innerHTML = "⏹️ 녹음 중지";
+        btn.classList.add("bg-red-700");
+
+        recordStartTime = Date.now();
+        recordTimer = setInterval(updateRecordTime, 100);
+
+        document.getElementById("submitBtn").disabled = false;
+      } catch (error) {
+        alert("마이크 접근 권한을 허용해주세요.");
+      }
+    } else {
+      recorder.stop();
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const audio = document.createElement("audio");
+        audio.src = audioUrl;
+        audio.controls = true;
+        audio.className = "w-full mt-2";
+
+        document.getElementById("audioPlayback").innerHTML = "";
+        document.getElementById("audioPlayback").appendChild(audio);
+
+        window.recordedAudioBlob = audioBlob;
+      };
+
+      isRecording = false;
+      btn.innerHTML = "🎙️ 녹음 시작";
+      btn.classList.remove("bg-red-700");
+
+      clearInterval(recordTimer);
+      document.getElementById("recordTime").textContent = "0:00";
+    }
+  }
+
+  function updateRecordTime() {
+    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    document.getElementById("recordTime").textContent = `${minutes}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  }
+
+  async function submitPronunciation() {
+    if (!window.recordedAudioBlob) {
+      alert("먼저 녹음해주세요!");
+      return;
+    }
+
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.innerHTML = "⏳ 평가 중...";
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", window.recordedAudioBlob, "recording.webm");
+      formData.append("text", document.getElementById("targetText").value);
+
+      const response = await fetch("/api/check-pronunciation", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      const outDiv = document.getElementById("feedbackResult");
+
+      if (!response.ok) {
+        outDiv.innerHTML = `<div class="text-red-600">오류: ${
+          data.error || "요청 실패"
+        }</div>`;
+      } else {
+        let html = `<div class="prose max-w-full">`;
+        html += `<h3>🎯 발음 평가 결과</h3>`;
+        html += `<div class="bg-orange-50 p-3 rounded border border-orange-200 mb-4">`;
+        html += `<p><strong>평가 문장:</strong> ${
+          data.text || document.getElementById("targetText").value
+        }</p>`;
+        html += `<p><strong>정확도:</strong> <span class="text-lg font-bold text-orange-600">${
+          data.score || "평가 중"
+        }%</span></p>`;
+        html += `</div>`;
+        html += `<div>${data.feedback || ""}</div>`;
+        html += `</div>`;
+        outDiv.innerHTML = html;
+      }
+
+      outDiv.classList.remove("hidden");
+    } catch (error) {
+      document.getElementById(
+        "feedbackResult"
+      ).innerHTML = `<div class="text-red-600">오류: ${error.message}</div>`;
+      document.getElementById("feedbackResult").classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "✨ 발음 평가받기";
+    }
+  }
+</script>
+{% endblock %}

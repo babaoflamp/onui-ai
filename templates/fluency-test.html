@@ -1,0 +1,217 @@
+{% extends "base.html" %} {% block title %}한국어 작문 테스트 - 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+        ONUI · AI 학습 도구
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <span class="text-2xl">✍️</span>
+        한국어 작문 테스트
+      </h1>
+      <p class="text-sm text-gray-600">
+        자유롭게 한국어로 글을 쓰고 AI가 평가합니다
+      </p>
+    </header>
+
+    <!-- Writing Test Section -->
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
+      >
+        <span class="text-2xl">📝</span>
+        글 작성
+      </h2>
+
+      <div class="bg-white p-4 rounded-lg shadow-sm">
+        <label
+          for="fluencyInput"
+          class="text-sm font-semibold text-gray-700 mb-2 block"
+        >
+          주제: 오늘 기분이나 경험한 일을 자유롭게 한국어로 써보세요
+        </label>
+
+        <textarea
+          id="fluencyInput"
+          placeholder="예시:
+오늘은 날씨가 정말 좋았어요. 친구들과 함께 공원에 갔다. 우리는 커피를 마시고 재미있는 이야기들을 나누었습니다. 정말 행복한 하루였어요!"
+          class="w-full border border-gray-300 p-3 rounded-lg mb-4 h-32 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
+        ></textarea>
+
+        <div class="flex gap-2 mb-4">
+          <div class="flex-1 p-3 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">글자 수:</p>
+            <p id="charCount" class="text-lg font-bold text-gray-900">0</p>
+          </div>
+          <button
+            onclick="checkFluency()"
+            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
+          >
+            📊 제출 및 채점
+          </button>
+        </div>
+
+        <div
+          id="fluencyResult"
+          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
+        ></div>
+      </div>
+    </section>
+
+    <!-- Examples Section -->
+    <section class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+      <h2
+        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
+      >
+        <span class="text-2xl">💡</span>
+        작문 팁
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-3 rounded-lg">
+          <p class="text-sm font-semibold text-gray-900 mb-2">✅ 좋은 예시</p>
+          <p class="text-xs text-gray-700 leading-relaxed">
+            오늘은 날씨가 정말 좋았어요. 친구들과 함께 공원에 갔습니다. 우리는
+            맛있는 커피를 마시면서 즐거운 시간을 보냈습니다.
+          </p>
+        </div>
+        <div class="bg-white p-3 rounded-lg">
+          <p class="text-sm font-semibold text-gray-900 mb-2">
+            ⚠️ 개선이 필요한 예시
+          </p>
+          <p class="text-xs text-gray-700 leading-relaxed">
+            오늘은 좋다. 친구하고 공원 갔다. 커피 마셨다. 즐거웠다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 채점 기준</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>문법</strong>: 올바른 한국어 문법 사용</p>
+        <p>• <strong>자연스러움</strong>: 실제 사용되는 자연스러운 표현</p>
+        <p>• <strong>어휘</strong>: 적절한 단어 선택</p>
+        <p>• <strong>일관성</strong>: 글의 흐름과 일관된 내용</p>
+        <p>• <strong>풍부함</strong>: 다양한 표현과 문장 구조의 사용</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // Update character count
+  document
+    .getElementById("fluencyInput")
+    .addEventListener("input", function () {
+      document.getElementById("charCount").textContent = this.value.length;
+    });
+
+  // Fluency check
+  async function checkFluency() {
+    const text = document.getElementById("fluencyInput").value;
+
+    if (!text.trim()) {
+      alert("글을 입력해주세요.");
+      return;
+    }
+
+    const resultDiv = document.getElementById("fluencyResult");
+    resultDiv.classList.remove("hidden");
+    resultDiv.innerHTML =
+      '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div><span class="text-sm text-gray-600">AI가 채점 중입니다...</span></div>';
+
+    const formData = new FormData();
+    formData.append("user_text", text);
+
+    try {
+      const res = await fetch("/api/fluency-check", {
+        method: "POST",
+        body: formData,
+      });
+      const json = await res.json();
+
+      if (json.error) {
+        resultDiv.innerHTML = `
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+            <p class="text-red-600 text-xs mt-1">${json.error}</p>
+          </div>
+        `;
+      } else {
+        const score = json.score || 0;
+        const scoreColor = score > 80 ? "green" : score > 60 ? "yellow" : "red";
+
+        resultDiv.innerHTML = `
+          <div class="space-y-3">
+            <!-- Score Card -->
+            <div class="p-4 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
+              <p class="text-xs text-gray-600 mb-2">최종 점수</p>
+              <p class="text-4xl font-bold text-${scoreColor}-700">${score}점</p>
+              <div class="mt-3 w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full transition-all duration-500"
+                  style="width: ${score}%"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Feedback -->
+            ${
+              json.feedback
+                ? `<div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-xs text-gray-600 mb-2">📝 피드백</p>
+                  <p class="text-sm text-gray-900">${json.feedback}</p>
+                </div>`
+                : ""
+            }
+
+            <!-- Corrected Text -->
+            ${
+              json.corrected
+                ? `<div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p class="text-xs text-gray-600 mb-2">✅ 교정된 문장</p>
+                  <p class="text-sm text-green-900 font-medium">${json.corrected}</p>
+                </div>`
+                : ""
+            }
+
+            <!-- Detailed Analysis -->
+            ${
+              json.details
+                ? `<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p class="text-xs text-gray-600 mb-2">📊 상세 분석</p>
+                  <p class="text-sm text-gray-900 whitespace-pre-wrap">${json.details}</p>
+                </div>`
+                : ""
+            }
+          </div>
+        `;
+      }
+    } catch (error) {
+      resultDiv.innerHTML = `
+        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+          <p class="text-red-600 text-xs mt-1">채점 중 오류가 발생했습니다: ${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Allow Enter+Ctrl to submit
+  document
+    .getElementById("fluencyInput")
+    .addEventListener("keydown", function (e) {
+      if (e.ctrlKey && e.key === "Enter") {
+        checkFluency();
+      }
+    });
+</script>
+{% endblock %}

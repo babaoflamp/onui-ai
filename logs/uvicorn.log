@@ -1,0 +1,234 @@
+INFO:     Will watch for changes in these directories: ['/home/scottk/Projects/onui-ai']
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+INFO:     Started reloader process [37684] using StatReload
+INFO:     Started server process [37687]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/pronunciation-practice.css HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/js/pronunciation-practice.js HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/tts/generate HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/generate-content HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+[Evaluate] Text: 약을 사러 약국에 갔어요.
+[Evaluate] Received FST from client: True
+[Evaluate] FST length: 10096
+[Evaluate] Using client-provided precomputed data
+[Evaluate] Using preset for scoring
+[Evaluate] Calling score API...
+[Score] Audio size: 2264484 bytes, Base64 size: 3019312, Text: 약을 사러 약국에 갔어요.
+[Score] URL: http://112.220.79.222:33005/speechpro/scorejson, Request ID: preset_score
+[Score] Sending payload with FST length: 10096
+[Score] Response status: 200
+[Score] Response data: {'id': 'preset_score', 'error code': 0, 'result': {'fluency': {'articulation length': 0.57, 'articulation rate': 17.544, 'correct syllable count': 0, 'correct word count': 0, 'duration': 70.75, 'end': 34.55, 'raw_pause_diff': [], 'sil count': 2, 'sil count between sentences': 0, 'sil count between words': 0, 'sil error rate between sentences': 0.0, 'sil error rate within sentence': 0.0, 'sil_r_within sentence': [], 'sil_t_within sentence': [0, 0, 0], 'speech rate': 0.141, 'start': 33.98, 'syllable count': 10, 'user_sil_error': [], 'word count': 4}, 'quality': {'sentences': [{'score': 100.0, 'text': '!SIL', 'time duration': 33.98, 'time start': 0.0, 'words': []}, {'score': 13.544, 'text': '약을 사러 약국에 갔어요', 'time duration': 0.57, 'time start': 33.98, 'words': [{'score': 12.09, 'syll': [{'phones': [{'intensity': 129.17, 'pitch': -0.974, 'score': 9.358, 'stress': 0, 'symbol': 'ㅑ', 'text': 'ya', 'time duration': 0.03, 'time start': 33.98}], 'score': 9.358, 'text': '야', 'time duration': 0.03, 'time start': 33.98}, {'phones': [{'intensity': 129.679, 'pitch': -1.033, 'score': 14.45, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.03, 'time start': 34.01}, {'intensity': 130.885, 'pitch': -0.178, 'score': 22.303, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.03, 'time start': 34.04}, {'intensity': 130.128, 'pitch': 0.133, 'score': 7.716, 'stress': 0, 'symbol': 'ㄹ', 'text': 'll', 'time duration': 0.03, 'time start': 34.07}], 'score': 14.823, 'text': '글', 'time duration': 0.09, 'time start': 34.01}], 'text': '약을', 'time duration': 0.12, 'time start': 33.98}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 34.1}, {'score': 13.679, 'syll': [{'phones': [{'intensity': 130.476, 'pitch': 0.349, 'score': 13.152, 'stress': 0, 'symbol': 'ㅅ', 'text': 's0', 'time duration': 0.03, 'time start': 34.1}, {'intensity': 129.907, 'pitch': -0.083, 'score': 10.469, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.03, 'time start': 34.13}], 'score': 11.811, 'text': '사', 'time duration': 0.06, 'time start': 34.1}, {'phones': [{'intensity': 129.756, 'pitch': -0.16, 'score': 0.0, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.03, 'time start': 34.16}, {'intensity': 130.451, 'pitch': -1.124, 'score': 31.096, 'stress': 0, 'symbol': 'ㅓ', 'text': 'vv', 'time duration': 0.03, 'time start': 34.19}], 'score': 15.548, 'text': '러', 'time duration': 0.06, 'time start': 34.16}], 'text': '사러', 'time duration': 0.12, 'time start': 34.1}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 34.22}, {'score': 2.235, 'syll': [{'phones': [{'intensity': 130.214, 'pitch': -1.213, 'score': 8.396, 'stress': 0, 'symbol': 'ㅑ', 'text': 'ya', 'time duration': 0.03, 'time start': 34.22}, {'intensity': 130.187, 'pitch': 0.473, 'score': 0.0, 'stress': 0, 'symbol': 'ㄱ', 'text': 'kf', 'time duration': 0.03, 'time start': 34.25}], 'score': 4.198, 'text': '약', 'time duration': 0.06, 'time start': 34.22}, {'phones': [{'intensity': 130.485, 'pitch': 0.919, 'score': 0.0, 'stress': 0, 'symbol': 'ㄲ', 'text': 'kk', 'time duration': 0.03, 'time start': 34.28}, {'intensity': 130.396, 'pitch': 0.11, 'score': 5.014, 'stress': 0, 'symbol': 'ㅜ', 'text': 'uu', 'time duration': 0.03, 'time start': 34.31}], 'score': 2.507, 'text': '꾸', 'time duration': 0.06, 'time start': 34.28}, {'phones': [{'intensity': 130.331, 'pitch': 0.535, 'score': 0.0, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.03, 'time start': 34.34}, {'intensity': 130.758, 'pitch': -0.689, 'score': 0.0, 'stress': 0, 'symbol': 'ㅔ', 'text': 'ee', 'time duration': 0.03, 'time start': 34.37}], 'score': 0.0, 'text': '게', 'time duration': 0.06, 'time start': 34.34}], 'text': '약국에', 'time duration': 0.18, 'time start': 34.22}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 34.4}, {'score': 26.171, 'syll': [{'phones': [{'intensity': 130.277, 'pitch': -0.873, 'score': 20.632, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.03, 'time start': 34.4}, {'intensity': 130.909, 'pitch': -0.979, 'score': 17.544, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.03, 'time start': 34.43}], 'score': 19.088, 'text': '가', 'time duration': 0.06, 'time start': 34.4}, {'phones': [{'intensity': 130.141, 'pitch': -1.043, 'score': 23.763, 'stress': 0, 'symbol': 'ㅆ', 'text': 'ss', 'time duration': 0.03, 'time start': 34.46}, {'intensity': 129.724, 'pitch': -1.285, 'score': 24.916, 'stress': 0, 'symbol': 'ㅓ', 'text': 'vv', 'time duration': 0.03, 'time start': 34.49}], 'score': 24.339, 'text': '써', 'time duration': 0.06, 'time start': 34.46}, {'phones': [{'intensity': 129.888, 'pitch': -1.414, 'score': 35.087, 'stress': 0, 'symbol': 'ㅛ', 'text': 'yo', 'time duration': 0.03, 'time start': 34.52}], 'score': 35.087, 'text': '요', 'time duration': 0.03, 'time start': 34.52}], 'text': '갔어요', 'time duration': 0.15, 'time start': 34.4}]}, {'score': 100.0, 'text': '!SIL', 'time duration': 36.2, 'time start': 34.55, 'words': []}]}, 'settings': {'bias fluent': 80.0, 'bias learner': 65.0, 'bias natural': 90.0, 'correct threshold': 80.0, 'silence threshold': 0.0, 'silence threshold between sentence': 0.03, 'silence threshold within sentence': 0.03}}}
+[Evaluate] Score result: score=13.544, error_code=0
+[AI Feedback] Error: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=15)
+[Evaluate] AI feedback generated: None
+[Evaluate] Success - returning response
+INFO:     112.220.79.218:0 - "POST /api/speechpro/evaluate HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+[Evaluate] Text: 우리 아들은 키가 큰 편이에요.
+[Evaluate] Received FST from client: True
+[Evaluate] FST length: 11824
+[Evaluate] Using client-provided precomputed data
+[Evaluate] Using preset for scoring
+[Evaluate] Calling score API...
+[Score] Audio size: 109518 bytes, Base64 size: 146024, Text: 우리 아들은 키가 큰 편이에요.
+[Score] URL: http://112.220.79.222:33005/speechpro/scorejson, Request ID: preset_score
+[Score] Sending payload with FST length: 11824
+[Score] Response status: 200
+[Score] Response data: {'id': 'preset_score', 'error code': 0, 'result': {'fluency': {'articulation length': 2.07, 'articulation rate': 5.797, 'correct syllable count': 12, 'correct word count': 5, 'duration': 3.4, 'end': 2.98, 'raw_pause_diff': [], 'sil count': 2, 'sil count between sentences': 0, 'sil count between words': 0, 'sil error rate between sentences': 0.0, 'sil error rate within sentence': 0.0, 'sil_r_within sentence': [], 'sil_t_within sentence': [0, 0, 0, 0], 'speech rate': 3.529, 'start': 0.91, 'syllable count': 12, 'user_sil_error': [], 'word count': 5}, 'quality': {'sentences': [{'score': 100.0, 'text': '!SIL', 'time duration': 0.91, 'time start': 0.0, 'words': []}, {'score': 90.289, 'text': '우리 아들은 키가 큰 편이에요', 'time duration': 2.07, 'time start': 0.91, 'words': [{'score': 99.091, 'syll': [{'phones': [{'intensity': 79.073, 'pitch': 0.12, 'score': 98.924, 'stress': 0, 'symbol': 'ㅜ', 'text': 'uu', 'time duration': 0.09, 'time start': 0.91}], 'score': 98.924, 'text': '우', 'time duration': 0.09, 'time start': 0.91}, {'phones': [{'intensity': 76.734, 'pitch': 0.032, 'score': 98.517, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.06, 'time start': 1.0}, {'intensity': 91.927, 'pitch': 0.098, 'score': 100.0, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.14, 'time start': 1.06}], 'score': 99.259, 'text': '리', 'time duration': 0.2, 'time start': 1.0}], 'text': '우리', 'time duration': 0.29, 'time start': 0.91}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.2}, {'score': 88.579, 'syll': [{'phones': [{'intensity': 92.272, 'pitch': -0.259, 'score': 84.661, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.09, 'time start': 1.2}], 'score': 84.661, 'text': '아', 'time duration': 0.09, 'time start': 1.2}, {'phones': [{'intensity': 73.595, 'pitch': -0.156, 'score': 96.185, 'stress': 0, 'symbol': 'ㄷ', 'text': 't0', 'time duration': 0.13, 'time start': 1.29}, {'intensity': 80.51, 'pitch': -0.114, 'score': 76.67, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.07, 'time start': 1.42}], 'score': 86.427, 'text': '드', 'time duration': 0.2, 'time start': 1.29}, {'phones': [{'intensity': 74.548, 'pitch': -0.148, 'score': 100.0, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.05, 'time start': 1.49}, {'intensity': 78.189, 'pitch': -0.072, 'score': 100.0, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.07, 'time start': 1.54}, {'intensity': 71.62, 'pitch': -0.06, 'score': 83.943, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nf', 'time duration': 0.08, 'time start': 1.61}], 'score': 94.648, 'text': '른', 'time duration': 0.2, 'time start': 1.49}], 'text': '아들은', 'time duration': 0.49, 'time start': 1.2}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.69}, {'score': 86.0, 'syll': [{'phones': [{'intensity': 75.268, 'pitch': 0.013, 'score': 100.0, 'stress': 0, 'symbol': 'ㅋ', 'text': 'kh', 'time duration': 0.11, 'time start': 1.69}, {'intensity': 79.909, 'pitch': 0.089, 'score': 68.45, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.03, 'time start': 1.8}], 'score': 84.225, 'text': '키', 'time duration': 0.14, 'time start': 1.69}, {'phones': [{'intensity': 77.764, 'pitch': 0.151, 'score': 75.552, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.07, 'time start': 1.83}, {'intensity': 84.816, 'pitch': 0.196, 'score': 100.0, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.1, 'time start': 1.9}], 'score': 87.776, 'text': '가', 'time duration': 0.17, 'time start': 1.83}], 'text': '키가', 'time duration': 0.31, 'time start': 1.69}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 2.0}, {'score': 87.351, 'syll': [{'phones': [{'intensity': 67.91, 'pitch': 0.288, 'score': 78.792, 'stress': 0, 'symbol': 'ㅋ', 'text': 'kh', 'time duration': 0.14, 'time start': 2.0}, {'intensity': 76.931, 'pitch': 0.352, 'score': 92.648, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.04, 'time start': 2.14}, {'intensity': 76.554, 'pitch': 0.285, 'score': 90.614, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nf', 'time duration': 0.04, 'time start': 2.18}], 'score': 87.351, 'text': '큰', 'time duration': 0.22, 'time start': 2.0}], 'text': '큰', 'time duration': 0.22, 'time start': 2.0}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 2.22}, {'score': 90.421, 'syll': [{'phones': [{'intensity': 76.927, 'pitch': 0.294, 'score': 96.985, 'stress': 0, 'symbol': 'ㅍ', 'text': 'ph', 'time duration': 0.16, 'time start': 2.22}, {'intensity': 89.099, 'pitch': 0.396, 'score': 90.018, 'stress': 0, 'symbol': 'ㅕ', 'text': 'yv', 'time duration': 0.05, 'time start': 2.38}], 'score': 93.502, 'text': '펴', 'time duration': 0.21, 'time start': 2.22}, {'phones': [{'intensity': 79.421, 'pitch': 0.3, 'score': 90.305, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nn', 'time duration': 0.1, 'time start': 2.43}, {'intensity': 86.685, 'pitch': -0.147, 'score': 92.887, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.03, 'time start': 2.53}], 'score': 91.596, 'text': '니', 'time duration': 0.13, 'time start': 2.43}, {'phones': [{'intensity': 75.371, 'pitch': -0.428, 'score': 81.377, 'stress': 0, 'symbol': 'ㅔ', 'text': 'ee', 'time duration': 0.26, 'time start': 2.56}], 'score': 81.377, 'text': '에', 'time duration': 0.26, 'time start': 2.56}, {'phones': [{'intensity': 75.928, 'pitch': -0.28, 'score': 95.211, 'stress': 0, 'symbol': 'ㅛ', 'text': 'yo', 'time duration': 0.16, 'time start': 2.82}], 'score': 95.211, 'text': '요', 'time duration': 0.16, 'time start': 2.82}], 'text': '편이에요', 'time duration': 0.76, 'time start': 2.22}]}, {'score': 94.649, 'text': '!SIL', 'time duration': 0.42, 'time start': 2.98, 'words': []}]}, 'settings': {'bias fluent': 80.0, 'bias learner': 65.0, 'bias natural': 90.0, 'correct threshold': 80.0, 'silence threshold': 0.0, 'silence threshold between sentence': 0.03, 'silence threshold within sentence': 0.03}}}
+[Evaluate] Score result: score=90.289, error_code=0
+[Evaluate] AI feedback generated: **피드백:**
+
+1. **격려 메시지:** 뛰어난 성과입니다! 90점이라는 높은 점수는 당신의 발음 실력이 매우 우수함을 보여줍니다. 계속해서 연습하면 더욱 완벽해질 것입니다!
+
+[Evaluate] Success - returning response
+INFO:     112.220.79.218:0 - "POST /api/speechpro/evaluate HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /content-generation HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /fluency-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/pronunciation-practice.css HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/js/pronunciation-practice.js HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/fluency-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /content-generation HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /fluency-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 니하오마?
+[Chatbot] Response status: 200
+[Chatbot] AI response: 니하오마는 일본어로 "안녕하세요?"라는 뜻입니다. 한국어 교육 중에는 주로 "안녕하세요?"를 사용하시는 것을 권장드립니다. 😊...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /content-generation HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 닝기미가 무슨 뜻이야?
+[Chatbot] Response status: 200
+[Chatbot] AI response: "닝기미"는 한국어로 주로 사용되는 표현이 아니며, 맥락에 따라 다를 수 있지만 일반적으로 잘 알려진 용어는 아닙니다. 혹시 다른 의미나 맥락을 말씀하시는 건가요? 더 구체적으로 ...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 이런 스벌
+[Chatbot] Response status: 200
+[Chatbot] AI response: 무엇을 도와드릴지 좀 더 자세히 알려주시겠어요? "이런 스벌"이라는 표현이 명확하지 않아요. 한국어 연습이나 특정 문법 질문이 있으신 건가요? 좀 더 구체적으로 말씀해 주시면 도와...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 대한민국 대통령이 누구야?
+[Chatbot] Response status: 200
+[Chatbot] AI response: 현재 대한민국 대통령은 윤석열입니다....
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 아니야 이재명인데?
+[Chatbot] Response status: 200
+[Chatbot] AI response: 맞아요, 이재명이죠! 다른 분을 말씀하시는 건가요? 더 자세히 알려주시면 도움을 드릴 수 있습니다. 😊...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+[Chatbot] Sending request to Ollama API: http://localhost:11434/api/generate
+[Chatbot] User message: 넌 언제까지 데이터를 갖고 있어? 최신 데이터가 몇 일이야?
+[Chatbot] Response status: 200
+[Chatbot] AI response: 저는 지속적으로 업데이트되고 있지만, 정확한 최신 데이터 일자를 알려드리기는 어렵습니다. LG AI Research에서 저는 끊임없이 학습을 통해 정보를 갱신하고 있습니다. 구체적...
+INFO:     112.220.79.218:0 - "POST /api/chatbot HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /fluency-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "POST /api/speechpro/evaluate HTTP/1.1" 422 Unprocessable Entity
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-check HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+[MzTTS] Sending payload: {'output_type': 'file', '_MODEL': 0, '_SPEAKER': 0, '_TEMPO': 0.9, '_PITCH': 1.0, '_GAIN': 1.2, '_CONVRATE': 0, '_TEXT': '잘 먹었습니다'}
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [37687]
+INFO:     Started server process [73749]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /vocab-garden HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/vocab-garden.css HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/js/vocab-garden.js HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /word-puzzle HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/word-puzzle.css HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/js/word-puzzle.js HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/puzzle/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [73749]
+INFO:     Started server process [132097]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/css/pronunciation-practice.css HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /static/js/pronunciation-practice.js HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-stages HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-rules HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 404 Not Found
+INFO:     112.220.79.218:0 - "GET /learning HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /pronunciation-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/pronunciation-words HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+[Evaluate] Text: 약을 사러 약국에 갔어요.
+[Evaluate] Received FST from client: True
+[Evaluate] FST length: 10096
+[Evaluate] Using client-provided precomputed data
+[Evaluate] Using preset for scoring
+[Evaluate] Calling score API...
+[Score] Audio size: 97998 bytes, Base64 size: 130664, Text: 약을 사러 약국에 갔어요.
+[Score] URL: http://112.220.79.222:33005/speechpro/scorejson, Request ID: preset_score
+[Score] Sending payload with FST length: 10096
+[Score] Response status: 200
+[Score] Response data: {'id': 'preset_score', 'error code': 0, 'result': {'fluency': {'articulation length': 1.66, 'articulation rate': 6.024, 'correct syllable count': 9, 'correct word count': 4, 'duration': 3.04, 'end': 2.55, 'raw_pause_diff': [], 'sil count': 2, 'sil count between sentences': 0, 'sil count between words': 0, 'sil error rate between sentences': 0.0, 'sil error rate within sentence': 0.0, 'sil_r_within sentence': [], 'sil_t_within sentence': [0, 0, 0], 'speech rate': 3.289, 'start': 0.89, 'syllable count': 10, 'user_sil_error': [], 'word count': 4}, 'quality': {'sentences': [{'score': 98.464, 'text': '!SIL', 'time duration': 0.89, 'time start': 0.0, 'words': []}, {'score': 91.871, 'text': '약을 사러 약국에 갔어요', 'time duration': 1.66, 'time start': 0.89, 'words': [{'score': 98.612, 'syll': [{'phones': [{'intensity': 96.972, 'pitch': -0.002, 'score': 100.0, 'stress': 0, 'symbol': 'ㅑ', 'text': 'ya', 'time duration': 0.23, 'time start': 0.89}], 'score': 100.0, 'text': '야', 'time duration': 0.23, 'time start': 0.89}, {'phones': [{'intensity': 98.187, 'pitch': -0.173, 'score': 98.973, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.05, 'time start': 1.12}, {'intensity': 112.187, 'pitch': 0.023, 'score': 100.0, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.03, 'time start': 1.17}, {'intensity': 110.135, 'pitch': 0.038, 'score': 92.7, 'stress': 0, 'symbol': 'ㄹ', 'text': 'll', 'time duration': 0.06, 'time start': 1.2}], 'score': 97.224, 'text': '글', 'time duration': 0.14, 'time start': 1.12}], 'text': '약을', 'time duration': 0.37, 'time start': 0.89}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.26}, {'score': 85.682, 'syll': [{'phones': [{'intensity': 100.747, 'pitch': 0.25, 'score': 99.631, 'stress': 0, 'symbol': 'ㅅ', 'text': 's0', 'time duration': 0.08, 'time start': 1.26}, {'intensity': 107.513, 'pitch': 0.208, 'score': 97.249, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.05, 'time start': 1.34}], 'score': 98.44, 'text': '사', 'time duration': 0.13, 'time start': 1.26}, {'phones': [{'intensity': 98.062, 'pitch': 0.191, 'score': 71.755, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.06, 'time start': 1.39}, {'intensity': 103.114, 'pitch': 0.131, 'score': 74.092, 'stress': 0, 'symbol': 'ㅓ', 'text': 'vv', 'time duration': 0.05, 'time start': 1.45}], 'score': 72.924, 'text': '러', 'time duration': 0.11, 'time start': 1.39}], 'text': '사러', 'time duration': 0.24, 'time start': 1.26}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.5}, {'score': 87.348, 'syll': [{'phones': [{'intensity': 103.53, 'pitch': -0.116, 'score': 99.204, 'stress': 0, 'symbol': 'ㅑ', 'text': 'ya', 'time duration': 0.12, 'time start': 1.5}, {'intensity': 74.992, 'pitch': -0.128, 'score': 78.922, 'stress': 0, 'symbol': 'ㄱ', 'text': 'kf', 'time duration': 0.09, 'time start': 1.62}], 'score': 89.063, 'text': '약', 'time duration': 0.21, 'time start': 1.5}, {'phones': [{'intensity': 72.887, 'pitch': 0.003, 'score': 100.0, 'stress': 0, 'symbol': 'ㄲ', 'text': 'kk', 'time duration': 0.08, 'time start': 1.71}, {'intensity': 87.502, 'pitch': 0.049, 'score': 71.567, 'stress': 0, 'symbol': 'ㅜ', 'text': 'uu', 'time duration': 0.06, 'time start': 1.79}], 'score': 85.784, 'text': '꾸', 'time duration': 0.14, 'time start': 1.71}, {'phones': [{'intensity': 83.051, 'pitch': 0.049, 'score': 79.286, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.08, 'time start': 1.85}, {'intensity': 92.885, 'pitch': 0.07, 'score': 95.107, 'stress': 0, 'symbol': 'ㅔ', 'text': 'ee', 'time duration': 0.05, 'time start': 1.93}], 'score': 87.197, 'text': '게', 'time duration': 0.13, 'time start': 1.85}], 'text': '약국에', 'time duration': 0.48, 'time start': 1.5}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.98}, {'score': 95.843, 'syll': [{'phones': [{'intensity': 85.488, 'pitch': -0.001, 'score': 90.257, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.04, 'time start': 1.98}, {'intensity': 94.332, 'pitch': -0.075, 'score': 98.527, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.12, 'time start': 2.02}], 'score': 94.392, 'text': '가', 'time duration': 0.16, 'time start': 1.98}, {'phones': [{'intensity': 93.19, 'pitch': -0.349, 'score': 96.421, 'stress': 0, 'symbol': 'ㅆ', 'text': 'ss', 'time duration': 0.15, 'time start': 2.14}, {'intensity': 96.601, 'pitch': -0.063, 'score': 99.434, 'stress': 0, 'symbol': 'ㅓ', 'text': 'vv', 'time duration': 0.11, 'time start': 2.29}], 'score': 97.927, 'text': '써', 'time duration': 0.26, 'time start': 2.14}, {'phones': [{'intensity': 93.613, 'pitch': -0.112, 'score': 95.209, 'stress': 0, 'symbol': 'ㅛ', 'text': 'yo', 'time duration': 0.15, 'time start': 2.4}], 'score': 95.209, 'text': '요', 'time duration': 0.15, 'time start': 2.4}], 'text': '갔어요', 'time duration': 0.57, 'time start': 1.98}]}, {'score': 95.016, 'text': '!SIL', 'time duration': 0.49, 'time start': 2.55, 'words': []}]}, 'settings': {'bias fluent': 80.0, 'bias learner': 65.0, 'bias natural': 90.0, 'correct threshold': 80.0, 'silence threshold': 0.0, 'silence threshold between sentence': 0.03, 'silence threshold within sentence': 0.03}}}
+[Evaluate] Score result: score=91.871, error_code=0
+[Evaluate] AI feedback generated: **피드백:**
+
+축하드립니다! 전체 점수 92점은 매우 훌륭한 결과입니다. 특히 '약을'과 '갔어요' 발음에서 뛰어난 정확성을 보여주셨고, 이는 한국어 발음에 대한 깊은 이해를 
+[Evaluate] Success - returning response
+INFO:     112.220.79.218:0 - "POST /api/speechpro/evaluate HTTP/1.1" 200 OK

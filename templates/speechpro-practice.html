@@ -215,12 +215,40 @@
               <!-- 동적으로 생성됨 -->
             </div>
           </div>
+
+          <!-- SpeechPro 분석 -->
+          <div class="border-t pt-6 mt-6">
+            <h3 class="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+              <span class="text-2xl">🎯</span> SpeechPro 정확도 분석
+            </h3>
+            <div id="speechpro-content" class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800">
+              <!-- 동적으로 생성됨 -->
+            </div>
+          </div>
+
+          <!-- FluencyPro 분석 -->
+          <div class="border-t pt-6 mt-6">
+            <h3 class="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+              <span class="text-2xl">🌊</span> FluencyPro 유창성 분석
+            </h3>
+            <div id="fluencypro-content" class="bg-purple-50 border-l-4 border-purple-400 rounded-lg p-4 space-y-2 text-purple-800">
+              <!-- 동적으로 생성됨 -->
+            </div>
+          </div>
         </div>
 
         <!-- 피드백 섹션 -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6">
-          <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 개선 피드백</h3>
-          <div id="feedback-content" class="text-blue-800 space-y-2">
+        <div
+          class="bg-gradient-to-br from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-lg p-8 mb-6 shadow-md"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">🤖</span>
+            <h3 class="text-xl font-bold text-blue-900">AI 종합 피드백</h3>
+          </div>
+          <div
+            id="feedback-content"
+            class="text-blue-800 space-y-3 leading-relaxed text-base"
+          >
             <!-- 동적으로 생성됨 -->
           </div>
         </div>
@@ -469,7 +497,7 @@
     let detailsHtml = "";
     if (result.score && result.score.details) {
       const details = result.score.details;
-      
+
       // fluency 정보
       if (details.fluency) {
         const f = details.fluency;
@@ -477,12 +505,24 @@
           <div class="mb-4">
             <h4 class="font-semibold text-gray-700 mb-2">🎯 유창성 (Fluency)</h4>
             <div class="grid grid-cols-2 gap-2 text-sm">
-              <div>발화 속도: <span class="font-medium">${(f['speech rate'] || 0).toFixed(1)} 음절/초</span></div>
-              <div>조음 속도: <span class="font-medium">${(f['articulation rate'] || 0).toFixed(1)} 음절/초</span></div>
-              <div>발화 길이: <span class="font-medium">${(f['articulation length'] || 0).toFixed(2)}초</span></div>
-              <div>총 길이: <span class="font-medium">${(f.duration || 0).toFixed(2)}초</span></div>
-              <div>정확 음절: <span class="font-medium">${f['correct syllable count'] || 0}/${f['syllable count'] || 0}</span></div>
-              <div>정확 단어: <span class="font-medium">${f['correct word count'] || 0}/${f['word count'] || 0}</span></div>
+              <div>발화 속도: <span class="font-medium">${(
+                f["speech rate"] || 0
+              ).toFixed(1)} 음절/초</span></div>
+              <div>조음 속도: <span class="font-medium">${(
+                f["articulation rate"] || 0
+              ).toFixed(1)} 음절/초</span></div>
+              <div>발화 길이: <span class="font-medium">${(
+                f["articulation length"] || 0
+              ).toFixed(2)}초</span></div>
+              <div>총 길이: <span class="font-medium">${(
+                f.duration || 0
+              ).toFixed(2)}초</span></div>
+              <div>정확 음절: <span class="font-medium">${
+                f["correct syllable count"] || 0
+              }/${f["syllable count"] || 0}</span></div>
+              <div>정확 단어: <span class="font-medium">${
+                f["correct word count"] || 0
+              }/${f["word count"] || 0}</span></div>
             </div>
           </div>
         `;
@@ -490,21 +530,28 @@
 
       // quality 정보 - 문장별 점수
       if (details.quality && details.quality.sentences) {
-        const sentences = details.quality.sentences.filter(s => s.text !== '!SIL');
+        const sentences = details.quality.sentences.filter(
+          (s) => s.text !== "!SIL"
+        );
         if (sentences.length > 0) {
           detailsHtml += `
             <div class="mb-4">
               <h4 class="font-semibold text-gray-700 mb-2">📝 문장별 평가</h4>
               <div class="space-y-2">
           `;
-          
-          sentences.forEach(sent => {
+
+          sentences.forEach((sent) => {
             const sentScore = Math.round(sent.score || 0);
-            const barColor = sentScore >= 80 ? 'bg-green-500' : sentScore >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+            const barColor =
+              sentScore >= 80
+                ? "bg-green-500"
+                : sentScore >= 60
+                ? "bg-yellow-500"
+                : "bg-red-500";
             detailsHtml += `
               <div class="text-sm">
                 <div class="flex justify-between items-center mb-1">
-                  <span class="font-medium">${sent.text || '(문장)'}</span>
+                  <span class="font-medium">${sent.text || "(문장)"}</span>
                   <span class="text-gray-600">${sentScore}점</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
@@ -513,7 +560,7 @@
               </div>
             `;
           });
-          
+
           detailsHtml += `
               </div>
             </div>
@@ -524,83 +571,112 @@
       // 단어별 상세 분석 (모든 문장의 단어들)
       if (details.quality && details.quality.sentences) {
         const allWords = [];
-        details.quality.sentences.forEach(sent => {
-          if (sent.text !== '!SIL' && sent.words && sent.words.length > 0) {
-            sent.words.forEach(word => {
-              if (word.text && word.text !== '!SIL') {
+        details.quality.sentences.forEach((sent) => {
+          if (sent.text !== "!SIL" && sent.words && sent.words.length > 0) {
+            sent.words.forEach((word) => {
+              if (word.text && word.text !== "!SIL") {
                 allWords.push(word);
               }
             });
           }
         });
-        
+
         if (allWords.length > 0) {
           detailsHtml += `
             <div class="mb-4">
               <h4 class="font-semibold text-gray-700 mb-2">🔍 단어별 분석</h4>
               <div class="space-y-3">
           `;
-          
-          allWords.forEach(word => {
+
+          allWords.forEach((word) => {
             const wordScore = Math.round(word.score || 0);
-            const scoreColor = wordScore >= 90 ? 'text-green-600' : wordScore >= 70 ? 'text-yellow-600' : 'text-red-600';
-            const barColor = wordScore >= 90 ? 'bg-green-500' : wordScore >= 70 ? 'bg-yellow-500' : 'bg-red-500';
-            
+            const scoreColor =
+              wordScore >= 90
+                ? "text-green-600"
+                : wordScore >= 70
+                ? "text-yellow-600"
+                : "text-red-600";
+            const barColor =
+              wordScore >= 90
+                ? "bg-green-500"
+                : wordScore >= 70
+                ? "bg-yellow-500"
+                : "bg-red-500";
+
             detailsHtml += `
-              <div class="border-l-4 ${barColor.replace('bg-', 'border-')} pl-3 py-2 bg-gray-50 rounded">
+              <div class="border-l-4 ${barColor.replace(
+                "bg-",
+                "border-"
+              )} pl-3 py-2 bg-gray-50 rounded">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="font-bold text-lg">${word.text || ''}</span>
+                  <span class="font-bold text-lg">${word.text || ""}</span>
                   <span class="${scoreColor} font-semibold">${wordScore}점</span>
                 </div>
             `;
-            
+
             // 음절별 분석
             if (word.syll && word.syll.length > 0) {
               detailsHtml += `<div class="ml-2 space-y-2 text-sm">`;
-              
-              word.syll.forEach(syll => {
+
+              word.syll.forEach((syll) => {
                 const syllScore = Math.round(syll.score || 0);
-                const syllColor = syllScore >= 90 ? 'text-green-600' : syllScore >= 70 ? 'text-yellow-600' : 'text-red-600';
-                
+                const syllColor =
+                  syllScore >= 90
+                    ? "text-green-600"
+                    : syllScore >= 70
+                    ? "text-yellow-600"
+                    : "text-red-600";
+
                 detailsHtml += `
                   <div class="bg-white rounded p-2">
                     <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-gray-700">음절: <span class="text-gray-900">${syll.text || ''}</span></span>
+                      <span class="font-semibold text-gray-700">음절: <span class="text-gray-900">${
+                        syll.text || ""
+                      }</span></span>
                       <span class="${syllColor}">${syllScore}점</span>
                     </div>
                 `;
-                
+
                 // 음소별 분석
                 if (syll.phones && syll.phones.length > 0) {
                   detailsHtml += `<div class="ml-3 mt-1 space-y-1 text-xs">`;
-                  
-                  syll.phones.forEach(phone => {
+
+                  syll.phones.forEach((phone) => {
                     const phoneScore = Math.round(phone.score || 0);
-                    const phoneColor = phoneScore >= 90 ? 'text-green-600' : phoneScore >= 70 ? 'text-yellow-600' : 'text-red-600';
-                    
+                    const phoneColor =
+                      phoneScore >= 90
+                        ? "text-green-600"
+                        : phoneScore >= 70
+                        ? "text-yellow-600"
+                        : "text-red-600";
+
                     detailsHtml += `
                       <div class="flex items-center justify-between border-l-2 border-gray-300 pl-2 py-1">
                         <div class="flex items-center gap-2">
-                          <span class="font-mono font-bold">${phone.symbol || ''}</span>
-                          <span class="text-gray-500">(${phone.text || ''})</span>
+                          <span class="font-mono font-bold">${
+                            phone.symbol || ""
+                          }</span>
+                          <span class="text-gray-500">(${
+                            phone.text || ""
+                          })</span>
                         </div>
                         <span class="${phoneColor} font-semibold">${phoneScore}점</span>
                       </div>
                     `;
                   });
-                  
+
                   detailsHtml += `</div>`;
                 }
-                
+
                 detailsHtml += `</div>`;
               });
-              
+
               detailsHtml += `</div>`;
             }
-            
+
             detailsHtml += `</div>`;
           });
-          
+
           detailsHtml += `
               </div>
             </div>
@@ -614,6 +690,49 @@
     }
 
     document.getElementById("details-content").innerHTML = detailsHtml;
+
+    // SpeechPro 분석 표시
+    let speechproHtml = "";
+    const quality = details.quality || {};
+    if (quality.sentences && quality.sentences.length > 0) {
+      const sent = quality.sentences[0];
+      speechproHtml += `<div class="text-sm space-y-1">`;
+      if (sent.accuracy_percentage !== undefined) {
+        speechproHtml += `<div>✓ 정확 발음: <strong>${sent.accuracy_percentage.toFixed(1)}%</strong></div>`;
+      }
+      if (sent.completeness_percentage !== undefined) {
+        speechproHtml += `<div>✓ 완성도: <strong>${sent.completeness_percentage.toFixed(1)}%</strong></div>`;
+      }
+      if (sent.syllable_count !== undefined) {
+        speechproHtml += `<div>✓ 음절 수: <strong>${sent.syllable_count}</strong></div>`;
+      }
+      speechproHtml += `</div>`;
+    }
+    if (!speechproHtml) {
+      speechproHtml = "<div class='text-sm'>SpeechPro 상세 데이터 없음</div>";
+    }
+    document.getElementById("speechpro-content").innerHTML = speechproHtml;
+
+    // FluencyPro 분석 표시
+    let fluencyHtml = "";
+    const fluency = details.fluency || {};
+    if (Object.keys(fluency).length > 0) {
+      fluencyHtml += `<div class="text-sm space-y-1">`;
+      const speechRate = fluency["speech rate"] || fluency.speech_rate || 0;
+      const correctSyll = fluency["correct syllable count"] || fluency.correct_syllables || 0;
+      const totalSyll = fluency["syllable count"] || fluency.total_syllables || 1;
+      const syllAcc = (correctSyll / totalSyll * 100).toFixed(1);
+      
+      if (speechRate > 0) {
+        fluencyHtml += `<div>🎯 발화 속도: <strong>${speechRate.toFixed(1)}</strong> 음절/초</div>`;
+      }
+      fluencyHtml += `<div>✓ 정확 음절: <strong>${correctSyll}/${totalSyll}</strong> (${syllAcc}%)</div>`;
+      fluencyHtml += `</div>`;
+    }
+    if (!fluencyHtml) {
+      fluencyHtml = "<div class='text-sm'>FluencyPro 상세 데이터 없음</div>";
+    }
+    document.getElementById("fluencypro-content").innerHTML = fluencyHtml;
 
     // AI 피드백 표시
     const feedbackContent = document.getElementById("feedback-content");
@@ -629,13 +748,17 @@
       if (score >= 90) {
         defaultFeedback = "완벽한 발음입니다! 계속 이렇게 연습하세요.";
       } else if (score >= 80) {
-        defaultFeedback = "매우 좋은 발음입니다. 조금만 더 연습하면 완벽해질 거예요!";
+        defaultFeedback =
+          "매우 좋은 발음입니다. 조금만 더 연습하면 완벽해질 거예요!";
       } else if (score >= 70) {
-        defaultFeedback = "좋은 발음입니다. 어려운 발음에 조금 더 집중해보세요.";
+        defaultFeedback =
+          "좋은 발음입니다. 어려운 발음에 조금 더 집중해보세요.";
       } else if (score >= 60) {
-        defaultFeedback = "발음이 많이 좋아지고 있어요. 천천히 정확하게 발음해보세요.";
+        defaultFeedback =
+          "발음이 많이 좋아지고 있어요. 천천히 정확하게 발음해보세요.";
       } else {
-        defaultFeedback = "천천히 또박또박 발음하며 연습해보세요. 꾸준히 하면 좋아질 거예요!";
+        defaultFeedback =
+          "천천히 또박또박 발음하며 연습해보세요. 꾸준히 하면 좋아질 거예요!";
       }
       feedbackContent.innerHTML = `<div>${defaultFeedback}</div>`;
     }

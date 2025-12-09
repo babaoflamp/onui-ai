@@ -1,0 +1,210 @@
+{% extends "base.html" %} {% block title %}맞춤형 교재 생성 | 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">📚 맞춤형 교재 생성</h1>
+    <p class="text-gray-600">
+      당신의 관심 주제와 레벨에 맞는 한국어 교재를 AI가 만들어줍니다!
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <!-- Content Generation Section -->
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
+      >
+        <span class="text-2xl">🎯</span>
+        교재 생성 옵션
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >관심 주제</label
+          >
+          <input
+            id="topic"
+            type="text"
+            placeholder="예: 김치, 한국 여행, 한국 영화"
+            value="김치"
+            class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >학습 레벨</label
+          >
+          <select
+            id="level"
+            class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="초급">초급</option>
+            <option value="중급" selected>중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >AI 모델</label
+          >
+          <select
+            id="modelSelect"
+            class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="gemini-2.5-flash" data-backend="gemini" selected>
+              Gemini Flash
+            </option>
+            <option value="exaone3.5:2.4b" data-backend="ollama">
+              EXAONE 3.5
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        id="generateBtn"
+        onclick="toggleGeneration()"
+        class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg transition-all shadow-md font-medium hover:shadow-lg"
+      >
+        🪄 교재 생성하기
+      </button>
+
+      <div
+        id="contentResult"
+        class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200 mt-4 max-h-[600px] overflow-y-auto"
+      ></div>
+
+      <!-- AI와 대화 섹션 -->
+      <div class="mt-6 pt-6 border-t border-blue-200">
+        <h3
+          class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"
+        >
+          💬 생성된 교재에 대해 AI와 대화하기
+        </h3>
+        <div class="flex gap-2">
+          <input
+            id="testPrompt"
+            type="text"
+            class="flex-1 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="질문을 입력하세요..."
+            onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }"
+          />
+          <button
+            onclick="testModel()"
+            class="bg-indigo-500 text-white px-6 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm font-medium"
+          >
+            ✨ 물어보기
+          </button>
+        </div>
+        <div
+          id="modelTestResult"
+          class="mt-3 p-3 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"
+        ></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // 기존 learning.html의 JavaScript 함수들을 복사
+  const modelSelect = document.getElementById("modelSelect");
+  let currentBackend = "gemini";
+
+  // Backend 선택 시 업데이트
+  modelSelect.addEventListener("change", function () {
+    currentBackend =
+      this.options[this.selectedIndex].getAttribute("data-backend") || "gemini";
+  });
+
+  async function toggleGeneration() {
+    const topic = document.getElementById("topic").value.trim();
+    if (!topic) {
+      alert("주제를 입력해주세요!");
+      return;
+    }
+
+    const btn = document.getElementById("generateBtn");
+    btn.disabled = true;
+    btn.innerHTML = "⏳ 생성 중...";
+
+    try {
+      const response = await fetch("/api/generate-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: topic,
+          level: document.getElementById("level").value,
+          backend: currentBackend,
+          model: document.getElementById("modelSelect").value,
+        }),
+      });
+
+      const data = await response.json();
+      const outDiv = document.getElementById("contentResult");
+
+      if (!response.ok) {
+        outDiv.innerHTML = `<div class="text-red-600">오류: ${
+          data.error || "요청 실패"
+        }</div>`;
+      } else {
+        let html = `<div class="prose max-w-full">`;
+        html += `<h3>${data.title || "생성된 교재"}</h3>`;
+        html += `<p><strong>주제:</strong> ${data.topic}</p>`;
+        html += `<p><strong>레벨:</strong> ${data.level}</p>`;
+        html += `<div>${data.content || ""}</div>`;
+        html += `</div>`;
+        outDiv.innerHTML = html;
+      }
+
+      outDiv.classList.remove("hidden");
+    } catch (error) {
+      document.getElementById(
+        "contentResult"
+      ).innerHTML = `<div class="text-red-600">오류: ${error.message}</div>`;
+      document.getElementById("contentResult").classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "🪄 교재 생성하기";
+    }
+  }
+
+  async function testModel() {
+    const prompt = document.getElementById("testPrompt").value.trim();
+    if (!prompt) return;
+
+    const outDiv = document.getElementById("modelTestResult");
+    outDiv.innerHTML = "⏳ 응답 중...";
+    outDiv.classList.remove("hidden");
+
+    try {
+      const response = await fetch("/api/test-model", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: prompt,
+          backend: currentBackend,
+          model: document.getElementById("modelSelect").value,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        outDiv.innerHTML = `<div class="text-red-600">오류: ${
+          data.error || "요청 실패"
+        }</div>`;
+      } else {
+        outDiv.innerHTML = `<p>${(data.response || "").replace(
+          /\n/g,
+          "<br>"
+        )}</p>`;
+      }
+    } catch (error) {
+      outDiv.innerHTML = `<div class="text-red-600">오류: ${error.message}</div>`;
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,461 @@
+{% extends "base.html" %} {% block title %}내 프로필 - 오누이 한국어 학습{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <!-- Header -->
+  <div class="mb-8 flex items-center justify-between">
+    <div>
+      <h1 class="text-4xl font-bold text-gray-900">👤 내 프로필</h1>
+      <p class="text-gray-600 mt-2">학습 정보를 확인하고 수정할 수 있습니다</p>
+    </div>
+    <a
+      href="/change-password"
+      class="px-4 py-2 rounded-lg bg-orange-500 text-white font-medium hover:bg-orange-600 whitespace-nowrap"
+    >
+      🔐 비밀번호 변경
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingState" class="text-center py-8">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"
+    ></div>
+    <p class="text-gray-600 mt-4">프로필을 불러오는 중...</p>
+  </div>
+
+  <!-- Error State -->
+  <div
+    id="errorState"
+    class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8"
+    style="display: none"
+  >
+    <p class="text-red-800 font-semibold" id="errorMsg"></p>
+    <a href="/" class="text-red-600 hover:text-red-700 mt-4 inline-block"
+      >홈으로 돌아가기</a
+    >
+  </div>
+
+  <!-- Profile Content -->
+  <div id="profileContent" style="display: none">
+    <!-- Profile Card -->
+    <div
+      class="bg-white rounded-2xl shadow-lg border border-orange-100 p-8 mb-8"
+    >
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2
+            class="text-2xl font-bold text-gray-900"
+            id="profileNickname"
+          ></h2>
+          <p class="text-sm text-gray-600 mt-1" id="profileEmail"></p>
+        </div>
+        <div class="text-5xl">🌟</div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-gray-600">가입 날짜</p>
+          <p class="font-semibold text-gray-900" id="profileCreated"></p>
+        </div>
+        <div>
+          <p class="text-gray-600">국적/모국어</p>
+          <p class="font-semibold text-gray-900" id="profileNativeLang">-</p>
+        </div>
+        <div>
+          <p class="text-gray-600">소속</p>
+          <p class="font-semibold text-gray-900" id="profileAffiliation">-</p>
+        </div>
+        <div>
+          <p class="text-gray-600">선호 시간대</p>
+          <p class="font-semibold text-gray-900" id="profileTimePref">-</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Preferences -->
+    <div
+      class="bg-white rounded-2xl shadow-lg border border-orange-100 p-8 mb-8"
+    >
+      <h3 class="text-xl font-bold text-gray-900 mb-6">📚 학습 정보</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-2">학습 목표</p>
+          <p class="text-gray-900 font-semibold" id="profileGoal">미설정</p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">관심 레벨/시험</p>
+          <p class="text-gray-900 font-semibold" id="profileExamLevel">
+            미설정
+          </p>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-sm text-gray-600 mb-2">관심 분야</p>
+          <div id="profileInterests" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">선호 학습 스타일</p>
+          <p class="text-gray-900 font-semibold" id="profileStyle">미설정</p>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-sm text-gray-600 mb-2">학습 계기</p>
+          <p
+            class="text-gray-900"
+            id="profileReason"
+            style="white-space: pre-wrap"
+          >
+            미설정
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Section -->
+    <div
+      class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-lg border border-emerald-200 p-8"
+    >
+      <h3 class="text-xl font-bold text-gray-900 mb-6">✏️ 프로필 수정</h3>
+
+      <form id="editProfileForm" class="space-y-6">
+        <!-- Nickname -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800">닉네임</label>
+            <input
+              name="nickname"
+              type="text"
+              maxlength="50"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+              placeholder="학습자 닉네임"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800"
+              >국적/모국어</label
+            >
+            <input
+              name="native_lang"
+              type="text"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+              placeholder="예: 일본 / 일본어"
+            />
+          </div>
+        </div>
+
+        <!-- Affiliation & Time Pref -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800"
+              >소속(회사/학교)</label
+            >
+            <input
+              name="affiliation"
+              type="text"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+              placeholder="예: OO대학교"
+            />
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800"
+              >선호 학습 시간대</label
+            >
+            <select
+              name="time_pref"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+            >
+              <option value="">선택</option>
+              <option>아침</option>
+              <option>점심</option>
+              <option>저녁</option>
+              <option>주말</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interests -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >관심 분야 (복수 선택)</label
+          >
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% set interests = ["음식", "K-Pop", "영화", "드라마", "여행",
+            "비즈니스"] %} {% for it in interests %}
+            <label class="flex items-center gap-2 text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                name="interests"
+                value="{{ it }}"
+                class="w-4 h-4 text-emerald-500 rounded"
+              />
+              {{ it }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Goal & Exam Level -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800">학습 목표</label>
+            <select
+              name="goal"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+            >
+              <option value="">선택</option>
+              <option>취미</option>
+              <option>자격증(TOPIK)</option>
+              <option>유학/취업</option>
+              <option>비즈니스 커뮤니케이션</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800"
+              >관심 시험/레벨</label
+            >
+            <input
+              name="exam_level"
+              type="text"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+              placeholder="예: TOPIK II"
+            />
+          </div>
+        </div>
+
+        <!-- Learning Style & Reason -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800"
+              >선호 학습 스타일</label
+            >
+            <div class="space-y-2">
+              {% set styles = ["동영상 중심", "텍스트 중심", "문제 중심",
+              "실습/대화"] %} {% for st in styles %}
+              <label
+                class="flex items-center gap-2 text-gray-700 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="style"
+                  value="{{ st }}"
+                  class="w-4 h-4 text-emerald-500"
+                />
+                {{ st }}
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-800">학습 계기</label>
+            <textarea
+              name="reason"
+              rows="4"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-400 outline-none"
+              placeholder="한국어를 배우게 된 계기를 적어주세요"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Status & Buttons -->
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-200"
+        >
+          <div id="updateStatus" class="text-sm text-gray-600"></div>
+          <div class="flex gap-3">
+            <button
+              type="button"
+              id="cancelEditBtn"
+              class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-medium hover:from-emerald-600 hover:to-teal-600"
+            >
+              저장
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block extra_js %}
+<script>
+  (function () {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById("errorState").style.display = "block";
+      document.getElementById("errorMsg").textContent = "로그인이 필요합니다.";
+      return;
+    }
+
+    // Load profile on page load
+    async function loadProfile() {
+      try {
+        const res = await fetch("/api/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          throw new Error("프로필 로드 실패");
+        }
+
+        const data = await res.json();
+        const user = data.user;
+
+        // Populate read-only fields
+        document.getElementById("profileNickname").textContent = user.nickname;
+        document.getElementById("profileEmail").textContent = user.email;
+        document.getElementById("profileNativeLang").textContent =
+          user.native_lang || "-";
+        document.getElementById("profileAffiliation").textContent =
+          user.affiliation || "-";
+        document.getElementById("profileTimePref").textContent =
+          user.time_pref || "-";
+        document.getElementById("profileGoal").textContent =
+          user.goal || "미설정";
+        document.getElementById("profileExamLevel").textContent =
+          user.exam_level || "미설정";
+        document.getElementById("profileStyle").textContent =
+          user.style || "미설정";
+        document.getElementById("profileReason").textContent =
+          user.reason || "미설정";
+
+        // Format created_at
+        if (user.created_at) {
+          const date = new Date(user.created_at);
+          document.getElementById("profileCreated").textContent =
+            date.toLocaleDateString("ko-KR");
+        }
+
+        // Populate interests
+        const interestsEl = document.getElementById("profileInterests");
+        if (user.interests && user.interests.length > 0) {
+          interestsEl.innerHTML = user.interests
+            .map(
+              (it) =>
+                `<span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${it}</span>`
+            )
+            .join("");
+        } else {
+          interestsEl.textContent = "미설정";
+        }
+
+        // Populate form fields for editing
+        const form = document.getElementById("editProfileForm");
+        form.nickname.value = user.nickname || "";
+        form.native_lang.value = user.native_lang || "";
+        form.affiliation.value = user.affiliation || "";
+        form.time_pref.value = user.time_pref || "";
+        form.goal.value = user.goal || "";
+        form.exam_level.value = user.exam_level || "";
+        form.reason.value = user.reason || "";
+
+        // Set interests checkboxes
+        if (user.interests) {
+          document
+            .querySelectorAll('input[name="interests"]')
+            .forEach((checkbox) => {
+              checkbox.checked = user.interests.includes(checkbox.value);
+            });
+        }
+
+        // Set style radio
+        if (user.style) {
+          document.querySelector(
+            `input[name="style"][value="${user.style}"]`
+          ).checked = true;
+        }
+
+        // Hide loading, show content
+        document.getElementById("loadingState").style.display = "none";
+        document.getElementById("profileContent").style.display = "block";
+
+        // Setup form handlers
+        setupFormHandlers();
+      } catch (err) {
+        console.error(err);
+        document.getElementById("loadingState").style.display = "none";
+        document.getElementById("errorState").style.display = "block";
+        document.getElementById("errorMsg").textContent = err.message;
+      }
+    }
+
+    function setupFormHandlers() {
+      const form = document.getElementById("editProfileForm");
+      const statusEl = document.getElementById("updateStatus");
+      const cancelBtn = document.getElementById("cancelEditBtn");
+
+      function setStatus(msg, ok = true) {
+        statusEl.textContent = msg;
+        statusEl.className = ok
+          ? "text-sm text-emerald-600 font-medium"
+          : "text-sm text-red-600 font-medium";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+
+        const interests = Array.from(
+          form.querySelectorAll('input[name="interests"]:checked')
+        ).map((c) => c.value);
+        const style =
+          (form.querySelector('input[name="style"]:checked') || {}).value || "";
+
+        const payload = {
+          nickname: fd.get("nickname") || "",
+          native_lang: fd.get("native_lang") || "",
+          affiliation: fd.get("affiliation") || "",
+          time_pref: fd.get("time_pref") || "",
+          interests,
+          goal: fd.get("goal") || "",
+          exam_level: fd.get("exam_level") || "",
+          reason: fd.get("reason") || "",
+          style,
+        };
+
+        setStatus("저장 중...", true);
+
+        try {
+          const res = await fetch("/api/user/profile/update", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) {
+            const error = await res
+              .json()
+              .catch(() => ({ detail: "저장 실패" }));
+            throw new Error(error.detail || "프로필 업데이트에 실패했습니다.");
+          }
+
+          const data = await res.json();
+          setStatus("✓ 프로필이 저장되었습니다!");
+
+          // Reload page after 1.5s
+          setTimeout(() => {
+            location.reload();
+          }, 1500);
+        } catch (err) {
+          console.error(err);
+          setStatus(err.message || "저장 중 오류가 발생했습니다.", false);
+        }
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        location.reload();
+      });
+    }
+
+    loadProfile();
+  })();
+</script>
+{% endblock %}

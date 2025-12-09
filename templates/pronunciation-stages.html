@@ -1,0 +1,246 @@
+{% extends "base.html" %} {% block title %}단계별 발음 학습 - 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+        ONUI · 발음 학습
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <span class="text-2xl">📚</span>
+        단계별 발음 학습
+      </h1>
+      <p class="text-sm text-gray-600">
+        한글 발음을 기초부터 차근차근 배워보세요
+      </p>
+    </header>
+
+    <!-- Learning Stages -->
+    <div class="space-y-4">
+      <!-- Stage 1: 자음 -->
+      <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">1단계: 자음 배우기</h2>
+        <p class="text-sm text-gray-600 mb-3">
+          한글의 14개 기본 자음을 배우고 발음하는 방법을 익힙니다
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㄱ</div>
+            <div class="text-xs text-gray-600">기역</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㄴ</div>
+            <div class="text-xs text-gray-600">니은</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㄷ</div>
+            <div class="text-xs text-gray-600">디귿</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㄹ</div>
+            <div class="text-xs text-gray-600">리을</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅁ</div>
+            <div class="text-xs text-gray-600">미음</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅂ</div>
+            <div class="text-xs text-gray-600">비읍</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅅ</div>
+            <div class="text-xs text-gray-600">시옷</div>
+          </button>
+          <button
+            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅇ</div>
+            <div class="text-xs text-gray-600">응</div>
+          </button>
+        </div>
+        <button
+          class="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition font-medium"
+        >
+          시작하기
+        </button>
+      </div>
+
+      <!-- Stage 2: 모음 -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">2단계: 모음 배우기</h2>
+        <p class="text-sm text-gray-600 mb-3">
+          한글의 10개 기본 모음을 배우고 올바른 발음을 익힙니다
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅏ</div>
+            <div class="text-xs text-gray-600">아</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅑ</div>
+            <div class="text-xs text-gray-600">야</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅓ</div>
+            <div class="text-xs text-gray-600">어</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅕ</div>
+            <div class="text-xs text-gray-600">여</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅗ</div>
+            <div class="text-xs text-gray-600">오</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅜ</div>
+            <div class="text-xs text-gray-600">우</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅡ</div>
+            <div class="text-xs text-gray-600">은</div>
+          </button>
+          <button
+            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+          >
+            <div class="text-sm font-semibold">ㅣ</div>
+            <div class="text-xs text-gray-600">이</div>
+          </button>
+        </div>
+        <button
+          class="mt-4 w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition font-medium"
+        >
+          시작하기
+        </button>
+      </div>
+
+      <!-- Stage 3: 음절 -->
+      <div class="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          3단계: 음절 조합하기
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          자음과 모음을 조합하여 기본 음절을 만들고 발음하는 방법을 배웁니다
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">간단한 음절</div>
+            <div class="text-sm text-gray-600">
+              가, 나, 다, 라, 마, 바, 사, 아
+            </div>
+          </div>
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">복합 음절</div>
+            <div class="text-sm text-gray-600">강, 달, 말, 밥, 삶, 값, 닭</div>
+          </div>
+        </div>
+        <button
+          class="mt-4 w-full bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 transition font-medium"
+        >
+          시작하기
+        </button>
+      </div>
+
+      <!-- Stage 4: 단어 -->
+      <div class="border-l-4 border-pink-500 bg-pink-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          4단계: 단어 발음하기
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          실제 한국어 단어들을 발음하며 자연스러운 발성을 연습합니다
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">기초 단어 (일상)</div>
+            <div class="text-sm text-gray-600">
+              안녕하세요, 감사합니다, 물, 밥, 집
+            </div>
+          </div>
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">주제별 단어</div>
+            <div class="text-sm text-gray-600">
+              음식, 가족, 학교, 날씨, 동물
+            </div>
+          </div>
+        </div>
+        <button
+          class="mt-4 w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600 transition font-medium"
+        >
+          시작하기
+        </button>
+      </div>
+
+      <!-- Stage 5: 문장 -->
+      <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          5단계: 문장 발음하기
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          완전한 문장을 발음하며 자연스러운 리듬과 강세를 배웁니다
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-red-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">인사 표현</div>
+            <div class="text-sm text-gray-600">
+              안녕하세요? 만나서 반갑습니다.
+            </div>
+          </div>
+          <div class="bg-white border border-red-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">일상 대화</div>
+            <div class="text-sm text-gray-600">
+              오늘 날씨가 좋네요. 뭐하고 있어요?
+            </div>
+          </div>
+        </div>
+        <button
+          class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition font-medium"
+        >
+          시작하기
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+      <div class="text-sm font-semibold text-gray-700 mb-2">학습 진도</div>
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+      </div>
+      <div class="text-xs text-gray-600 mt-2">0 / 5 단계 완료</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

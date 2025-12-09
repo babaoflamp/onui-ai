@@ -1,0 +1,266 @@
+{% extends "base.html" %} {% block title %}발음 규칙 학습 - 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+        ONUI · 발음 학습
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <span class="text-2xl">📖</span>
+        발음 규칙 학습
+      </h1>
+      <p class="text-sm text-gray-600">
+        한국어의 발음 규칙을 이해하고 올바른 발음을 배워보세요
+      </p>
+    </header>
+
+    <!-- Rules Categories -->
+    <div class="space-y-4">
+      <!-- Rule 1: Consonant Assimilation -->
+      <div class="border-l-4 border-green-500 bg-green-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          1. 자음 동화 (Consonant Assimilation)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          두 개의 자음이 만날 때, 한 자음이 다른 자음의 영향을 받아 소리가
+          바뀌는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-green-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">읽다 → 일따</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">같이 → 가치</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-green-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>ㄱ + ㄴ = ㅇㄴ (강남 → 강남, 확인 → 화긍)</li>
+              <li>ㄷ + ㄱ = ㄹㄱ (밭고랕이 → 바꼬랑이)</li>
+              <li>ㄴ + ㅂ = ㅁㅂ (신발 → 심발)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 2: Vocal Liaison -->
+      <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          2. 음의 동화 (Vocal Liaison)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          모음이나 자음의 발음이 인접한 소리의 영향을 받아 변하는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-blue-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">그리고 → 그리고</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">-고 + -요 → -고요</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-blue-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>라이 → 래 (모음 변화)</li>
+              <li>거 + 어 → 거어 (음운 동화)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 3: Tensification -->
+      <div class="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          3. 경음화 (Tensification)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          어떤 자음이 뒤따르는 자음을 쌍자음(경음)으로 바꾸는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">닭 → 닭(쌍자음)</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">국물 → 국뭘</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>받다 → 받따</li>
+              <li>낙제 → 낙째</li>
+              <li>합리 → 합리</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 4: Nasalization -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          4. 비음화 (Nasalization)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          구강음(ㄱ, ㄷ, ㅂ) 앞에서 비음(ㅁ, ㄴ, ㅇ)이 따르면, 그 구강음이
+          비음으로 변하는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-indigo-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">종로 → 종노</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">닭 → 닭</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-indigo-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>꼭 → 꼭 (ㄱ → ㅇ before ㄴ)</li>
+              <li>끝말 → 끝말</li>
+              <li>약속 → 약속</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 5: Liquid Assimilation -->
+      <div class="border-l-4 border-pink-500 bg-pink-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          5. ㄹ의 첨가와 탈락
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          음절 종성 ㄴ과 모음 ㅡ 사이에서 ㄹ이 첨가되거나, ㄹ이 탈락하는
+          현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">늘 → 널</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">ㄹ (롤) vs (로)</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>늘어나다 → 널어나다</li>
+              <li>일어나다 → 일러나다</li>
+              <li>몸 → 뭄 (ㄴ 음운)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 6: Palatalization -->
+      <div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          6. 경구개음화 (Palatalization)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          ㄷ, ㅌ이 ㅣ, ㅟ 같은 모음 앞에 올 때 ㅈ, ㅊ으로 발음되는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-yellow-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">같이 → 가치</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">해틀 → 해틀</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-yellow-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li>듣다 → 드따</li>
+              <li>해뜨다 → 해뜰다</li>
+              <li>같이 → 가치</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Practice Section -->
+    <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <h3 class="text-lg font-bold text-gray-900 mb-2">
+        🎤 발음 규칙 적용 연습
+      </h3>
+      <p class="text-sm text-gray-600 mb-4">
+        배운 규칙을 적용하여 단어를 발음해보세요
+      </p>
+      <div class="space-y-2">
+        <button
+          class="w-full text-left bg-white border border-blue-300 rounded p-3 hover:bg-blue-100 transition"
+        >
+          <div class="text-sm font-semibold text-gray-900">
+            연습 1: 자음 동화 규칙 적용하기
+          </div>
+          <div class="text-xs text-gray-600">
+            10개의 단어를 규칙에 따라 발음하기
+          </div>
+        </button>
+        <button
+          class="w-full text-left bg-white border border-blue-300 rounded p-3 hover:bg-blue-100 transition"
+        >
+          <div class="text-sm font-semibold text-gray-900">
+            연습 2: 비음화 규칙 연습
+          </div>
+          <div class="text-xs text-gray-600">
+            종성 ㄴ 앞에서 ㄱ, ㄷ, ㅂ 발음하기
+          </div>
+        </button>
+        <button
+          class="w-full text-left bg-white border border-blue-300 rounded p-3 hover:bg-blue-100 transition"
+        >
+          <div class="text-sm font-semibold text-gray-900">
+            연습 3: 경구개음화 규칙 연습
+          </div>
+          <div class="text-xs text-gray-600">
+            ㄷ, ㅌ이 ㅣ 앞에서 발음되는 방식 익히기
+          </div>
+        </button>
+        <button
+          class="w-full text-left bg-white border border-blue-300 rounded p-3 hover:bg-blue-100 transition"
+        >
+          <div class="text-sm font-semibold text-gray-900">
+            연습 4: 종합 발음 규칙 적용
+          </div>
+          <div class="text-xs text-gray-600">
+            여러 규칙이 복합적으로 적용된 단어 발음하기
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

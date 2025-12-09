@@ -667,6 +667,7 @@ def find_precomputed_sentence(text: str):
 async def _generate_pronunciation_feedback(text: str, score_result) -> str:
     """
     Generate AI feedback for pronunciation evaluation using configured AI backend.
+    Enhanced with FluencyPro + SpeechPro integrated analysis.
     
     Args:
         text: Original Korean text
@@ -683,14 +684,28 @@ async def _generate_pronunciation_feedback(text: str, score_result) -> str:
         overall_score = round(score_result.score or 0)
         details = score_result.details if isinstance(score_result.details, dict) else {}
         
-        # Build analysis summary
+        # SpeechPro 분석 데이터 추출
+        speechpro_info = ""
+        if details.get("quality"):
+            quality = details["quality"]
+            if quality.get("sentences"):
+                sent = quality["sentences"][0] if quality["sentences"] else {}
+                if sent.get("syllable_count"):
+                    speechpro_info += f"\n- 정확 발음: {sent.get('accuracy_percentage', 0):.1f}%"
+                if sent.get("completeness_percentage"):
+                    speechpro_info += f"\n- 완성도: {sent.get('completeness_percentage', 0):.1f}%"
+        
+        # FluencyPro 분석 데이터 추출
         fluency_info = ""
         if details.get("fluency"):
             f = details["fluency"]
             fluency_info = f"""
-- 발화 속도: {f.get('speech rate', 0):.1f} 음절/초
-- 정확 음절: {f.get('correct syllable count', 0)}/{f.get('syllable count', 0)}"""
-        
+FluencyPro 분석:
+- 발화 속도: {f.get('speech_rate', f.get('speech rate', 0)):.1f} 음절/초
+- 정확 음절: {f.get('correct_syllables', f.get('correct syllable count', 0))}/{f.get('total_syllables', f.get('syllable count', 0))} 
+- 음절 정확도: {(f.get('correct_syllables', f.get('correct syllable count', 0))/max(f.get('total_syllables', f.get('syllable count', 1)), 1)*100):.1f}%"""
+
+        # 발음이 어려운 단어 분석
         word_scores = []
         if details.get("quality", {}).get("sentences"):
             for sent in details["quality"]["sentences"]:
@@ -705,22 +720,34 @@ async def _generate_pronunciation_feedback(text: str, score_result) -> str:
         word_summary = ""
         if word_scores:
             low_words = [w for w in word_scores if w["score"] < 70]
+            high_words = [w for w in word_scores if w["score"] >= 90]
+            
             if low_words:
-                word_summary = "\n- 개선 필요 단어: " + ", ".join([f"{w['text']}({w['score']}점)" for w in low_words[:3]])
-        
-        prompt = f"""당신은 한국어 발음 교육 전문가입니다. 다음 발음 평가 결과를 분석하고 학습자에게 도움이 되는 피드백을 제공해주세요.
+                word_summary += "\n잘 못한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in low_words[:3]])
+            if high_words:
+                word_summary += "\n잘한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in high_words[:3]])
+
+        prompt = f"""당신은 한국어 발음 교육 전문가입니다. 다음 발음 평가 결과를 종합적으로 분석하고 학습자에게 정확하고 도움이 되는 피드백을 제공해주세요.
 
 **평가 대상 문장:** {text}
 
-**평가 결과:**
-- 전체 점수: {overall_score}점{fluency_info}{word_summary}
+**종합 평가 결과:**
+- 전체 점수: {overall_score}점{speechpro_info}
+{fluency_info}
+{word_summary}
 
-**요구사항:**
-1. 점수에 따른 격려 메시지 (1-2문장)
-2. 구체적인 발음 개선 포인트 (2-3가지)
-3. 연습 방법 제안 (1-2가지)
+**피드백 작성 가이드:**
+1. 점수 평가 (현재 수준 인정, 구체적 칭찬 포함) - 1-2문장
+2. SpeechPro 데이터 기반 정확도 분석 - 2-3문장  
+3. FluencyPro 데이터 기반 유창성 분석 - 1-2문장
+4. 구체적인 발음 개선 포인트 (어려운 단어 중심) - 2-3가지
+5. 효과적인 연습 방법 제안 - 1-2가지
 
-간결하고 친절하게 300자 이내로 작성해주세요. JSON이나 특수 포맷 없이 일반 텍스트로만 작성하세요."""
+**작성 규칙:**
+- 친절하고 격려적인 톤 유지
+- 300-500자 이내로 작성
+- JSON이나 특수 포맷 없이 일반 텍스트만 사용
+- 마크다운 형식 금지"""
 
         if MODEL_BACKEND == "ollama":
             payload = {
