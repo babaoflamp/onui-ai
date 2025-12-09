@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block title %}학습 진도 - 오누이 한국어 학습{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}학습 진도 - 오누이 한국어 학습{%
+endblock %} {% block content %}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
   <!-- Header -->
   <div class="mb-8">
@@ -62,9 +63,7 @@
     </div>
 
     <!-- Weekly Stats -->
-    <div
-      class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8"
-    >
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">📈 주간 통계</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
@@ -88,16 +87,16 @@
     </div>
 
     <!-- Pronunciation Practice Stats -->
-    <div
-      class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8"
-    >
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">🎤 발음 평가 성과</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <p class="text-sm text-gray-600 mb-4">정확도 분포</p>
           <div class="space-y-3">
             <div class="flex items-center">
-              <div class="w-20 text-sm font-medium text-gray-600">탁월 (90+)</div>
+              <div class="w-20 text-sm font-medium text-gray-600">
+                탁월 (90+)
+              </div>
               <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
                 <div
                   class="bg-green-500 h-2 rounded-full"
@@ -105,12 +104,17 @@
                   style="width: 0%"
                 ></div>
               </div>
-              <div class="w-12 text-sm font-medium text-gray-600" id="accuracyExcellentCount">
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyExcellentCount"
+              >
                 0
               </div>
             </div>
             <div class="flex items-center">
-              <div class="w-20 text-sm font-medium text-gray-600">우수 (80-89)</div>
+              <div class="w-20 text-sm font-medium text-gray-600">
+                우수 (80-89)
+              </div>
               <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
                 <div
                   class="bg-blue-500 h-2 rounded-full"
@@ -118,12 +122,17 @@
                   style="width: 0%"
                 ></div>
               </div>
-              <div class="w-12 text-sm font-medium text-gray-600" id="accuracyGoodCount">
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyGoodCount"
+              >
                 0
               </div>
             </div>
             <div class="flex items-center">
-              <div class="w-20 text-sm font-medium text-gray-600">보통 (70-79)</div>
+              <div class="w-20 text-sm font-medium text-gray-600">
+                보통 (70-79)
+              </div>
               <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
                 <div
                   class="bg-yellow-500 h-2 rounded-full"
@@ -131,12 +140,17 @@
                   style="width: 0%"
                 ></div>
               </div>
-              <div class="w-12 text-sm font-medium text-gray-600" id="accuracyFairCount">
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyFairCount"
+              >
                 0
               </div>
             </div>
             <div class="flex items-center">
-              <div class="w-20 text-sm font-medium text-gray-600">개선 (70-)</div>
+              <div class="w-20 text-sm font-medium text-gray-600">
+                개선 (70-)
+              </div>
               <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
                 <div
                   class="bg-red-500 h-2 rounded-full"
@@ -144,7 +158,10 @@
                   style="width: 0%"
                 ></div>
               </div>
-              <div class="w-12 text-sm font-medium text-gray-600" id="accuracyNeedCount">
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyNeedCount"
+              >
                 0
               </div>
             </div>
@@ -153,21 +170,31 @@
         <div>
           <p class="text-sm text-gray-600 mb-4">성과 요약</p>
           <div class="space-y-3">
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
               <span class="text-gray-700">총 발음 평가</span>
               <span class="font-bold text-gray-900" id="totalPractices">0</span>
             </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
               <span class="text-gray-700">평균 정확도</span>
               <span class="font-bold text-gray-900" id="allTimeAvg">0%</span>
             </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
               <span class="text-gray-700">최고 정확도</span>
               <span class="font-bold text-green-600" id="bestScore">0%</span>
             </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
               <span class="text-gray-700">총 학습 시간</span>
-              <span class="font-bold text-gray-900" id="totalDuration">0분</span>
+              <span class="font-bold text-gray-900" id="totalDuration"
+                >0분</span
+              >
             </div>
           </div>
         </div>
@@ -175,19 +202,18 @@
     </div>
 
     <!-- Achievements -->
-    <div
-      class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8"
-    >
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">🏆 배지 및 업적</h2>
-      <div id="achievementsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div
+        id="achievementsContainer"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+      >
         <!-- Dynamically populated -->
       </div>
     </div>
 
     <!-- Daily Log -->
-    <div
-      class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8"
-    >
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">📅 최근 학습 기록</h2>
       <div id="dailyLog" class="space-y-3">
         <!-- Dynamically populated -->
@@ -200,7 +226,9 @@
 <div style="display: none">
   <div id="badgeTemplate" class="flex flex-col items-center">
     <div class="text-4xl mb-2">🎖️</div>
-    <p class="text-xs font-semibold text-center text-gray-900 whitespace-nowrap">
+    <p
+      class="text-xs font-semibold text-center text-gray-900 whitespace-nowrap"
+    >
       배지
     </p>
     <p class="text-xs text-gray-500 text-center">설명</p>
@@ -210,51 +238,53 @@
 <script>
   const ACHIEVEMENTS = {
     first_learning: {
-      emoji: '🌟',
-      title: '첫 발걸음',
-      desc: '첫 발음 평가 완료',
+      emoji: "🌟",
+      title: "첫 발걸음",
+      desc: "첫 발음 평가 완료",
     },
     consecutive_3days: {
-      emoji: '🔥',
-      title: '3일 연속',
-      desc: '3일 연속 학습',
+      emoji: "🔥",
+      title: "3일 연속",
+      desc: "3일 연속 학습",
     },
     score_80plus: {
-      emoji: '⭐',
-      title: '고수',
-      desc: '정확도 80점 이상',
+      emoji: "⭐",
+      title: "고수",
+      desc: "정확도 80점 이상",
     },
     five_practices: {
-      emoji: '💪',
-      title: '열심쟁이',
-      desc: '5회 이상 발음 평가',
+      emoji: "💪",
+      title: "열심쟁이",
+      desc: "5회 이상 발음 평가",
     },
   };
 
   async function loadProgressData() {
     try {
       // Check if user is logged in
-      const userResponse = await fetch('/api/user/profile');
+      const userResponse = await fetch("/api/user/profile");
       if (!userResponse.ok) {
         if (userResponse.status === 401) {
-          window.location.href = '/login?redirect=/learning-progress';
+          window.location.href = "/login?redirect=/learning-progress";
           return;
         }
-        throw new Error('프로필을 불러올 수 없습니다');
+        throw new Error("프로필을 불러올 수 없습니다");
       }
 
       const userData = await userResponse.json();
-      const userId = userData.id || userData.user_id || 'anonymous';
+      const userId = userData.id || userData.user_id || "anonymous";
 
       // Load today's progress
-      const todayResponse = await fetch(`/api/learning/today-progress/${userId}`);
+      const todayResponse = await fetch(
+        `/api/learning/today-progress/${userId}`
+      );
       const todayData = todayResponse.ok
         ? await todayResponse.json()
         : {
             pronunciation_practices: 0,
             avg_score: 0,
             total_duration: 0,
-            achievement_level: '-',
+            achievement_level: "-",
           };
 
       // Load user stats
@@ -262,23 +292,24 @@
       const statsData = statsResponse.ok ? await statsResponse.json() : {};
 
       // Update today's summary
-      document.getElementById('todayPractices').textContent =
+      document.getElementById("todayPractices").textContent =
         todayData.pronunciation_practices || 0;
-      document.getElementById('todayAvgScore').textContent =
-        Math.round(todayData.avg_score || 0) + '%';
-      document.getElementById('todayDuration').textContent =
-        Math.round(todayData.total_duration || 0);
-      document.getElementById('todayLevel').textContent =
-        todayData.achievement_level || '-';
+      document.getElementById("todayAvgScore").textContent =
+        Math.round(todayData.avg_score || 0) + "%";
+      document.getElementById("todayDuration").textContent = Math.round(
+        todayData.total_duration || 0
+      );
+      document.getElementById("todayLevel").textContent =
+        todayData.achievement_level || "-";
 
       // Update weekly stats
       const weeklyTotal = statsData.total_practices || 0;
       const weeklyAvg = Math.round(statsData.avg_score || 0);
       const consecutive = statsData.consecutive_days || 0;
 
-      document.getElementById('weeklyTotal').textContent = weeklyTotal;
-      document.getElementById('weeklyAvg').textContent = weeklyAvg + '%';
-      document.getElementById('consecutiveDays').textContent = consecutive;
+      document.getElementById("weeklyTotal").textContent = weeklyTotal;
+      document.getElementById("weeklyAvg").textContent = weeklyAvg + "%";
+      document.getElementById("consecutiveDays").textContent = consecutive;
 
       // Update pronunciation practice stats
       const accuracyStats = statsData.accuracy_distribution || {
@@ -294,35 +325,45 @@
         accuracyStats.fair +
         accuracyStats.need_improvement;
 
-      const excellentPercent = total ? (accuracyStats.excellent / total) * 100 : 0;
+      const excellentPercent = total
+        ? (accuracyStats.excellent / total) * 100
+        : 0;
       const goodPercent = total ? (accuracyStats.good / total) * 100 : 0;
       const fairPercent = total ? (accuracyStats.fair / total) * 100 : 0;
-      const needPercent = total ? (accuracyStats.need_improvement / total) * 100 : 0;
+      const needPercent = total
+        ? (accuracyStats.need_improvement / total) * 100
+        : 0;
 
-      document.getElementById('accuracyExcellent').style.width = excellentPercent + '%';
-      document.getElementById('accuracyGood').style.width = goodPercent + '%';
-      document.getElementById('accuracyFair').style.width = fairPercent + '%';
-      document.getElementById('accuracyNeed').style.width = needPercent + '%';
+      document.getElementById("accuracyExcellent").style.width =
+        excellentPercent + "%";
+      document.getElementById("accuracyGood").style.width = goodPercent + "%";
+      document.getElementById("accuracyFair").style.width = fairPercent + "%";
+      document.getElementById("accuracyNeed").style.width = needPercent + "%";
 
-      document.getElementById('accuracyExcellentCount').textContent =
+      document.getElementById("accuracyExcellentCount").textContent =
         accuracyStats.excellent;
-      document.getElementById('accuracyGoodCount').textContent = accuracyStats.good;
-      document.getElementById('accuracyFairCount').textContent = accuracyStats.fair;
-      document.getElementById('accuracyNeedCount').textContent =
+      document.getElementById("accuracyGoodCount").textContent =
+        accuracyStats.good;
+      document.getElementById("accuracyFairCount").textContent =
+        accuracyStats.fair;
+      document.getElementById("accuracyNeedCount").textContent =
         accuracyStats.need_improvement;
 
-      document.getElementById('totalPractices').textContent = statsData.total_practices || 0;
-      document.getElementById('allTimeAvg').textContent =
-        Math.round(statsData.avg_score || 0) + '%';
-      document.getElementById('bestScore').textContent =
-        Math.round(statsData.best_score || 0) + '%';
-      document.getElementById('totalDuration').textContent =
-        Math.round(statsData.total_duration || 0) + '분';
+      document.getElementById("totalPractices").textContent =
+        statsData.total_practices || 0;
+      document.getElementById("allTimeAvg").textContent =
+        Math.round(statsData.avg_score || 0) + "%";
+      document.getElementById("bestScore").textContent =
+        Math.round(statsData.best_score || 0) + "%";
+      document.getElementById("totalDuration").textContent =
+        Math.round(statsData.total_duration || 0) + "분";
 
       // Update achievements
       const achievements = statsData.achievements || [];
-      const achievementsContainer = document.getElementById('achievementsContainer');
-      achievementsContainer.innerHTML = '';
+      const achievementsContainer = document.getElementById(
+        "achievementsContainer"
+      );
+      achievementsContainer.innerHTML = "";
 
       if (achievements.length === 0) {
         achievementsContainer.innerHTML =
@@ -330,13 +371,14 @@
       } else {
         achievements.forEach((achievement) => {
           const badgeInfo = ACHIEVEMENTS[achievement] || {
-            emoji: '🎖️',
-            title: '배지',
+            emoji: "🎖️",
+            title: "배지",
             desc: achievement,
           };
 
-          const badgeEl = document.createElement('div');
-          badgeEl.className = 'flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 hover:shadow-lg transition';
+          const badgeEl = document.createElement("div");
+          badgeEl.className =
+            "flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 hover:shadow-lg transition";
           badgeEl.innerHTML = `
             <div class="text-4xl mb-2">${badgeInfo.emoji}</div>
             <p class="text-xs font-semibold text-center text-gray-900 whitespace-nowrap">${badgeInfo.title}</p>
@@ -351,7 +393,7 @@
       const logData = logResponse.ok ? await logResponse.json() : {};
       const dailyLog = logData.daily_log || [];
 
-      const dailyLogContainer = document.getElementById('dailyLog');
+      const dailyLogContainer = document.getElementById("dailyLog");
       if (dailyLog.length === 0) {
         dailyLogContainer.innerHTML =
           '<p class="text-center text-gray-500">아직 기록이 없습니다</p>';
@@ -361,36 +403,44 @@
             (log) => `
           <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
             <div class="flex-1">
-              <p class="font-semibold text-gray-900">${new Date(log.date).toLocaleDateString('ko-KR', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
+              <p class="font-semibold text-gray-900">${new Date(
+                log.date
+              ).toLocaleDateString("ko-KR", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
               })}</p>
-              <p class="text-sm text-gray-600">${log.practices || 0}회 발음 평가 · 평균 ${Math.round(log.avg_score || 0)}점</p>
+              <p class="text-sm text-gray-600">${
+                log.practices || 0
+              }회 발음 평가 · 평균 ${Math.round(log.avg_score || 0)}점</p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-blue-600">${Math.round(log.avg_score || 0)}%</p>
-              <p class="text-xs text-gray-500">${Math.round(log.duration || 0)}분</p>
+              <p class="text-lg font-bold text-blue-600">${Math.round(
+                log.avg_score || 0
+              )}%</p>
+              <p class="text-xs text-gray-500">${Math.round(
+                log.duration || 0
+              )}분</p>
             </div>
           </div>
         `
           )
-          .join('');
+          .join("");
       }
 
       // Hide loading, show content
-      document.getElementById('loadingState').style.display = 'none';
-      document.getElementById('progressContent').style.display = 'block';
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById("progressContent").style.display = "block";
     } catch (error) {
-      console.error('Error loading progress data:', error);
-      document.getElementById('loadingState').style.display = 'none';
-      document.getElementById('errorState').style.display = 'block';
-      document.getElementById('errorMsg').textContent =
-        '학습 진도 정보를 불러올 수 없습니다. 다시 시도해주세요.';
+      console.error("Error loading progress data:", error);
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById("errorState").style.display = "block";
+      document.getElementById("errorMsg").textContent =
+        "학습 진도 정보를 불러올 수 없습니다. 다시 시도해주세요.";
     }
   }
 
   // Load data when page loads
-  document.addEventListener('DOMContentLoaded', loadProgressData);
+  document.addEventListener("DOMContentLoaded", loadProgressData);
 </script>
 {% endblock %}
