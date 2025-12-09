@@ -879,6 +879,11 @@ def api_test_page(request: Request):
     """API 테스트 도구"""
     return templates.TemplateResponse("api-test.html", {"request": request})
 
+@app.get("/media-generation")
+def media_generation_page(request: Request):
+    """상황별 콘텐츠 생성"""
+    return templates.TemplateResponse("media-generation.html", {"request": request})
+
 @app.get("/sitemap")
 def sitemap_page(request: Request):
     """사이트맵 페이지"""
@@ -2553,6 +2558,67 @@ async def check_popup_trigger(user_id: str):
         return JSONResponse(
             status_code=500,
             content={"error": str(e)}
+        )
+
+# ====================
+# Media Generation APIs
+# ====================
+
+@app.post("/api/generate-image")
+async def generate_image(request: Request):
+    """AI 이미지 생성 API (Placeholder)"""
+    try:
+        data = await request.json()
+        situation = data.get("situation", "")
+        style = data.get("style", "illustration")
+        
+        # TODO: 실제 AI 이미지 생성 API 연동 (Stable Diffusion, DALL-E 등)
+        # 현재는 placeholder 응답
+        
+        return JSONResponse({
+            "success": True,
+            "image_url": "https://via.placeholder.com/800x600/9333EA/ffffff?text=AI+Generated+Image",
+            "prompt": f"{situation} in {style} style",
+            "message": "이미지 생성 기능은 개발 중입니다. AI 이미지 생성 API 연동이 필요합니다."
+        })
+        
+    except Exception as e:
+        print(f"Error generating image: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"이미지 생성 중 오류 발생: {str(e)}"
+            }
+        )
+
+@app.post("/api/generate-music")
+async def generate_music(request: Request):
+    """AI 음악 생성 API (Placeholder)"""
+    try:
+        data = await request.json()
+        situation = data.get("situation", "")
+        mood = data.get("mood", "calm")
+        duration = data.get("duration", 30)
+        
+        # TODO: 실제 AI 음악 생성 API 연동 (Suno AI, MusicGen 등)
+        # 현재는 placeholder 응답
+        
+        return JSONResponse({
+            "success": True,
+            "music_url": "/static/placeholder-music.mp3",
+            "description": f"{mood} 분위기의 {duration}초 배경음악",
+            "message": "음악 생성 기능은 개발 중입니다. AI 음악 생성 API 연동이 필요합니다."
+        })
+        
+    except Exception as e:
+        print(f"Error generating music: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"음악 생성 중 오류 발생: {str(e)}"
+            }
         )
 
 if __name__ == "__main__":
