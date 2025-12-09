@@ -343,11 +343,13 @@
 
       <!-- Fluency Analysis Test -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">유창성 분석 테스트</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          유창성 분석 테스트
+        </h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
-            id="fluency-text"
+            id="fluencypro-text"
             placeholder="분석할 텍스트 (예: 안녕하세요, 제 이름은 김스캇입니다)"
             class="border rounded px-3 py-2 w-full text-sm"
             value="안녕하세요"
@@ -382,7 +384,9 @@
 
       <!-- Fluency Metrics -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">유창성 지표 조회</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          유창성 지표 조회
+        </h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
@@ -1099,7 +1103,7 @@
 
   async function testFluencyAnalyze() {
     const resultElement = document.getElementById("fluency-analyze-result");
-    const textInput = document.getElementById("fluency-text").value;
+    const textInput = document.getElementById("fluencypro-text").value;
 
     if (!textInput) {
       resultElement.textContent = "분석할 텍스트를 입력하세요.";

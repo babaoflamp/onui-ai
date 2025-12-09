@@ -760,3 +760,15 @@ INFO:     Finished server process [218202]
 INFO:     Started server process [239228]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [239228]
+INFO:     Started server process [246591]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     112.220.79.218:0 - "GET /api-test HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /api/ollama/models HTTP/1.1" 200 OK
+INFO:     112.220.79.218:0 - "GET /static/favicon.svg HTTP/1.1" 304 Not Modified
+INFO:     112.220.79.218:0 - "GET /api/fluencypro/metrics/testuser HTTP/1.1" 404 Not Found
