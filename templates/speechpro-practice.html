@@ -187,6 +187,14 @@ endblock %} {% block content %}
               ⏹️ 녹음 중지
             </button>
             <button
+              id="play-recording"
+              onclick="playRecording()"
+              class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              ▶️ 재생
+            </button>
+            <button
               id="clear-recording"
               onclick="clearRecording()"
               class="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition flex-1 sm:flex-none"
@@ -425,8 +433,9 @@ endblock %} {% block content %}
       // UI 업데이트
       document.getElementById("start-recording").classList.remove("hidden");
       document.getElementById("stop-recording").classList.add("hidden");
+      document.getElementById("play-recording").disabled = false;
       document.getElementById("recording-status").innerHTML =
-        '✅ <p class="text-green-600 font-semibold">녹음 완료</p>';
+        '<p class="text-green-600 font-semibold">✅ 녹음 완료</p>';
       document.getElementById("recording-timer").classList.add("hidden");
 
       // 타이머 중지
@@ -445,14 +454,23 @@ endblock %} {% block content %}
     document.getElementById("audio-playback").src = "";
     document.getElementById("playback-section").classList.add("hidden");
     document.getElementById("recording-status").innerHTML =
-      '🎤 <p class="text-gray-600">녹음 준비 완료</p>';
+      '<p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>';
     document.getElementById("recording-timer").classList.add("hidden");
     document.getElementById("start-recording").classList.remove("hidden");
     document.getElementById("stop-recording").classList.add("hidden");
+    document.getElementById("play-recording").disabled = true;
     document.getElementById("clear-recording").classList.add("hidden");
     document.getElementById("evaluate-button").disabled = true;
 
     hideError();
+  }
+
+  // 녹음된 음성 재생
+  function playRecording() {
+    const audioPlayback = document.getElementById("audio-playback");
+    if (audioPlayback.src) {
+      audioPlayback.play();
+    }
   }
 
   // 타이머 관련
