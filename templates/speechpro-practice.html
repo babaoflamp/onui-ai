@@ -940,7 +940,7 @@ endblock %} {% block content %}
         const option = document.createElement("option");
         option.value = JSON.stringify(sentence);
         const sourceLabel =
-          sentence.source === "precomputed" ? "[프리셋] " : "";
+          sentence.source === "precomputed" ? "📌 " : "";
         option.textContent = `${sourceLabel}[${sentence.level}] ${sentence.sentenceKr}`;
         select.appendChild(option);
       });
