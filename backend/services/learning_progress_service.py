@@ -132,25 +132,25 @@ class LearningProgressService:
         # 트리거 조건 확인
         triggers = []
         
-        # 1. 첫 학습 (인사)
+        # 1. 첫 학습 (인사) - 오빠: 현재 상황 안내
         if progress.get('pronunciation_practice_count', 0) == 1:
-            triggers.append(('greeting', 'oppa', '첫 발음 연습을 시작했네요! 화이팅!'))
+            triggers.append(('greeting', '오빠', '첫 발음 연습을 시작했네요! 화이팅!'))
         
         # 2. 연속 3일 학습 (호랑이 격려)
         if progress.get('consecutive_days', 0) == 3:
-            triggers.append(('achievement', 'tiger', '3일 연속 학습! 정말 대단해요!'))
+            triggers.append(('achievement', '호랑이', '3일 연속 학습! 정말 대단해요!'))
         
         # 3. 평균 점수 80점 이상 (동생 칭찬)
         if progress.get('pronunciation_avg_score', 0) >= 80:
-            triggers.append(('praise', 'sister', '발음이 정말 좋아지고 있어요! 계속 화이팅!'))
+            triggers.append(('praise', '동생', '발음이 정말 좋아지고 있어요! 계속 화이팅!'))
         
         # 4. 발음 연습 5회 (호랑이 독려)
         if progress.get('pronunciation_practice_count', 0) == 5:
-            triggers.append(('encouragement', 'tiger', '5번 연습했어요! 꾸준함이 최고입니다!'))
+            triggers.append(('encouragement', '호랑이', '5번 연습했어요! 꾸준함이 최고입니다!'))
         
         # 5. 평균 점수 60점 이하 (호랑이 경고)
         if progress.get('pronunciation_avg_score', 0) < 60 and progress.get('pronunciation_practice_count', 0) > 0:
-            triggers.append(('warning', 'tiger', '발음 점수가 낮네요. 천천히 다시 시도해보세요!'))
+            triggers.append(('warning', '호랑이', '발음 점수가 낮네요. 천천히 다시 시도해보세요!'))
         
         if triggers:
             popup_type, character, message = triggers[0]

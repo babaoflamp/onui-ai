@@ -916,7 +916,7 @@
     try {
       const nickname = localStorage.getItem("user_nickname");
       console.log("Recording progress for user:", nickname, "score:", score);
-      
+
       if (!nickname) {
         console.warn("No user nickname found in localStorage");
         return;
@@ -938,7 +938,7 @@
       );
 
       console.log("Progress response status:", progressResponse.status);
-      
+
       if (!progressResponse.ok) {
         const errorText = await progressResponse.text();
         console.error("Failed to record learning progress:", errorText);
@@ -956,7 +956,7 @@
       );
 
       console.log("Popup check response status:", popupCheckResponse.status);
-      
+
       if (!popupCheckResponse.ok) {
         const errorText = await popupCheckResponse.text();
         console.error("Failed to check popup:", errorText);
@@ -967,7 +967,11 @@
       console.log("Popup data:", popupData);
 
       if (popupData.should_show_popup && popupData.popup_message) {
-        console.log("Showing popup:", popupData.character, popupData.popup_message);
+        console.log(
+          "Showing popup:",
+          popupData.character,
+          popupData.popup_message
+        );
         // Pop-Up 표시
         showCharacterPopup(
           popupData.character || "오빠",
