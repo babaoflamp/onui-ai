@@ -1,0 +1,488 @@
+{% extends "base.html" %} {% block title %}문장 평가 - 오누이 한국어{% endblock
+%} {% block extra_css %}
+<link rel="stylesheet" href="/static/css/pronunciation-practice.css" />
+{% endblock %} {% block content %}
+<div class="max-w-6xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+        ONUI · 문장 평가
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">문장 평가 📖</h1>
+      <p class="text-sm text-gray-600">
+        한국어 문장을 읽고 발음을 평가받아보세요
+      </p>
+    </header>
+
+    <!-- Back to pronunciation practice link -->
+    <div class="mb-6">
+      <a
+        href="/pronunciation-practice"
+        class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+      >
+        ← 발음 연습으로 돌아가기
+      </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bg-white rounded-2xl p-6 shadow-lg">
+      <!-- 문장 선택 섹션 -->
+      <div class="mb-8">
+        <label class="block text-lg font-semibold text-gray-900 mb-3">
+          📚 평가할 문장 선택 또는 직접 입력
+        </label>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <select
+            id="sentence-select"
+            onchange="selectSentence()"
+            class="flex-1 px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          >
+            <option value="">-- 문장 선택 --</option>
+          </select>
+          <button
+            onclick="loadSentencesData()"
+            class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium"
+          >
+            새로고침
+          </button>
+        </div>
+
+        <!-- 직접 입력 섹션 -->
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <label class="block text-sm font-semibold text-gray-700 mb-2"
+            >또는 직접 입력하기</label
+          >
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="custom-sentence"
+              placeholder="평가할 문장을 입력하세요..."
+              class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              onkeydown="if (event.key === 'Enter') { setCustomSentence(); }"
+            />
+            <button
+              onclick="setCustomSentence()"
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium"
+            >
+              설정
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 선택된 문장 표시 -->
+      <div
+        class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200"
+      >
+        <label class="block text-sm font-semibold text-gray-700 mb-3"
+          >선택된 문장</label
+        >
+        <div
+          id="selectedSentenceDisplay"
+          class="text-2xl font-bold text-gray-900"
+        >
+          문장을 선택하거나 입력해주세요
+        </div>
+      </div>
+
+      <!-- 녹음 섹션 -->
+      <div
+        class="mb-8 p-6 bg-gradient-to-r from-pink-50 to-red-50 rounded-xl border-2 border-red-200"
+      >
+        <label class="block text-lg font-semibold text-gray-900 mb-4"
+          >🎤 녹음 및 평가</label
+        >
+        <div class="flex gap-3 flex-wrap">
+          <button
+            id="startRecordingBtn"
+            onclick="startSentenceRecording()"
+            class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-lg hover:from-pink-600 hover:to-red-600 transition font-medium shadow-md"
+          >
+            <span>🎤</span>
+            녹음 시작
+          </button>
+          <button
+            id="stopRecordingBtn"
+            onclick="stopSentenceRecording()"
+            disabled
+            class="flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-700 rounded-lg opacity-50 cursor-not-allowed font-medium"
+          >
+            <span>⏹️</span>
+            정지 및 평가
+          </button>
+        </div>
+        <div id="recordingStatus" class="mt-4 text-sm text-gray-600"></div>
+      </div>
+
+      <!-- 평가 결과 -->
+      <div id="evaluationResult" class="hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SpeechPro 결과 모달 -->
+<div
+  id="speechpro-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+>
+  <div
+    class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+  >
+    <button
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
+      onclick="closeSpeechProModal()"
+      aria-label="닫기"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 발음 평가 결과</h2>
+
+    <!-- 점수 카드 -->
+    <div class="bg-white rounded-2xl shadow p-6 mb-6">
+      <!-- 전체 점수 -->
+      <div class="mb-6">
+        <div class="text-center">
+          <div class="text-6xl font-bold text-blue-600 mb-2">
+            <span id="sp-overall-score">0</span>/100
+          </div>
+          <p
+            id="sp-score-feedback"
+            class="text-lg text-gray-600 font-semibold"
+          ></p>
+        </div>
+
+        <!-- 점수 게이지 -->
+        <div class="mt-6">
+          <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div
+              id="sp-score-bar"
+              class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full transition-all duration-500"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상세 정보 -->
+      <div class="border-t pt-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">상세 분석</h3>
+        <div id="sp-details-content" class="space-y-3 text-gray-700">
+          <!-- 동적으로 생성됨 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 피드백 섹션 -->
+    <div
+      id="sp-ai-feedback-section"
+      class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden"
+    >
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">
+        🤖 AI 개선 피드백
+      </h3>
+      <div
+        id="sp-ai-feedback-content"
+        class="text-blue-800 whitespace-pre-wrap"
+      >
+        <!-- 동적으로 생성됨 -->
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <button
+        onclick="closeSpeechProModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+      >
+        닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/pronunciation-practice.js"></script>
+<script>
+  // 초기화
+  console.log("Sentence evaluation page loaded");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM loaded for sentence evaluation");
+    loadSentencesData();
+  });
+
+  // 문장 선택
+  function selectSentence() {
+    const select = document.getElementById("sentence-select");
+    const selected = select.options[select.selectedIndex];
+    const sentence = selected.value;
+
+    if (sentence) {
+      document.getElementById("selectedSentenceDisplay").textContent = sentence;
+      document.getElementById("custom-sentence").value = ""; // 직접 입력 칸 초기화
+    }
+  }
+
+  // 직접 입력 문장 설정
+  function setCustomSentence() {
+    const input = document.getElementById("custom-sentence");
+    const sentence = input.value.trim();
+
+    if (!sentence) {
+      alert("문장을 입력해주세요.");
+      return;
+    }
+
+    document.getElementById("selectedSentenceDisplay").textContent = sentence;
+    document.getElementById("sentence-select").selectedIndex = 0; // 드롭다운 초기화
+  }
+
+  // 녹음 시작
+  let mediaRecorder;
+  let audioChunks = [];
+  let mediaStream = null;
+
+  async function startSentenceRecording() {
+    const sentenceText = document.getElementById(
+      "selectedSentenceDisplay"
+    ).textContent;
+
+    if (sentenceText === "문장을 선택하거나 입력해주세요") {
+      alert("먼저 평가할 문장을 선택하거나 입력해주세요.");
+      return;
+    }
+
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(mediaStream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.start();
+
+      // UI 업데이트
+      document.getElementById("startRecordingBtn").disabled = true;
+      document
+        .getElementById("startRecordingBtn")
+        .classList.add("opacity-50", "cursor-not-allowed");
+      document.getElementById("stopRecordingBtn").disabled = false;
+      document
+        .getElementById("stopRecordingBtn")
+        .classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-300");
+      document
+        .getElementById("stopRecordingBtn")
+        .classList.add("bg-gradient-to-r", "from-red-500", "to-red-600");
+
+      document.getElementById("recordingStatus").innerHTML =
+        '<div class="flex items-center gap-2"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
+      document.getElementById("evaluationResult").classList.add("hidden");
+
+      console.log("Recording started");
+    } catch (error) {
+      console.error("마이크 접근 오류:", error);
+      alert("마이크에 접근할 수 없습니다. 브라우저 설정을 확인해주세요.");
+    }
+  }
+
+  // 녹음 중지 및 평가
+  async function stopSentenceRecording() {
+    const sentenceText = document.getElementById(
+      "selectedSentenceDisplay"
+    ).textContent;
+
+    try {
+      mediaRecorder.stop();
+
+      // UI 업데이트
+      document.getElementById("startRecordingBtn").disabled = false;
+      document
+        .getElementById("startRecordingBtn")
+        .classList.remove("opacity-50", "cursor-not-allowed");
+      document.getElementById("stopRecordingBtn").disabled = true;
+      document
+        .getElementById("stopRecordingBtn")
+        .classList.add("opacity-50", "cursor-not-allowed", "bg-gray-300");
+      document
+        .getElementById("stopRecordingBtn")
+        .classList.remove("bg-gradient-to-r", "from-red-500", "to-red-600");
+
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          mediaStream = null;
+        }
+
+        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        const formData = new FormData();
+        formData.append("file", audioBlob, "recording.wav");
+        formData.append("text", sentenceText);
+
+        document.getElementById("recordingStatus").innerHTML =
+          '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div><span>SpeechPro API로 분석 중입니다...</span></div>';
+
+        try {
+          const res = await fetch("/api/speechpro/evaluate", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+
+          console.log("Evaluation result:", data);
+
+          if (data.error) {
+            document.getElementById("recordingStatus").innerHTML = `
+              <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+                <p class="text-red-600 text-xs mt-1">${data.error}</p>
+              </div>
+            `;
+          } else {
+            // Show modal with results
+            showSpeechProModal(data, sentenceText);
+            document.getElementById("recordingStatus").innerHTML =
+              '<p class="text-green-600 font-semibold">✅ 평가 완료!</p>';
+          }
+        } catch (error) {
+          console.error("평가 오류:", error);
+          document.getElementById("recordingStatus").innerHTML = `
+            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+              <p class="text-red-600 text-xs mt-1">평가 중 문제가 발생했습니다.</p>
+            </div>
+          `;
+        }
+      };
+    } catch (error) {
+      console.error("녹음 중지 오류:", error);
+      alert("녹음 중 오류가 발생했습니다.");
+    }
+  }
+
+  // SpeechPro 모달 표시
+  function showSpeechProModal(data, targetText) {
+    const modal = document.getElementById("speechpro-modal");
+    const score = data.score || 0;
+
+    // Update score
+    document.getElementById("sp-overall-score").textContent = score;
+    document.getElementById("sp-score-bar").style.width = score + "%";
+
+    // Score feedback
+    let feedback = "";
+    if (score >= 90) feedback = "🎉 훌륭합니다!";
+    else if (score >= 80) feedback = "👍 아주 좋아요!";
+    else if (score >= 70) feedback = "😊 잘하고 있어요!";
+    else if (score >= 60) feedback = "💪 조금만 더 연습해요!";
+    else feedback = "📚 연습이 필요해요!";
+    document.getElementById("sp-score-feedback").textContent = feedback;
+
+    // Details content
+    let detailsHtml = "";
+
+    if (data.fluency !== undefined) {
+      detailsHtml += `<div class="flex justify-between"><span>🎯 유창성:</span><span class="font-semibold">${data.fluency}%</span></div>`;
+    }
+
+    if (data.sentence_scores && data.sentence_scores.length > 0) {
+      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">문장별 점수:</p>`;
+      data.sentence_scores.forEach((s, idx) => {
+        const barWidth = Math.round(s);
+        detailsHtml += `
+          <div class="mb-2">
+            <div class="flex justify-between text-sm mb-1">
+              <span>문장 ${idx + 1}</span>
+              <span class="font-semibold">${s}점</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width: ${barWidth}%"></div>
+            </div>
+          </div>
+        `;
+      });
+      detailsHtml += `</div>`;
+    }
+
+    if (data.words && data.words.length > 0) {
+      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">단어별 분석:</p><div class="space-y-2">`;
+      data.words.forEach((word) => {
+        if (word.text && word.text !== "!SIL") {
+          detailsHtml += `<div class="text-sm"><span class="font-medium">${
+            word.text
+          }:</span> <span class="text-blue-600">${Math.round(
+            word.score || 0
+          )}점</span></div>`;
+        }
+      });
+      detailsHtml += `</div></div>`;
+    }
+
+    document.getElementById("sp-details-content").innerHTML =
+      detailsHtml || "<p class='text-gray-500'>상세 정보가 없습니다.</p>";
+
+    // AI Feedback
+    if (data.ai_feedback) {
+      document
+        .getElementById("sp-ai-feedback-section")
+        .classList.remove("hidden");
+      document.getElementById("sp-ai-feedback-content").textContent =
+        data.ai_feedback;
+    } else {
+      document.getElementById("sp-ai-feedback-section").classList.add("hidden");
+    }
+
+    // Show modal
+    modal.classList.remove("hidden");
+  }
+
+  // 모달 닫기
+  function closeSpeechProModal() {
+    document.getElementById("speechpro-modal").classList.add("hidden");
+  }
+
+  // 문장 데이터 로드 (pronunciation-practice.js에서 재사용)
+  async function loadSentencesData() {
+    console.log("loadSentencesData() called");
+    const select = document.getElementById("sentence-select");
+
+    try {
+      const response = await fetch("/api/speechpro/sentences");
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Sentences loaded:", data);
+
+      // Clear existing options (except first)
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Add sentences
+      if (data.sentences && Array.isArray(data.sentences)) {
+        data.sentences.forEach((sentence) => {
+          const option = document.createElement("option");
+          option.value = sentence;
+          option.textContent = sentence;
+          select.appendChild(option);
+        });
+        console.log(`Added ${data.sentences.length} sentences to dropdown`);
+      }
+    } catch (error) {
+      console.error("Failed to load sentences:", error);
+      select.innerHTML = '<option value="">문장을 불러올 수 없습니다</option>';
+    }
+  }
+</script>
+{% endblock %}

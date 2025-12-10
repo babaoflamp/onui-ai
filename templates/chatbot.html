@@ -1,0 +1,286 @@
+{% extends "base.html" %} {% block title %}AI 챗봇 | 오누이 한국어{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">🤖 AI 한국어 튜터</h1>
+    <p class="text-gray-600">한국어 학습에 대해 무엇이든 물어보세요!</p>
+  </div>
+
+  <!-- Chat Container -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <!-- Chat Messages -->
+    <div
+      id="chat-messages"
+      class="h-[500px] overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-orange-50/30 to-white"
+    >
+      <!-- Welcome Message -->
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <div
+            class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white font-bold"
+          >
+            AI
+          </div>
+        </div>
+        <div class="flex-1">
+          <div
+            class="bg-white rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100"
+          >
+            <p class="text-gray-800">
+              안녕하세요! 👋<br />
+              저는 한국어 학습을 도와드리는 AI 튜터입니다.<br />
+              발음, 문법, 단어, 문화 등 무엇이든 편하게 질문해주세요!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="border-t border-gray-200 p-4 bg-white">
+      <div class="flex space-x-3">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="메시지를 입력하세요..."
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          autocomplete="off"
+        />
+        <button
+          id="send-button"
+          class="px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium rounded-full hover:from-orange-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          전송
+        </button>
+      </div>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <button
+          class="suggestion-btn px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors"
+        >
+          발음 연습 방법 알려줘
+        </button>
+        <button
+          class="suggestion-btn px-3 py-1 text-sm bg-pink-100 text-pink-700 rounded-full hover:bg-pink-200 transition-colors"
+        >
+          받침 발음이 어려워요
+        </button>
+        <button
+          class="suggestion-btn px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+        >
+          존댓말 사용법
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  #chat-messages::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  #chat-messages::-webkit-scrollbar-thumb {
+    background: #fb923c;
+    border-radius: 10px;
+  }
+
+  #chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #f97316;
+  }
+
+  .typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #fb923c;
+    animation: typing 1.4s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typing {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-10px);
+    }
+  }
+</style>
+
+<script>
+  const chatMessages = document.getElementById("chat-messages");
+  const userInput = document.getElementById("user-input");
+  const sendButton = document.getElementById("send-button");
+  const suggestionButtons = document.querySelectorAll(".suggestion-btn");
+
+  // Add user message to chat
+  function addUserMessage(text) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex items-start space-x-3 justify-end";
+    messageDiv.innerHTML = `
+      <div class="flex-1 flex justify-end">
+        <div class="bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl rounded-tr-sm p-4 shadow-sm max-w-[80%]">
+          <p class="text-white">${escapeHtml(text)}</p>
+        </div>
+      </div>
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white font-bold">
+          나
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Add AI message to chat
+  function addAIMessage(text) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = "flex items-start space-x-3";
+    messageDiv.innerHTML = `
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white font-bold">
+          AI
+        </div>
+      </div>
+      <div class="flex-1">
+        <div class="bg-white rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100">
+          <p class="text-gray-800">${escapeHtml(text).replace(
+            /\n/g,
+            "<br>"
+          )}</p>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  // Add typing indicator
+  function addTypingIndicator() {
+    const typingDiv = document.createElement("div");
+    typingDiv.id = "typing-indicator";
+    typingDiv.className = "flex items-start space-x-3";
+    typingDiv.innerHTML = `
+      <div class="flex-shrink-0">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white font-bold">
+          AI
+        </div>
+      </div>
+      <div class="flex-1">
+        <div class="bg-white rounded-2xl rounded-tl-sm p-4 shadow-sm border border-gray-100">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    scrollToBottom();
+  }
+
+  // Remove typing indicator
+  function removeTypingIndicator() {
+    const typingDiv = document.getElementById("typing-indicator");
+    if (typingDiv) {
+      typingDiv.remove();
+    }
+  }
+
+  // Scroll to bottom
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Escape HTML
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Send message
+  async function sendMessage(message) {
+    if (!message.trim()) return;
+
+    // Add user message
+    addUserMessage(message);
+    userInput.value = "";
+    sendButton.disabled = true;
+
+    // Show typing indicator
+    addTypingIndicator();
+
+    try {
+      const response = await fetch("/api/chatbot", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: message }),
+      });
+
+      const data = await response.json();
+
+      // Remove typing indicator
+      removeTypingIndicator();
+
+      if (response.ok) {
+        addAIMessage(data.response);
+      } else {
+        addAIMessage("죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      removeTypingIndicator();
+      addAIMessage("죄송합니다. 네트워크 오류가 발생했습니다.");
+    } finally {
+      sendButton.disabled = false;
+      userInput.focus();
+    }
+  }
+
+  // Event listeners
+  sendButton.addEventListener("click", () => {
+    sendMessage(userInput.value);
+  });
+
+  userInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      sendMessage(userInput.value);
+    }
+  });
+
+  suggestionButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      userInput.value = btn.textContent;
+      sendMessage(btn.textContent);
+    });
+  });
+
+  // Focus input on load
+  userInput.focus();
+</script>
+{% endblock %}

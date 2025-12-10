@@ -1,0 +1,152 @@
+{% extends "base.html" %} {% block title %}로그인 - 오누이 한국어 학습{%
+endblock %} {% block content %}
+<div
+  class="min-h-screen bg-gradient-to-br from-orange-50 to-pink-50 flex items-center justify-center px-4"
+>
+  <div class="w-full max-w-md">
+    <!-- Login Card -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">🌸 로그인</h1>
+        <p class="text-gray-600">오누이 한국어 학습 플랫폼에 접속하세요</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="space-y-5">
+        <!-- Email Input -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">이메일</label>
+          <input
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <!-- Password Input -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">비밀번호</label>
+          <input
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <!-- Status Message -->
+        <div
+          id="loginStatus"
+          class="text-sm text-gray-600 text-center min-h-6"
+        ></div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-3 rounded-lg shadow-lg hover:from-orange-600 hover:to-pink-600 transition-all duration-200 active:scale-95"
+        >
+          로그인
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">또는</span>
+        </div>
+      </div>
+
+      <!-- Signup Link -->
+      <div class="text-center">
+        <p class="text-gray-600 mb-3">아직 계정이 없으신가요?</p>
+        <a
+          href="/"
+          class="inline-flex items-center justify-center text-white bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-2.5 rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all"
+        >
+          회원가입하기
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-500"
+      >
+        <p>🛡️ 비밀번호는 PBKDF2로 안전하게 암호화됩니다</p>
+      </div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="text-center mt-6">
+      <a href="/" class="text-orange-600 hover:text-orange-700 font-medium"
+        >← 홈으로 돌아가기</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  (function () {
+    const form = document.getElementById("loginForm");
+    const statusEl = document.getElementById("loginStatus");
+    if (!form) return;
+
+    function setStatus(msg, ok = true) {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = ok
+        ? "text-sm text-emerald-600 font-medium"
+        : "text-sm text-red-600 font-medium";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+
+      const payload = {
+        email: fd.get("email") || "",
+        password: fd.get("password") || "",
+      };
+
+      setStatus("로그인 중...", true);
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const error = await res
+            .json()
+            .catch(() => ({ detail: "로그인 실패" }));
+          throw new Error(error.detail || "로그인에 실패했습니다.");
+        }
+
+        const data = await res.json();
+        // Store token in localStorage
+        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("user_nickname", data.nickname);
+        setStatus(`✓ ${data.nickname}님 환영합니다!`);
+
+        // Redirect after 1.5 seconds
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+      } catch (err) {
+        console.error(err);
+        setStatus(err.message || "로그인 중 오류가 발생했습니다.", false);
+      }
+    });
+  })();
+</script>
+{% endblock %}

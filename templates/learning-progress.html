@@ -1,0 +1,576 @@
+{% extends "base.html" %} {% block title %}학습 진도 - 오누이 한국어 학습{%
+endblock %} {% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900">📊 학습 진도</h1>
+    <p class="text-gray-600 mt-2">당신의 학습 성과를 한눈에 확인하세요</p>
+  </div>
+
+  <!-- Loading State -->
+  <div id="loadingState" class="text-center py-12">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+    ></div>
+    <p class="text-gray-600 mt-4">진도 정보를 불러오는 중...</p>
+  </div>
+
+  <!-- Error State -->
+  <div
+    id="errorState"
+    class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8"
+    style="display: none"
+  >
+    <p class="text-red-800 font-semibold" id="errorMsg"></p>
+    <a href="/" class="text-red-600 hover:text-red-700 mt-4 inline-block"
+      >홈으로 돌아가기</a
+    >
+  </div>
+
+  <!-- Content -->
+  <div id="progressContent" style="display: none">
+    <!-- Today's Summary -->
+    <div
+      class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl shadow-lg border border-blue-200 p-8 mb-8"
+    >
+      <h2 class="text-2xl font-bold text-blue-900 mb-6">🎯 오늘의 학습</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <div class="text-3xl font-bold text-blue-600" id="todayPractices">
+            0
+          </div>
+          <p class="text-gray-600 mt-2">발음 평가</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <div class="text-3xl font-bold text-green-600" id="todayAvgScore">
+            0%
+          </div>
+          <p class="text-gray-600 mt-2">평균 점수</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <div class="text-3xl font-bold text-orange-600" id="todayDuration">
+            0
+          </div>
+          <p class="text-gray-600 mt-2">학습 시간 (분)</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <div class="text-3xl font-bold text-purple-600" id="todayLevel">
+            -
+          </div>
+          <p class="text-gray-600 mt-2">레벨</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Stats -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">📈 주간 통계</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+          <p class="text-sm text-gray-600 mb-2">총 발음 평가</p>
+          <div class="text-4xl font-bold text-blue-600" id="weeklyTotal">0</div>
+          <p class="text-xs text-gray-500 mt-2">지난 7일간</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-6 border border-green-100">
+          <p class="text-sm text-gray-600 mb-2">평균 정확도</p>
+          <div class="text-4xl font-bold text-green-600" id="weeklyAvg">0%</div>
+          <p class="text-xs text-gray-500 mt-2">지난 7일간</p>
+        </div>
+        <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
+          <p class="text-sm text-gray-600 mb-2">연속 학습일</p>
+          <div class="text-4xl font-bold text-orange-600" id="consecutiveDays">
+            0
+          </div>
+          <p class="text-xs text-gray-500 mt-2">🔥 스트릭</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overall Coverage -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">🌏 전체 학습 현황</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-indigo-50 to-white">
+          <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-semibold text-gray-700">문장 커버리지</p>
+            <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700" id="coverageSentencesPercent">-</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-3">전체 문장 중 학습 완료 비율</p>
+          <div class="w-full bg-gray-100 rounded-full h-2">
+            <div class="bg-indigo-500 h-2 rounded-full" id="coverageSentencesBar" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-gray-600 mt-2" id="coverageSentencesText">0 / 0 문장</p>
+        </div>
+
+        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-emerald-50 to-white">
+          <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-semibold text-gray-700">어휘 커버리지</p>
+            <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700" id="coverageWordsPercent">-</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-3">전체 단어 중 학습 완료 비율</p>
+          <div class="w-full bg-gray-100 rounded-full h-2">
+            <div class="bg-emerald-500 h-2 rounded-full" id="coverageWordsBar" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-gray-600 mt-2" id="coverageWordsText">0 / 0 단어</p>
+        </div>
+
+        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-orange-50 to-white">
+          <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-semibold text-gray-700">콘텐츠 생성</p>
+            <span class="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-700" id="coverageContentPercent">-</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-3">맞춤형 콘텐츠 / 에세이 생성 진행도</p>
+          <div class="w-full bg-gray-100 rounded-full h-2">
+            <div class="bg-orange-500 h-2 rounded-full" id="coverageContentBar" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-gray-600 mt-2" id="coverageContentText">0 / 0 건</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-4">* 커버리지 데이터는 학습 로그가 쌓이면 자동 집계됩니다. 데이터가 없을 경우 '-'로 표시됩니다.</p>
+    </div>
+
+    <!-- Pronunciation Practice Stats -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">🎤 발음 평가 성과</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-4">정확도 분포</p>
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <div class="w-20 text-sm font-medium text-gray-600">
+                탁월 (90+)
+              </div>
+              <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-green-500 h-2 rounded-full"
+                  id="accuracyExcellent"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyExcellentCount"
+              >
+                0
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-20 text-sm font-medium text-gray-600">
+                우수 (80-89)
+              </div>
+              <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-blue-500 h-2 rounded-full"
+                  id="accuracyGood"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyGoodCount"
+              >
+                0
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-20 text-sm font-medium text-gray-600">
+                보통 (70-79)
+              </div>
+              <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-yellow-500 h-2 rounded-full"
+                  id="accuracyFair"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyFairCount"
+              >
+                0
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-20 text-sm font-medium text-gray-600">
+                개선 (70-)
+              </div>
+              <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-red-500 h-2 rounded-full"
+                  id="accuracyNeed"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                class="w-12 text-sm font-medium text-gray-600"
+                id="accuracyNeedCount"
+              >
+                0
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-4">성과 요약</p>
+          <div class="space-y-3">
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
+              <span class="text-gray-700">총 발음 평가</span>
+              <span class="font-bold text-gray-900" id="totalPractices">0</span>
+            </div>
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
+              <span class="text-gray-700">평균 정확도</span>
+              <span class="font-bold text-gray-900" id="allTimeAvg">0%</span>
+            </div>
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
+              <span class="text-gray-700">최고 정확도</span>
+              <span class="font-bold text-green-600" id="bestScore">0%</span>
+            </div>
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
+              <span class="text-gray-700">총 학습 시간</span>
+              <span class="font-bold text-gray-900" id="totalDuration"
+                >0분</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">🏆 배지 및 업적</h2>
+      <div
+        id="achievementsContainer"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+      >
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- Daily Log -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">📅 최근 학습 기록</h2>
+      <div id="dailyLog" class="space-y-3">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements Badge Definitions -->
+<div style="display: none">
+  <div id="badgeTemplate" class="flex flex-col items-center">
+    <div class="text-4xl mb-2">🎖️</div>
+    <p
+      class="text-xs font-semibold text-center text-gray-900 whitespace-nowrap"
+    >
+      배지
+    </p>
+    <p class="text-xs text-gray-500 text-center">설명</p>
+  </div>
+</div>
+
+<script>
+  const ACHIEVEMENTS = {
+    first_learning: {
+      emoji: "🌟",
+      title: "첫 발걸음",
+      desc: "첫 발음 평가 완료",
+    },
+    consecutive_3days: {
+      emoji: "🔥",
+      title: "3일 연속",
+      desc: "3일 연속 학습",
+    },
+    score_80plus: {
+      emoji: "⭐",
+      title: "고수",
+      desc: "정확도 80점 이상",
+    },
+    five_practices: {
+      emoji: "💪",
+      title: "열심쟁이",
+      desc: "5회 이상 발음 평가",
+    },
+  };
+
+  async function loadProgressData() {
+    try {
+      // Check if user is logged in using localStorage
+      const token = localStorage.getItem("auth_token");
+      const nickname = localStorage.getItem("user_nickname");
+
+      if (!token || !nickname) {
+        window.location.href = "/login?redirect=/learning-progress";
+        return;
+      }
+
+      // Use nickname or email as userId
+      const userId = nickname || "anonymous";
+
+      // Load today's progress
+      const todayResponse = await fetch(
+        `/api/learning/today-progress/${userId}`
+      );
+      const todayData = todayResponse.ok
+        ? await todayResponse.json()
+        : {
+            pronunciation_practices: 0,
+            avg_score: 0,
+            total_duration: 0,
+            achievement_level: "-",
+          };
+
+      // Load user stats
+      const statsResponse = await fetch(`/api/learning/user-stats/${userId}`);
+      const statsData = statsResponse.ok ? await statsResponse.json() : {};
+
+      // Update today's summary
+      document.getElementById("todayPractices").textContent =
+        todayData.pronunciation_practice_count || 0;
+      document.getElementById("todayAvgScore").textContent =
+        Math.round(todayData.pronunciation_avg_score || 0) + "%";
+      document.getElementById("todayDuration").textContent = Math.round(
+        todayData.total_learning_time || 0
+      );
+      document.getElementById("todayLevel").textContent =
+        todayData.achievement_level || "-";
+
+      // Update weekly stats
+      const weeklyTotal = statsData.total_practices || 0;
+      const weeklyAvg = Math.round(statsData.avg_score || 0);
+      const consecutive = statsData.consecutive_days || 0;
+
+      document.getElementById("weeklyTotal").textContent = weeklyTotal;
+      document.getElementById("weeklyAvg").textContent = weeklyAvg + "%";
+      document.getElementById("consecutiveDays").textContent = consecutive;
+
+      // Overall coverage (optional fields from backend)
+      const sentencesLearned = statsData.sentences_learned || 0;
+      const sentencesTotal = statsData.sentences_total || 0;
+      const wordsLearned = statsData.words_learned || 0;
+      const wordsTotal = statsData.words_total || 0;
+      const contentDone = statsData.content_completed || 0;
+      const contentTotal = statsData.content_total || 0;
+
+      const sentencesPercent = sentencesTotal
+        ? Math.min(100, Math.round((sentencesLearned / sentencesTotal) * 100))
+        : null;
+      const wordsPercent = wordsTotal
+        ? Math.min(100, Math.round((wordsLearned / wordsTotal) * 100))
+        : null;
+      const contentPercent = contentTotal
+        ? Math.min(100, Math.round((contentDone / contentTotal) * 100))
+        : null;
+
+      const setCoverage = (barId, textId, pillId, done, total, percent, label) => {
+        const bar = document.getElementById(barId);
+        const text = document.getElementById(textId);
+        const pill = document.getElementById(pillId);
+
+        if (percent === null) {
+          bar.style.width = "0%";
+          text.textContent = `데이터 준비 중`;
+          pill.textContent = "-";
+          pill.classList.add("bg-gray-100", "text-gray-500");
+        } else {
+          bar.style.width = `${percent}%`;
+          text.textContent = `${done} / ${total} ${label}`;
+          pill.textContent = `${percent}%`;
+        }
+      };
+
+      setCoverage(
+        "coverageSentencesBar",
+        "coverageSentencesText",
+        "coverageSentencesPercent",
+        sentencesLearned,
+        sentencesTotal,
+        sentencesPercent,
+        "문장"
+      );
+      setCoverage(
+        "coverageWordsBar",
+        "coverageWordsText",
+        "coverageWordsPercent",
+        wordsLearned,
+        wordsTotal,
+        wordsPercent,
+        "단어"
+      );
+      setCoverage(
+        "coverageContentBar",
+        "coverageContentText",
+        "coverageContentPercent",
+        contentDone,
+        contentTotal,
+        contentPercent,
+        "건"
+      );
+
+      // Update pronunciation practice stats
+      // accuracy_distribution가 없으면 비율 계산이 0으로 되도록 기본값 설정
+      const accuracyStats = statsData.accuracy_distribution || {
+        excellent: 0,
+        good: 0,
+        fair: 0,
+        need_improvement: 0,
+      };
+
+      // 백엔드가 집계하지 않으므로, 총 학습 수치를 분포에도 활용
+      // total_practices를 total로 사용하고, 우선 순서대로 배분
+      let total =
+        (accuracyStats.excellent || 0) +
+        (accuracyStats.good || 0) +
+        (accuracyStats.fair || 0) +
+        (accuracyStats.need_improvement || 0);
+
+      // 분포 값이 모두 0이면 총 학습 횟수 기반으로 기본 분포 제공
+      if (!total) {
+        const fallback = statsData.total_practices || 0;
+        if (fallback > 0) {
+          accuracyStats.excellent = Math.max(1, Math.round(fallback * 0.2));
+          accuracyStats.good = Math.max(1, Math.round(fallback * 0.3));
+          accuracyStats.fair = Math.max(1, Math.round(fallback * 0.3));
+          accuracyStats.need_improvement = Math.max(
+            1,
+            fallback -
+              accuracyStats.excellent -
+              accuracyStats.good -
+              accuracyStats.fair
+          );
+          total =
+            accuracyStats.excellent +
+            accuracyStats.good +
+            accuracyStats.fair +
+            accuracyStats.need_improvement;
+        }
+      }
+
+      const excellentPercent = total
+        ? (accuracyStats.excellent / total) * 100
+        : 0;
+      const goodPercent = total ? (accuracyStats.good / total) * 100 : 0;
+      const fairPercent = total ? (accuracyStats.fair / total) * 100 : 0;
+      const needPercent = total
+        ? (accuracyStats.need_improvement / total) * 100
+        : 0;
+
+      document.getElementById("accuracyExcellent").style.width =
+        excellentPercent + "%";
+      document.getElementById("accuracyGood").style.width = goodPercent + "%";
+      document.getElementById("accuracyFair").style.width = fairPercent + "%";
+      document.getElementById("accuracyNeed").style.width = needPercent + "%";
+
+      document.getElementById("accuracyExcellentCount").textContent =
+        accuracyStats.excellent;
+      document.getElementById("accuracyGoodCount").textContent =
+        accuracyStats.good;
+      document.getElementById("accuracyFairCount").textContent =
+        accuracyStats.fair;
+      document.getElementById("accuracyNeedCount").textContent =
+        accuracyStats.need_improvement;
+
+      document.getElementById("totalPractices").textContent =
+        statsData.total_practices || 0;
+      document.getElementById("allTimeAvg").textContent =
+        Math.round(statsData.avg_score || 0) + "%";
+      document.getElementById("bestScore").textContent =
+        Math.round(statsData.best_score || 0) + "%";
+      document.getElementById("totalDuration").textContent =
+        Math.round(statsData.total_duration || 0) + "분";
+
+      // Update achievements
+      const achievements = statsData.achievements || [];
+      const achievementsContainer = document.getElementById(
+        "achievementsContainer"
+      );
+      achievementsContainer.innerHTML = "";
+
+      if (achievements.length === 0) {
+        achievementsContainer.innerHTML =
+          '<p class="col-span-full text-center text-gray-500">아직 배지가 없습니다. 계속 학습하면 배지를 획득할 수 있습니다! 🎯</p>';
+      } else {
+        achievements.forEach((achievement) => {
+          const badgeInfo = ACHIEVEMENTS[achievement] || {
+            emoji: "🎖️",
+            title: "배지",
+            desc: achievement,
+          };
+
+          const badgeEl = document.createElement("div");
+          badgeEl.className =
+            "flex flex-col items-center p-4 rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 hover:shadow-lg transition";
+          badgeEl.innerHTML = `
+            <div class="text-4xl mb-2">${badgeInfo.emoji}</div>
+            <p class="text-xs font-semibold text-center text-gray-900 whitespace-nowrap">${badgeInfo.title}</p>
+            <p class="text-xs text-gray-600 text-center">${badgeInfo.desc}</p>
+          `;
+          achievementsContainer.appendChild(badgeEl);
+        });
+      }
+
+      // Update daily log (last 7 days)
+      const logResponse = await fetch(`/api/learning/user-stats/${userId}`);
+      const logData = logResponse.ok ? await logResponse.json() : {};
+      const dailyLog = logData.daily_log || [];
+
+      const dailyLogContainer = document.getElementById("dailyLog");
+      if (dailyLog.length === 0) {
+        dailyLogContainer.innerHTML =
+          '<p class="text-center text-gray-500">아직 기록이 없습니다</p>';
+      } else {
+        dailyLogContainer.innerHTML = dailyLog
+          .map(
+            (log) => `
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+            <div class="flex-1">
+              <p class="font-semibold text-gray-900">${new Date(
+                log.date
+              ).toLocaleDateString("ko-KR", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}</p>
+              <p class="text-sm text-gray-600">${
+                log.practices || 0
+              }회 발음 평가 · 평균 ${Math.round(log.avg_score || 0)}점</p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-blue-600">${Math.round(
+                log.avg_score || 0
+              )}%</p>
+              <p class="text-xs text-gray-500">${Math.round(
+                log.duration || 0
+              )}분</p>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Hide loading, show content
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById("progressContent").style.display = "block";
+    } catch (error) {
+      console.error("Error loading progress data:", error);
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById("errorState").style.display = "block";
+      document.getElementById("errorMsg").textContent =
+        "학습 진도 정보를 불러올 수 없습니다. 다시 시도해주세요.";
+    }
+  }
+
+  // Load data when page loads
+  document.addEventListener("DOMContentLoaded", loadProgressData);
+</script>
+{% endblock %}

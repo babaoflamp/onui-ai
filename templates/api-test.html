@@ -8,93 +8,226 @@
   </div>
 
   <!-- API Categories -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Learning Game APIs -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- SpeechPro API -->
     <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🎤 SpeechPro API</h2>
 
-      <!-- Word Puzzle -->
+      <!-- Sentences List -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 퍼즐</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">문장 목록</h3>
         <button
-          onclick="testAPI('/api/puzzle/sentences', 'puzzle-result')"
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2 w-full"
+          onclick="testAPI('/api/speechpro/sentences', 'speechpro-sentences-result')"
+          class="bg-violet-500 text-white px-4 py-2 rounded hover:bg-violet-600 mb-2 w-full"
         >
-          GET /api/puzzle/sentences
-        </button>
-        <button
-          onclick="testAPI('/api/puzzle/sentences?level=A1', 'puzzle-result')"
-          class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 mb-2 w-full text-sm"
-        >
-          GET /api/puzzle/sentences?level=A1
+          GET /api/speechpro/sentences
         </button>
         <pre
-          id="puzzle-result"
+          id="speechpro-sentences-result"
           class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
         ></pre>
       </div>
 
-      <!-- Daily Expression -->
+      <!-- Config -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘의 표현</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">API 설정</h3>
         <button
-          onclick="testAPI('/api/expressions', 'expression-result')"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-2 w-full"
+          onclick="testAPI('/api/speechpro/config', 'speechpro-config-result')"
+          class="bg-violet-400 text-white px-4 py-2 rounded hover:bg-violet-500 mb-2 w-full"
         >
-          GET /api/expressions
-        </button>
-        <button
-          onclick="testAPI('/api/expressions/today', 'expression-result')"
-          class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500 mb-2 w-full text-sm"
-        >
-          GET /api/expressions/today
+          GET /api/speechpro/config
         </button>
         <pre
-          id="expression-result"
+          id="speechpro-config-result"
           class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
         ></pre>
       </div>
 
-      <!-- Vocabulary -->
+      <!-- Evaluation Test -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 꽃밭</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          발음 평가 테스트
+        </h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="speechpro-text"
+            placeholder="평가할 텍스트 (예: 안녕하세요)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="안녕하세요"
+          />
+          <div class="flex gap-2">
+            <button
+              id="speechpro-record-btn"
+              onclick="toggleSpeechProRecording()"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex-1"
+            >
+              🎙️ 녹음 시작
+            </button>
+          </div>
+          <div
+            id="speechpro-recording-status"
+            class="text-sm text-gray-600"
+          ></div>
+        </div>
         <button
-          onclick="testAPI('/api/vocabulary', 'vocab-result')"
-          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mb-2 w-full"
+          id="speechpro-evaluate-btn"
+          onclick="testSpeechProEvaluate()"
+          class="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700 w-full"
+          disabled
         >
-          GET /api/vocabulary
-        </button>
-        <button
-          onclick="testAPI('/api/vocabulary?level=A2', 'vocab-result')"
-          class="bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500 mb-2 w-full text-sm"
-        >
-          GET /api/vocabulary?level=A2
+          POST /api/speechpro/evaluate
         </button>
         <pre
-          id="vocab-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+          id="speechpro-evaluate-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
         ></pre>
       </div>
 
-      <!-- Pronunciation Words -->
+      <!-- Guide -->
+      <div class="bg-violet-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 SpeechPro API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• GTP: 텍스트→음소 변환</li>
+          <li>• Model: FST 발음 모델 생성</li>
+          <li>• Score: 발음 점수 평가</li>
+          <li>• AI 피드백 자동 생성</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FluencyPro API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🗣️ FluencyPro API</h2>
+
+      <!-- Fluency Analysis Test -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          유창성 분석 테스트
+        </h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="fluencypro-text"
+            placeholder="분석할 텍스트 (예: 안녕하세요, 제 이름은 김스캇입니다)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="안녕하세요"
+          />
+          <div class="flex gap-2">
+            <button
+              id="fluency-record-btn"
+              onclick="toggleFluencyRecording()"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex-1"
+            >
+              🎙️ 녹음 시작
+            </button>
+          </div>
+          <div
+            id="fluency-recording-status"
+            class="text-sm text-gray-600"
+          ></div>
+        </div>
         <button
-          onclick="testAPI('/api/pronunciation-words', 'pronunciation-result')"
-          class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-2 w-full"
+          id="fluency-analyze-btn"
+          onclick="testFluencyAnalyze()"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+          disabled
         >
-          GET /api/pronunciation-words
-        </button>
-        <button
-          onclick="testAPI('/api/pronunciation-words?level=A1', 'pronunciation-result')"
-          class="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-500 mb-2 w-full text-sm"
-        >
-          GET /api/pronunciation-words?level=A1
+          POST /api/fluencypro/analyze
         </button>
         <pre
-          id="pronunciation-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+          id="fluency-analyze-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60 mt-2"
         ></pre>
+      </div>
+
+      <!-- Fluency Metrics -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          유창성 지표 조회
+        </h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="fluency-metrics-user"
+            placeholder="User ID (닉네임)"
+            class="border rounded px-3 py-2 w-full text-sm"
+            value="김스캇"
+          />
+        </div>
+        <button
+          onclick="testFluencyMetrics()"
+          class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 w-full"
+        >
+          GET /api/fluencypro/metrics/{user_id}
+        </button>
+        <pre
+          id="fluency-metrics-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 FluencyPro API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• Speech Rate: 발화 속도 (음절/초)</li>
+          <li>• Articulation Rate: 조음 속도</li>
+          <li>• Pause Distribution: 쉼표 분포 분석</li>
+          <li>• Correct Syllables: 정확한 음절 비율</li>
+          <li>• Fluency Score: 종합 유창성 점수</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MzTTS API -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">🔊 MzTTS API</h2>
+
+      <!-- TTS Server Info -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">서버 정보</h3>
+        <button
+          onclick="testAPI('/api/tts/info', 'tts-info-result')"
+          class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 mb-2 w-full"
+        >
+          GET /api/tts/info
+        </button>
+        <pre
+          id="tts-info-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60"
+        ></pre>
+      </div>
+
+      <!-- TTS Generation -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">음성 생성</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="tts-text"
+            placeholder="한국어 텍스트 입력 (예: 안녕하세요)"
+            class="border rounded px-3 py-2 w-full"
+            value="안녕하세요"
+          />
+        </div>
+        <button
+          onclick="testTTSGeneration()"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+        >
+          POST /api/tts/generate (음성 재생)
+        </button>
+        <div id="tts-result" class="mt-2 p-3 rounded text-sm bg-gray-100"></div>
+      </div>
+
+      <!-- Speaker Guide -->
+      <div class="bg-blue-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">🎙️ 화자 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• 한나 (Hanna): 여성 목소리</li>
+          <li>• 고품질 한국어 음성 합성</li>
+          <li>• 샘플링 레이트: 22,050Hz</li>
+        </ul>
       </div>
     </div>
 
@@ -199,56 +332,227 @@
       </div>
     </div>
 
-    <!-- MzTTS API -->
+    <!-- Learning Progress APIs -->
     <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">🔊 MzTTS API</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">📊 학습 진도 API</h2>
 
-      <!-- TTS Server Info -->
+      <!-- Record Pronunciation Practice -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">서버 정보</h3>
-        <button
-          onclick="testAPI('/api/tts/info', 'tts-info-result')"
-          class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 mb-2 w-full"
-        >
-          GET /api/tts/info
-        </button>
-        <pre
-          id="tts-info-result"
-          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-60"
-        ></pre>
-      </div>
-
-      <!-- TTS Generation -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">음성 생성</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습 기록</h3>
         <div class="space-y-2 mb-2">
           <input
             type="text"
-            id="tts-text"
-            placeholder="한국어 텍스트 입력 (예: 안녕하세요)"
-            class="border rounded px-3 py-2 w-full"
-            value="안녕하세요"
+            id="learning-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+          <input
+            type="number"
+            id="learning-score"
+            placeholder="점수 (0-100)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="85"
+            min="0"
+            max="100"
           />
         </div>
         <button
-          onclick="testTTSGeneration()"
-          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+          onclick="testRecordPronunciation()"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
         >
-          POST /api/tts/generate (음성 재생)
+          POST /api/learning/pronunciation-completed
         </button>
-        <div
-          id="tts-result"
-          class="mt-2 p-3 rounded text-sm bg-gray-100"
-        ></div>
+        <pre
+          id="learning-pronunciation-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
       </div>
 
-      <!-- Speaker Guide -->
+      <!-- Check Popup Trigger -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          Pop-Up 표시 확인
+        </h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-popup-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testCheckPopup()"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
+        >
+          POST /api/learning/check-popup/{user_id}
+        </button>
+        <pre
+          id="learning-popup-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Get User Stats -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">
+          사용자 통계 조회
+        </h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-stats-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testGetUserStats()"
+          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 w-full"
+        >
+          GET /api/learning/user-stats/{user_id}
+        </button>
+        <pre
+          id="learning-stats-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Get Today Progress -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘 진도 조회</h3>
+        <div class="space-y-2 mb-2">
+          <input
+            type="text"
+            id="learning-today-user-id"
+            placeholder="User ID (닉네임)"
+            class="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value="testuser"
+          />
+        </div>
+        <button
+          onclick="testGetTodayProgress()"
+          class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 w-full"
+        >
+          GET /api/learning/today-progress/{user_id}
+        </button>
+        <pre
+          id="learning-today-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40 mt-2"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
       <div class="bg-blue-50 p-3 rounded text-xs">
-        <div class="font-semibold mb-1">🎙️ 화자 정보</div>
+        <div class="font-semibold mb-1">📋 학습 진도 API 정보</div>
         <ul class="space-y-0.5 text-gray-700">
-          <li>• 한나 (Hanna): 여성 목소리</li>
-          <li>• 고품질 한국어 음성 합성</li>
-          <li>• 샘플링 레이트: 22,050Hz</li>
+          <li>• 발음 연습 완료 시 자동으로 학습 진도 기록</li>
+          <li>• 조건 충족 시 캐릭터별 Pop-Up 자동 표시</li>
+          <li>• 오빠: 현재 상황 안내, 호랑이: 경고와 독려, 동생: 칭찬</li>
+          <li>• 학습 진도 대시보드에서 통계 조회 가능</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Learning Game APIs -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">📚 학습 게임 API</h2>
+
+      <!-- Word Puzzle -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 퍼즐</h3>
+        <button
+          onclick="testAPI('/api/puzzle/sentences', 'puzzle-result')"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2 w-full"
+        >
+          GET /api/puzzle/sentences
+        </button>
+        <button
+          onclick="testAPI('/api/puzzle/sentences?level=A1', 'puzzle-result')"
+          class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 mb-2 w-full text-sm"
+        >
+          GET /api/puzzle/sentences?level=A1
+        </button>
+        <pre
+          id="puzzle-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Daily Expression -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">오늘의 표현</h3>
+        <button
+          onclick="testAPI('/api/expressions', 'expression-result')"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mb-2 w-full"
+        >
+          GET /api/expressions
+        </button>
+        <button
+          onclick="testAPI('/api/expressions/today', 'expression-result')"
+          class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-500 mb-2 w-full text-sm"
+        >
+          GET /api/expressions/today
+        </button>
+        <pre
+          id="expression-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Vocabulary -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">단어 꽃밭</h3>
+        <button
+          onclick="testAPI('/api/vocabulary', 'vocab-result')"
+          class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 mb-2 w-full"
+        >
+          GET /api/vocabulary
+        </button>
+        <button
+          onclick="testAPI('/api/vocabulary?level=A2', 'vocab-result')"
+          class="bg-purple-400 text-white px-4 py-2 rounded hover:bg-purple-500 mb-2 w-full text-sm"
+        >
+          GET /api/vocabulary?level=A2
+        </button>
+        <pre
+          id="vocab-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Pronunciation Words -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">발음 연습</h3>
+        <button
+          onclick="testAPI('/api/pronunciation-words', 'pronunciation-result')"
+          class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 mb-2 w-full"
+        >
+          GET /api/pronunciation-words
+        </button>
+        <button
+          onclick="testAPI('/api/pronunciation-words?level=A1', 'pronunciation-result')"
+          class="bg-pink-400 text-white px-4 py-2 rounded hover:bg-pink-500 mb-2 w-full text-sm"
+        >
+          GET /api/pronunciation-words?level=A1
+        </button>
+        <pre
+          id="pronunciation-result"
+          class="bg-gray-100 p-3 rounded text-xs overflow-auto max-h-40"
+        ></pre>
+      </div>
+
+      <!-- Guide -->
+      <div class="bg-green-50 p-3 rounded text-xs">
+        <div class="font-semibold mb-1">📋 학습 게임 API 정보</div>
+        <ul class="space-y-0.5 text-gray-700">
+          <li>• 단어 퍼즐: 문장 구성 게임</li>
+          <li>• 오늘의 표현: 일일 학습 표현</li>
+          <li>• 단어 꽃밭: 레벨별 어휘 학습</li>
+          <li>• 발음 연습: 음절 단위 발음 연습</li>
         </ul>
       </div>
     </div>
@@ -257,7 +561,7 @@
   <!-- API Documentation Section -->
   <div class="mt-8 bg-white rounded-lg shadow-md p-6">
     <h2 class="text-2xl font-bold text-gray-900 mb-4">📖 API 문서</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
       <div>
         <h3 class="font-semibold text-gray-800 mb-2">학습 게임 API</h3>
         <ul class="space-y-1 text-gray-600">
@@ -326,9 +630,7 @@
         <h3 class="font-semibold text-gray-800 mb-2">MzTTS API</h3>
         <ul class="space-y-1 text-gray-600">
           <li>
-            <code class="bg-gray-100 px-2 py-1 rounded"
-              >GET /api/tts/info</code
-            >
+            <code class="bg-gray-100 px-2 py-1 rounded">GET /api/tts/info</code>
             - TTS 서버 정보
           </li>
           <li>
@@ -339,11 +641,134 @@
           </li>
         </ul>
       </div>
+      <div>
+        <h3 class="font-semibold text-gray-800 mb-2">SpeechPro API</h3>
+        <ul class="space-y-1 text-gray-600">
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/speechpro/sentences</code
+            >
+            - 프리셋 문장 목록
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >GET /api/speechpro/config</code
+            >
+            - API 설정 조회
+          </li>
+          <li>
+            <code class="bg-gray-100 px-2 py-1 rounded"
+              >POST /api/speechpro/evaluate</code
+            >
+            - 발음 평가 (텍스트 + 오디오)
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+  // SpeechPro recording state
+  let speechProRecorder = null;
+  let speechProChunks = [];
+
+  // Toggle SpeechPro recording
+  async function toggleSpeechProRecording() {
+    const btn = document.getElementById("speechpro-record-btn");
+    const status = document.getElementById("speechpro-recording-status");
+    const evaluateBtn = document.getElementById("speechpro-evaluate-btn");
+
+    if (!speechProRecorder || speechProRecorder.state === "inactive") {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        speechProRecorder = new MediaRecorder(stream);
+        speechProChunks = [];
+
+        speechProRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            speechProChunks.push(e.data);
+          }
+        };
+
+        speechProRecorder.onstop = () => {
+          const audioBlob = new Blob(speechProChunks, { type: "audio/webm" });
+          window.speechProAudioBlob = audioBlob;
+          status.textContent = `녹음 완료 (${(audioBlob.size / 1024).toFixed(
+            1
+          )} KB)`;
+          evaluateBtn.disabled = false;
+
+          stream.getTracks().forEach((track) => track.stop());
+        };
+
+        speechProRecorder.start();
+        btn.textContent = "⏹️ 녹음 중지";
+        btn.classList.remove("bg-red-500", "hover:bg-red-600");
+        btn.classList.add("bg-gray-500", "hover:bg-gray-600");
+        status.textContent = "녹음 중... 🔴";
+        evaluateBtn.disabled = true;
+      } catch (error) {
+        status.textContent = `마이크 접근 실패: ${error.message}`;
+      }
+    } else {
+      // Stop recording
+      speechProRecorder.stop();
+      btn.textContent = "🎙️ 녹음 시작";
+      btn.classList.remove("bg-gray-500", "hover:bg-gray-600");
+      btn.classList.add("bg-red-500", "hover:bg-red-600");
+    }
+  }
+
+  // Test SpeechPro evaluation
+  async function testSpeechProEvaluate() {
+    const resultElement = document.getElementById("speechpro-evaluate-result");
+    const text = document.getElementById("speechpro-text").value;
+    const audioBlob = window.speechProAudioBlob;
+
+    if (!text) {
+      resultElement.textContent = "텍스트를 입력하세요.";
+      return;
+    }
+
+    if (!audioBlob) {
+      resultElement.textContent = "먼저 녹음을 완료하세요.";
+      return;
+    }
+
+    resultElement.textContent = "평가 중...";
+
+    try {
+      const formData = new FormData();
+      formData.append("text", text);
+      formData.append("audio", audioBlob, "recording.webm");
+
+      const response = await fetch("/api/speechpro/evaluate", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      // Format result nicely
+      let displayText = JSON.stringify(data, null, 2);
+      if (data.success) {
+        const score = data.overall_score || 0;
+        const feedback = data.ai_feedback || "피드백 없음";
+        displayText = `✅ 평가 성공\n\n점수: ${Math.round(
+          score
+        )}점\n\n${feedback}\n\n전체 응답:\n${displayText}`;
+      }
+
+      resultElement.textContent = displayText;
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
   // Simple GET API test
   async function testAPI(endpoint, resultId) {
     const resultElement = document.getElementById(resultId);
@@ -501,20 +926,24 @@
         speaker: 0,
         tempo: 1.0,
         pitch: 1.0,
-        gain: 1.0
+        gain: 1.0,
       };
 
       const response = await fetch("/api/tts/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        resultElement.textContent = `Error: ${JSON.stringify(errorData, null, 2)}`;
+        resultElement.textContent = `Error: ${JSON.stringify(
+          errorData,
+          null,
+          2
+        )}`;
         return;
       }
 
@@ -534,7 +963,203 @@
 
       await audio.play();
       resultElement.textContent = "재생 중... 🔊";
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
 
+  // Learning Progress API Tests
+  async function testRecordPronunciation() {
+    const resultElement = document.getElementById(
+      "learning-pronunciation-result"
+    );
+    const userId = document.getElementById("learning-user-id").value;
+    const score = parseInt(document.getElementById("learning-score").value);
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch("/api/learning/pronunciation-completed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          score: score,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testCheckPopup() {
+    const resultElement = document.getElementById("learning-popup-result");
+    const userId = document.getElementById("learning-popup-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/check-popup/${userId}`, {
+        method: "POST",
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testGetUserStats() {
+    const resultElement = document.getElementById("learning-stats-result");
+    const userId = document.getElementById("learning-stats-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/user-stats/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testGetTodayProgress() {
+    const resultElement = document.getElementById("learning-today-result");
+    const userId = document.getElementById("learning-today-user-id").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "Loading...";
+
+    try {
+      const response = await fetch(`/api/learning/today-progress/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  // FluencyPro API Functions
+  let fluencyRecorder = null;
+  let fluencyAudioBlob = null;
+
+  function toggleFluencyRecording() {
+    const btn = document.getElementById("fluency-record-btn");
+    const statusDiv = document.getElementById("fluency-recording-status");
+    const analyzeBtn = document.getElementById("fluency-analyze-btn");
+
+    if (!fluencyRecorder) {
+      // Start recording
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          fluencyRecorder = new MediaRecorder(stream);
+          const audioChunks = [];
+
+          fluencyRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          fluencyRecorder.onstop = () => {
+            fluencyAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            statusDiv.textContent =
+              "✓ 녹음 완료 (" +
+              (fluencyAudioBlob.size / 1024).toFixed(1) +
+              " KB)";
+            analyzeBtn.disabled = false;
+            btn.textContent = "🎙️ 녹음 다시";
+            fluencyRecorder = null;
+          };
+
+          fluencyRecorder.start();
+          btn.textContent = "⏹️ 녹음 중지";
+          statusDiv.textContent = "⏺️ 녹음 중...";
+        })
+        .catch((error) => {
+          statusDiv.textContent =
+            "마이크 접근 권한이 필요합니다: " + error.message;
+        });
+    } else {
+      // Stop recording
+      fluencyRecorder.stop();
+    }
+  }
+
+  async function testFluencyAnalyze() {
+    const resultElement = document.getElementById("fluency-analyze-result");
+    const textInput = document.getElementById("fluencypro-text").value;
+
+    if (!textInput) {
+      resultElement.textContent = "분석할 텍스트를 입력하세요.";
+      return;
+    }
+
+    if (!fluencyAudioBlob) {
+      resultElement.textContent = "음성을 녹음해주세요.";
+      return;
+    }
+
+    resultElement.textContent = "분석 중...";
+
+    try {
+      const formData = new FormData();
+      formData.append("text", textInput);
+      formData.append("audio", fluencyAudioBlob, "fluency.wav");
+
+      const response = await fetch("/api/fluencypro/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
+    } catch (error) {
+      resultElement.textContent = `Error: ${error.message}`;
+    }
+  }
+
+  async function testFluencyMetrics() {
+    const resultElement = document.getElementById("fluency-metrics-result");
+    const userId = document.getElementById("fluency-metrics-user").value;
+
+    if (!userId) {
+      resultElement.textContent = "User ID를 입력하세요.";
+      return;
+    }
+
+    resultElement.textContent = "조회 중...";
+
+    try {
+      const response = await fetch(`/api/fluencypro/metrics/${userId}`);
+      const data = await response.json();
+      resultElement.textContent = JSON.stringify(data, null, 2);
     } catch (error) {
       resultElement.textContent = `Error: ${error.message}`;
     }

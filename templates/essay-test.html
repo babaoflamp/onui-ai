@@ -1,0 +1,189 @@
+{% extends "base.html" %} {% block title %}한국어 작문 테스트 | 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">✍️ 한국어 작문 테스트</h1>
+    <p class="text-gray-600">
+      AI가 당신의 한국어 작문을 채점하고 피드백을 제공합니다!
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg p-6">
+    <!-- Writing Test Section -->
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200"
+    >
+      <h2
+        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
+      >
+        <span class="text-2xl">📝</span>
+        작문 작성
+      </h2>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >주제 (선택사항)</label
+        >
+        <input
+          id="topic"
+          type="text"
+          placeholder="예: 내가 좋아하는 음식, 한국 문화"
+          class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >당신의 한국어 작문 *</label
+        >
+        <textarea
+          id="essayText"
+          placeholder="여기에 한국어로 자유롭게 작문해주세요... (예: 안녕하세요! 저는 학생입니다. 저는 한국어를 공부합니다.)"
+          rows="8"
+          class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm font-['Pretendard']"
+        ></textarea>
+        <div class="text-xs text-gray-500 mt-1">
+          <span id="charCount">0</span>자
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >학습 레벨</label
+          >
+          <select
+            id="level"
+            class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
+          >
+            <option value="초급">초급</option>
+            <option value="중급" selected>중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >AI 모델</label
+          >
+          <select
+            id="modelSelect"
+            class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 text-sm"
+          >
+            <option value="gemini-2.5-flash" data-backend="gemini" selected>
+              Gemini Flash
+            </option>
+            <option value="exaone3.5:2.4b" data-backend="ollama">
+              EXAONE 3.5
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        id="submitBtn"
+        onclick="submitEssay()"
+        class="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-6 py-3 rounded-lg transition-all shadow-md font-medium hover:shadow-lg"
+      >
+        🎯 작문 제출 & 채점받기
+      </button>
+
+      <div
+        id="feedbackResult"
+        class="bg-white p-4 rounded-lg shadow-sm hidden border border-yellow-200 mt-4 max-h-[600px] overflow-y-auto"
+      ></div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+      <h3 class="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+        <span>💡</span>
+        팁
+      </h3>
+      <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+        <li>
+          자신의 수준보다 조금 높은 난이도로 도전하면 더 좋은 피드백을 받을 수
+          있습니다.
+        </li>
+        <li>
+          문법 오류, 발음, 문장 구조 등 여러 측면에서 피드백을 받을 수 있습니다.
+        </li>
+        <li>
+          최소 2-3 문장 이상 작성하면 더 자세한 피드백을 받을 수 있습니다.
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+  const modelSelect = document.getElementById("modelSelect");
+  const charCount = document.getElementById("charCount");
+  const essayText = document.getElementById("essayText");
+  let currentBackend = "gemini";
+
+  // 글자 수 표시
+  essayText.addEventListener("input", function () {
+    charCount.textContent = this.value.length;
+  });
+
+  // Backend 선택 시 업데이트
+  modelSelect.addEventListener("change", function () {
+    currentBackend =
+      this.options[this.selectedIndex].getAttribute("data-backend") || "gemini";
+  });
+
+  async function submitEssay() {
+    const essay = document.getElementById("essayText").value.trim();
+    if (!essay) {
+      alert("작문을 입력해주세요!");
+      return;
+    }
+
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.innerHTML = "⏳ 채점 중...";
+
+    try {
+      const response = await fetch("/api/correct-essay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          essay: essay,
+          topic: document.getElementById("topic").value,
+          level: document.getElementById("level").value,
+          backend: currentBackend,
+          model: document.getElementById("modelSelect").value,
+        }),
+      });
+
+      const data = await response.json();
+      const outDiv = document.getElementById("feedbackResult");
+
+      if (!response.ok) {
+        outDiv.innerHTML = `<div class="text-red-600">오류: ${
+          data.error || "요청 실패"
+        }</div>`;
+      } else {
+        let html = `<div class="prose max-w-full">`;
+        html += `<h3>📋 채점 결과</h3>`;
+        html += `<div class="bg-yellow-50 p-3 rounded border border-yellow-200 mb-4">`;
+        html += `<p><strong>원문:</strong><br/>${essay}</p>`;
+        html += `</div>`;
+        html += `<div>${data.feedback || ""}</div>`;
+        html += `</div>`;
+        outDiv.innerHTML = html;
+      }
+
+      outDiv.classList.remove("hidden");
+    } catch (error) {
+      document.getElementById(
+        "feedbackResult"
+      ).innerHTML = `<div class="text-red-600">오류: ${error.message}</div>`;
+      document.getElementById("feedbackResult").classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = "🎯 작문 제출 & 채점받기";
+    }
+  }
+</script>
+{% endblock %}

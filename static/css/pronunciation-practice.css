@@ -274,7 +274,7 @@
 }
 
 .speech-bubble::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -18px;
   left: 50%;
@@ -305,7 +305,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -391,7 +392,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -485,4 +487,32 @@
   .recording-controls {
     flex-direction: column;
   }
+}
+
+/* Tab Styles */
+.tab-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn:hover {
+  color: #1f2937;
+}
+
+.tab-btn.tab-active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.tab-content {
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.tab-content.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  position: absolute;
+  left: -9999px;
 }

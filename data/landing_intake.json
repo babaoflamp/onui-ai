@@ -1,0 +1,19 @@
+[
+  {
+    "email": "yh.kim@mediazen.co.kr",
+    "nickname": "이장뽈",
+    "password": "mz1234!@",
+    "native_lang": "한국/한국어",
+    "affiliation": "미디어젠",
+    "time_pref": "점심",
+    "interests": [
+      "음식",
+      "드라마"
+    ],
+    "goal": "자격증(TOPIK)",
+    "exam_level": "",
+    "reason": "BTS",
+    "style": "실습/대화",
+    "ts": 624212.455336414
+  }
+]

@@ -1,0 +1,17 @@
+[Unit]
+Description=Onui AI Korean Learning Service
+After=network.target
+
+[Service]
+Type=forking
+User=scottk
+WorkingDirectory=/home/scottk/Projects/onui-ai
+ExecStart=/home/scottk/Projects/onui-ai/start-service.sh
+ExecStop=/home/scottk/Projects/onui-ai/stop-service.sh
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

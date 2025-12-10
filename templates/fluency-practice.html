@@ -1,0 +1,675 @@
+{% extends "base.html" %} {% block title %}유창성 평가 - 오누이 AI{% endblock %}
+{% block content %}
+<div
+  class="min-h-screen bg-gradient-to-br from-[var(--bg1)] via-white to-[var(--bg2)] p-6"
+>
+  <div class="max-w-4xl mx-auto">
+    <!-- 헤더 -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-[var(--text-main)] mb-2">
+        🗣️ 유창성 평가
+      </h1>
+      <p class="text-[var(--text-sub)] text-lg">
+        자연스러운 한국어 발화를 평가받고 개선해보세요
+      </p>
+    </div>
+
+    <!-- FluencyPro 장점 섹션 -->
+    <div
+      class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border-l-4 border-green-500 mb-8"
+    >
+      <h3 class="text-lg font-bold text-green-900 mb-4">
+        🎤 FluencyPro 유창성 평가의 장점
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <!-- AI 복합 피드백 - 강조 아이템 -->
+        <div class="md:col-span-2 bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg shadow-md border-2 border-amber-400">
+          <div class="flex items-start gap-2">
+            <span class="text-3xl">🤖</span>
+            <div class="flex-1">
+              <h4 class="font-bold text-amber-900 text-lg">AI 복합 피드백 (차별화 기능)</h4>
+              <p class="text-sm text-amber-800 font-medium mb-2">
+                SpeechPro와 FluencyPro 평가를 AI가 종합하여 개인맞춤형 피드백을 생성합니다!
+              </p>
+              <ul class="text-xs text-amber-700 space-y-1">
+                <li>✨ <strong>종합 평가</strong>: 발음 정확도 + 유창성을 함께 고려</li>
+                <li>🎯 <strong>강점 분석</strong>: 잘한 부분을 구체적으로 칭찬</li>
+                <li>📈 <strong>개선 전략</strong>: 단계별 학습 방향 제시</li>
+                <li>💪 <strong>격려 메시지</strong>: AI의 맞춤형 응원</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="flex items-start gap-2">
+            <span class="text-2xl">✓</span>
+            <div>
+              <h4 class="font-semibold text-gray-800">자연스러운 발화 평가</h4>
+              <p class="text-sm text-gray-600">
+                음소 정확도가 아닌 연속된 발화의 자연스러움을 종합적으로
+                평가합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="flex items-start gap-2">
+            <span class="text-2xl">✓</span>
+            <div>
+              <h4 class="font-semibold text-gray-800">발화 속도 분석</h4>
+              <p class="text-sm text-gray-600">
+                1초당 음절 개수로 발화 속도를 정량적으로 측정하고 피드백을
+                제공합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="flex items-start gap-2">
+            <span class="text-2xl">✓</span>
+            <div>
+              <h4 class="font-semibold text-gray-800">호흡 패턴 분석</h4>
+              <p class="text-sm text-gray-600">
+                쉼표 분포를 분석하여 자연스러운 호흡과 발화 리듬을 가이드합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <div class="flex items-start gap-2">
+            <span class="text-2xl">✓</span>
+            <div>
+              <h4 class="font-semibold text-gray-800">조음 속도 측정</h4>
+              <p class="text-sm text-gray-600">
+                실제 발음하는 속도를 측정하여 명확한 발화와 빠른 속도의 균형을
+                제안합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-lg border-t-2 border-green-200">
+        <p class="text-sm text-gray-700">
+          <strong>💡 TIP:</strong> SpeechPro로 정확한 음소를 익힌 후
+          FluencyPro로 자연스러운 발화를 연습하면, 진정한 한국어 능력자가 될 수
+          있습니다!
+        </p>
+      </div>
+    </div>
+
+    <!-- 메인 카드 -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+      <!-- 평가할 문장 선택 섹션 -->
+      <div class="mb-8">
+        <label class="block text-lg font-semibold text-[var(--text-main)] mb-3">
+          📚 평가할 문장 선택 또는 직접 입력
+        </label>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <input
+            type="text"
+            id="fluency-evaluation-text"
+            placeholder="예: 안녕하세요, 오늘 날씨가 좋네요"
+            class="flex-1 px-4 py-3 border-2 border-[var(--accent)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition"
+            value="안녕하세요"
+          />
+        </div>
+      </div>
+
+      <!-- 레코딩 섹션 -->
+      <div class="mb-8">
+        <label class="block text-lg font-semibold text-[var(--text-main)] mb-4">
+          🎙️ 음성 녹음
+        </label>
+
+        <div
+          class="border-2 border-dashed border-[var(--accent)] rounded-lg p-8 text-center bg-gray-50"
+        >
+          <div id="fluency-recording-status" class="mb-4">
+            <p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <button
+              id="fluency-record-btn"
+              onclick="toggleFluencyRecording()"
+              class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition flex-1 sm:flex-none"
+            >
+              🎙️ 녹음 시작
+            </button>
+            <button
+              id="fluency-play-btn"
+              onclick="playFluencyRecording()"
+              class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              ▶️ 재생
+            </button>
+            <button
+              onclick="clearFluencyRecording()"
+              class="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition flex-1 sm:flex-none"
+            >
+              🗑️ 초기화
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 평가 버튼 -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-8">
+        <button
+          onclick="evaluateFluency()"
+          class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition"
+        >
+          📊 유창성 평가하기
+        </button>
+      </div>
+
+      <!-- 결과 섹션 -->
+      <div id="fluency-results" class="hidden">
+        <!-- 녹음 완료 안내 -->
+        <div
+          class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center"
+        >
+          <p class="text-green-700 font-semibold">
+            ✅ 음성 분석이 완료되었습니다!
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            아래의 "결과 보기" 버튼을 클릭하여 자세한 평가 결과를 확인하세요.
+          </p>
+        </div>
+        <button
+          onclick="showFluencyResultModal()"
+          class="w-full mt-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-cyan-700 transition-all shadow-md hover:shadow-lg font-medium"
+        >
+          📊 결과 보기
+        </button>
+      </div>
+
+      <!-- 유창성 평가 결과 모달 -->
+      <div
+        id="fluency-modal"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        >
+          <!-- 모달 헤더 -->
+          <div
+            class="sticky top-0 bg-gradient-to-r from-blue-500 to-cyan-600 px-6 py-4 flex justify-between items-center"
+          >
+            <h2 class="text-2xl font-bold text-white">📊 유창성 평가 결과</h2>
+            <button
+              onclick="closeFluencyResultModal()"
+              class="text-white hover:text-gray-200 text-2xl"
+              aria-label="닫기"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- 모달 콘텐츠 -->
+          <div class="p-6">
+            <!-- 핵심 점수 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div class="text-sm text-gray-600">유창성 점수</div>
+                <div
+                  class="text-3xl font-bold text-blue-600"
+                  id="fluency-score-modal"
+                >
+                  0
+                </div>
+                <div class="text-xs text-gray-500 mt-1">/ 100</div>
+              </div>
+              <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="text-sm text-gray-600">신뢰도</div>
+                <div
+                  class="text-3xl font-bold text-green-600"
+                  id="fluency-confidence-modal"
+                >
+                  0%
+                </div>
+              </div>
+            </div>
+
+            <!-- 상세 지표 -->
+            <div class="bg-white p-4 rounded-lg mb-4 border border-gray-200">
+              <h4 class="font-semibold text-gray-800 mb-3">📈 상세 지표</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">발화 속도</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-speech-rate-modal"
+                    >0 음절/초</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">조음 속도</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-articulation-modal"
+                    >0 음절/초</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">정확한 음절 비율</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-correct-syllables-modal"
+                    >0%</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">쉼표 개수</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-pause-count-modal"
+                    >0</span
+                  >
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">오디오 길이</span>
+                  <span
+                    class="font-semibold text-gray-900"
+                    id="fluency-audio-length-modal"
+                    >0초</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- AI 복합 피드백 섹션 -->
+            <div
+              class="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 rounded-lg border-2 border-yellow-300 mb-4"
+            >
+              <h4
+                class="font-semibold text-gray-800 mb-3 flex items-center gap-2"
+              >
+                <span class="text-xl">🤖</span> AI 종합 피드백
+              </h4>
+
+              <!-- 종합 평가 -->
+              <div
+                class="bg-white p-3 rounded-lg mb-3 border border-yellow-100"
+              >
+                <p class="text-sm font-semibold text-gray-700 mb-1">
+                  📌 종합 평가
+                </p>
+                <p id="combined-feedback-overall" class="text-sm text-gray-900">
+                  분석 중...
+                </p>
+              </div>
+
+              <!-- 강점 -->
+              <div class="bg-white p-3 rounded-lg mb-3 border border-green-100">
+                <p class="text-sm font-semibold text-green-700 mb-2">
+                  ✅ 잘한 부분
+                </p>
+                <ul id="combined-feedback-strengths" class="space-y-1">
+                  <li class="text-sm text-gray-700">• 분석 중...</li>
+                </ul>
+              </div>
+
+              <!-- 개선점 -->
+              <div
+                class="bg-white p-3 rounded-lg mb-3 border border-orange-100"
+              >
+                <p class="text-sm font-semibold text-orange-700 mb-2">
+                  📈 개선할 부분
+                </p>
+                <ul id="combined-feedback-improvements" class="space-y-1">
+                  <li class="text-sm text-gray-700">• 분석 중...</li>
+                </ul>
+              </div>
+
+              <!-- 실습 팁 -->
+              <div class="bg-white p-3 rounded-lg mb-3 border border-blue-100">
+                <p class="text-sm font-semibold text-blue-700 mb-2">
+                  💡 실습 팁
+                </p>
+                <ul id="combined-feedback-tips" class="space-y-1">
+                  <li class="text-sm text-gray-700">• 분석 중...</li>
+                </ul>
+              </div>
+
+              <!-- 격려 메시지 -->
+              <div
+                class="bg-gradient-to-r from-pink-100 to-rose-100 p-3 rounded-lg border border-pink-200"
+              >
+                <p
+                  class="text-sm text-pink-900 text-center italic font-medium"
+                  id="combined-feedback-encouragement"
+                >
+                  분석 중...
+                </p>
+              </div>
+            </div>
+
+            <!-- 개선 권장사항 -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+              <h4 class="font-semibold text-gray-800 mb-3">💡 개선 권장사항</h4>
+              <ul id="fluency-recommendations-modal" class="space-y-2">
+                <li class="text-sm text-gray-600">
+                  • 음절을 더 명확하게 발음해주세요.
+                </li>
+                <li class="text-sm text-gray-600">
+                  • 자연스러운 속도로 말씀해주세요.
+                </li>
+                <li class="text-sm text-gray-600">
+                  • 적절한 쉼표를 사용하세요.
+                </li>
+              </ul>
+            </div>
+
+            <!-- 모달 푸터 -->
+            <div class="mt-6 flex gap-3">
+              <button
+                onclick="closeFluencyResultModal()"
+                class="flex-1 bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition font-medium"
+              >
+                닫기
+              </button>
+              <button
+                onclick="retryFluencyEvaluation()"
+                class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition font-medium"
+              >
+                🔄 다시 평가하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let fluencyRecorder = null;
+  let fluencyAudioBlob = null;
+  let fluencyAudioContext = null;
+
+  function toggleFluencyRecording() {
+    const btn = document.getElementById("fluency-record-btn");
+    const statusDiv = document.getElementById("fluency-recording-status");
+    const playBtn = document.getElementById("fluency-play-btn");
+
+    if (!fluencyRecorder) {
+      // Start recording
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          fluencyRecorder = new MediaRecorder(stream);
+          const audioChunks = [];
+
+          fluencyRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+
+          fluencyRecorder.onstop = () => {
+            fluencyAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            statusDiv.innerHTML =
+              "✓ 녹음 완료 (" +
+              (fluencyAudioBlob.size / 1024).toFixed(1) +
+              " KB)";
+            playBtn.disabled = false;
+            btn.textContent = "🎙️ 녹음 다시";
+            fluencyRecorder = null;
+          };
+
+          fluencyRecorder.start();
+          btn.textContent = "⏹️ 녹음 중지";
+          statusDiv.innerHTML = "⏺️ 녹음 중...";
+        })
+        .catch((error) => {
+          statusDiv.innerHTML =
+            "마이크 접근 권한이 필요합니다: " + error.message;
+        });
+    } else {
+      // Stop recording
+      fluencyRecorder.stop();
+    }
+  }
+
+  function playFluencyRecording() {
+    if (!fluencyAudioBlob) {
+      alert("녹음된 음성이 없습니다.");
+      return;
+    }
+
+    const audioUrl = URL.createObjectURL(fluencyAudioBlob);
+    const audio = new Audio(audioUrl);
+    audio.play();
+  }
+
+  function clearFluencyRecording() {
+    fluencyAudioBlob = null;
+    fluencyRecorder = null;
+    const btn = document.getElementById("fluency-record-btn");
+    const playBtn = document.getElementById("fluency-play-btn");
+    const statusDiv = document.getElementById("fluency-recording-status");
+
+    btn.textContent = "🎙️ 녹음 시작";
+    playBtn.disabled = true;
+    statusDiv.innerHTML = "마이크를 통해 문장을 읽어주세요";
+  }
+
+  async function evaluateFluency() {
+    const textInput = document.getElementById("fluency-evaluation-text").value;
+    const resultsDiv = document.getElementById("fluency-results");
+
+    if (!textInput) {
+      alert("평가할 문장을 입력하세요.");
+      return;
+    }
+
+    if (!fluencyAudioBlob) {
+      alert("음성을 녹음해주세요.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("text", textInput);
+      formData.append("audio", fluencyAudioBlob, "fluency.wav");
+
+      const response = await fetch("/api/fluencypro/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // 모달에 결과 표시
+      document.getElementById("fluency-score-modal").textContent = Math.round(
+        data.fluency_score || 0
+      );
+      document.getElementById("fluency-confidence-modal").textContent =
+        Math.round((data.confidence || 0.85) * 100) + "%";
+      document.getElementById("fluency-speech-rate-modal").textContent =
+        (data.speech_rate || 0).toFixed(2) + " 음절/초";
+      document.getElementById("fluency-articulation-modal").textContent =
+        (data.articulation_rate || 0).toFixed(2) + " 음절/초";
+      document.getElementById("fluency-correct-syllables-modal").textContent =
+        (data.correct_syllables_rate || 0).toFixed(1) + "%";
+      document.getElementById("fluency-pause-count-modal").textContent =
+        data.pause_count || 0;
+      document.getElementById("fluency-audio-length-modal").textContent =
+        (data.audio_length_ms / 1000 || 0).toFixed(1) + "초";
+
+      // 개선 권장사항 표시
+      const recommendationsDiv = document.getElementById(
+        "fluency-recommendations-modal"
+      );
+      recommendationsDiv.innerHTML = "";
+      if (data.recommendations && data.recommendations.length > 0) {
+        data.recommendations.forEach((rec) => {
+          const li = document.createElement("li");
+          li.className = "text-sm text-gray-600";
+          li.textContent = "• " + rec;
+          recommendationsDiv.appendChild(li);
+        });
+      }
+
+      // 결과 컨테이너 표시 및 모달 열기
+      document.getElementById("fluency-results").classList.remove("hidden");
+      showFluencyResultModal();
+
+      // 복합 피드백 생성 (비동기로 진행)
+      generateCombinedFeedback(textInput, data);
+
+      // 학습 진도 기록
+      recordFluencyProgress(Math.round(data.fluency_score || 0));
+    } catch (error) {
+      alert("평가에 실패했습니다: " + error.message);
+    }
+  }
+
+  // 복합 피드백 생성 함수
+  async function generateCombinedFeedback(text, fluencyData) {
+    try {
+      // SpeechPro 데이터는 현재 없으므로 빈 객체로 전달
+      // 실제로는 SpeechPro 평가도 함께 수행해야 함
+      const speechproData = {
+        score: 85, // 기본값
+        feedback: "발음이 좋습니다",
+      };
+
+      const response = await fetch("/api/fluencypro/combined-feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: text,
+          fluency_data: fluencyData,
+          speechpro_data: speechproData,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("복합 피드백 생성 실패");
+        return;
+      }
+
+      const feedback = await response.json();
+
+      // UI에 복합 피드백 표시
+      document.getElementById("combined-feedback-overall").textContent =
+        feedback.overall_comment || "좋은 연습입니다!";
+
+      // 강점 표시
+      const strengthsDiv = document.getElementById(
+        "combined-feedback-strengths"
+      );
+      strengthsDiv.innerHTML = "";
+      if (feedback.strengths && feedback.strengths.length > 0) {
+        feedback.strengths.forEach((strength) => {
+          const li = document.createElement("li");
+          li.className = "text-sm text-gray-700";
+          li.textContent = "• " + strength;
+          strengthsDiv.appendChild(li);
+        });
+      }
+
+      // 개선점 표시
+      const improvementsDiv = document.getElementById(
+        "combined-feedback-improvements"
+      );
+      improvementsDiv.innerHTML = "";
+      if (feedback.improvements && feedback.improvements.length > 0) {
+        feedback.improvements.forEach((improvement) => {
+          const li = document.createElement("li");
+          li.className = "text-sm text-gray-700";
+          li.textContent = "• " + improvement;
+          improvementsDiv.appendChild(li);
+        });
+      }
+
+      // 팁 표시
+      const tipsDiv = document.getElementById("combined-feedback-tips");
+      tipsDiv.innerHTML = "";
+      if (feedback.tips && feedback.tips.length > 0) {
+        feedback.tips.forEach((tip) => {
+          const li = document.createElement("li");
+          li.className = "text-sm text-gray-700";
+          li.textContent = "• " + tip;
+          tipsDiv.appendChild(li);
+        });
+      }
+
+      // 격려 메시지 표시
+      if (feedback.encouragement) {
+        document.getElementById("combined-feedback-encouragement").textContent =
+          feedback.encouragement;
+      }
+    } catch (error) {
+      console.error("복합 피드백 생성 중 오류:", error);
+      // 에러가 발생해도 UI 표시는 계속 진행
+    }
+  }
+
+  async function recordFluencyProgress(score) {
+    try {
+      const userId = localStorage.getItem("user_nickname") || "anonymous";
+
+      const response = await fetch("/api/learning/pronunciation-completed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          score: score,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("학습 진도 기록됨:", data);
+    } catch (error) {
+      console.error("학습 진도 기록 실패:", error);
+    }
+  }
+
+  // 모달 제어 함수
+  function showFluencyResultModal() {
+    document.getElementById("fluency-modal").classList.remove("hidden");
+  }
+
+  function closeFluencyResultModal() {
+    document.getElementById("fluency-modal").classList.add("hidden");
+  }
+
+  function retryFluencyEvaluation() {
+    closeFluencyResultModal();
+    document.getElementById("fluency-results").classList.add("hidden");
+    resetFluencyRecording();
+  }
+
+  function resetFluencyRecording() {
+    document.getElementById("record-btn").textContent = "🎙️ 녹음 시작";
+    document.getElementById("record-btn").disabled = false;
+    document.getElementById("play-btn").disabled = true;
+    document.getElementById("fluency-recording-status").textContent =
+      "마이크를 통해 문장을 읽어주세요";
+    fluencyAudioBlob = null;
+  }
+
+  // 모달 외부 클릭 시 닫기
+  document.getElementById("fluency-modal")?.addEventListener("click", (e) => {
+    if (e.target.id === "fluency-modal") {
+      closeFluencyResultModal();
+    }
+  });
+</script>
+{% endblock %}

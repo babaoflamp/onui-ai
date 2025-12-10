@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "level": "A1",
+    "sentenceKr": "안녕하세요",
+    "sentenceEn": "Hello",
+    "difficulty": "쉬움",
+    "tags": ["기초인사"],
+    "category": "인사",
+    "tips": "처음부터 끝까지 명확하게 발음하세요."
+  },
+  {
+    "id": 2,
+    "level": "A1",
+    "sentenceKr": "감사합니다",
+    "sentenceEn": "Thank you",
+    "difficulty": "쉬움",
+    "tags": ["감정표현"],
+    "category": "감정",
+    "tips": "'감'과 '사'의 음절 경계를 명확히 하고, '합니다'는 빠르게 연결하세요."
+  },
+  {
+    "id": 3,
+    "level": "A1",
+    "sentenceKr": "미안합니다",
+    "sentenceEn": "I am sorry",
+    "difficulty": "쉬움",
+    "tags": ["감정표현"],
+    "category": "감정",
+    "tips": "'미안'은 두 음절을 명확하게, '합니다'는 연결하여 발음하세요."
+  },
+  {
+    "id": 4,
+    "level": "A1",
+    "sentenceKr": "네",
+    "sentenceEn": "Yes",
+    "difficulty": "매우쉬움",
+    "tags": ["기본응답"],
+    "category": "응답",
+    "tips": "짧고 명확하게, '내'와 구분하여 발음하세요."
+  },
+  {
+    "id": 5,
+    "level": "A1",
+    "sentenceKr": "아니요",
+    "sentenceEn": "No",
+    "difficulty": "매우쉬움",
+    "tags": ["기본응답"],
+    "category": "응답",
+    "tips": "'아'와 '니요'를 명확하게 구분하여 발음하세요."
+  },
+  {
+    "id": 6,
+    "level": "A1",
+    "sentenceKr": "좋은 아침입니다",
+    "sentenceEn": "Good morning",
+    "difficulty": "쉬움",
+    "tags": ["시간별인사"],
+    "category": "인사",
+    "tips": "'좋은'에서 'ㄴ'은 명확히, '아침입니다'는 부드럽게 이어 발음하세요."
+  },
+  {
+    "id": 7,
+    "level": "A1",
+    "sentenceKr": "좋은 저녁입니다",
+    "sentenceEn": "Good evening",
+    "difficulty": "쉬움",
+    "tags": ["시간별인사"],
+    "category": "인사",
+    "tips": "'저녁'의 음절을 명확히 하고, '입니다'는 연결하여 발음하세요."
+  },
+  {
+    "id": 8,
+    "level": "A1",
+    "sentenceKr": "만나서 반갑습니다",
+    "sentenceEn": "Nice to meet you",
+    "difficulty": "중간",
+    "tags": ["인사"],
+    "category": "인사",
+    "tips": "'만나서'는 빠르게, '반갑습니다'의 'ㅂ'은 강하게 발음하세요."
+  },
+  {
+    "id": 9,
+    "level": "A1",
+    "sentenceKr": "저는 학생입니다",
+    "sentenceEn": "I am a student",
+    "difficulty": "중간",
+    "tags": ["자기소개"],
+    "category": "소개",
+    "tips": "'저는'을 명확히, '학생입니다'는 부드럽게 연결하세요."
+  },
+  {
+    "id": 10,
+    "level": "A1",
+    "sentenceKr": "한국어를 공부합니다",
+    "sentenceEn": "I study Korean",
+    "difficulty": "중간",
+    "tags": ["활동"],
+    "category": "일상",
+    "tips": "'한국어'의 각 음절을 명확히, '공부합니다'는 리듬감 있게 발음하세요."
+  },
+  {
+    "id": 11,
+    "level": "A2",
+    "sentenceKr": "어제 뭐 했어요?",
+    "sentenceEn": "What did you do yesterday?",
+    "difficulty": "중간",
+    "tags": ["질문"],
+    "category": "대화",
+    "tips": "'어제'는 명확히, '뭐'는 빠르게, '했어요'는 부드럽게 발음하세요."
+  },
+  {
+    "id": 12,
+    "level": "A2",
+    "sentenceKr": "날씨가 정말 좋네요",
+    "sentenceEn": "The weather is really nice",
+    "difficulty": "중간",
+    "tags": ["일상대화"],
+    "category": "대화",
+    "tips": "'날씨'의 'ㄲ'을 명확히, '정말 좋네요'는 부드럽게 연결하세요."
+  },
+  {
+    "id": 13,
+    "level": "A2",
+    "sentenceKr": "커피를 마시고 싶어요",
+    "sentenceEn": "I want to drink coffee",
+    "difficulty": "중간",
+    "tags": ["욕구표현"],
+    "category": "감정",
+    "tips": "'커피'의 'ㅓ'는 명확히, '마시고'는 부드럽게, '싶어요'는 따뜻하게 발음하세요."
+  },
+  {
+    "id": 14,
+    "level": "A2",
+    "sentenceKr": "지금 몇 시예요?",
+    "sentenceEn": "What time is it now?",
+    "difficulty": "중간",
+    "tags": ["질문"],
+    "category": "생활",
+    "tips": "'지금'은 명확히, '몇'은 짧게, '시예요'는 부드럽게 발음하세요."
+  },
+  {
+    "id": 15,
+    "level": "A2",
+    "sentenceKr": "서울에서 일해요",
+    "sentenceEn": "I work in Seoul",
+    "difficulty": "중간",
+    "tags": ["직업"],
+    "category": "소개",
+    "tips": "'서울'의 'ㄹ'은 명확히, '에서'는 부드럽게, '일해요'는 리듬감 있게 발음하세요."
+  },
+  {
+    "id": 16,
+    "level": "B1",
+    "sentenceKr": "시간이 있으면 전화 주세요",
+    "sentenceEn": "Please call me if you have time",
+    "difficulty": "어려움",
+    "tags": ["요청"],
+    "category": "대화",
+    "tips": "'시간이'는 자연스럽게, '있으면'의 'ㅡ'를 명확히, '전화 주세요'는 공손하게 발음하세요."
+  },
+  {
+    "id": 17,
+    "level": "B1",
+    "sentenceKr": "한국 음식이 정말 맛있어요",
+    "sentenceEn": "Korean food is really delicious",
+    "difficulty": "어려움",
+    "tags": ["의견표현"],
+    "category": "대화",
+    "tips": "'한국 음식'은 부드럽게, '정말'은 강조하고, '맛있어요'의 'ㅅ'은 명확히 발음하세요."
+  },
+  {
+    "id": 18,
+    "level": "B1",
+    "sentenceKr": "주말에 뭐 할 거예요?",
+    "sentenceEn": "What are you going to do on the weekend?",
+    "difficulty": "어려움",
+    "tags": ["질문"],
+    "category": "대화",
+    "tips": "'주말에'는 부드럽게, '뭐'는 빠르게, '할 거예요'는 호기심 있게 발음하세요."
+  },
+  {
+    "id": 19,
+    "level": "B1",
+    "sentenceKr": "제 생각에는 틀린 것 같아요",
+    "sentenceEn": "I think it seems to be wrong",
+    "difficulty": "어려움",
+    "tags": ["의견표현"],
+    "category": "대화",
+    "tips": "'제 생각에는'은 자연스럽게, '틀린'은 명확히, '같아요'는 조심스럽게 발음하세요."
+  },
+  {
+    "id": 20,
+    "level": "B1",
+    "sentenceKr": "이 영화 정말 재미있었어요",
+    "sentenceEn": "This movie was really interesting",
+    "difficulty": "어려움",
+    "tags": ["의견표현"],
+    "category": "대화",
+    "tips": "'이 영화'는 명확히, '정말'은 강조하고, '재미있었어요'는 감정을 담아 발음하세요."
+  }
+]

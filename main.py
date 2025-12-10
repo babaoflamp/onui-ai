@@ -1,9 +1,16 @@
 import os
 import shutil
-from fastapi import FastAPI, UploadFile, File, Form, Request
+import csv
+import sqlite3
+import hashlib
+import hmac
+from functools import lru_cache
+from pathlib import Path
+from datetime import datetime
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 # from openai import OpenAI
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
@@ -11,8 +18,25 @@ import requests
 import json
 import re
 import uvicorn
+import asyncio
 import subprocess
 import wave
+import base64
+import tempfile
+
+# SpeechPro 서비스 임포트
+from backend.services.speechpro_service import (
+    call_speechpro_gtp,
+    call_speechpro_model,
+    call_speechpro_score,
+    speechpro_full_workflow,
+    get_speechpro_url,
+    set_speechpro_url,
+    normalize_spaces,
+)
+
+# 학습 진도 서비스 임포트
+from backend.services.learning_progress_service import LearningProgressService
 
 # Try to provide a server-side romanization fallback for Korean -> Latin
 # We will try to import a lightweight romanizer if available. If not,
@@ -85,10 +109,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # restore `client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None`.
 client = None
 
-# Backend selection: set MODEL_BACKEND=ollama to use local Ollama server
-MODEL_BACKEND = os.getenv("MODEL_BACKEND", "openai")
+# Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
+MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -185,6 +211,26 @@ def _ensure_wav_16k_mono(src_path: str, dst_path: str):
         dst_path,
     ]
     subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
+    """Convert arbitrary audio bytes (webm/opus etc.) to 16k mono WAV via ffmpeg."""
+    if not audio_bytes:
+        raise ValueError("audio bytes empty")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        src_path = os.path.join(tmpdir, "input.bin")
+        dst_path = os.path.join(tmpdir, "output.wav")
+
+        with open(src_path, "wb") as f:
+            f.write(audio_bytes)
+
+        try:
+            _ensure_wav_16k_mono(src_path, dst_path)
+            with open(dst_path, "rb") as f:
+                return f.read()
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"ffmpeg 변환 실패: {e}")
 
 
 def _transcribe_with_vosk(wav_path: str, model_path: str) -> str:
@@ -327,6 +373,211 @@ def get_mztts_server_info() -> dict:
         raise RuntimeError(f"Failed to get MzTTS server info: {e}")
 
 
+# ==========================================
+# Auth & Signup storage (SQLite + PBKDF2)
+# ==========================================
+DB_PATH = Path("data/users.db")
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+PBKDF_ITERATIONS = 120_000
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _init_user_db():
+    """Ensure the users table exists."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                nickname TEXT NOT NULL,
+                password_hash TEXT NOT NULL,
+                native_lang TEXT,
+                affiliation TEXT,
+                time_pref TEXT,
+                interests TEXT,
+                goal TEXT,
+                exam_level TEXT,
+                reason TEXT,
+                style TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _hash_password(password: str) -> str:
+    salt = os.urandom(16)
+    derived = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
+    )
+    return f"{base64.b64encode(salt).decode()}${base64.b64encode(derived).decode()}"
+
+
+def _normalize_interests(raw):
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        return [str(v) for v in raw if str(v).strip()]
+    if isinstance(raw, str):
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                return [str(v) for v in parsed if str(v).strip()]
+        except Exception:
+            pass
+        return [v.strip() for v in raw.split(",") if v.strip()]
+    return []
+
+
+def _store_user_signup(payload: dict) -> dict:
+    email = (payload.get("email") or "").strip().lower()
+    nickname = (payload.get("nickname") or "").strip()
+    password = payload.get("password") or ""
+
+    if not email or not EMAIL_REGEX.match(email):
+        raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
+    if not nickname:
+        raise HTTPException(status_code=400, detail="닉네임을 입력하세요.")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="비밀번호는 8자 이상이어야 합니다.")
+
+    native_lang = (payload.get("native_lang") or "").strip()
+    affiliation = (payload.get("affiliation") or "").strip()
+    time_pref = (payload.get("time_pref") or "").strip()
+    interests = _normalize_interests(payload.get("interests"))
+    goal = (payload.get("goal") or "").strip()
+    exam_level = (payload.get("exam_level") or "").strip()
+    reason = (payload.get("reason") or "").strip()
+    style = (payload.get("style") or "").strip()
+
+    password_hash = _hash_password(password)
+    created_at = datetime.utcnow().isoformat()
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            INSERT INTO users (
+                email, nickname, password_hash, native_lang, affiliation,
+                time_pref, interests, goal, exam_level, reason, style, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                email,
+                nickname,
+                password_hash,
+                native_lang,
+                affiliation,
+                time_pref,
+                json.dumps(interests, ensure_ascii=False),
+                goal,
+                exam_level,
+                reason,
+                style,
+                created_at,
+            ),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
+    finally:
+        conn.close()
+
+    return {"email": email, "nickname": nickname}
+
+
+def _verify_password(stored_hash: str, password: str) -> bool:
+    """Verify password against stored PBKDF2 hash."""
+    try:
+        parts = stored_hash.split("$")
+        if len(parts) != 2:
+            return False
+        salt = base64.b64decode(parts[0])
+        stored_derived = base64.b64decode(parts[1])
+        
+        derived = hashlib.pbkdf2_hmac(
+            "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
+        )
+        return hmac.compare_digest(derived, stored_derived)
+    except Exception:
+        return False
+
+
+def _get_user_by_email(email: str) -> dict:
+    """Fetch user by email, return dict with id/email/nickname/password_hash or None."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, email, nickname, password_hash FROM users WHERE email = ?",
+            ((email or "").strip().lower(),)
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def _create_session_token(user_id: int, email: str) -> str:
+    """Create a simple JWT-like session token (in production, use proper JWT library)."""
+    import secrets
+    import time
+    
+    # Simple format: base64(id|email|timestamp|random)
+    timestamp = str(int(time.time()))
+    random_str = secrets.token_hex(16)
+    data = f"{user_id}|{email}|{timestamp}|{random_str}"
+    return base64.b64encode(data.encode()).decode()
+
+
+def _parse_session_token(token: str) -> dict:
+    """Parse session token, return dict with user_id/email or None."""
+    try:
+        data = base64.b64decode(token.encode()).decode()
+        parts = data.split("|")
+        if len(parts) >= 2:
+            return {"user_id": int(parts[0]), "email": parts[1]}
+    except Exception:
+        pass
+    return None
+
+
+def _get_user_by_id(user_id: int) -> dict:
+    """Fetch full user profile by ID."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, email, nickname, native_lang, affiliation, time_pref,
+                   interests, goal, exam_level, reason, style, created_at
+            FROM users WHERE id = ?
+            """,
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            data = dict(row)
+            # Parse interests JSON
+            if data.get("interests"):
+                try:
+                    data["interests"] = json.loads(data["interests"])
+                except Exception:
+                    data["interests"] = []
+            return data
+        return None
+    finally:
+        conn.close()
+
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -342,6 +593,10 @@ def startup_event():
             _auto_select_ollama_model()
         except Exception as e:
             print(f"Ollama auto-select failed: {e}")
+    try:
+        _init_user_db()
+    except Exception as e:
+        print(f"User DB init failed: {e}")
 
 # ==========================================
 # 학습 데이터 로드 헬퍼 함수
@@ -355,6 +610,187 @@ def load_json_data(filename):
         print(f"Error loading {filename}: {e}")
         return []
 
+
+@lru_cache(maxsize=1)
+def load_speechpro_precomputed_sentences():
+    """Load precomputed SpeechPro sentences (with syllables/FST) from CSV"""
+    path = "data/sp_ko_questions.csv"
+    sentences = []
+
+    if not os.path.exists(path):
+        return sentences
+
+    try:
+        with open(path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                sentence_kr = normalize_spaces(row.get("sentence", ""))
+                try:
+                    base_id = int(row.get("ko_id", 0))
+                except Exception:
+                    base_id = 0
+
+                try:
+                    order = int(row.get("order", base_id))
+                except Exception:
+                    order = base_id
+
+                sentences.append({
+                    "id": 1000 + base_id if base_id else order,
+                    "order": order,
+                    "sentenceKr": sentence_kr,
+                    "sentenceEn": "",
+                    "level": "초급",
+                    "difficulty": "SpeechPro",
+                    "category": "프리셋",
+                    "tags": ["speechpro", "preset"],
+                    "tips": "SpeechPro 서버의 프리셋 문장입니다.",
+                    "syll_ltrs": row.get("syll_ltrs", ""),
+                    "syll_phns": row.get("syll_phns", ""),
+                    "fst": row.get("fst", ""),
+                    "source": "precomputed"
+                })
+    except Exception as e:
+        print(f"Error loading {path}: {e}")
+
+    # Order by given order, then id
+    sentences.sort(key=lambda s: (s.get("order", 0), s.get("id", 0)))
+    return sentences
+
+
+def find_precomputed_sentence(text: str):
+    """Find precomputed sentence entry by normalized text"""
+    normalized = normalize_spaces(text or "")
+    for item in load_speechpro_precomputed_sentences():
+        if normalize_spaces(item.get("sentenceKr", "")) == normalized:
+            return item
+    return None
+
+
+async def _generate_pronunciation_feedback(text: str, score_result) -> str:
+    """
+    Generate AI feedback for pronunciation evaluation using configured AI backend.
+    Enhanced with FluencyPro + SpeechPro integrated analysis.
+    
+    Args:
+        text: Original Korean text
+        score_result: ScoreResult object with score and details
+        
+    Returns:
+        AI-generated feedback string in Korean
+    """
+    if MODEL_BACKEND not in ("ollama", "gemini"):
+        return None
+    
+    try:
+        # Extract key metrics
+        overall_score = round(score_result.score or 0)
+        details = score_result.details if isinstance(score_result.details, dict) else {}
+        
+        # SpeechPro 분석 데이터 추출
+        speechpro_info = ""
+        if details.get("quality"):
+            quality = details["quality"]
+            if quality.get("sentences"):
+                sent = quality["sentences"][0] if quality["sentences"] else {}
+                if sent.get("syllable_count"):
+                    speechpro_info += f"\n- 정확 발음: {sent.get('accuracy_percentage', 0):.1f}%"
+                if sent.get("completeness_percentage"):
+                    speechpro_info += f"\n- 완성도: {sent.get('completeness_percentage', 0):.1f}%"
+        
+        # FluencyPro 분석 데이터 추출
+        fluency_info = ""
+        if details.get("fluency"):
+            f = details["fluency"]
+            fluency_info = f"""
+FluencyPro 분석:
+- 발화 속도: {f.get('speech_rate', f.get('speech rate', 0)):.1f} 음절/초
+- 정확 음절: {f.get('correct_syllables', f.get('correct syllable count', 0))}/{f.get('total_syllables', f.get('syllable count', 0))} 
+- 음절 정확도: {(f.get('correct_syllables', f.get('correct syllable count', 0))/max(f.get('total_syllables', f.get('syllable count', 1)), 1)*100):.1f}%"""
+
+        # 발음이 어려운 단어 분석
+        word_scores = []
+        if details.get("quality", {}).get("sentences"):
+            for sent in details["quality"]["sentences"]:
+                if sent.get("text") != "!SIL" and sent.get("words"):
+                    for word in sent["words"]:
+                        if word.get("text") and word.get("text") != "!SIL":
+                            word_scores.append({
+                                "text": word["text"],
+                                "score": round(word.get("score", 0))
+                            })
+        
+        word_summary = ""
+        if word_scores:
+            low_words = [w for w in word_scores if w["score"] < 70]
+            high_words = [w for w in word_scores if w["score"] >= 90]
+            
+            if low_words:
+                word_summary += "\n잘 못한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in low_words[:3]])
+            if high_words:
+                word_summary += "\n잘한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in high_words[:3]])
+
+        prompt = f"""당신은 한국어 발음 교육 전문가입니다. 다음 발음 평가 결과를 종합적으로 분석하고 학습자에게 정확하고 도움이 되는 피드백을 제공해주세요.
+
+**평가 대상 문장:** {text}
+
+**종합 평가 결과:**
+- 전체 점수: {overall_score}점{speechpro_info}
+{fluency_info}
+{word_summary}
+
+**피드백 작성 가이드:**
+1. 점수 평가 (현재 수준 인정, 구체적 칭찬 포함) - 1-2문장
+2. SpeechPro 데이터 기반 정확도 분석 - 2-3문장  
+3. FluencyPro 데이터 기반 유창성 분석 - 1-2문장
+4. 구체적인 발음 개선 포인트 (어려운 단어 중심) - 2-3가지
+5. 효과적인 연습 방법 제안 - 1-2가지
+
+**작성 규칙:**
+- 친절하고 격려적인 톤 유지
+- 300-500자 이내로 작성
+- JSON이나 특수 포맷 없이 일반 텍스트만 사용
+- 마크다운 형식 금지"""
+
+        if MODEL_BACKEND == "ollama":
+            payload = {
+                "model": OLLAMA_MODEL,
+                "prompt": prompt,
+                "stream": False
+            }
+            
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=15)
+            if resp.status_code != 200:
+                return None
+            
+            result = resp.json()
+            feedback = result.get("response", "").strip()
+            
+        elif MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return None
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            feedback = response.text.strip()
+        
+        else:
+            return None
+        
+        # Remove any markdown/json artifacts
+        feedback = re.sub(r'```.*?```', '', feedback, flags=re.DOTALL)
+        feedback = re.sub(r'\{.*?\}', '', feedback, flags=re.DOTALL)
+        feedback = feedback.strip()
+        
+        return feedback if feedback else None
+        
+    except Exception as e:
+        print(f"[AI Feedback] Error: {e}")
+        return None
+
 # ==========================================
 # 페이지 라우트 (Routes)
 # ==========================================
@@ -367,6 +803,36 @@ def home_dashboard(request: Request):
 def learning_page(request: Request):
     """기존 AI 학습 도구 (콘텐츠 생성, 발음 교정, 작문 테스트)"""
     return templates.TemplateResponse("learning.html", {"request": request})
+
+@app.get("/content-generation")
+def content_generation_page(request: Request):
+    """맞춤형 교재 생성 페이지"""
+    return templates.TemplateResponse("content-generation.html", {"request": request})
+
+@app.get("/pronunciation-check")
+def pronunciation_check_page(request: Request):
+    """발음 교정 페이지"""
+    return templates.TemplateResponse("pronunciation-check.html", {"request": request})
+
+@app.get("/fluency-test")
+def fluency_test_page(request: Request):
+    """한국어 작문 테스트 페이지"""
+    return templates.TemplateResponse("fluency-test.html", {"request": request})
+
+@app.get("/custom-materials")
+def custom_materials_page(request: Request):
+    """맞춤형 교재 생성 페이지"""
+    return templates.TemplateResponse("custom-materials.html", {"request": request})
+
+@app.get("/essay-test")
+def essay_test_page(request: Request):
+    """한국어 작문 테스트 페이지"""
+    return templates.TemplateResponse("essay-test.html", {"request": request})
+
+@app.get("/pronunciation-correction")
+def pronunciation_correction_page(request: Request):
+    """발음 교정 페이지"""
+    return templates.TemplateResponse("pronunciation-correction.html", {"request": request})
 
 @app.get("/word-puzzle")
 def word_puzzle_page(request: Request):
@@ -388,16 +854,273 @@ def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
     return templates.TemplateResponse("pronunciation-practice.html", {"request": request})
 
+@app.get("/pronunciation-stages")
+def pronunciation_stages_page(request: Request):
+    """단계별 발음 학습"""
+    return templates.TemplateResponse("pronunciation-stages.html", {"request": request})
+
+@app.get("/pronunciation-rules")
+def pronunciation_rules_page(request: Request):
+    """발음 규칙 학습"""
+    return templates.TemplateResponse("pronunciation-rules.html", {"request": request})
+
+@app.get("/speechpro-practice")
+def speechpro_practice_page(request: Request):
+    """SpeechPro 발음 정확도 평가"""
+    return templates.TemplateResponse("speechpro-practice.html", {"request": request})
+
+@app.get("/fluency-practice")
+def fluency_practice_page(request: Request):
+    """FluencyPro 유창성 평가"""
+    return templates.TemplateResponse("fluency-practice.html", {"request": request})
+
 @app.get("/api-test")
 def api_test_page(request: Request):
     """API 테스트 도구"""
     return templates.TemplateResponse("api-test.html", {"request": request})
 
-# ==========================================
-# 2. AI 학습 콘텐츠 자동 생성 API
-# ==========================================
+@app.get("/media-generation")
+def media_generation_page(request: Request):
+    """상황별 콘텐츠 생성"""
+    return templates.TemplateResponse("media-generation.html", {"request": request})
+
+@app.get("/sitemap")
+def sitemap_page(request: Request):
+    """사이트맵 페이지"""
+    return templates.TemplateResponse("sitemap.html", {"request": request})
+
+@app.get("/login")
+def login_page(request: Request):
+    """로그인 페이지"""
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/mypage")
+def mypage(request: Request):
+    """사용자 프로필 페이지"""
+    return templates.TemplateResponse("mypage.html", {"request": request})
+
+@app.get("/learning-progress")
+def learning_progress(request: Request):
+    """학습 진도 대시보드"""
+    return templates.TemplateResponse("learning-progress.html", {"request": request})
+
+@app.get("/change-password")
+def change_password_page(request: Request):
+    """비밀번호 변경 페이지"""
+    return templates.TemplateResponse("change-password.html", {"request": request})
+
+# ------------------------------------------
+# 회원가입 (실제 계정 생성)
+# ------------------------------------------
+@app.post("/api/signup")
+async def signup(payload: dict):
+    user = _store_user_signup(payload)
+    return {"success": True, "email": user["email"], "nickname": user["nickname"]}
+
+
+@app.post("/api/landing-intake")
+async def landing_intake(payload: dict):
+    """Backward compatibility: reuse signup handler."""
+    return await signup(payload)
+
+
+# ------------------------------------------
+# 로그인 (계정 인증)
+# ------------------------------------------
+@app.post("/api/login")
+async def login(payload: dict):
+    """사용자 로그인: 이메일과 비밀번호로 인증."""
+    email = (payload.get("email") or "").strip().lower()
+    password = payload.get("password") or ""
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="이메일과 비밀번호를 입력하세요.")
+
+    user = _get_user_by_email(email)
+    if not user or not _verify_password(user["password_hash"], password):
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
+
+    # Create session token
+    token = _create_session_token(user["id"], user["email"])
+    
+    return {
+        "success": True,
+        "token": token,
+        "email": user["email"],
+        "nickname": user["nickname"],
+    }
+
+
+@app.post("/api/logout")
+async def logout(request: Request):
+    """로그아웃 (클라이언트에서 토큰 삭제)."""
+    # In a real system, invalidate token in backend
+    # For now, just return success
+    return {"success": True}
+
+
+# ------------------------------------------
+# 사용자 프로필 (mypage)
+# ------------------------------------------
+@app.get("/api/user/profile")
+async def get_user_profile(request: Request):
+    """로그인한 사용자의 프로필 조회."""
+    # Get token from header or query (header preferred for security)
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user = _get_user_by_id(parsed["user_id"])
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Remove sensitive fields
+    user.pop("password_hash", None)
+    return {"success": True, "user": user}
+
+
+@app.post("/api/user/profile/update")
+async def update_user_profile(request: Request, payload: dict):
+    """사용자 프로필 업데이트 (비밀번호 제외)."""
+    # Get token
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user_id = parsed["user_id"]
+    user = _get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Update allowed fields
+    nickname = (payload.get("nickname") or "").strip()
+    native_lang = (payload.get("native_lang") or "").strip()
+    affiliation = (payload.get("affiliation") or "").strip()
+    time_pref = (payload.get("time_pref") or "").strip()
+    interests = _normalize_interests(payload.get("interests"))
+    goal = (payload.get("goal") or "").strip()
+    exam_level = (payload.get("exam_level") or "").strip()
+    reason = (payload.get("reason") or "").strip()
+    style = (payload.get("style") or "").strip()
+    
+    if nickname and len(nickname) > 50:
+        raise HTTPException(status_code=400, detail="닉네임은 50자 이하여야 합니다.")
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        updates = []
+        values = []
+        
+        if nickname:
+            updates.append("nickname = ?")
+            values.append(nickname)
+        if native_lang:
+            updates.append("native_lang = ?")
+            values.append(native_lang)
+        if affiliation:
+            updates.append("affiliation = ?")
+            values.append(affiliation)
+        if time_pref:
+            updates.append("time_pref = ?")
+            values.append(time_pref)
+        updates.append("interests = ?")
+        values.append(json.dumps(interests, ensure_ascii=False))
+        if goal:
+            updates.append("goal = ?")
+            values.append(goal)
+        if exam_level:
+            updates.append("exam_level = ?")
+            values.append(exam_level)
+        if reason:
+            updates.append("reason = ?")
+            values.append(reason)
+        if style:
+            updates.append("style = ?")
+            values.append(style)
+        
+        values.append(user_id)
+        
+        cursor.execute(
+            f"UPDATE users SET {', '.join(updates)} WHERE id = ?",
+            values
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    
+    # Return updated user
+    updated = _get_user_by_id(user_id)
+    updated.pop("password_hash", None)
+    return {"success": True, "user": updated}
+
+
+@app.post("/api/user/password/change")
+async def change_password(request: Request, payload: dict):
+    """사용자 비밀번호 변경."""
+    # Get token
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    
+    parsed = _parse_session_token(token)
+    if not parsed:
+        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
+    
+    user_id = parsed["user_id"]
+    user = _get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    # Validate inputs
+    current_password = payload.get("current_password") or ""
+    new_password = payload.get("new_password") or ""
+    confirm_password = payload.get("confirm_password") or ""
+    
+    if not current_password:
+        raise HTTPException(status_code=400, detail="현재 비밀번호를 입력하세요.")
+    if not new_password:
+        raise HTTPException(status_code=400, detail="새 비밀번호를 입력하세요.")
+    if new_password != confirm_password:
+        raise HTTPException(status_code=400, detail="새 비밀번호가 일치하지 않습니다.")
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="새 비밀번호는 8자 이상이어야 합니다.")
+    
+    # Verify current password
+    user_with_hash = _get_user_by_email(user["email"])
+    if not user_with_hash or not _verify_password(user_with_hash["password_hash"], current_password):
+        raise HTTPException(status_code=401, detail="현재 비밀번호가 올바르지 않습니다.")
+    
+    # Update password
+    new_hash = _hash_password(new_password)
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (new_hash, user_id)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    
+    return {"success": True, "message": "비밀번호가 변경되었습니다."}
+
 @app.post("/api/generate-content")
-async def generate_content(topic: str = Form(...), level: str = Form(...), model: str = Form(None)):
+async def generate_content(
+    topic: str = Form(...), 
+    level: str = Form(...), 
+    model: str = Form(None),
+    backend: str = Form(None)
+):
     # Add level-specific guidance to the prompt so the model tailors output
     lvl = (level or "").strip()
     if lvl == "초급":
@@ -444,8 +1167,85 @@ async def generate_content(topic: str = Form(...), level: str = Form(...), model
     중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ``` )으로 정확하게 반환하세요. 추가 설명이나 여분의 텍스트는 포함하지 마시고, 코드 블럭 외의 다른 출력은 하지 마세요.
     """
     
+    # Determine which backend to use
+    selected_backend = backend or MODEL_BACKEND
+    
+    # Use Gemini backend if configured
+    if selected_backend == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            # Use REST API for Python 3.8 compatibility
+            gemini_model = model or GEMINI_MODEL
+            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={GEMINI_API_KEY}"
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }]
+            }
+            
+            resp = requests.post(url, json=payload, timeout=60)
+            resp.raise_for_status()
+            result = resp.json()
+            
+            if "candidates" in result and len(result["candidates"]) > 0:
+                out = result["candidates"][0]["content"]["parts"][0]["text"]
+            else:
+                return JSONResponse(status_code=500, content={"error": "No response from Gemini", "details": result})
+            
+            parsed = _parse_model_output(out)
+            if parsed is None:
+                try:
+                    m = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out)
+                    if m:
+                        parsed = json.loads(m.group(1))
+                except Exception:
+                    parsed = None
+            
+            if parsed is not None:
+                # Post-process pronunciation
+                try:
+                    dlg = parsed.get("dialogue")
+                    if isinstance(dlg, list):
+                        for item in dlg:
+                            if not isinstance(item, dict):
+                                continue
+                            item_text = item.get("text", "") or ""
+                            pron = item.get("pronunciation")
+                            try:
+                                mode = ROMANIZE_MODE
+                                if mode == "force":
+                                    pron = romanize_korean(item_text)
+                                else:
+                                    if pron and isinstance(pron, str):
+                                        if re.search(r"[\uac00-\ud7a3]", pron) or not re.search(r"[A-Za-z]", pron):
+                                            pron = romanize_korean(item_text)
+                                    else:
+                                        pron = romanize_korean(item_text)
+                            except Exception:
+                                pron = pron or romanize_korean(item_text)
+
+                            try:
+                                if isinstance(pron, str):
+                                    pron = re.sub(r"\s+", " ", pron.replace("\n", " ").replace("\t", " ")).strip()
+                                else:
+                                    pron = str(pron)
+                            except Exception:
+                                pron = pron if pron is not None else ""
+
+                            item["pronunciation"] = pron
+                except Exception:
+                    pass
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "generate-content (gemini) failed", "details": str(e)})
+    
     # Use Ollama local backend if configured
-    if MODEL_BACKEND == "ollama":
+    elif selected_backend == "ollama":
         try:
             use_model = model or OLLAMA_MODEL
             payload = {"model": use_model, "prompt": prompt}
@@ -630,6 +1430,69 @@ async def ollama_test(prompt: str = Form(...), model: str = Form(None)):
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "ollama test failed", "details": str(e)})
 
+@app.post("/api/chat/test")
+async def chat_test(prompt: str = Form(...), model: str = Form(None), backend: str = Form(None)):
+    """Send a quick test prompt to the selected model (Gemini or Ollama) and return the raw text."""
+    selected_backend = backend or MODEL_BACKEND
+    
+    # Use Gemini backend
+    if selected_backend == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            gemini_model = model or GEMINI_MODEL
+            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model}:generateContent?key={GEMINI_API_KEY}"
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }]
+            }
+            
+            resp = requests.post(url, json=payload, timeout=60)
+            resp.raise_for_status()
+            result = resp.json()
+            
+            if "candidates" in result and len(result["candidates"]) > 0:
+                out = result["candidates"][0]["content"]["parts"][0]["text"]
+                return JSONResponse(content={"model": gemini_model, "text": out})
+            else:
+                return JSONResponse(status_code=500, content={"error": "No response from Gemini", "details": result})
+                
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "gemini test failed", "details": str(e)})
+    
+    # Use Ollama backend
+    elif selected_backend == "ollama":
+        use_model = model or OLLAMA_MODEL
+        try:
+            payload = {"model": use_model, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=30)
+            if resp.status_code != 200:
+                return JSONResponse(status_code=500, content={"error": "ollama generate failed", "status": resp.status_code, "body": resp.text})
+
+            out = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        out += obj.get("response", "") or obj.get("text", "")
+                    else:
+                        out += str(obj)
+                except Exception:
+                    out += line
+
+            return JSONResponse(content={"model": use_model, "text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "ollama test failed", "details": str(e)})
+    
+    else:
+        return JSONResponse(status_code=400, content={"error": f"Unknown backend: {selected_backend}"})
+
 # ==========================================
 # 3. 유창성 테스트 (작문 교정) API
 # ==========================================
@@ -670,9 +1533,116 @@ async def fluency_check(user_text: str = Form(...)):
             return JSONResponse(content={"text": out})
         except Exception as e:
             return JSONResponse(status_code=500, content={"error": "fluency-check (ollama) failed", "details": str(e)})
+    
+    # Use Gemini backend if configured
+    elif MODEL_BACKEND == "gemini":
+        try:
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            out = response.text
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "fluency-check (gemini) failed", "details": str(e)})
 
     # Fallback / default: OpenAI (disabled)
     return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
+
+# ==========================================
+# 3-2. 상황별 컨텐츠 생성 API
+# ==========================================
+@app.post("/api/situational-content")
+async def situational_content(situation: str = Form(...), level: str = Form(...), model: str = Form(...)):
+    """
+    상황(예: 카페, 식당, 병원)과 난이도를 입력받아 
+    상황에 맞는 표현, 대화, 어휘를 생성합니다.
+    """
+    situation_prompts = {
+        "카페": "카페에서 커피를 주문하는 상황",
+        "식당": "식당에서 음식을 예약하고 주문하는 상황",
+        "병원": "병원 진료를 받는 상황",
+        "은행": "은행에서 업무를 보는 상황",
+        "여행": "여행을 계획하고 호텔을 예약하는 상황",
+        "면접": "면접을 보는 상황",
+    }
+    
+    situation_desc = situation_prompts.get(situation, situation)
+    
+    prompt = f"""
+    한국어 학습자를 위한 상황별 학습 컨텐츠를 생성해주세요.
+    
+    상황: {situation_desc}
+    난이도: {level}
+    
+    다음 정보를 JSON 형식으로 제공해주세요:
+    {{
+        "situation_description": "상황에 대한 설명",
+        "key_expressions": [
+            {{"korean": "네, 잠깐만요.", "romanization": "Ne, jamskkaman yo.", "meaning": "Yes, wait a moment"}},
+            ...
+        ],
+        "example_dialogue": [
+            {{"role": "A", "text": "안녕하세요! 무엇을 도와드릴까요?"}},
+            {{"role": "B", "text": "아이스 아메리카노 한 잔 주세요."}},
+            ...
+        ],
+        "vocabulary": ["단어1", "단어2", ...]
+    }}
+    """
+    
+    try:
+        if MODEL_BACKEND == "ollama":
+            payload = {"model": model or OLLAMA_MODEL, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=60)
+            if resp.status_code != 200:
+                return JSONResponse(status_code=500, content={"error": "ollama generate failed"})
+            
+            out = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        out += obj.get("response", "") or obj.get("text", "")
+                except Exception:
+                    out += line
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"error": "Failed to parse response"})
+        
+        elif MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            gemini_model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = gemini_model.generate_content(prompt)
+            out = response.text
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"error": "Failed to parse response"})
+        
+        else:
+            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+    
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "situational-content failed", "details": str(e)})
 
 # ==========================================
 # 4. 발음 교정 API (음성 업로드 -> STT -> 비교)
@@ -895,6 +1865,44 @@ async def get_pronunciation_word(word_id: str):
 
 
 # ==========================================
+# SpeechPro Evaluation Sentences
+# ==========================================
+
+@app.get("/api/speechpro/sentences")
+async def get_speechpro_sentences():
+    """Get all SpeechPro evaluation sentences"""
+    try:
+        precomputed = load_speechpro_precomputed_sentences()
+        return JSONResponse(content=precomputed)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
+
+
+@app.get("/api/speechpro/sentences/{sentence_id}")
+async def get_speechpro_sentence(sentence_id: int):
+    """Get a specific SpeechPro evaluation sentence by ID"""
+    try:
+        sentences = load_speechpro_precomputed_sentences()
+        sentence = next((s for s in sentences if s.get("id") == sentence_id), None)
+        if sentence:
+            return JSONResponse(content=sentence)
+        return JSONResponse(status_code=404, content={"error": "Sentence not found"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentence", "details": str(e)})
+
+
+@app.get("/api/speechpro/sentences/level/{level}")
+async def get_speechpro_sentences_by_level(level: str):
+    """Get SpeechPro evaluation sentences by level (A1, A2, B1, etc.)"""
+    try:
+        sentences = load_speechpro_precomputed_sentences()
+        filtered = [s for s in sentences if s.get("level") == level.upper()]
+        return JSONResponse(content=filtered)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
+
+
+# ==========================================
 # MzTTS API Endpoints
 # ==========================================
 
@@ -969,6 +1977,834 @@ async def generate_tts(request: TTSRequest):
             content={"error": "TTS generation failed", "details": str(e)}
         )
 
+
+# ==========================================
+# SpeechPro API 엔드포인트
+# ==========================================
+
+@app.post("/api/speechpro/gtp")
+async def speechpro_gtp(data: dict = None):
+    """
+    GTP (Grapheme-to-Phoneme) API
+    한국어 텍스트를 음소로 변환합니다.
+    
+    Request: {"text": "안녕하세요"}
+    Response: {"id": "...", "text": "...", "syll_ltrs": "...", "syll_phns": "..."}
+    """
+    try:
+        if data is None:
+            data = {}
+        
+        text = data.get("text", "").strip()
+        if not text:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text is required"}
+            )
+        
+        result = call_speechpro_gtp(text)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"GTP processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/model")
+async def speechpro_model(data: dict = None):
+    """
+    Model API - FST 발음 모델 생성
+    GTP 결과를 바탕으로 발음 평가 모델을 생성합니다.
+    
+    Request: {
+        "text": "안녕하세요",
+        "syll_ltrs": "안_녕_하_세_요",
+        "syll_phns": "..."
+    }
+    Response: {"id": "...", "text": "...", "fst": "..."}
+    """
+    try:
+        if data is None:
+            data = {}
+        
+        text = data.get("text", "").strip()
+        syll_ltrs = data.get("syll_ltrs", "").strip()
+        syll_phns = data.get("syll_phns", "").strip()
+        
+        if not all([text, syll_ltrs, syll_phns]):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text, syll_ltrs, syll_phns are required"}
+            )
+        
+        result = call_speechpro_model(text, syll_ltrs, syll_phns)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Model processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/score")
+async def speechpro_score(
+    text: str = Form(...),
+    syll_ltrs: str = Form(...),
+    syll_phns: str = Form(...),
+    fst: str = Form(...),
+    audio: UploadFile = File(...)
+):
+    """
+    Score JSON API - 발음 평가
+    사용자의 음성 데이터를 전송하여 발음 정확도를 평가합니다.
+    
+    Form Data:
+        - text: 평가 대상 텍스트
+        - syll_ltrs: 음절 글자
+        - syll_phns: 음절 음소
+        - fst: FST 모델 데이터
+        - audio: WAV 오디오 파일
+    
+    Response: {"score": 85.5, "details": {...}}
+    """
+    try:
+        # 오디오 파일 읽기
+        audio_content_raw = await audio.read()
+        
+        if not audio_content_raw:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "audio file is required"}
+            )
+
+        try:
+            audio_content = _convert_audio_bytes_to_wav16(audio_content_raw)
+        except Exception as conv_err:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"audio convert failed: {conv_err}"}
+            )
+        
+        # 필수 파라미터 검증
+        text = text.strip()
+        if not all([text, syll_ltrs, syll_phns, fst]):
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text, syll_ltrs, syll_phns, fst are required"}
+            )
+        
+        result = call_speechpro_score(text, syll_ltrs, syll_phns, fst, audio_content)
+        return JSONResponse(content=result.to_dict())
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e)}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Score processing failed: {str(e)}"}
+        )
+
+
+@app.post("/api/speechpro/evaluate")
+async def speechpro_evaluate(
+    text: str = Form(...),
+    audio: UploadFile = File(...),
+    syll_ltrs: str = Form(None),
+    syll_phns: str = Form(None),
+    fst: str = Form(None)
+):
+    """
+    통합 발음 평가 API
+    텍스트와 음성을 전송하여 전체 워크플로우를 실행합니다.
+    
+    Form Data:
+        - text: 평가 대상 텍스트
+        - audio: WAV 오디오 파일
+    
+    Response: {
+        "gtp": {...},
+        "model": {...},
+        "score": {...},
+        "overall_score": 85.5
+    }
+    """
+    try:
+        # 오디오 파일 읽기
+        audio_content_raw = await audio.read()
+        
+        text = text.strip()
+        
+        if not text:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text is required"}
+            )
+        
+        if not audio_content_raw:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "audio file is required"}
+            )
+
+        try:
+            audio_content = _convert_audio_bytes_to_wav16(audio_content_raw)
+        except Exception as conv_err:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"audio convert failed: {conv_err}"}
+            )
+        
+        # 1) 요청에 사전 계산 정보가 함께 왔다면 그대로 사용
+        pre_syll_ltrs = syll_ltrs.strip() if syll_ltrs else None
+        pre_syll_phns = syll_phns.strip() if syll_phns else None
+        pre_fst = fst.strip() if fst else None
+
+        print(f"[Evaluate] Text: {text}")
+        print(f"[Evaluate] Received FST from client: {bool(pre_fst)}")
+        print(f"[Evaluate] FST length: {len(pre_fst) if pre_fst else 0}")
+
+        preset = None
+        if pre_syll_ltrs and pre_syll_phns and pre_fst:
+            print(f"[Evaluate] Using client-provided precomputed data")
+            preset = {
+                "sentenceKr": text,
+                "syll_ltrs": pre_syll_ltrs,
+                "syll_phns": pre_syll_phns,
+                "fst": pre_fst,
+                "source": "client-precomputed"
+            }
+        else:
+            print(f"[Evaluate] Searching for precomputed sentence match")
+            preset = find_precomputed_sentence(text)
+            if preset:
+                print(f"[Evaluate] Found preset: {preset.get('sentence', '')}")
+
+        if preset and preset.get("fst"):
+            print(f"[Evaluate] Using preset for scoring")
+            request_id = f"preset_{preset.get('id', 'score')}"
+
+            gtp_dict = {
+                "id": f"gtp_{request_id}",
+                "text": text,
+                "syll_ltrs": preset.get("syll_ltrs", ""),
+                "syll_phns": preset.get("syll_phns", ""),
+                "error_code": 0,
+            }
+            model_dict = {
+                "id": f"model_{request_id}",
+                "text": text,
+                "syll_ltrs": preset.get("syll_ltrs", ""),
+                "syll_phns": preset.get("syll_phns", ""),
+                "fst": preset.get("fst", ""),
+                "error_code": 0,
+            }
+
+            print(f"[Evaluate] Calling score API...")
+            score_result = call_speechpro_score(
+                text=text,
+                syll_ltrs=preset.get("syll_ltrs", ""),
+                syll_phns=preset.get("syll_phns", ""),
+                fst=preset.get("fst", ""),
+                audio_data=audio_content,
+                request_id=request_id,
+            )
+
+            print(f"[Evaluate] Score result: score={score_result.score}, error_code={score_result.error_code}")
+
+            if score_result.error_code != 0:
+                print(f"[Evaluate] Score error detected: {score_result.error_code}")
+                raise RuntimeError(f"Score 오류: error_code={score_result.error_code}")
+
+            # AI 피드백 생성
+            ai_feedback = None
+            if MODEL_BACKEND == "ollama":
+                try:
+                    ai_feedback = await _generate_pronunciation_feedback(text, score_result)
+                    print(f"[Evaluate] AI feedback generated: {ai_feedback[:100] if ai_feedback else 'None'}")
+                except Exception as fb_err:
+                    print(f"[Evaluate] AI feedback failed: {fb_err}")
+
+            print(f"[Evaluate] Success - returning response")
+            response_data = {
+                "gtp": gtp_dict,
+                "model": model_dict,
+                "score": score_result.to_dict(),
+                "overall_score": score_result.score,
+                "success": True,
+                "source": preset.get("source", "precomputed")
+            }
+            if ai_feedback:
+                response_data["ai_feedback"] = ai_feedback
+            
+            return JSONResponse(content=response_data)
+
+        # 2) 프리셋이 없으면 기존 전체 워크플로우 수행
+        print(f"[Evaluate] No preset found, using full workflow")
+        result = speechpro_full_workflow(text, audio_content)
+        return JSONResponse(content=result)
+    
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": str(e), "success": False}
+        )
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=503,
+            content={"error": str(e), "success": False}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Evaluation failed: {str(e)}", "success": False}
+        )
+
+
+@app.get("/chatbot")
+def chatbot_page(request: Request):
+    """AI 챗봇 페이지"""
+    return templates.TemplateResponse("chatbot.html", {"request": request})
+
+
+@app.post("/api/chatbot")
+async def chatbot_api(request: Request):
+    """EXAONE 기반 챗봇 API"""
+    try:
+        data = await request.json()
+        user_message = data.get("message", "").strip()
+        
+        if not user_message:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "메시지를 입력해주세요."}
+            )
+        
+        # Call Ollama API (EXAONE)
+        system_prompt = """당신은 한국어 교육 AI 튜터입니다. 간결하고 명확하게 답변해주세요."""
+        
+        prompt = f"{system_prompt}\n\n질문: {user_message}"
+        
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "temperature": 0.7
+        }
+        
+        print(f"[Chatbot] Sending request to Ollama API: {OLLAMA_URL}/api/generate")
+        print(f"[Chatbot] User message: {user_message}")
+        
+        response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
+        
+        print(f"[Chatbot] Response status: {response.status_code}")
+        
+        if response.status_code != 200:
+            print(f"[Chatbot] Error response: {response.text[:200]}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": "AI 서버 연결 오류"}
+            )
+        
+        result = response.json()
+        
+        # Extract text from Ollama response
+        if "response" in result:
+            ai_response = result["response"].strip()
+            print(f"[Chatbot] AI response: {ai_response[:100]}...")
+            return JSONResponse(content={
+                "response": ai_response,
+                "success": True
+            })
+        
+        print(f"[Chatbot] Failed to extract text from response: {result}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "AI 응답을 처리할 수 없습니다."}
+        )
+        
+    except requests.exceptions.Timeout:
+        print("[Chatbot] Timeout error")
+        return JSONResponse(
+            status_code=504,
+            content={"error": "AI 서버 응답 시간이 초과되었습니다."}
+        )
+    except requests.exceptions.RequestException as e:
+        print(f"[Chatbot] Request error: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"AI 서버 연결 오류: {str(e)}"}
+        )
+    except Exception as e:
+        print(f"[Chatbot] Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"오류가 발생했습니다: {str(e)}"}
+        )
+
+
+@app.get("/api/speechpro/config")
+async def speechpro_config():
+    """SpeechPro API 설정 조회"""
+    return JSONResponse(content={
+        "url": get_speechpro_url(),
+        "status": "configured"
+    })
+
+
+@app.post("/api/speechpro/config")
+async def set_speechpro_config(data: dict = None):
+    """SpeechPro API URL 설정"""
+    try:
+        if data is None:
+            data = {}
+        
+        url = data.get("url", "").strip()
+        if not url:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "url is required"}
+            )
+        
+        set_speechpro_url(url)
+        return JSONResponse(content={
+            "url": get_speechpro_url(),
+            "status": "updated"
+        })
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+# ============================================================================
+# FluencyPro API (유창성 평가)
+# ============================================================================
+
+@app.post("/api/fluencypro/analyze")
+async def fluency_analyze(request: Request):
+    """음성 유창성 분석 - FluencyPro API"""
+    try:
+        form_data = await request.form()
+        text = form_data.get("text", "").strip()
+        audio_file = form_data.get("audio")
+
+        if not text or not audio_file:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "text and audio are required"}
+            )
+
+        # 실제 FluencyPro API 호출 (테스트용 더미 응답)
+        # TODO: 실제 FluencyPro 서비스 연동
+        audio_data = await audio_file.read()
+        
+        fluency_result = {
+            "text": text,
+            "audio_length_ms": len(audio_data) // 16,  # 대략적인 오디오 길이 (16KB ≈ 1초)
+            "speech_rate": round(len(text.split()) / (len(audio_data) / 16000), 2),  # 음절/초
+            "correct_syllables_rate": round((len(text.replace(" ", "")) / len(text.split())) * 100, 1),  # 정확한 음절 비율
+            "articulation_rate": round(len(text.split()) / (len(audio_data) / 16000) * 0.95, 2),  # 조음 속도
+            "pause_count": len(text.split()) - 1,
+            "pause_duration_ms": round(len(audio_data) / 32),  # 쉼표 총 시간
+            "fluency_score": round(65 + (len(audio_data) / 16000) * 5, 1),  # 유창성 점수
+            "confidence": 0.85,
+            "recommendations": [
+                "음절을 더 명확하게 발음해주세요.",
+                "자연스러운 속도로 말씀해주세요.",
+                "적절한 쉼표를 사용하세요."
+            ],
+            "timestamp": datetime.now().isoformat()
+        }
+
+        return JSONResponse(content=fluency_result)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+@app.post("/api/fluencypro/combined-feedback")
+async def get_combined_feedback(request: Request):
+    """FluencyPro와 SpeechPro 결과를 종합하여 AI 피드백 생성"""
+    try:
+        data = await request.json()
+        
+        # FluencyPro와 SpeechPro 결과 받기
+        text = data.get("text", "")
+        fluency_data = data.get("fluency_data", {})
+        speechpro_data = data.get("speechpro_data", {})
+        
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "text is required"})
+        
+        # 복합 피드백을 생성할 프롬프트
+        prompt = f"""
+사용자가 발음한 한국어 문장에 대한 복합 피드백을 생성해주세요.
+
+[사용자 발음 텍스트]
+"{text}"
+
+[FluencyPro 유창성 분석]
+- 유창성 점수: {fluency_data.get('fluency_score', 0)}/100
+- 발화 속도: {fluency_data.get('speech_rate', 0):.2f} 음절/초
+- 조음 속도: {fluency_data.get('articulation_rate', 0):.2f} 음절/초
+- 정확한 음절 비율: {fluency_data.get('correct_syllables_rate', 0):.1f}%
+- 쉼표 개수: {fluency_data.get('pause_count', 0)}개
+
+[SpeechPro 정확도 분석]
+- 발음 정확도 점수: {speechpro_data.get('score', 0)}/100
+- 발음 상세 피드백: {speechpro_data.get('feedback', 'N/A')}
+
+[생성 요청]
+학습자에게 제공할 종합적인 피드백을 다음 형식으로 작성해주세요:
+
+{{
+  "overall_comment": "전체 평가를 한 문장으로 (50자 이내)",
+  "strengths": ["강점 1", "강점 2"],
+  "improvements": ["개선점 1", "개선점 2"],
+  "tips": ["실습 팁 1", "실습 팁 2"],
+  "encouragement": "격려 메시지 (한 문장)"
+}}
+
+음성과 발음이 모두 자연스러운 경우 칭찬하고, 특정 부분이 부자연스러운 경우 구체적으로 지적해주세요.
+한국어 학습자이므로 친근하고 이해하기 쉬운 표현으로 작성하세요.
+"""
+        
+        # Gemini 또는 Ollama를 사용하여 피드백 생성
+        if MODEL_BACKEND == "gemini":
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            import google.generativeai as genai
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel(GEMINI_MODEL)
+            
+            response = model.generate_content(prompt)
+            response_text = response.text
+        
+        elif MODEL_BACKEND == "ollama":
+            payload = {"model": OLLAMA_MODEL, "prompt": prompt}
+            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=60)
+            
+            response_text = ""
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        response_text += obj.get("response", "") or obj.get("text", "")
+                except Exception:
+                    response_text += line
+        
+        else:
+            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+        
+        # 응답에서 JSON 추출
+        parsed_feedback = _parse_model_output(response_text)
+        
+        if parsed_feedback:
+            return JSONResponse(content=parsed_feedback)
+        else:
+            # 파싱 실패시 기본 구조로 반환
+            return JSONResponse(content={
+                "overall_comment": "좋은 연습이었습니다!",
+                "strengths": ["발음을 명확하게 했습니다"],
+                "improvements": ["더 자연스러운 속도로 연습해보세요"],
+                "tips": ["매일 꾸준히 연습하세요"],
+                "encouragement": "계속 화이팅!"
+            })
+    
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "combined-feedback failed", "details": str(e)}
+        )
+
+
+@app.get("/api/fluencypro/metrics/{user_id}")
+async def get_fluency_metrics(user_id: str):
+    """사용자 유창성 지표 조회"""
+    try:
+        # 데이터베이스에서 사용자의 유창성 데이터 조회
+        # TODO: 실제 데이터베이스 연동
+        
+        db_path = "data/users.db"
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # 사용자 정보 조회
+        cursor.execute(
+            "SELECT id, nickname FROM users WHERE nickname = ?",
+            (user_id,)
+        )
+        user_row = cursor.fetchone()
+        
+        if not user_row:
+            return JSONResponse(
+                status_code=404,
+                content={"error": f"User {user_id} not found"}
+            )
+        
+        actual_user_id = user_row[0]
+        
+        # 학습 진도에서 발음 연습 데이터 조회
+        cursor.execute(
+            """
+            SELECT 
+                COUNT(*) as total_practices,
+                AVG(CAST(pronunciation_avg_score AS FLOAT)) as avg_fluency_score,
+                MAX(CAST(pronunciation_avg_score AS FLOAT)) as best_fluency_score,
+                MIN(CAST(pronunciation_avg_score AS FLOAT)) as worst_fluency_score
+            FROM user_learning_progress
+            WHERE user_id = ?
+            """,
+            (actual_user_id,)
+        )
+        metrics_row = cursor.fetchone()
+        conn.close()
+        
+        total = metrics_row[0] or 0
+        avg_score = round(metrics_row[1] or 0, 1)
+        best_score = round(metrics_row[2] or 0, 1)
+        worst_score = round(metrics_row[3] or 0, 1)
+        
+        # 유창성 평가 등급
+        if avg_score >= 90:
+            grade = "A+ (매우 좋음)"
+        elif avg_score >= 80:
+            grade = "A (좋음)"
+        elif avg_score >= 70:
+            grade = "B (보통)"
+        elif avg_score >= 60:
+            grade = "C (개선필요)"
+        else:
+            grade = "D (많은 개선필요)"
+        
+        fluency_metrics = {
+            "user_id": user_id,
+            "total_practices": total,
+            "average_fluency_score": avg_score,
+            "best_fluency_score": best_score,
+            "worst_fluency_score": worst_score,
+            "fluency_grade": grade,
+            "practice_frequency": "매일" if total >= 7 else "주 3-4회" if total >= 3 else "불규칙",
+            "improvement_trend": "상승" if total >= 3 else "데이터 부족",
+            "speech_rate_average": round(4.5 + (avg_score / 100), 2),
+            "articulation_rate_average": round(4.2 + (avg_score / 120), 2),
+            "accuracy_score": round(avg_score, 1),
+            "last_practice": datetime.now().isoformat()
+        }
+        
+        return JSONResponse(content=fluency_metrics)
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+# ============================================================================
+# 학습 진도 및 캐릭터 Pop-Up API
+# ============================================================================
+
+learning_service = LearningProgressService()
+
+@app.post("/api/learning/pronunciation-completed")
+async def record_pronunciation_completed(request: Request):
+    """발음 연습 완료 기록"""
+    try:
+        data = await request.json()
+        user_id = data.get("user_id", "anonymous")
+        score = int(data.get("score", 0))
+        
+        result = learning_service.update_pronunciation_practice(user_id, score)
+        
+        # Pop-Up 트리거 확인
+        popup_trigger = learning_service.check_popup_trigger(user_id)
+        
+        return JSONResponse({
+            "success": True,
+            "updated": result,
+            "popup": popup_trigger
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.post("/api/learning/popup-shown")
+async def record_popup_shown(request: Request):
+    """Pop-Up 표시 기록"""
+    try:
+        data = await request.json()
+        user_id = data.get("user_id", "anonymous")
+        popup_type = data.get("popup_type")
+        character = data.get("character")
+        message = data.get("message")
+        trigger_reason = data.get("trigger_reason", "user_activity")
+        
+        learning_service.record_popup_shown(
+            user_id, popup_type, character, message, trigger_reason
+        )
+        
+        return JSONResponse({"success": True})
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.get("/api/learning/user-stats/{user_id}")
+async def get_user_learning_stats(user_id: str):
+    """사용자 학습 통계 조회"""
+    try:
+        stats = learning_service.get_user_stats(user_id)
+        return JSONResponse(stats)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.get("/api/learning/today-progress/{user_id}")
+async def get_today_progress(user_id: str):
+    """오늘의 학습 진도 조회"""
+    try:
+        progress = learning_service.get_or_create_today_progress(user_id)
+        return JSONResponse(progress)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.post("/api/learning/check-popup/{user_id}")
+async def check_popup_trigger(user_id: str):
+    """Pop-Up 트리거 확인"""
+    try:
+        popup = learning_service.check_popup_trigger(user_id)
+        if popup:
+            return JSONResponse({
+                "should_show_popup": True,
+                "character": popup.get("character", "오빠"),
+                "popup_message": popup.get("message", ""),
+                "popup_type": popup.get("type", "info"),
+                "trigger": popup.get("trigger", "")
+            })
+        else:
+            return JSONResponse({
+                "should_show_popup": False,
+                "character": None,
+                "popup_message": None,
+                "popup_type": None,
+                "trigger": None
+            })
+    except Exception as e:
+        print(f"Error checking popup: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+# ====================
+# Media Generation APIs
+# ====================
+
+@app.post("/api/generate-image")
+async def generate_image(request: Request):
+    """AI 이미지 생성 API (Placeholder)"""
+    try:
+        data = await request.json()
+        situation = data.get("situation", "")
+        style = data.get("style", "illustration")
+        
+        # TODO: 실제 AI 이미지 생성 API 연동 (Stable Diffusion, DALL-E 등)
+        # 현재는 placeholder 응답
+        
+        return JSONResponse({
+            "success": True,
+            "image_url": "https://via.placeholder.com/800x600/9333EA/ffffff?text=AI+Generated+Image",
+            "prompt": f"{situation} in {style} style",
+            "message": "이미지 생성 기능은 개발 중입니다. AI 이미지 생성 API 연동이 필요합니다."
+        })
+        
+    except Exception as e:
+        print(f"Error generating image: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"이미지 생성 중 오류 발생: {str(e)}"
+            }
+        )
+
+@app.post("/api/generate-music")
+async def generate_music(request: Request):
+    """AI 음악 생성 API (Placeholder)"""
+    try:
+        data = await request.json()
+        situation = data.get("situation", "")
+        mood = data.get("mood", "calm")
+        duration = data.get("duration", 30)
+        
+        # TODO: 실제 AI 음악 생성 API 연동 (Suno AI, MusicGen 등)
+        # 현재는 placeholder 응답
+        
+        return JSONResponse({
+            "success": True,
+            "music_url": "/static/placeholder-music.mp3",
+            "description": f"{mood} 분위기의 {duration}초 배경음악",
+            "message": "음악 생성 기능은 개발 중입니다. AI 음악 생성 API 연동이 필요합니다."
+        })
+        
+    except Exception as e:
+        print(f"Error generating music: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"음악 생성 중 오류 발생: {str(e)}"
+            }
+        )
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)
