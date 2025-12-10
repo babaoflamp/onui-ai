@@ -7,6 +7,12 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/static/favicon.png"
+    />
     <link rel="alternate icon" href="/static/favicon.ico" />
 
     <!-- Pretendard font -->
@@ -152,6 +158,12 @@
         background-color: transparent;
         color: #9ca3af;
       }
+
+      /* Right-aligned dropdown (hamburger help) */
+      .dropdown-right .dropdown-content {
+        right: 0;
+        left: auto;
+      }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -268,35 +280,6 @@
                 </div>
               </div>
 
-              <!-- 도움말 드롭다운 -->
-              <div class="dropdown inline-flex items-center">
-                <button
-                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
-                >
-                  🆘 도움말 ▾
-                </button>
-                <div class="dropdown-content">
-                  <span class="menu-disabled block px-4 py-3 text-xs"
-                    >❓ Q&A(자주묻는질문) (준비중)</span
-                  >
-                  <div class="border-t border-gray-100 my-1"></div>
-                  <div
-                    class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
-                  >
-                    1:1문의 채널
-                  </div>
-                  <span class="menu-disabled block px-4 py-3 text-xs"
-                    >💬 게시판 문의 (준비중)</span
-                  >
-                  <span class="menu-disabled block px-4 py-3 text-xs"
-                    >✉️ 이메일 발송 (준비중)</span
-                  >
-                  <span class="menu-disabled block px-4 py-3 text-xs"
-                    >📞 전화 상담 (준비중)</span
-                  >
-                </div>
-              </div>
-
               <a
                 href="/api-test"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
@@ -350,6 +333,39 @@
             >
               로그인
             </a>
+
+            <!-- 도움말: 우측 햄버거 버튼 -->
+            <div
+              class="dropdown dropdown-right inline-flex items-center relative"
+            >
+              <button
+                class="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                aria-label="도움말 메뉴"
+              >
+                <span class="text-lg">☰</span>
+                <span class="hidden sm:inline">도움말</span>
+              </button>
+              <div class="dropdown-content">
+                <span class="menu-disabled block px-4 py-3 text-xs"
+                  >❓ Q&A(자주묻는질문) (준비중)</span
+                >
+                <div class="border-t border-gray-100 my-1"></div>
+                <div
+                  class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
+                >
+                  1:1문의 채널
+                </div>
+                <span class="menu-disabled block px-4 py-3 text-xs"
+                  >💬 게시판 문의 (준비중)</span
+                >
+                <span class="menu-disabled block px-4 py-3 text-xs"
+                  >✉️ 이메일 발송 (준비중)</span
+                >
+                <span class="menu-disabled block px-4 py-3 text-xs"
+                  >📞 전화 상담 (준비중)</span
+                >
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -549,32 +565,60 @@
     <!-- Main Content -->
     <main class="py-6">{% block content %}{% endblock %}</main>
 
-    <!-- Floating Chatbot Button -->
-    <div id="chatbot-widget" class="fixed bottom-6 right-6 z-50">
+    <!-- Floating Chatbot & Mail Widget -->
+    <div
+      id="chatbot-widget"
+      class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
+    >
+      <!-- Mail Button -->
+      <button
+        id="mail-toggle"
+        class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-blue-400 relative"
+        onclick="toggleMailNotification()"
+      >
+        <span class="text-4xl leading-none select-none" aria-hidden="true"
+          >📬</span
+        >
+        <span
+          id="mail-badge-float"
+          class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-bold animate-pulse"
+          style="display: none"
+        >
+          1
+        </span>
+      </button>
+
       <!-- Chat Button -->
       <button
         id="chatbot-toggle"
-        class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
+        class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
       >
-        <svg
-          class="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-          ></path>
-        </svg>
+        <img
+          src="/static/tiger_chatbot.svg"
+          alt="호랑이 챗봇"
+          class="w-12 h-12"
+        />
       </button>
+
+      <!-- Mail Dropdown -->
+      <div
+        id="mail-dropdown"
+        class="hidden absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50"
+      >
+        <div class="p-4 border-b border-gray-200">
+          <h3 class="font-bold text-gray-900">📬 메일함</h3>
+        </div>
+        <div id="mail-list" class="max-h-80 overflow-y-auto">
+          <div class="p-4 text-center text-gray-500 text-sm">
+            새 메일이 없습니다.
+          </div>
+        </div>
+      </div>
 
       <!-- Chat Window -->
       <div
         id="chatbot-window"
-        class="hidden absolute bottom-20 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        class="hidden absolute bottom-24 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
         style="max-width: calc(100vw - 2rem)"
       >
         <!-- Header -->
@@ -583,9 +627,13 @@
         >
           <div class="flex items-center space-x-2">
             <div
-              class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold"
+              class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center p-2"
             >
-              AI
+              <img
+                src="/static/tiger_chatbot.svg"
+                alt="호랑이"
+                class="w-full h-full"
+              />
             </div>
             <div>
               <div class="font-semibold">AI 한국어 튜터</div>
@@ -619,16 +667,20 @@
         >
           <div class="flex items-start space-x-2">
             <div
-              class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+              class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1"
             >
-              AI
+              <img
+                src="/static/tiger_chatbot.svg"
+                alt="호랑이"
+                class="w-full h-full"
+              />
             </div>
             <div
               class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]"
             >
               <p class="text-sm text-gray-800">
-                안녕하세요! 👋<br />한국어 학습을 도와드릴게요.<br />궁금한 점을
-                물어보세요!
+                어흥! 🐯<br />호랑이가 한국어 학습을 도와드릴게요!<br />무엇을
+                도와드릴까요?
               </p>
             </div>
           </div>
@@ -749,8 +801,8 @@
         const messageDiv = document.createElement("div");
         messageDiv.className = "flex items-start space-x-2";
         messageDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            AI
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1">
+            <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
           </div>
           <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]">
             <p class="text-sm text-gray-800">${escapeHtml(text).replace(
@@ -769,8 +821,8 @@
         typingDiv.id = "chatbot-typing-indicator";
         typingDiv.className = "flex items-start space-x-2";
         typingDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-            AI
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1 animate-bounce">
+            <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
           </div>
           <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm">
             <div class="chatbot-typing">
@@ -935,16 +987,315 @@
         }
       }
 
+      // Ensure nickname is stored after login (fallback if localStorage missing)
+      async function ensureNicknameInLocalStorage() {
+        const token = localStorage.getItem("auth_token");
+        const nickname = localStorage.getItem("user_nickname");
+        if (!token || nickname) return; // nothing to do
+
+        try {
+          const res = await fetch("/api/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data && data.nickname) {
+            localStorage.setItem("user_nickname", data.nickname);
+            updateAuthDisplay();
+          }
+        } catch (e) {
+          console.warn("Failed to fetch profile for nickname sync", e);
+        }
+      }
+
       function handleLogout() {
         localStorage.removeItem("auth_token");
         localStorage.removeItem("user_nickname");
+        localStorage.removeItem("welcome_mail_sent");
         updateAuthDisplay();
         window.location.href = "/";
+      }
+
+      // Get stored learning progress summary (from learning page)
+      function getLearningProgressSummary() {
+        const minutes = Number(localStorage.getItem("learning_minutes")) || 0;
+        const sentences =
+          Number(localStorage.getItem("learning_sentence_count")) || 0;
+        return `현재 학습: ${minutes}분, 문장 ${sentences}개 완료`;
+      }
+
+      function showWelcomeTigerWithProgress(nickname) {
+        const summary = getLearningProgressSummary();
+        if (typeof openCharacterModal === "function") {
+          openCharacterModal("tiger");
+          const msgEl = document.getElementById("character-message");
+          if (msgEl) {
+            msgEl.textContent = `어흥! ${nickname}님 환영해요!\n${summary}`;
+          }
+        }
       }
 
       // Run on load
       setActiveNav();
       updateAuthDisplay();
+      ensureNicknameInLocalStorage();
+
+      // Welcome mail on first visit (no auth dependency)
+      (function () {
+        const hasSeenWelcomeMail = localStorage.getItem("welcome_mail_sent");
+        if (hasSeenWelcomeMail) return;
+
+        const nickname = localStorage.getItem("user_nickname") || "새 학습자";
+        const progressSummary = getLearningProgressSummary();
+
+        setTimeout(() => {
+          if (typeof addMailNotification === "function") {
+            addMailNotification(
+              "🎉 환영합니다!",
+              `${nickname}님, 오누이 한국어에 오신 것을 환영합니다! 현재 학습 현황을 확인하고 목표를 설정해보세요.\n${progressSummary}`,
+              "👋"
+            );
+            // Also show character popup (tiger) to greet the user
+            showWelcomeTigerWithProgress(nickname);
+            localStorage.setItem("welcome_mail_sent", "true");
+          }
+        }, 1200);
+      })();
+    </script>
+
+    <!-- Character Popup Modal -->
+    <div
+      id="character-modal-overlay"
+      class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm"
+      onclick="closeCharacterModal(event)"
+    >
+      <div
+        class="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full mx-4 relative animate-bounce-in"
+        id="character-modal-box"
+      >
+        <button
+          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+          onclick="closeCharacterModal()"
+        >
+          ×
+        </button>
+
+        <div class="text-center mb-6">
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">
+            <span class="inline-block mr-2">💌</span>편지가 도착했어요!
+          </h2>
+        </div>
+
+        <div class="flex gap-4">
+          <!-- Character Avatar -->
+          <div class="flex flex-col items-center flex-shrink-0">
+            <div
+              id="character-avatar"
+              class="w-24 h-24 rounded-full flex items-center justify-center text-5xl font-bold border-4 flex-shrink-0"
+            >
+              🧑‍🦰
+            </div>
+            <p
+              id="character-name"
+              class="mt-2 text-sm font-semibold text-gray-600"
+            >
+              오빠
+            </p>
+          </div>
+
+          <!-- Message -->
+          <div class="flex-1">
+            <div class="bg-gray-50 rounded-2xl p-4 rounded-tl-none">
+              <p
+                id="character-message"
+                class="text-gray-800 text-base leading-relaxed"
+              >
+                메시지
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes bounce-in {
+        0% {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .animate-bounce-in {
+        animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+    </style>
+
+    <script>
+      // Character Popup Data
+      const characterData = {
+        brother: {
+          name: "오빠",
+          emoji: "👨‍🔧",
+          color: "#A0D2EB",
+          messages: [
+            "엘리자베스님, 지금까지 공부하신 시간이 1시간이 되었어요. 그동안 23개의 문장을 학습하셨습니다.",
+            "좋은 진도입니다! 계속 이 속도로 나가면 정말 멋있을 거예요!",
+            "오늘도 열심히 공부하셨네요. 이 정도면 충분해요!",
+          ],
+        },
+        sister: {
+          name: "여동생",
+          emoji: "👩",
+          color: "#FFB7B2",
+          messages: [
+            "오늘 <진달래>의 점수가 95점을 기록하여 세계 2위에 올랐어요! 정말 멋지네요!",
+            "오빠, 정말 잘하고 있어요! 저도 응원할게요!",
+            "이 정도면 한국어 마스터가 거의 다 온 거 아니야?",
+          ],
+        },
+        tiger: {
+          name: "호랑이",
+          emoji: "🐯",
+          color: "#FF8A65",
+          messages: [
+            "30분 동안 학습한 단어가 5개밖에 안 돼요. 이렇게 느리게 가다간 저한테 잡혀갈 수 있어요!!",
+            "어흥! 조금 더 빨리 하지 않을래?",
+            "혼자만 쉬지 말고 열심히 해! 어흥! 🐯",
+          ],
+        },
+      };
+
+      // Open character popup
+      function openCharacterModal(character) {
+        const data = characterData[character];
+        const messages = data.messages;
+        const randomMessage =
+          messages[Math.floor(Math.random() * messages.length)];
+
+        document.getElementById("character-avatar").textContent = data.emoji;
+        document.getElementById("character-avatar").style.borderColor =
+          data.color;
+        document.getElementById("character-avatar").style.backgroundColor =
+          data.color + "20";
+        document.getElementById("character-name").textContent = data.name;
+        document.getElementById("character-message").textContent =
+          randomMessage;
+
+        document
+          .getElementById("character-modal-overlay")
+          .classList.remove("hidden");
+      }
+
+      // Close character popup
+      function closeCharacterModal(event) {
+        if (event && event.target.id !== "character-modal-overlay") return;
+        document
+          .getElementById("character-modal-overlay")
+          .classList.add("hidden");
+      }
+
+      // Test functions for console
+      window.showBrotherPopup = () => openCharacterModal("brother");
+      window.showSisterPopup = () => openCharacterModal("sister");
+      window.showTigerPopup = () => openCharacterModal("tiger");
+
+      // Mail notification system
+      let mailCount = 0;
+      const mailData = [];
+
+      function toggleMailNotification() {
+        const dropdown = document.getElementById("mail-dropdown");
+        dropdown.classList.toggle("hidden");
+      }
+
+      function addMailNotification(title, message, icon = "📌") {
+        mailCount++;
+        document.getElementById("mail-badge-float").style.display = "flex";
+        document.getElementById("mail-badge-float").textContent = mailCount;
+
+        const mailItem = {
+          id: Date.now(),
+          title: title,
+          message: message,
+          icon: icon,
+          timestamp: new Date().toLocaleString("ko-KR"),
+        };
+        mailData.unshift(mailItem);
+
+        renderMailList();
+      }
+
+      function renderMailList() {
+        const mailList = document.getElementById("mail-list");
+
+        if (mailData.length === 0) {
+          mailList.innerHTML =
+            '<div class="p-4 text-center text-gray-500 text-sm">새 메일이 없습니다.</div>';
+          return;
+        }
+
+        mailList.innerHTML = mailData
+          .map(
+            (mail) => `
+          <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition" onclick="openMail(${mail.id})">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl flex-shrink-0">${mail.icon}</span>
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-900 text-sm truncate">${mail.title}</p>
+                <p class="text-gray-600 text-xs mt-1 line-clamp-2">${mail.message}</p>
+                <p class="text-gray-400 text-xs mt-2">${mail.timestamp}</p>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      function openMail(mailId) {
+        const mail = mailData.find((m) => m.id === mailId);
+        if (mail) {
+          alert(`${mail.title}\n\n${mail.message}`);
+        }
+      }
+
+      function clearMailNotification(mailId) {
+        const index = mailData.findIndex((m) => m.id === mailId);
+        if (index > -1) {
+          mailData.splice(index, 1);
+          mailCount--;
+          if (mailCount <= 0) {
+            mailCount = 0;
+            document.getElementById("mail-badge-float").style.display = "none";
+          } else {
+            document.getElementById("mail-badge-float").textContent = mailCount;
+          }
+          renderMailList();
+        }
+      }
+
+      // Close mail dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        const dropdown = document.getElementById("mail-dropdown");
+        const mailToggle = document.getElementById("mail-toggle");
+        const chatToggle = document.getElementById("chatbot-toggle");
+        if (!dropdown.contains(e.target) && !mailToggle.contains(e.target)) {
+          dropdown.classList.add("hidden");
+        }
+      });
+
+      // Test function: Add sample mail
+      window.addTestMail = () => {
+        addMailNotification(
+          "학습 완료 축하!",
+          "30분 학습을 완료했습니다! 성공입니다! 🎉",
+          "🏆"
+        );
+      };
     </script>
 
     {% block extra_js %}{% endblock %}
