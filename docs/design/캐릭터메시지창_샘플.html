@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 교육 팝업 시스템</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+    <style>
+        /* 기본 스타일 설정 */
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* 버튼 스타일 */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-family: 'Jua', sans-serif;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-1 { background-color: #A0D2EB; color: #fff; } /* 파스텔 블루 */
+        .btn-2 { background-color: #FFB7B2; color: #fff; } /* 파스텔 핑크 */
+        .btn-3 { background-color: #FFDAC1; color: #555; } /* 파스텔 오렌지 */
+
+        /* 팝업 모달 배경 (Overlay) */
+        .modal-overlay {
+            display: none; /* 기본적으로 숨김 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        /* 팝업 창 본문 */
+        .modal-box {
+            background-color: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid #fff;
+        }
+
+        /* 팝업 애니메이션 */
+        @keyframes popUp {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 닫기 버튼 (X) */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s;
+        }
+        .close-btn:hover { color: #555; }
+
+        /* 팝업 제목 */
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px dashed #eee;
+            padding-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            color: #555;
+            margin: 0;
+        }
+        
+        /* 편지 아이콘 장식 */
+        .mail-icon {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        /* 팝업 내용 (좌측 이미지, 우측 텍스트) */
+        .modal-content {
+            display: flex;
+            align-items: flex-start; /* 상단 정렬 */
+            gap: 20px;
+        }
+
+        /* 캐릭터 이미지 영역 */
+        .character-area {
+            flex: 0 0 120px; /* 고정 너비 */
+            text-align: center;
+        }
+
+        .character-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%; /* 원형 이미지 */
+            object-fit: cover;
+            border: 5px solid; /* 색상은 JS에서 동적으로 변경 */
+            background-color: #fafafa;
+        }
+
+        .character-name {
+            margin-top: 8px;
+            font-size: 16px;
+            color: #777;
+        }
+
+        /* 말풍선/메시지 영역 */
+        .message-area {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 15px;
+            border-top-left-radius: 0; /* 말풍선 느낌 */
+            font-size: 19px;
+            line-height: 1.6;
+            color: #333;
+            position: relative;
+            margin-top: 10px; /* 캐릭터 눈높이 맞춤 */
+        }
+        
+        /* 강조 텍스트 스타일 */
+        .highlight {
+            color: #e65100;
+            background-color: #fff3e0;
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>한국어 학습 알림 시스템</h1>
+    <div class="btn-container">
+        <button class="btn-1" onclick="openModal(1)">1. 오빠 메시지</button>
+        <button class="btn-2" onclick="openModal(2)">2. 여동생 메시지</button>
+        <button class="btn-3" onclick="openModal(3)">3. 호랑이 메시지</button>
+    </div>
+
+    <div id="popupModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-box" id="modalBox">
+            <span class="close-btn" onclick="realClose()">&times;</span>
+            
+            <div class="modal-header">
+                <h2 class="modal-title"><span class="mail-icon">💌</span>편지가 도착했어요!</h2>
+            </div>
+
+            <div class="modal-content">
+                <div class="character-area">
+                    <img id="charImg" src="" alt="Character" class="character-img">
+                    <div id="charName" class="character-name"></div>
+                </div>
+
+                <div class="message-area" id="msgText">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터 설정 (실제 이미지 파일 경로로 변경 필요)
+        // 현재는 예시용 Placeholder 이미지를 사용합니다.
+        const messages = {
+            1: {
+                name: "오빠 (Brother)",
+                // 아래 src를 실제 '조선시대 오빠' 이미지 파일로 바꾸세요 (예: 'img/brother.png')
+                imgSrc: "https://placehold.co/150x150/A0D2EB/ffffff?text=Oppa", 
+                borderColor: "#A0D2EB",
+                text: "<b>엘리자베스님</b>,<br>지금까지 공부하신 시간이 <span class='highlight'>1시간</span>이 되었어요.<br>그동안 23개의 문장을 학습하셨습니다."
+            },
+            2: {
+                name: "여동생 (Sister)",
+                // 아래 src를 실제 '조선시대 여동생' 이미지 파일로 바꾸세요
+                imgSrc: "https://placehold.co/150x150/FFB7B2/ffffff?text=Sister",
+                borderColor: "#FFB7B2",
+                text: "<b>엘리자베스님</b>,<br>오늘 &lt;진달래&gt;의 점수가 <span class='highlight'>95점</span>을 기록하여 세계 2위에 올랐어요!<br>정말 멋지네요!"
+            },
+            3: {
+                name: "호랑이 (Tiger)",
+                // 아래 src를 실제 '조선시대 호랑이' 이미지 파일로 바꾸세요
+                imgSrc: "https://placehold.co/150x150/FFDAC1/555555?text=Tiger",
+                borderColor: "#FF8A65",
+                text: "<b>엘리자베스님</b>,<br>30분 동안 학습한 단어가 5개밖에 안 돼요.<br>이렇게 느리게 가다간 <span class='highlight' style='color:red; background:#ffebee;'>저한테 잡혀갈 수 있어요!!</span> 🐯"
+            }
+        };
+
+        // 모달 열기 함수
+        function openModal(type) {
+            const data = messages[type];
+            const modal = document.getElementById('popupModal');
+            
+            // 데이터 바인딩
+            document.getElementById('charImg').src = data.imgSrc;
+            document.getElementById('charImg').style.borderColor = data.borderColor;
+            document.getElementById('charName').innerText = data.name;
+            document.getElementById('msgText').innerHTML = data.text;
+            document.getElementById('modalBox').style.borderColor = data.borderColor; // 박스 테두리도 깔맞춤
+
+            // 모달 보이기
+            modal.style.display = 'flex';
+        }
+
+        // 모달 닫기 함수 (배경 클릭 시)
+        function closeModal(event) {
+            if (event.target === document.getElementById('popupModal')) {
+                realClose();
+            }
+        }
+
+        // 실제 닫기 로직
+        function realClose() {
+            document.getElementById('popupModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1183 @@
+{% extends "base.html" %} {% block title %}발음 규칙 학습 - 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+        ONUI · 발음 학습
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <span class="text-2xl">📖</span>
+        발음 규칙 학습
+      </h1>
+      <p class="text-sm text-gray-600">
+        한국어의 발음 규칙을 이해하고 올바른 발음을 배워보세요
+      </p>
+    </header>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div
+        class="inline-flex bg-blue-50 border border-blue-200 rounded-full p-1 gap-1"
+      >
+        <button
+          id="tab-btn-rules"
+          class="px-4 py-2 rounded-full text-sm font-semibold transition"
+          onclick="showTab('rules')"
+        >
+          규칙 이해
+        </button>
+        <button
+          id="tab-btn-practice"
+          class="px-4 py-2 rounded-full text-sm font-semibold transition"
+          onclick="showTab('practice')"
+        >
+          예제 연습
+        </button>
+      </div>
+    </div>
+
+    <!-- Rules Categories -->
+    <div id="tab-rules" class="space-y-4">
+      <!-- Rule 1: 자음 동화 -->
+      <div class="border-l-4 border-green-500 bg-green-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          1. 자음 동화 (Consonant Assimilation)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          두 개의 자음이 연결될 때, 한 자음이 다른 자음의 특성을 받아 같은
+          자음이나 유사한 자음으로 변하는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-green-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">신발 → 심발</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">닭 + 소 → 닭쏘</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-green-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>신발</strong> (ㄴ + ㅂ) → 심발 (비음 동화)</li>
+              <li><strong>닭소</strong> → 닭쏘 (경음화)</li>
+              <li><strong>읽다</strong> → 일따 (경음화)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 2: 비음화 -->
+      <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          2. 비음화 (Nasalization)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          종성 구강음(ㄱ, ㄷ, ㅂ)이 모음이나 비음(ㅁ, ㄴ) 앞에 올 때, 그
+          구강음이 비음으로 변하는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-blue-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">옥심 → 옹심</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">박물관 → 방물관</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-blue-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>옥심</strong> (ㄱ → ㅇ before ㅁ) → 옹심</li>
+              <li><strong>박물관</strong> (ㅂ → ㅁ before ㅁ) → 방물관</li>
+              <li><strong>독립</strong> (ㄱ → ㅇ before ㅇ) → 동닙</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 3: 경음화 -->
+      <div class="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          3. 경음화 (Tensification)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          어떤 자음이 뒤따르는 약자음(ㄱ, ㄷ, ㅂ, ㅅ, ㅈ)을 쌍자음(경음: ㄲ, ㄸ,
+          ㅃ, ㅆ, ㅉ)으로 바꾸는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">닭소 → 닭쏘</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">낙제 → 낙째</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-purple-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>닭소</strong> (ㄱ → 경음) → 닭쏘</li>
+              <li><strong>낙제</strong> (ㅈ → 경음) → 낙째</li>
+              <li><strong>읽고</strong> (ㄱ → 경음) → 일꼬</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 4: 경구개음화 -->
+      <div class="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          4. 경구개음화 (Palatalization)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          ㄷ, ㅌ, ㄴ이 ㅣ, ㅟ 같은 전설 모음 앞에 올 때, ㅈ, ㅊ, ㅣ로 발음되는
+          현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-indigo-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">같이 → 가치</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">미닫이 → 미다치</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-indigo-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>같이</strong> (ㄷ + ㅣ) → 가치</li>
+              <li><strong>미닫이</strong> (ㄷ + ㅣ) → 미다치</li>
+              <li><strong>굳이</strong> (ㄷ + ㅣ) → 구지</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 5: ㄹ의 동화 -->
+      <div class="border-l-4 border-pink-500 bg-pink-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          5. ㄹ의 동화 (Liquid Assimilation)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          종성 ㄹ 뒤에 자음이 올 때, ㄹ이 다음 자음의 영향을 받아 변하거나, 뒤의
+          ㄴ이 ㄹ의 영향을 받아 변하는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">칼날 → 칼랄</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">물도 → 물도</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-pink-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>칼날</strong> (ㄹ + ㄴ → ㄴ → ㄹ) → 칼랄</li>
+              <li><strong>할 때</strong> (ㄹ + ㄷ) → 할 때</li>
+              <li><strong>물도</strong> (ㄹ + ㄷ) → 물도</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rule 6: 격음화 -->
+      <div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded-lg">
+        <h2 class="text-lg font-bold text-gray-900 mb-2">
+          6. 격음화 (Aspiration)
+        </h2>
+        <p class="text-sm text-gray-600 mb-3">
+          종성 ㄲ, ㄳ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ 같은 쌍자음이나 복합자음이
+          뒤에서 경음이나 격음을 만드는 현상입니다.
+        </p>
+        <div class="space-y-2">
+          <div class="bg-white border border-yellow-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">👂 발음 비교</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-600">있고 → 있꼬</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-600">놓다 → 노타</div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border border-yellow-300 rounded p-3">
+            <div class="text-sm font-semibold mb-1">📝 주요 예시</div>
+            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong>있고</strong> (ㄲ + ㄱ → 경음) → 있꼬</li>
+              <li><strong>놓다</strong> (ㄺ + ㄷ → 격음) → 노타</li>
+              <li><strong>닭도</strong> (ㄱ + ㄷ → 격음) → 닥도</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Practice Section -->
+    <div id="tab-practice" class="mt-8 space-y-6 hidden">
+      <!-- Practice 1: 자음 동화 -->
+      <div
+        class="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-300"
+      >
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-lg font-bold text-gray-900">🥇 연습 1: 자음 동화</h3>
+          <span
+            class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full"
+            >10문제</span
+          >
+        </div>
+        <p class="text-sm text-gray-700 mb-4">
+          <strong>두 자음이 만나 '어… 나 닮을게' 하고 비슷해지는 현상.</strong>
+          아래 단어의 표기 → 실제 발음을 맞춰보세요!
+        </p>
+
+        <div class="space-y-3 mb-4">
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold text-gray-800">1. 신문</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div class="hidden p-2 bg-green-50 rounded text-sm text-gray-700">
+              <strong>심문</strong> (ㄴ + ㅂ → 비음 동화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-semibold text-gray-800">2. 국민</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div class="hidden p-2 bg-green-50 rounded text-sm text-gray-700">
+              <strong>궁민</strong> (ㄱ + ㅁ → 비음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">3. 꽃문</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>꼰문</strong> (ㅎ 탈락 후 비음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">4. 학부</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>항무</strong> (ㄱ + ㅂ → 비음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">5. 신발</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>심발</strong> (ㄴ + ㅂ → 비음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">6. 종로</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>종노</strong> (ㅇ + ㄴ → 음운 변화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">7. 닭다리</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>닥따리</strong> (경음화 + 동화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">8. 숙박</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>숙박</strong> (비음화 없음 - ㅂ 음절)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">9. 신랑</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>실랑</strong> (ㄹ 음운)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-green-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">10. 백로</span>
+              <button
+                class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-green-50 rounded text-sm text-gray-700"
+            >
+              <strong>뱅노</strong> (ㄱ + ㄴ → 비음화)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practice 2: 비음화 -->
+      <div
+        class="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border-2 border-blue-300"
+      >
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-lg font-bold text-gray-900">🥈 연습 2: 비음화</h3>
+          <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full"
+            >10문제</span
+          >
+        </div>
+        <p class="text-sm text-gray-700 mb-4">
+          <strong
+            >ㄱㄷㅂ이 '비음(ㅁ, ㄴ)' 앞에서 ㅇ, ㄴ, ㅁ으로 변신하는
+            마법.</strong
+          >
+        </p>
+
+        <div class="space-y-3 mb-4">
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">1. 국물</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>궁물</strong> (ㄱ → ㅇ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">2. 박물관</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>방물관</strong> (ㅂ → ㅁ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">3. 먹는</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>멍는</strong> (ㄱ → ㅇ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">4. 옥나무</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>옹나무</strong> (ㄱ → ㅇ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">5. 복면</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>봉면</strong> (ㅂ → ㅁ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">6. 앞문</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>암문</strong> (ㅂ → ㅁ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">7. 값만</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>감만</strong> (ㅄ → ㅁ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">8. 독립</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>동닙</strong> (ㄱ → ㅇ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">9. 신문사</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>신문사</strong> (변화 없음 - 따로 음절)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-blue-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">10. 밭나물</span>
+              <button
+                class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-blue-50 rounded text-sm text-gray-700"
+            >
+              <strong>밤나물</strong> (ㅄ → ㅁ)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practice 3: 경구개음화 -->
+      <div
+        class="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-300"
+      >
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-lg font-bold text-gray-900">🥉 연습 3: 경구개음화</h3>
+          <span
+            class="text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded-full"
+            >10문제</span
+          >
+        </div>
+        <p class="text-sm text-gray-700 mb-4">
+          <strong>ㄷ/ㅌ + ㅣ = ㅈ/ㅊ로 업그레이드되는 순간.</strong>
+        </p>
+
+        <div class="space-y-3 mb-4">
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">1. 같이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>가치</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">2. 미닫이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>미다치</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">3. 굳이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>구지</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">4. 해돋이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>해도지</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">5. 밭이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>바치</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">6. 핥이다</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>할치다</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">7. 곧이곧대로</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>고지곧대로</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">8. 옷이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>오시</strong> (ㅅ + ㅣ → ㅆ → ㅅ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">9. 겉이</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>거치</strong> (ㄷ + ㅣ → ㅈ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-indigo-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">10. 붙이다</span>
+              <button
+                class="text-xs bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-indigo-50 rounded text-sm text-gray-700"
+            >
+              <strong>부치다</strong> (ㅌ + ㅣ → ㅊ)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practice 4: 종합 -->
+      <div
+        class="p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border-2 border-orange-300"
+      >
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-lg font-bold text-gray-900">
+            🏅 연습 4: 종합 (혼합 기술전)
+          </h3>
+          <span
+            class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded-full"
+            >10문제</span
+          >
+        </div>
+        <p class="text-sm text-gray-700 mb-4">
+          <strong
+            >동화 + 비음화 + 경음화가 한꺼번에 춤추는 난이도 MAX 단계!
+            🔥</strong
+          >
+        </p>
+
+        <div class="space-y-3 mb-4">
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">1. 읽고</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>일꼬</strong> (ㄹ + ㄱ → 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">2. 삶과</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>삼꽈</strong> (ㄻ → ㅁ + 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">3. 젊다</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>점따</strong> (ㄻ → ㅁ + 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">4. 웃고</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>욱꼬</strong> (ㅅ + ㄱ → 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">5. 넋받다</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>넉빧따</strong> (ㄱ + ㅂ → 비음화 + 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">6. 값지다</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>갑찌다</strong> (ㅄ + ㅈ → 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">7. 몫만</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>몽만</strong> (ㄱ + ㅁ → 비음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">8. 닭다리</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>닥따리</strong> (ㄱ + ㄷ → 경음화)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">9. 옮기다</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>옴기다</strong> (ㄹ + ㅁ → ㅁ)
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded border border-orange-200">
+            <div class="flex justify-between items-center">
+              <span class="font-semibold text-gray-800">10. 밟다</span>
+              <button
+                class="text-xs bg-orange-500 text-white px-3 py-1 rounded hover:bg-orange-600 transition"
+                onclick="toggleAnswer(this)"
+              >
+                정답보기
+              </button>
+            </div>
+            <div
+              class="hidden mt-2 p-2 bg-orange-50 rounded text-sm text-gray-700"
+            >
+              <strong>밥따</strong> (ㄼ + ㄷ → ㅂ + 경음화)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bonus: 헷갈리기 쉬운 5개 -->
+      <div
+        class="p-6 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg border-2 border-yellow-300"
+      >
+        <div class="flex items-center gap-2 mb-4">
+          <h3 class="text-lg font-bold text-gray-900">
+            🔥 보너스: 틀리기 쉬운 핵심 5개
+          </h3>
+        </div>
+        <p class="text-sm text-gray-700 mb-4">
+          시험과 실제 발음에서 자주 헷갈려하는 케이스들!
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-yellow-200">
+                <th
+                  class="border border-yellow-300 p-2 text-left font-semibold"
+                >
+                  표기
+                </th>
+                <th
+                  class="border border-yellow-300 p-2 text-left font-semibold"
+                >
+                  실제 발음
+                </th>
+                <th
+                  class="border border-yellow-300 p-2 text-left font-semibold"
+                >
+                  적용 규칙
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="hover:bg-yellow-100">
+                <td class="border border-yellow-300 p-2 font-semibold">밟다</td>
+                <td class="border border-yellow-300 p-2">밥따</td>
+                <td class="border border-yellow-300 p-2">
+                  ㄼ + ㄷ → ㅂ + 경음화
+                </td>
+              </tr>
+              <tr class="hover:bg-yellow-100">
+                <td class="border border-yellow-300 p-2 font-semibold">넓게</td>
+                <td class="border border-yellow-300 p-2">널께</td>
+                <td class="border border-yellow-300 p-2">
+                  ㄼ + ㄱ → ㄹ + 경음화
+                </td>
+              </tr>
+              <tr class="hover:bg-yellow-100">
+                <td class="border border-yellow-300 p-2 font-semibold">닳지</td>
+                <td class="border border-yellow-300 p-2">달치</td>
+                <td class="border border-yellow-300 p-2">
+                  ㅎ 탈락 + 경구개음화
+                </td>
+              </tr>
+              <tr class="hover:bg-yellow-100">
+                <td class="border border-yellow-300 p-2 font-semibold">많지</td>
+                <td class="border border-yellow-300 p-2">만치</td>
+                <td class="border border-yellow-300 p-2">
+                  ㅎ 탈락 + 경구개음화
+                </td>
+              </tr>
+              <tr class="hover:bg-yellow-100">
+                <td class="border border-yellow-300 p-2 font-semibold">같이</td>
+                <td class="border border-yellow-300 p-2">가치</td>
+                <td class="border border-yellow-300 p-2">
+                  경구개음화 (ㄷ + ㅣ → ㅈ)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showTab(tab) {
+        const rules = document.getElementById("tab-rules");
+        const practice = document.getElementById("tab-practice");
+        const btnRules = document.getElementById("tab-btn-rules");
+        const btnPractice = document.getElementById("tab-btn-practice");
+
+        const isRules = tab === "rules";
+        rules.classList.toggle("hidden", !isRules);
+        practice.classList.toggle("hidden", isRules);
+
+        btnRules.classList.toggle("bg-blue-600", isRules);
+        btnRules.classList.toggle("text-white", isRules);
+        btnRules.classList.toggle("bg-blue-100", !isRules);
+        btnRules.classList.toggle("text-blue-700", !isRules);
+
+        btnPractice.classList.toggle("bg-blue-600", !isRules);
+        btnPractice.classList.toggle("text-white", !isRules);
+        btnPractice.classList.toggle("bg-blue-100", isRules);
+        btnPractice.classList.toggle("text-blue-700", isRules);
+      }
+
+      function toggleAnswer(button) {
+        const parentDiv = button.closest(".bg-white");
+        const answerDiv = parentDiv.querySelector("div:last-child");
+
+        if (answerDiv) {
+          answerDiv.classList.toggle("hidden");
+
+          const isHidden = answerDiv.classList.contains("hidden");
+          button.textContent = isHidden ? "정답보기" : "정답숨기기";
+
+          if (isHidden) {
+            button.classList.remove("bg-red-500");
+            button.classList.add("bg-green-500");
+          } else {
+            button.classList.remove("bg-green-500");
+            button.classList.add("bg-red-500");
+          }
+        }
+      }
+
+      function checkAnswer(inputEl, expected, feedbackEl) {
+        const norm = (s) => s.replace(/\s+/g, "").toLowerCase();
+        const user = norm(inputEl.value.trim());
+        const target = norm(expected || "");
+        const isCorrect = user.length > 0 && user === target;
+
+        feedbackEl.textContent = isCorrect
+          ? "정답!"
+          : `다시 시도해보세요. 정답: ${expected}`;
+        feedbackEl.classList.remove("hidden");
+        feedbackEl.classList.toggle("text-green-600", isCorrect);
+        feedbackEl.classList.toggle("text-red-600", !isCorrect);
+
+        inputEl.classList.remove("border-green-400", "border-red-400");
+        inputEl.classList.add(
+          isCorrect ? "border-green-400" : "border-red-400"
+        );
+      }
+
+      function addPracticeInputs() {
+        const cards = document.querySelectorAll("#tab-practice .bg-white");
+        cards.forEach((card) => {
+          // 이미 추가된 경우 스킵
+          if (card.querySelector(".practice-input-row")) return;
+
+          const answerDiv = card.querySelector("div:last-child");
+          if (!answerDiv) return;
+
+          const expected = (
+            answerDiv.querySelector("strong")?.textContent || ""
+          ).trim();
+          const row = document.createElement("div");
+          row.className = "mt-2 flex items-center gap-2 practice-input-row";
+
+          const input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "정답 입력";
+          input.className =
+            "flex-1 border border-gray-300 rounded px-3 py-2 text-sm";
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "확인";
+          btn.className =
+            "text-xs bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition";
+
+          const feedback = document.createElement("span");
+          feedback.className = "text-sm hidden";
+
+          row.append(input, btn, feedback);
+          answerDiv.before(row);
+
+          btn.addEventListener("click", () =>
+            checkAnswer(input, expected, feedback)
+          );
+          input.addEventListener("keyup", (e) => {
+            if (e.key === "Enter") btn.click();
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        showTab("rules");
+        addPracticeInputs();
+      });
+    </script>
+  </div>
+</div>
+{% endblock %}

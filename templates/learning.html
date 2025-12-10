@@ -64,21 +64,28 @@ endblock %} {% block content %}
     <section
       class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
     >
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">📚</span>
-        1. 맞춤형 교재 생성
-      </h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">📚</span>
+          1. 맞춤형 교재 생성
+        </h2>
+        <a
+          href="/content-generation"
+          class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+        >
+          전체 보기 →
+        </a>
+      </div>
 
       <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-3"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-3"
       >
         <input
           id="topic"
           type="text"
-          placeholder="관심 주제 (예: K-pop, 여행)"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-3"
+          placeholder="관심 주제 (예: 김치)"
+          value="김치"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-2"
           onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
         />
         <select
@@ -86,20 +93,24 @@ endblock %} {% block content %}
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
         >
           <option value="초급">초급</option>
-          <option value="중급">중급</option>
+          <option value="중급" selected>중급</option>
           <option value="고급">고급</option>
         </select>
         <select
           id="modelSelect"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
         >
-          <option value="">(모델 선택)</option>
+          <option value="exaone3.5:2.4b" data-backend="ollama" selected>
+            EXAONE 3.5
+          </option>
+          <option value="gemini-2.5-flash" data-backend="gemini">
+            Gemini Flash
+          </option>
         </select>
         <button
           id="generateBtn"
-          onclick="generateContent()"
-          disabled
-          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg transition-all shadow-md text-sm font-medium lg:col-span-1 opacity-50 cursor-not-allowed"
+          onclick="toggleGeneration()"
+          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg transition-all shadow-md text-sm font-medium lg:col-span-1"
         >
           🪄 생성하기
         </button>
@@ -137,60 +148,97 @@ endblock %} {% block content %}
       </div>
     </section>
 
-    <!-- 2. Pronunciation Check Section -->
+    <!-- 2. Essay Test Section -->
     <section
-      class="mb-6 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-200"
+      class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200"
     >
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">🎤</span>
-        2. 발음 교정
-      </h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">✍️</span>
+          2. 한국어 작문 테스트
+        </h2>
+        <a
+          href="/essay-test"
+          class="text-sm px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition"
+        >
+          전체 보기 →
+        </a>
+      </div>
 
       <div class="bg-white p-4 rounded-lg shadow-sm">
-        <div class="flex items-center justify-between">
-          <div>
-            <div id="targetText" class="text-xl font-bold text-gray-900">연습할 문장을 생성하거나 선택하세요</div>
-            <div id="targetRoman" class="text-sm text-gray-500 mt-1"></div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="listenBtn" class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">🔊 다시 듣기</button>
-          </div>
-        </div>
+        <textarea
+          id="fluencyInput"
+          placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
+          class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
+        ></textarea>
 
-        <div class="mt-4 flex items-center gap-2">
-          <button id="recordBtn" class="px-4 py-2 bg-pink-500 text-white rounded-lg">🎤 녹음 시작</button>
-          <button id="stopBtn" disabled class="px-4 py-2 bg-gray-300 text-white rounded-lg opacity-50 cursor-not-allowed">⏹ 정지 및 분석</button>
-        </div>
+        <button
+          onclick="checkFluency()"
+          class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
+        >
+          제출 및 채점
+        </button>
 
-        <div id="pronResult" class="mt-3"></div>
+        <div
+          id="fluencyResult"
+          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
+        ></div>
       </div>
     </section>
-      <h2
-        class="text-lg font-semibold mb-3 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">✍️</span>
-        3. 한국어 작문 테스트
-      </h2>
 
-      <textarea
-        id="fluencyInput"
-        placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
-        class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
-      ></textarea>
+    <!-- 3. Situational Content Section -->
+    <section
+      class="mb-6 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <span class="text-2xl">🎭</span>
+          3. 상황별 컨텐츠 생성
+        </h2>
+        <a
+          href="/media-generation"
+          class="text-sm px-3 py-1 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition"
+        >
+          전체 보기 →
+        </a>
+      </div>
 
-      <button
-        onclick="checkFluency()"
-        class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
-      >
-        제출 및 채점
-      </button>
+      <div class="bg-white p-4 rounded-lg shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+          <select
+            id="situation"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+          >
+            <option value="">상황을 선택해주세요</option>
+            <option value="카페">☕ 카페에서 주문하기</option>
+            <option value="식당">🍽️ 식당에서 예약하기</option>
+            <option value="병원">🏥 병원 진료 받기</option>
+            <option value="은행">🏦 은행 업무보기</option>
+            <option value="여행">✈️ 여행 계획하기</option>
+            <option value="면접">💼 면접 준비하기</option>
+          </select>
+          <select
+            id="situationLevel"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+          >
+            <option value="초급">초급</option>
+            <option value="중급" selected>중급</option>
+            <option value="고급">고급</option>
+          </select>
+        </div>
 
-      <div
-        id="fluencyResult"
-        class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
-      ></div>
+        <button
+          onclick="generateSituationalContent()"
+          class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium"
+        >
+          컨텐츠 생성
+        </button>
+
+        <div
+          id="situationalResult"
+          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
+        ></div>
+      </div>
     </section>
 
     <!-- Tips Section -->
@@ -202,12 +250,16 @@ endblock %} {% block content %}
           대화문과 단어장을 생성합니다
         </p>
         <p>
-          • <strong>발음 교정</strong>: 마이크 권한을 허용한 후 문장을 읽고
-          녹음하여 정확도를 확인하세요
-        </p>
-        <p>
           • <strong>작문 테스트</strong>: 자유롭게 한국어로 작성하면 AI가 문법과
           자연스러움을 평가합니다
+        </p>
+        <p>
+          • <strong>상황별 컨텐츠</strong>: 일상에서 마주칠 수 있는 다양한
+          상황에서의 표현과 대화를 학습할 수 있습니다
+        </p>
+        <p>
+          • <strong>발음 평가</strong>: SpeechPro(발음 정확도)와
+          FluencyPro(유창성)에서 음성 평가를 진행하세요
         </p>
         <p>
           • <strong>모델 선택</strong>: 다양한 Ollama 모델을 선택하여 최적의
@@ -215,6 +267,86 @@ endblock %} {% block content %}
         </p>
       </div>
     </section>
+  </div>
+</div>
+
+<!-- SpeechPro 결과 모달 -->
+<div
+  id="speechpro-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+>
+  <div
+    class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+  >
+    <button
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
+      onclick="closeSpeechProModal()"
+      aria-label="닫기"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">📊 발음 평가 결과</h2>
+
+    <!-- 점수 카드 -->
+    <div class="bg-white rounded-2xl shadow p-6 mb-6">
+      <!-- 전체 점수 -->
+      <div class="mb-6">
+        <div class="text-center">
+          <div class="text-6xl font-bold text-blue-600 mb-2">
+            <span id="sp-overall-score">0</span>/100
+          </div>
+          <p
+            id="sp-score-feedback"
+            class="text-lg text-gray-600 font-semibold"
+          ></p>
+        </div>
+
+        <!-- 점수 게이지 -->
+        <div class="mt-6">
+          <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div
+              id="sp-score-bar"
+              class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full transition-all duration-500"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상세 정보 -->
+      <div class="border-t pt-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">상세 분석</h3>
+        <div id="sp-details-content" class="space-y-3 text-gray-700">
+          <!-- 동적으로 생성됨 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 피드백 섹션 -->
+    <div
+      id="sp-ai-feedback-section"
+      class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden"
+    >
+      <h3 class="text-lg font-semibold text-blue-900 mb-3">
+        🤖 AI 개선 피드백
+      </h3>
+      <div
+        id="sp-ai-feedback-content"
+        class="text-blue-800 whitespace-pre-wrap"
+      >
+        <!-- 동적으로 생성됨 -->
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <button
+        onclick="closeSpeechProModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+      >
+        닫기
+      </button>
+    </div>
   </div>
 </div>
 
@@ -245,11 +377,87 @@ endblock %} {% block content %}
       .replace(/\n/g, " ")
       .replace(/\r/g, " ");
   }
+
+  // Generation control
+  let abortController = null;
+  let isGenerating = false;
+
+  // Toggle generation/stop
+  function toggleGeneration() {
+    if (isGenerating) {
+      stopGeneration();
+    } else {
+      generateContent();
+    }
+  }
+
+  // Stop generation
+  function stopGeneration() {
+    if (abortController) {
+      abortController.abort();
+      abortController = null;
+    }
+    isGenerating = false;
+    updateGenerateButton();
+
+    const resultDiv = document.getElementById("contentResult");
+    resultDiv.innerHTML =
+      '<div class="text-sm text-gray-600">생성이 중단되었습니다.</div>';
+  }
+
+  // Update button state
+  function updateGenerateButtonState(generating) {
+    const btn = document.getElementById("generateBtn");
+    if (!btn) return;
+
+    isGenerating = generating;
+
+    if (generating) {
+      btn.innerHTML = "⏹️ 중지";
+      btn.classList.remove(
+        "from-blue-500",
+        "to-indigo-600",
+        "hover:from-blue-600",
+        "hover:to-indigo-700"
+      );
+      btn.classList.add(
+        "from-red-500",
+        "to-red-600",
+        "hover:from-red-600",
+        "hover:to-red-700"
+      );
+    } else {
+      btn.innerHTML = "🪄 생성하기";
+      btn.classList.remove(
+        "from-red-500",
+        "to-red-600",
+        "hover:from-red-600",
+        "hover:to-red-700"
+      );
+      btn.classList.add(
+        "from-blue-500",
+        "to-indigo-600",
+        "hover:from-blue-600",
+        "hover:to-indigo-700"
+      );
+    }
+  }
+
   // 1. Content generation
   async function generateContent() {
+    console.log("generateContent() called");
     const topic = document.getElementById("topic").value;
     const level = document.getElementById("level").value;
     const resultDiv = document.getElementById("contentResult");
+
+    console.log("Topic:", topic, "Level:", level);
+
+    // Create new abort controller
+    abortController = new AbortController();
+    updateGenerateButtonState(true);
+
+    // Record start time
+    const startTime = performance.now();
 
     resultDiv.innerHTML =
       '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div><span class="text-sm text-gray-600">AI가 교재를 만들고 있습니다...</span></div>';
@@ -258,170 +466,197 @@ endblock %} {% block content %}
     const formData = new FormData();
     formData.append("topic", topic);
     formData.append("level", level);
+
+    // Get selected model and its backend
     const modelSelect = document.getElementById("modelSelect");
-    if (modelSelect && modelSelect.value)
-      formData.append("model", modelSelect.value);
+    const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+    const backend = selectedOption.getAttribute("data-backend");
+    const model = selectedOption.value;
 
-    const res = await fetch("/api/generate-content", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
+    console.log("Backend:", backend, "Model:", model);
 
-    // Robust JSON extraction: handle cases where the server returns JSON
-    // as an object, under `parsed`, or as raw text (possibly fenced).
-    let jsonObj = null;
+    if (backend) formData.append("backend", backend);
+    if (model) formData.append("model", model);
 
-    function tryParseJSONFromString(s) {
-      if (!s || typeof s !== "string") return null;
-      // Helper to attempt JSON.parse with some pre-cleaning
-      function tryParseCandidate(candidate) {
-        try {
-          return JSON.parse(candidate);
-        } catch (e) {
-          return null;
-        }
+    try {
+      const res = await fetch("/api/generate-content", {
+        method: "POST",
+        body: formData,
+        signal: abortController.signal,
+      });
+
+      console.log("Response status:", res.status, res.ok);
+
+      if (!res.ok) {
+        throw new Error("Generation failed");
       }
 
-      // 1) direct parse
-      try {
-        const parsed = tryParseCandidate(s);
-        if (parsed) return normalizeParsed(parsed);
-      } catch (e) {}
+      const data = await res.json();
+      console.log("Data received:", data);
 
-      // 2) fenced JSON (```json ... ```)
-      try {
-        const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-        if (m && m[1]) {
+      // Calculate elapsed time
+      const endTime = performance.now();
+      const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(1);
+
+      // Robust JSON extraction: handle cases where the server returns JSON
+      // as an object, under `parsed`, or as raw text (possibly fenced).
+      let jsonObj = null;
+
+      function tryParseJSONFromString(s) {
+        if (!s || typeof s !== "string") return null;
+        // Helper to attempt JSON.parse with some pre-cleaning
+        function tryParseCandidate(candidate) {
           try {
-            const parsed = tryParseCandidate(m[1].trim());
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      // 3) find first {...} that contains both keys
-      try {
-        const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
-        if (m2) {
-          try {
-            // try to repair single quotes and trailing commas
-            let cand = m2[0];
-            // naive single-quote -> double-quote replacement for keys/strings
-            const repaired = cand
-              .replace(/'([^']*)'/g, '"$1"')
-              .replace(/,\s*}/g, "}")
-              .replace(/,\s*\]/g, "]");
-            const parsed =
-              tryParseCandidate(repaired) || tryParseCandidate(cand);
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      // 4) as a last resort, try extracting from first/last brace
-      try {
-        const first = s.indexOf("{");
-        const last = s.lastIndexOf("}");
-        if (first >= 0 && last > first) {
-          const cand = s.slice(first, last + 1);
-          try {
-            const repaired = cand
-              .replace(/'([^']*)'/g, '"$1"')
-              .replace(/,\s*}/g, "}")
-              .replace(/,\s*\]/g, "]");
-            const parsed =
-              tryParseCandidate(repaired) || tryParseCandidate(cand);
-            if (parsed) return normalizeParsed(parsed);
-          } catch (e) {}
-        }
-      } catch (e) {}
-
-      return null;
-    }
-
-    // Normalize parsed object: map alternative keys (Korean/English variants)
-    function normalizeParsed(obj) {
-      if (!obj) return null;
-      // If obj is an array, treat it as dialogue
-      if (Array.isArray(obj)) return { dialogue: obj, vocabulary: [] };
-
-      const result = { dialogue: null, vocabulary: null };
-
-      // dialogue keys candidates
-      const dlgKeys = [
-        "dialogue",
-        "대화",
-        "대화문",
-        "dialogs",
-        "conversation",
-        "utterances",
-      ];
-      for (const k of dlgKeys) {
-        if (Object.prototype.hasOwnProperty.call(obj, k)) {
-          result.dialogue = obj[k];
-          break;
-        }
-      }
-
-      // vocabulary keys candidates
-      const vocabKeys = ["vocabulary", "단어", "단어장", "words"];
-      for (const k of vocabKeys) {
-        if (Object.prototype.hasOwnProperty.call(obj, k)) {
-          result.vocabulary = obj[k];
-          break;
-        }
-      }
-
-      // If dialogue not found but object has numeric-indexed items, try to collect them
-      if (!result.dialogue) {
-        const maybeArr = Object.keys(obj)
-          .filter((k) => /^\d+$/.test(k))
-          .sort((a, b) => Number(a) - Number(b))
-          .map((k) => obj[k]);
-        if (maybeArr.length) result.dialogue = maybeArr;
-      }
-
-      // If still no dialogue but obj has top-level text that contains a JSON string, try recursively
-      if (!result.dialogue && typeof obj === "object") {
-        for (const v of Object.values(obj)) {
-          if (typeof v === "string") {
-            const nested = tryParseJSONFromString(v);
-            if (nested && nested.dialogue) return normalizeParsed(nested);
+            return JSON.parse(candidate);
+          } catch (e) {
+            return null;
           }
         }
+
+        // 1) direct parse
+        try {
+          const parsed = tryParseCandidate(s);
+          if (parsed) return normalizeParsed(parsed);
+        } catch (e) {}
+
+        // 2) fenced JSON (```json ... ```)
+        try {
+          const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+          if (m && m[1]) {
+            try {
+              const parsed = tryParseCandidate(m[1].trim());
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        // 3) find first {...} that contains both keys
+        try {
+          const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
+          if (m2) {
+            try {
+              // try to repair single quotes and trailing commas
+              let cand = m2[0];
+              // naive single-quote -> double-quote replacement for keys/strings
+              const repaired = cand
+                .replace(/'([^']*)'/g, '"$1"')
+                .replace(/,\s*}/g, "}")
+                .replace(/,\s*\]/g, "]");
+              const parsed =
+                tryParseCandidate(repaired) || tryParseCandidate(cand);
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        // 4) as a last resort, try extracting from first/last brace
+        try {
+          const first = s.indexOf("{");
+          const last = s.lastIndexOf("}");
+          if (first >= 0 && last > first) {
+            const cand = s.slice(first, last + 1);
+            try {
+              const repaired = cand
+                .replace(/'([^']*)'/g, '"$1"')
+                .replace(/,\s*}/g, "}")
+                .replace(/,\s*\]/g, "]");
+              const parsed =
+                tryParseCandidate(repaired) || tryParseCandidate(cand);
+              if (parsed) return normalizeParsed(parsed);
+            } catch (e) {}
+          }
+        } catch (e) {}
+
+        return null;
       }
 
-      // Ensure defaults
-      if (!result.dialogue) return null;
-      if (!result.vocabulary) result.vocabulary = [];
+      // Normalize parsed object: map alternative keys (Korean/English variants)
+      function normalizeParsed(obj) {
+        if (!obj) return null;
+        // If obj is an array, treat it as dialogue
+        if (Array.isArray(obj)) return { dialogue: obj, vocabulary: [] };
 
-      return result;
-    }
+        const result = { dialogue: null, vocabulary: null };
 
-    if (data && typeof data === "object") {
-      if (data.dialogue && data.vocabulary) jsonObj = data;
-      else if (data.parsed && data.parsed.dialogue) jsonObj = data.parsed;
-      else if (data.text && typeof data.text === "string")
-        jsonObj = tryParseJSONFromString(data.text);
-    } else if (typeof data === "string") {
-      jsonObj = tryParseJSONFromString(data);
-    }
+        // dialogue keys candidates
+        const dlgKeys = [
+          "dialogue",
+          "대화",
+          "대화문",
+          "dialogs",
+          "conversation",
+          "utterances",
+        ];
+        for (const k of dlgKeys) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) {
+            result.dialogue = obj[k];
+            break;
+          }
+        }
 
-    if (!jsonObj) {
-      const rawText =
-        (data && data.text) ||
-        (typeof data === "string" ? data : JSON.stringify(data, null, 2));
-      resultDiv.innerHTML =
-        '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
-        rawText +
-        "</pre>";
-      return;
-    }
+        // vocabulary keys candidates
+        const vocabKeys = ["vocabulary", "단어", "단어장", "words"];
+        for (const k of vocabKeys) {
+          if (Object.prototype.hasOwnProperty.call(obj, k)) {
+            result.vocabulary = obj[k];
+            break;
+          }
+        }
 
-    // Beautiful rendering of dialogue and vocabulary
-    let html = `
+        // If dialogue not found but object has numeric-indexed items, try to collect them
+        if (!result.dialogue) {
+          const maybeArr = Object.keys(obj)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => obj[k]);
+          if (maybeArr.length) result.dialogue = maybeArr;
+        }
+
+        // If still no dialogue but obj has top-level text that contains a JSON string, try recursively
+        if (!result.dialogue && typeof obj === "object") {
+          for (const v of Object.values(obj)) {
+            if (typeof v === "string") {
+              const nested = tryParseJSONFromString(v);
+              if (nested && nested.dialogue) return normalizeParsed(nested);
+            }
+          }
+        }
+
+        // Ensure defaults
+        if (!result.dialogue) return null;
+        if (!result.vocabulary) result.vocabulary = [];
+
+        return result;
+      }
+
+      if (data && typeof data === "object") {
+        if (data.dialogue && data.vocabulary) jsonObj = data;
+        else if (data.parsed && data.parsed.dialogue) jsonObj = data.parsed;
+        else if (data.text && typeof data.text === "string")
+          jsonObj = tryParseJSONFromString(data.text);
+      } else if (typeof data === "string") {
+        jsonObj = tryParseJSONFromString(data);
+      }
+
+      if (!jsonObj) {
+        const rawText =
+          (data && data.text) ||
+          (typeof data === "string" ? data : JSON.stringify(data, null, 2));
+        resultDiv.innerHTML =
+          '<pre class="whitespace-pre-wrap text-xs p-3 bg-yellow-50 border border-yellow-200 rounded-lg">' +
+          rawText +
+          "</pre>";
+        return;
+      }
+
+      // Beautiful rendering of dialogue and vocabulary
+      let html = `
       <div class="space-y-4">
+        <!-- Generated Time -->
+        <div class="text-xs text-gray-500 text-right pb-2 border-b border-gray-200">
+          ${elapsedSeconds}초 만에 생성됨
+        </div>
+
         <!-- Dialogue Section -->
         <div>
           <div class="flex items-center gap-2 mb-3">
@@ -431,31 +666,31 @@ endblock %} {% block content %}
           <div class="space-y-2">
     `;
 
-    // Render dialogue with alternating colors and per-item pronunciation play
-    jsonObj.dialogue.forEach((d, index) => {
-      const bgColor =
-        index % 2 === 0
-          ? "bg-blue-50 border-blue-200"
-          : "bg-purple-50 border-purple-200";
-      const speakerColor =
-        index % 2 === 0 ? "text-blue-700" : "text-purple-700";
-      const avatarEmoji =
-        d.speaker === "A" || d.speaker === "학생" || d.speaker === "Student"
-          ? "👨‍🎓"
-          : "👩‍🏫";
+      // Render dialogue with alternating colors and per-item pronunciation play
+      jsonObj.dialogue.forEach((d, index) => {
+        const bgColor =
+          index % 2 === 0
+            ? "bg-blue-50 border-blue-200"
+            : "bg-purple-50 border-purple-200";
+        const speakerColor =
+          index % 2 === 0 ? "text-blue-700" : "text-purple-700";
+        const avatarEmoji =
+          d.speaker === "A" || d.speaker === "학생" || d.speaker === "Student"
+            ? "👨‍🎓"
+            : "👩‍🏫";
 
-      const pron = d.pronunciation || "";
+        const pron = d.pronunciation || "";
 
-      html += `
+        html += `
         <div class="p-3 ${bgColor} border rounded-lg transition-all hover:shadow-md dialogue-item" data-text='${jsEsc(
-        d.text
-      )}' data-pron='${jsEsc(pron)}'>
+          d.text
+        )}' data-pron='${jsEsc(pron)}'>
           <div class="flex items-start gap-3">
             <span class="text-2xl">${avatarEmoji}</span>
             <div class="flex-1">
               <p class="font-semibold ${speakerColor} text-sm mb-1">${
-        d.speaker
-      }</p>
+          d.speaker
+        }</p>
               <p class="text-gray-900 font-medium dialogue-text">${d.text}</p>
               ${
                 pron
@@ -468,9 +703,9 @@ endblock %} {% block content %}
           </div>
         </div>
       `;
-    });
+      });
 
-    html += `
+      html += `
           </div>
         </div>
 
@@ -483,26 +718,26 @@ endblock %} {% block content %}
           <div class="flex flex-wrap gap-2">
     `;
 
-    // Render vocabulary with colorful tags
-    const vocabColors = [
-      "bg-pink-100 text-pink-700 border-pink-200",
-      "bg-indigo-100 text-indigo-700 border-indigo-200",
-      "bg-green-100 text-green-700 border-green-200",
-      "bg-orange-100 text-orange-700 border-orange-200",
-      "bg-purple-100 text-purple-700 border-purple-200",
-      "bg-blue-100 text-blue-700 border-blue-200",
-    ];
+      // Render vocabulary with colorful tags
+      const vocabColors = [
+        "bg-pink-100 text-pink-700 border-pink-200",
+        "bg-indigo-100 text-indigo-700 border-indigo-200",
+        "bg-green-100 text-green-700 border-green-200",
+        "bg-orange-100 text-orange-700 border-orange-200",
+        "bg-purple-100 text-purple-700 border-purple-200",
+        "bg-blue-100 text-blue-700 border-blue-200",
+      ];
 
-    jsonObj.vocabulary.forEach((word, index) => {
-      const colorClass = vocabColors[index % vocabColors.length];
-      html += `
+      jsonObj.vocabulary.forEach((word, index) => {
+        const colorClass = vocabColors[index % vocabColors.length];
+        html += `
         <span class="px-4 py-2 ${colorClass} border rounded-full text-sm font-semibold transition-all hover:scale-110 hover:shadow-md cursor-default">
           ${word}
         </span>
       `;
-    });
+      });
 
-    html += `
+      html += `
           </div>
         </div>
 
@@ -526,31 +761,47 @@ endblock %} {% block content %}
       </div>
     `;
 
-    // Normalize dialogue items: allow simple string items, ensure objects have keys
-    if (Array.isArray(jsonObj.dialogue)) {
-      jsonObj.dialogue = jsonObj.dialogue.map((item, idx) => {
-        if (typeof item === "string") {
-          return {
-            speaker: idx % 2 === 0 ? "A" : "B",
-            text: item,
-            pronunciation: "",
-          };
-        }
-        // if item is object but missing keys, fill defaults
-        const speaker = item.speaker || (idx % 2 === 0 ? "A" : "B");
-        const text = item.text || item.line || "";
-        const pronunciation = item.pronunciation || item.pron || "";
-        return { speaker, text, pronunciation };
-      });
-    }
+      // Normalize dialogue items: allow simple string items, ensure objects have keys
+      if (Array.isArray(jsonObj.dialogue)) {
+        jsonObj.dialogue = jsonObj.dialogue.map((item, idx) => {
+          if (typeof item === "string") {
+            return {
+              speaker: idx % 2 === 0 ? "A" : "B",
+              text: item,
+              pronunciation: "",
+            };
+          }
+          // if item is object but missing keys, fill defaults
+          const speaker = item.speaker || (idx % 2 === 0 ? "A" : "B");
+          const text = item.text || item.line || "";
+          const pronunciation = item.pronunciation || item.pron || "";
+          return { speaker, text, pronunciation };
+        });
+      }
 
-    // Set targetText to the pronunciation if available, otherwise the plain text
-    if (jsonObj.dialogue && jsonObj.dialogue[0]) {
-      const first = jsonObj.dialogue[0];
-      document.getElementById("targetText").innerText =
-        first.pronunciation || first.text || "";
+      // Set targetText to the pronunciation if available, otherwise the plain text
+      if (jsonObj.dialogue && jsonObj.dialogue[0]) {
+        const first = jsonObj.dialogue[0];
+        document.getElementById("targetText").innerText =
+          first.pronunciation || first.text || "";
+      }
+      resultDiv.innerHTML = html;
+
+      // Restore button state after successful generation
+      updateGenerateButtonState(false);
+    } catch (error) {
+      if (error.name === "AbortError") {
+        // Request was aborted, already handled in stopGeneration
+        return;
+      }
+
+      // Handle other errors
+      updateGenerateButtonState(false);
+      resultDiv.innerHTML =
+        '<div class="text-sm text-red-600">오류가 발생했습니다: ' +
+        error.message +
+        "</div>";
     }
-    resultDiv.innerHTML = html;
   }
 
   // Speak a given string using Web Speech API
@@ -605,49 +856,34 @@ endblock %} {% block content %}
     }
   }
 
-  // Load Ollama models
-  async function loadModels() {
-    const sel = document.getElementById("modelSelect");
-    if (!sel) return;
-    try {
-      const res = await fetch("/api/ollama/models");
-      const data = await res.json();
-      sel.innerHTML = '<option value="">(모델 선택)</option>';
-      (data.models || []).forEach((m) => {
-        let id = m.id || m;
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.innerText = id;
-        sel.appendChild(opt);
-      });
-      // Set default model to exaone3.5:2.4b
-      if (sel.querySelector('option[value="exaone3.5:2.4b"]')) {
-        sel.value = "exaone3.5:2.4b";
-      }
-    } catch (e) {
-      console.warn("Failed to load models", e);
-    }
-  }
-
   // Test model
   async function testModel() {
+    console.log("testModel() called");
     const prompt = document.getElementById("testPrompt").value || "안녕하세요";
     const sel = document.getElementById("modelSelect");
-    const model = sel && sel.value ? sel.value : "";
+    const selectedOption = sel.options[sel.selectedIndex];
+    const backend = selectedOption.getAttribute("data-backend");
+    const model = selectedOption.value;
+
+    console.log("Prompt:", prompt, "Backend:", backend, "Model:", model);
+
     const outDiv = document.getElementById("modelTestResult");
     outDiv.classList.remove("hidden");
     outDiv.innerText = "모델 호출 중...";
 
     const form = new FormData();
     form.append("prompt", prompt);
+    if (backend) form.append("backend", backend);
     if (model) form.append("model", model);
 
     try {
-      const res = await fetch("/api/ollama/test", {
+      const res = await fetch("/api/chat/test", {
         method: "POST",
         body: form,
       });
+      console.log("Response status:", res.status);
       const data = await res.json();
+      console.log("Data received:", data);
       // Render response as Markdown (sanitized). If `marked` + `DOMPurify` are
       // available, use them; otherwise fall back to plain text.
       function renderMarkdownTo(el, md) {
@@ -697,11 +933,22 @@ endblock %} {% block content %}
     }
   }
 
-  // On DOMContentLoaded, load models and setup generate button behavior
+  // On DOMContentLoaded, setup generate button behavior
   window.addEventListener("DOMContentLoaded", () => {
-    loadModels();
     setupGenerateButton();
     populateVoiceList();
+    initializeRecordingButtons();
+
+    // Force update after a short delay to ensure DOM is fully ready
+    setTimeout(() => {
+      const btn = document.getElementById("generateBtn");
+      const topic = document.getElementById("topic");
+      if (btn && topic && topic.value) {
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "cursor-not-allowed");
+        btn.classList.add("hover:from-blue-600", "hover:to-indigo-700");
+      }
+    }, 100);
   });
 
   // Populate voice select and persist choice in localStorage
@@ -723,7 +970,13 @@ endblock %} {% block content %}
         return aKo ? -1 : 1;
       });
 
-      const current = localStorage.getItem("onui_voice") || "";
+      let current = "";
+      try {
+        current = localStorage.getItem("onui_voice") || "";
+      } catch (e) {
+        // localStorage not available, skip
+      }
+
       sel.innerHTML = "";
       const emptyOpt = document.createElement("option");
       emptyOpt.value = "";
@@ -745,7 +998,11 @@ endblock %} {% block content %}
     window.speechSynthesis.onvoiceschanged = refresh;
 
     sel.addEventListener("change", () => {
-      localStorage.setItem("onui_voice", sel.value || "");
+      try {
+        localStorage.setItem("onui_voice", sel.value || "");
+      } catch (e) {
+        // localStorage not available, skip
+      }
     });
   }
 
@@ -775,116 +1032,90 @@ endblock %} {% block content %}
     topic.addEventListener("input", updateGenerateButton);
   }
 
-  // 2. Pronunciation check (recording logic)
-  let mediaRecorder;
-  let audioChunks = [];
+  // 2. Essay test functions
 
-  document.getElementById("recordBtn").onclick = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-    audioChunks = [];
-
-    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-
-    document.getElementById("recordBtn").disabled = true;
-    document
-      .getElementById("recordBtn")
-      .classList.add("opacity-50", "cursor-not-allowed");
-    document.getElementById("stopBtn").disabled = false;
-    document
-      .getElementById("stopBtn")
-      .classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-400");
-    document
-      .getElementById("stopBtn")
-      .classList.add("bg-gradient-to-r", "from-gray-600", "to-gray-700");
-    document.getElementById("pronResult").innerHTML =
-      '<div class="flex items-center gap-2 text-sm text-gray-600"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
-    document.getElementById("pronResult").classList.remove("hidden");
-  };
-
-  document.getElementById("stopBtn").onclick = async () => {
-    mediaRecorder.stop();
-    document.getElementById("recordBtn").disabled = false;
-    document
-      .getElementById("recordBtn")
-      .classList.remove("opacity-50", "cursor-not-allowed");
-    document.getElementById("stopBtn").disabled = true;
-    document
-      .getElementById("stopBtn")
-      .classList.add("opacity-50", "cursor-not-allowed", "bg-gray-400");
-    document
-      .getElementById("stopBtn")
-      .classList.remove("bg-gradient-to-r", "from-gray-600", "to-gray-700");
-
-    mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-      const formData = new FormData();
-      formData.append("file", audioBlob, "recording.wav");
-      formData.append(
-        "target_text",
-        document.getElementById("targetText").innerText
-      );
-
-      document.getElementById("pronResult").innerHTML =
-        '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600"></div><span class="text-sm text-gray-600">AI가 분석 중입니다...</span></div>';
-
+    stopBtn.onclick = async () => {
       try {
-        const res = await fetch("/api/pronunciation-check", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
+        mediaRecorder.stop();
+        recordBtn.disabled = false;
+        recordBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        stopBtn.disabled = true;
+        stopBtn.classList.add(
+          "opacity-50",
+          "cursor-not-allowed",
+          "bg-gray-400"
+        );
+        stopBtn.classList.remove(
+          "bg-gradient-to-r",
+          "from-gray-600",
+          "to-gray-700"
+        );
 
-        if (data.error) {
-          document.getElementById("pronResult").innerHTML = `
-            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-              <p class="text-red-600 text-xs mt-1">${data.error}</p>
-              ${
-                data.details
-                  ? '<p class="text-gray-600 text-xs mt-1">' +
-                    data.details +
-                    "</p>"
-                  : ""
-              }
-            </div>
-          `;
-        } else {
-          const score = data.score || 0;
-          const scoreColor =
-            score > 80 ? "green" : score > 60 ? "yellow" : "red";
-          document.getElementById("pronResult").innerHTML = `
-            <div class="space-y-2">
-              <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p class="text-xs text-gray-600 mb-1">인식된 문장:</p>
-                <p class="font-medium text-gray-900">${
-                  data.user_said || "(인식 실패)"
-                }</p>
+        mediaRecorder.onstop = async () => {
+          // Stop all tracks in the media stream
+          if (mediaStream) {
+            mediaStream.getTracks().forEach((track) => track.stop());
+            mediaStream = null;
+          }
+
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          const formData = new FormData();
+          formData.append("file", audioBlob, "recording.wav");
+          const targetText = document.getElementById("targetText").innerText;
+          formData.append("text", targetText);
+
+          document.getElementById("pronResult").innerHTML =
+            '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600"></div><span class="text-sm text-gray-600">SpeechPro API로 분석 중입니다...</span></div>';
+
+          try {
+            const res = await fetch("/api/speechpro/evaluate", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await res.json();
+
+            if (data.error) {
+              document.getElementById("pronResult").innerHTML = `
+                <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+                  <p class="text-red-600 text-xs mt-1">${data.error}</p>
+                  ${
+                    data.details
+                      ? '<p class="text-gray-600 text-xs mt-1">' +
+                        data.details +
+                        "</p>"
+                      : ""
+                  }
+                </div>
+              `;
+            } else {
+              // Show modal with SpeechPro results
+              showSpeechProModal(data, targetText);
+
+              // Also show brief result in pronResult
+              const score = data.score || 0;
+              document.getElementById("pronResult").innerHTML = `
+                <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p class="text-sm text-gray-700">✅ 분석 완료! 상세 결과는 모달창을 확인하세요.</p>
+                  <p class="text-lg font-bold text-green-700 mt-1">최종 점수: ${score}점</p>
+                </div>
+              `;
+            }
+          } catch (error) {
+            document.getElementById("pronResult").innerHTML = `
+              <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+                <p class="text-red-600 text-xs mt-1">발음 분석 중 문제가 발생했습니다.</p>
               </div>
-              <div class="p-3 bg-${scoreColor}-50 border border-${scoreColor}-200 rounded-lg">
-                <p class="text-xs text-gray-600 mb-1">일치율:</p>
-                <p class="text-2xl font-bold text-${scoreColor}-700">${score}점</p>
-              </div>
-              <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                <p class="text-xs text-gray-600 mb-1">피드백:</p>
-                <p class="text-sm text-gray-900">${data.feedback || ""}</p>
-              </div>
-            </div>
-          `;
-        }
+            `;
+          }
+        };
       } catch (error) {
-        document.getElementById("pronResult").innerHTML = `
-          <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-            <p class="text-red-600 text-xs mt-1">발음 분석 중 문제가 발생했습니다.</p>
-          </div>
-        `;
+        console.error("녹음 중지 오류:", error);
+        alert("녹음 중 오류가 발생했습니다.");
       }
     };
-  };
+  }
 
   // Speak a given string using Web Speech API (used by per-item buttons)
   function speakText(txt) {
@@ -1064,6 +1295,116 @@ endblock %} {% block content %}
                 "</p></div>"
               : ""
           }
+        </div>
+      `;
+    }
+  }
+
+  // 4. Situational Content Generation
+  async function generateSituationalContent() {
+    const situation = document.getElementById("situation").value;
+    const level = document.getElementById("situationLevel").value;
+    const resultDiv = document.getElementById("situationalResult");
+
+    if (!situation) {
+      alert("상황을 선택해주세요.");
+      return;
+    }
+
+    resultDiv.classList.remove("hidden");
+    resultDiv.innerHTML =
+      '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div><span class="text-sm text-gray-600">컨텐츠 생성 중...</span></div>';
+
+    const formData = new FormData();
+    formData.append("situation", situation);
+    formData.append("level", level);
+    formData.append("model", document.getElementById("modelSelect").value || "llama2");
+
+    try {
+      const res = await fetch("/api/situational-content", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        resultDiv.innerHTML = `
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+            <p class="text-red-600 text-xs mt-1">${data.error}</p>
+          </div>
+        `;
+      } else {
+        let html = '<div class="space-y-3">';
+
+        // 상황 설명
+        if (data.situation_description) {
+          html += `
+            <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+              <p class="text-xs text-gray-600 font-semibold mb-1">📍 상황</p>
+              <p class="text-sm text-gray-900">${data.situation_description}</p>
+            </div>
+          `;
+        }
+
+        // 주요 표현
+        if (data.key_expressions && data.key_expressions.length > 0) {
+          html += `
+            <div class="p-3 bg-white border border-purple-200 rounded-lg">
+              <p class="text-xs text-gray-600 font-semibold mb-2">💬 주요 표현</p>
+              <div class="space-y-2">
+                ${data.key_expressions.map(expr => `
+                  <div class="p-2 bg-purple-50 rounded">
+                    <p class="text-sm font-medium text-gray-900">${expr.korean}</p>
+                    <p class="text-xs text-gray-600 italic">${expr.romanization || ''}</p>
+                    <p class="text-xs text-gray-700 mt-1">📝 ${expr.meaning}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        // 예시 대화
+        if (data.example_dialogue) {
+          html += `
+            <div class="p-3 bg-white border border-purple-200 rounded-lg">
+              <p class="text-xs text-gray-600 font-semibold mb-2">🎭 예시 대화</p>
+              <div class="space-y-2 text-sm">
+                ${data.example_dialogue.map(turn => `
+                  <div class="p-2 ${turn.role === 'A' ? 'bg-blue-50 ml-2' : 'bg-gray-50 mr-2'} rounded">
+                    <p class="font-medium text-gray-900">${turn.role}: ${turn.text}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        // 어휘
+        if (data.vocabulary && data.vocabulary.length > 0) {
+          html += `
+            <div class="p-3 bg-white border border-purple-200 rounded-lg">
+              <p class="text-xs text-gray-600 font-semibold mb-2">📚 관련 어휘</p>
+              <div class="flex flex-wrap gap-2">
+                ${data.vocabulary.map(word => `
+                  <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                    ${word}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        html += '</div>';
+        resultDiv.innerHTML = html;
+      }
+    } catch (error) {
+      resultDiv.innerHTML = `
+        <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+          <p class="text-red-600 text-xs mt-1">컨텐츠 생성 중 오류가 발생했습니다.</p>
         </div>
       `;
     }

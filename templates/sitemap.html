@@ -1,0 +1,215 @@
+{% extends "base.html" %} {% block title %}사이트맵 | 오누이 한국어{% endblock
+%} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="text-center py-10">
+    <p class="text-sm text-gray-500">한국어 교육 사이트 맵</p>
+    <h1 class="text-4xl font-bold text-gray-900 mt-2">전체 섹션 한눈에 보기</h1>
+    <p class="text-gray-600 mt-3">
+      실제로 준비된 기능은 링크로 이동하고, 준비 예정인 항목은 "준비중"으로
+      표시했습니다.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- 랜딩페이지 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🏠</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">섹션</p>
+          <h2 class="text-xl font-bold text-gray-900">랜딩페이지</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>회원가입 · 계정(이메일/구글) · 비밀번호/닉네임</li>
+        <li>국적(모국어), 소속, 관심 분야, 학습 계기/목표</li>
+        <li>선호 학습 스타일 · 시간대</li>
+      </ul>
+      <div class="mt-4">
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >준비중</span
+        >
+      </div>
+    </div>
+
+    <!-- 로그인 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🔐</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">섹션</p>
+          <h2 class="text-xl font-bold text-gray-900">로그인</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>학습자</li>
+        <li>학습 관리자</li>
+        <li>시스템 관리자</li>
+      </ul>
+      <div class="mt-4">
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >준비중</span
+        >
+      </div>
+    </div>
+
+    <!-- 마이페이지 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">👤</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">섹션</p>
+          <h2 class="text-xl font-bold text-gray-900">마이페이지</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>프로필 변경(사진, 비밀번호)</li>
+        <li>출석체크</li>
+      </ul>
+      <div class="mt-4">
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >준비중</span
+        >
+      </div>
+    </div>
+
+    <!-- 단계 별 발음 학습 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🗣️</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">학습</p>
+          <h2 class="text-xl font-bold text-gray-900">단계 별 발음 학습</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>입문 · 제작 원리 · 그룹 연상법 · 간단 퀴즈</li>
+        <li>초급1,2 / 중급1,2 / 고급 · 예문/발음 평가 · 유의어</li>
+        <li>학습 단어 목록 순위</li>
+      </ul>
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/pronunciation-practice"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700"
+          >발음 연습 바로가기</a
+        >
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >세부 단계는 준비중</span
+        >
+      </div>
+    </div>
+
+    <!-- 발음 규칙 학습 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">📐</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">학습</p>
+          <h2 class="text-xl font-bold text-gray-900">발음 규칙 학습</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>연음 · 된소리 · ㅎ 탈락/약화 · 구개음화 · 사이시옷</li>
+        <li>모음 축약/탈락/추가</li>
+      </ul>
+      <div class="mt-4">
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >준비중</span
+        >
+      </div>
+    </div>
+
+    <!-- AI 학습 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🤖</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">AI</p>
+          <h2 class="text-xl font-bold text-gray-900">AI 학습</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>맞춤형 교재 생성</li>
+        <li>VOCA 만들기</li>
+        <li>발음 교정(평가)</li>
+        <li>한국어 작문 테스트</li>
+      </ul>
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/learning"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700"
+          >AI 학습 도구</a
+        >
+        <a
+          href="/speechpro-practice"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-emerald-600 rounded-full hover:bg-emerald-700"
+          >발음 평가</a
+        >
+      </div>
+    </div>
+
+    <!-- 활동하기 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🎲</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">
+            액티비티
+          </p>
+          <h2 class="text-xl font-bold text-gray-900">활동하기</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>재미있는 놀이 · 전래동화 · 민속놀이 · 한국음식 · 교통 · 예절</li>
+      </ul>
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/word-puzzle"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-purple-600 rounded-full hover:bg-purple-700"
+          >단어 퍼즐</a
+        >
+        <a
+          href="/daily-expression"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-pink-600 rounded-full hover:bg-pink-700"
+          >오늘의 표현</a
+        >
+        <a
+          href="/vocab-garden"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-teal-600 rounded-full hover:bg-teal-700"
+          >단어 꽃밭</a
+        >
+      </div>
+    </div>
+
+    <!-- 도움말 -->
+    <div class="bg-white rounded-2xl shadow p-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🆘</span>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-orange-500">지원</p>
+          <h2 class="text-xl font-bold text-gray-900">도움말</h2>
+        </div>
+      </div>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li>공지사항 · Q&A · 1:1 문의(게시판/메일/전화)</li>
+      </ul>
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <span
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
+          >준비중</span
+        >
+        <a
+          href="/api-test"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-gray-800 rounded-full hover:bg-gray-900"
+          >API 테스트(임시 지원)</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

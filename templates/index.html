@@ -11,6 +11,264 @@
     </p>
   </div>
 
+  <!-- Key Features Highlight -->
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sm:p-8 mb-10">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="text-2xl">🚀</span>
+      <h2 class="text-2xl font-bold text-gray-900">이 플랫폼의 주요 특징</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div class="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-white border border-orange-100">
+        <p class="text-sm font-semibold text-orange-700 mb-1">AI 복합 피드백</p>
+        <p class="text-sm text-gray-700">SpeechPro(정확도) + FluencyPro(유창성)을 합쳐 개인맞춤형 피드백과 격려를 제공합니다.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-white border border-blue-100">
+        <p class="text-sm font-semibold text-blue-700 mb-1">상황별 콘텐츠 생성</p>
+        <p class="text-sm text-gray-700">카페·식당·병원 등 실제 상황 표현과 대화를 AI가 바로 만들어 드립니다.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-100">
+        <p class="text-sm font-semibold text-emerald-700 mb-1">발음·유창성 평가</p>
+        <p class="text-sm text-gray-700">음소 단위 정확도와 발화 리듬을 모두 측정해 강점과 개선점을 제시합니다.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-white border border-purple-100">
+        <p class="text-sm font-semibold text-purple-700 mb-1">학습 커버리지 추적</p>
+        <p class="text-sm text-gray-700">배운 문장·어휘·콘텐츠 진행도를 퍼센트로 보여주어 성장을 한눈에 확인합니다.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-white border border-amber-100">
+        <p class="text-sm font-semibold text-amber-700 mb-1">캐릭터 팝업 코칭</p>
+        <p class="text-sm text-gray-700">학습 타이밍에 맞춰 오빠·호랑이·동생 캐릭터가 알림과 독려를 전합니다.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-100">
+        <p class="text-sm font-semibold text-gray-800 mb-1">데이터 보안 & 진짜 계정</p>
+        <p class="text-sm text-gray-700">실제 가입/로그인과 SQLite 저장, PBKDF2 해시로 안전하게 학습 데이터를 관리합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Status Alert -->
+  <div
+    id="authAlert"
+    class="bg-emerald-50 border border-emerald-200 rounded-2xl mb-8 p-4"
+    style="display: none"
+  >
+    <div class="flex items-center gap-3">
+      <span class="text-xl">✓</span>
+      <div>
+        <p class="font-semibold text-emerald-900">로그인되었습니다</p>
+        <p class="text-sm text-emerald-700" id="authAlertText"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Landing Intake (가입/취향 수집) -->
+  <div
+    id="signupSection"
+    class="bg-white rounded-2xl shadow-lg border border-orange-100 mb-12 p-6 lg:p-8"
+  >
+    <div
+      class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6"
+    >
+      <div>
+        <p
+          class="text-xs uppercase tracking-wide text-orange-500 font-semibold"
+        >
+          랜딩 섹션
+        </p>
+        <h2 class="text-2xl font-bold text-gray-900 mt-1">
+          회원가입 & 취향 정보 수집
+        </h2>
+        <p class="text-sm text-gray-600 mt-2">
+          이메일과 8자 이상의 비밀번호를 입력해 실제 계정을 생성하세요.
+          비밀번호는 PBKDF2로 해시되어 안전하게 저장되며, 취향
+          정보(국적·관심사·학습 목표·스타일·시간대)는 맞춤 학습을 위해
+          선택적으로 수집합니다.
+        </p>
+      </div>
+      <div
+        class="flex items-center gap-2 text-sm text-gray-600 bg-orange-50 border border-orange-100 rounded-full px-3 py-2"
+      >
+        <span class="text-lg">🛠️</span>
+        <span>실제 가입 · SQLite 저장</span>
+      </div>
+    </div>
+
+    <form id="landingForm" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">이메일</label>
+          <input
+            name="email"
+            type="email"
+            required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="you@example.com"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">닉네임</label>
+          <input
+            name="nickname"
+            type="text"
+            required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="학습자 닉네임"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">비밀번호</label>
+          <input
+            name="password"
+            type="password"
+            required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="********"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >비밀번호 확인</label
+          >
+          <input
+            name="password_confirm"
+            type="password"
+            required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="********"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >국적 / 모국어</label
+          >
+          <input
+            name="native_lang"
+            type="text"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="예: 일본 / 일본어"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >소속(회사/학교)</label
+          >
+          <input
+            name="affiliation"
+            type="text"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="예: OO대학교 / OO회사"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >선호 학습 시간대</label
+          >
+          <select
+            name="time_pref"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+          >
+            <option value="">선택</option>
+            <option>아침</option>
+            <option>점심</option>
+            <option>저녁</option>
+            <option>주말</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >관심 분야 (복수 선택)</label
+          >
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            {% set interests = ["음식", "K-Pop", "영화", "드라마", "여행",
+            "비즈니스"] %} {% for it in interests %}
+            <label class="flex items-center gap-2 text-gray-700">
+              <input
+                type="checkbox"
+                name="interests"
+                value="{{ it }}"
+                class="text-orange-500 rounded"
+              />
+              {{ it }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">학습 목표</label>
+          <select
+            name="goal"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+          >
+            <option value="">선택</option>
+            <option>취미</option>
+            <option>자격증(TOPIK)</option>
+            <option>유학/취업</option>
+            <option>비즈니스 커뮤니케이션</option>
+          </select>
+          <label class="text-sm font-semibold text-gray-800"
+            >관심 시험/레벨</label
+          >
+          <input
+            name="exam_level"
+            type="text"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="예: TOPIK II, CEFR B1"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800">학습 계기</label>
+          <textarea
+            name="reason"
+            rows="2"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-400"
+            placeholder="한국어를 배우게 된 계기를 적어주세요"
+          ></textarea>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-800"
+            >선호 학습 스타일</label
+          >
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            {% set styles = ["동영상 중심", "텍스트 중심", "문제 중심",
+            "실습/대화"] %} {% for st in styles %}
+            <label class="flex items-center gap-2 text-gray-700">
+              <input
+                type="radio"
+                name="style"
+                value="{{ st }}"
+                class="text-orange-500"
+              />
+              {{ st }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+      >
+        <div id="landingStatus" class="text-sm text-gray-600">
+          입력 후 제출하면 계정이 생성됩니다.
+        </div>
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-pink-500 text-white px-5 py-2.5 rounded-lg shadow hover:from-orange-600 hover:to-pink-600 transition-all"
+        >
+          제출 및 저장
+        </button>
+      </div>
+    </form>
+  </div>
+
   <!-- Learning Modes Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
     <!-- AI 학습 도구 -->
@@ -238,4 +496,107 @@
     </div>
   </div>
 </div>
+{% endblock %} {% block extra_js %}
+<script>
+  (function () {
+    const form = document.getElementById("landingForm");
+    const statusEl = document.getElementById("landingStatus");
+    if (!form) return;
+
+    function setStatus(msg, ok = true) {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = ok
+        ? "text-sm text-emerald-600"
+        : "text-sm text-red-600";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+
+      // Client validation: password match and length
+      const pw = fd.get("password") || "";
+      const pc = fd.get("password_confirm") || "";
+      if (pw !== pc) {
+        setStatus("비밀번호가 일치하지 않습니다.", false);
+        return;
+      }
+      if (pw.length < 8) {
+        setStatus("비밀번호는 8자 이상이어야 합니다.", false);
+        return;
+      }
+
+      // Gather checkbox/radio into arrays
+      const interests = Array.from(
+        form.querySelectorAll('input[name="interests"]:checked')
+      ).map((c) => c.value);
+      const style =
+        (form.querySelector('input[name="style"]:checked') || {}).value || "";
+
+      const payload = {
+        email: fd.get("email") || "",
+        nickname: fd.get("nickname") || "",
+        password: pw,
+        native_lang: fd.get("native_lang") || "",
+        affiliation: fd.get("affiliation") || "",
+        time_pref: fd.get("time_pref") || "",
+        interests,
+        goal: fd.get("goal") || "",
+        exam_level: fd.get("exam_level") || "",
+        reason: fd.get("reason") || "",
+        style,
+      };
+
+      setStatus("가입 중...", true);
+
+      try {
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({ detail: "가입 실패" }));
+          throw new Error(error.detail || "가입에 실패했습니다.");
+        }
+        const data = await res.json();
+        setStatus(
+          `✓ ${data.nickname}님 가입을 환영합니다! 이제 로그인해주세요.`
+        );
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        setStatus(err.message || "가입 중 오류가 발생했습니다.", false);
+      }
+    });
+
+    // Check if user is already logged in
+    function updateSignupSectionVisibility() {
+      const token = localStorage.getItem("auth_token");
+      const nickname = localStorage.getItem("user_nickname");
+      const signupSection = document.getElementById("signupSection");
+      const authAlert = document.getElementById("authAlert");
+
+      if (token && nickname) {
+        if (signupSection) signupSection.style.display = "none";
+        if (authAlert) {
+          document.getElementById(
+            "authAlertText"
+          ).textContent = `${nickname}님으로 로그인되었습니다. 학습을 시작하세요!`;
+          authAlert.style.display = "block";
+        }
+      } else {
+        if (signupSection) signupSection.style.display = "block";
+        if (authAlert) authAlert.style.display = "none";
+      }
+    }
+
+    updateSignupSectionVisibility();
+  })();
+</script>
 {% endblock %}

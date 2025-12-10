@@ -1,0 +1,62 @@
+[
+  {
+    "model": "Gemini 2.5 Flash",
+    "success": true,
+    "elapsed_time": 5.72,
+    "response_length": 328,
+    "dialogue_count": 3,
+    "has_json": true,
+    "json_valid": true,
+    "test_name": "초급 - 간단한 주제"
+  },
+  {
+    "model": "EXAONE 3.5 (2.4B)",
+    "success": true,
+    "elapsed_time": 1.99,
+    "response_length": 422,
+    "dialogue_count": 0,
+    "has_json": false,
+    "json_valid": false,
+    "test_name": "초급 - 간단한 주제"
+  },
+  {
+    "model": "Gemini 2.5 Flash",
+    "success": true,
+    "elapsed_time": 10.83,
+    "response_length": 1347,
+    "dialogue_count": 4,
+    "has_json": true,
+    "json_valid": true,
+    "test_name": "중급 - 음식"
+  },
+  {
+    "model": "EXAONE 3.5 (2.4B)",
+    "success": true,
+    "elapsed_time": 2.35,
+    "response_length": 541,
+    "dialogue_count": 2,
+    "has_json": true,
+    "json_valid": true,
+    "test_name": "중급 - 음식"
+  },
+  {
+    "model": "Gemini 2.5 Flash",
+    "success": true,
+    "elapsed_time": 15.48,
+    "response_length": 1817,
+    "dialogue_count": 3,
+    "has_json": true,
+    "json_valid": true,
+    "test_name": "고급 - 문화"
+  },
+  {
+    "model": "EXAONE 3.5 (2.4B)",
+    "success": true,
+    "elapsed_time": 3.52,
+    "response_length": 832,
+    "dialogue_count": 2,
+    "has_json": true,
+    "json_valid": true,
+    "test_name": "고급 - 문화"
+  }
+]
