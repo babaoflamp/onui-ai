@@ -615,6 +615,81 @@
         </div>
       </div>
 
+      <!-- Mail Modal Popup -->
+      <div
+        id="mail-modal"
+        class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4 backdrop-blur-sm"
+        onclick="closeMail()"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+          onclick="event.stopPropagation()"
+        >
+          <!-- Modal Header -->
+          <div
+            class="flex items-center justify-between p-6 border-b border-gray-200"
+          >
+            <div class="flex items-center gap-3 flex-1">
+              <span id="mail-modal-icon" class="text-3xl">📌</span>
+              <h2
+                id="mail-modal-title"
+                class="text-xl font-bold text-gray-900 truncate"
+              >
+                메일 제목
+              </h2>
+            </div>
+            <button
+              onclick="closeMail()"
+              class="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Content -->
+          <div class="p-6 max-h-[400px] overflow-y-auto">
+            <p
+              id="mail-modal-message"
+              class="text-gray-700 leading-relaxed whitespace-pre-wrap"
+            >
+              메일 내용
+            </p>
+            <p id="mail-modal-timestamp" class="text-gray-400 text-sm mt-4">
+              시간
+            </p>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="flex gap-3 p-6 border-t border-gray-200">
+            <button
+              id="mail-delete-btn"
+              onclick="deleteCurrentMail()"
+              class="flex-1 px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-medium transition-colors"
+            >
+              삭제
+            </button>
+            <button
+              onclick="closeMail()"
+              class="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Chat Window -->
       <div
         id="chatbot-window"
@@ -1206,6 +1281,7 @@
       // Mail notification system
       let mailCount = 0;
       const mailData = [];
+      let currentOpenMailId = null;
 
       function toggleMailNotification() {
         const dropdown = document.getElementById("mail-dropdown");
@@ -1259,7 +1335,28 @@
       function openMail(mailId) {
         const mail = mailData.find((m) => m.id === mailId);
         if (mail) {
-          alert(`${mail.title}\n\n${mail.message}`);
+          currentOpenMailId = mailId;
+          document.getElementById("mail-modal-icon").textContent = mail.icon;
+          document.getElementById("mail-modal-title").textContent = mail.title;
+          document.getElementById("mail-modal-message").textContent =
+            mail.message;
+          document.getElementById("mail-modal-timestamp").textContent =
+            mail.timestamp;
+          document.getElementById("mail-modal").classList.remove("hidden");
+          document.body.style.overflow = "hidden";
+        }
+      }
+
+      function closeMail() {
+        document.getElementById("mail-modal").classList.add("hidden");
+        document.body.style.overflow = "auto";
+        currentOpenMailId = null;
+      }
+
+      function deleteCurrentMail() {
+        if (currentOpenMailId !== null) {
+          clearMailNotification(currentOpenMailId);
+          closeMail();
         }
       }
 
@@ -1285,6 +1382,13 @@
         const chatToggle = document.getElementById("chatbot-toggle");
         if (!dropdown.contains(e.target) && !mailToggle.contains(e.target)) {
           dropdown.classList.add("hidden");
+        }
+      });
+
+      // Close mail modal with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeMail();
         }
       });
 
