@@ -41,6 +41,12 @@ from backend.services.speechpro_service import (
 # 학습 진도 서비스 임포트
 from backend.services.learning_progress_service import LearningProgressService
 
+# FluencyPro 서비스 임포트
+from backend.services.fluencypro_service import (
+    call_fluencypro_analyze,
+    parse_fluency_output
+)
+
 # Try to provide a server-side romanization fallback for Korean -> Latin
 # We will try to import a lightweight romanizer if available. If not,
 # `romanize_korean` will be a no-op (returns original text) and we will
@@ -2572,7 +2578,7 @@ async def set_speechpro_config(data: dict = None):
 
 @app.post("/api/fluencypro/analyze")
 async def fluency_analyze(request: Request):
-    """음성 유창성 분석 - FluencyPro API"""
+    """음성 유창성 분석 - FluencyPro API (실제 연동)"""
     try:
         form_data = await request.form()
         text = form_data.get("text", "").strip()
@@ -2584,33 +2590,56 @@ async def fluency_analyze(request: Request):
                 content={"error": "text and audio are required"}
             )
 
-        # 실제 FluencyPro API 호출 (테스트용 더미 응답)
-        # TODO: 실제 FluencyPro 서비스 연동
+        # 오디오 데이터 읽기
         audio_data = await audio_file.read()
-        
-        fluency_result = {
+
+        # FluencyPro API 호출
+        logger.info(f"Calling FluencyPro API for text: {text[:50]}...")
+        fluency_result = await call_fluencypro_analyze(text, audio_data)
+
+        if not fluency_result.get("success"):
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": fluency_result.get("error", "유창성 분석에 실패했습니다.")
+                }
+            )
+
+        # output 파싱
+        parsed_output = parse_fluency_output(fluency_result.get("output", ""))
+
+        # 응답 구성
+        response_data = {
+            "success": True,
             "text": text,
-            "audio_length_ms": len(audio_data) // 16,  # 대략적인 오디오 길이 (16KB ≈ 1초)
-            "speech_rate": round(len(text.split()) / (len(audio_data) / 16000), 2),  # 음절/초
-            "correct_syllables_rate": round((len(text.replace(" ", "")) / len(text.split())) * 100, 1),  # 정확한 음절 비율
-            "articulation_rate": round(len(text.split()) / (len(audio_data) / 16000) * 0.95, 2),  # 조음 속도
-            "pause_count": len(text.split()) - 1,
-            "pause_duration_ms": round(len(audio_data) / 32),  # 쉼표 총 시간
-            "fluency_score": round(65 + (len(audio_data) / 16000) * 5, 1),  # 유창성 점수
-            "confidence": 0.85,
-            "recommendations": [
-                "음절을 더 명확하게 발음해주세요.",
-                "자연스러운 속도로 말씀해주세요.",
-                "적절한 쉼표를 사용하세요."
-            ],
+            "total_reading_words": fluency_result.get("total_reading_words", 0),
+            "total_correct_words": fluency_result.get("total_correct_words", 0),
+            "total_duration": fluency_result.get("total_duration", 0.0),
+            "reading_words_per_unit": fluency_result.get("reading_words_per_unit", 0.0),
+            "correct_words_per_unit": fluency_result.get("correct_words_per_unit", 0.0),
+            "accuracy_rate": fluency_result.get("accuracy_rate", 0.0),
+            "recognized_text": parsed_output.get("recognized_text", ""),
+            "pauses": parsed_output.get("pauses", []),
+            "omitted_words": parsed_output.get("omitted_words", []),
+            "error_words": parsed_output.get("error_words", []),
+            "total_pauses": parsed_output.get("total_pauses", 0),
+            "total_omissions": parsed_output.get("total_omissions", 0),
+            "total_errors": parsed_output.get("total_errors", 0),
             "timestamp": datetime.now().isoformat()
         }
 
-        return JSONResponse(content=fluency_result)
+        logger.info(f"FluencyPro analysis completed: accuracy={response_data['accuracy_rate']}%")
+        return JSONResponse(content=response_data)
+
     except Exception as e:
+        logger.error(f"FluencyPro analyze error: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"error": str(e)}
+            content={
+                "success": False,
+                "error": f"서버 오류: {str(e)}"
+            }
         )
 
 
