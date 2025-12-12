@@ -606,7 +606,37 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         query_params = dict(request.query_params) if request.query_params else {}
         
-        logger.info(f"[REQUEST] {method} {path} from {client_host}")
+        # 세션 토큰에서 사용자 정보 추출
+        user_info = "Guest"
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            session_data = _parse_session_token(token)
+            if session_data:
+                user_id = session_data.get("user_id")
+                email = session_data.get("email")
+                # 데이터베이스에서 닉네임 조회
+                user = _get_user_by_id(user_id)
+                if user:
+                    user_info = f"{user['nickname']} ({email})"
+                else:
+                    user_info = f"User#{user_id} ({email})"
+        
+        # 쿠키에서도 확인
+        if user_info == "Guest":
+            cookie_token = request.cookies.get("session_token")
+            if cookie_token:
+                session_data = _parse_session_token(cookie_token)
+                if session_data:
+                    user_id = session_data.get("user_id")
+                    email = session_data.get("email")
+                    user = _get_user_by_id(user_id)
+                    if user:
+                        user_info = f"{user['nickname']} ({email})"
+                    else:
+                        user_info = f"User#{user_id} ({email})"
+        
+        logger.info(f"[REQUEST] {method} {path} from {client_host} | User: {user_info}")
         if query_params:
             logger.info(f"[QUERY] {query_params}")
         
