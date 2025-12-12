@@ -1,0 +1,422 @@
+{% extends "base.html" %} {% block title %}어휘 진도 - 오누이 한국어 학습{%
+endblock %} {% block extra_css %}
+<style>
+  .vocab-word-row {
+    transition: background 0.15s ease, transform 0.1s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .vocab-word-row:hover {
+    background: #eef2ff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px rgba(148, 163, 184, 0.35);
+  }
+
+  .vocab-word-row.active {
+    background: #e0e7ff;
+    box-shadow: 0 0 0 2px #4f46e5;
+  }
+
+  .vocab-word-list {
+    scrollbar-width: thin;
+    scrollbar-color: #9ca3af #e5e7eb;
+  }
+
+  .vocab-word-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .vocab-word-list::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 999px;
+  }
+
+  .vocab-word-list::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 999px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">📈 어휘 진도</h1>
+    <p class="text-gray-600 mt-2">
+      단어별 점수를 입력하고 자동 정렬 · 히스토리 그래프를 확인해 보세요.
+    </p>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Word List Panel (Left) -->
+    <aside class="lg:col-span-1">
+      <div
+        class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl shadow-lg border border-blue-200 p-6"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900">단어 리스트</h2>
+          <span class="text-xs text-gray-500">점수 높은 순</span>
+        </div>
+
+        <!-- List Header -->
+        <div
+          class="grid grid-cols-12 gap-2 text-xs text-gray-600 px-2 py-2 bg-white bg-opacity-70 rounded-lg border border-gray-300 mb-2"
+        >
+          <div class="col-span-5">단어</div>
+          <div class="col-span-3 text-center">점수</div>
+          <div class="col-span-4 text-center">속성</div>
+        </div>
+
+        <!-- Word List -->
+        <div
+          class="vocab-word-list bg-white bg-opacity-70 rounded-lg border border-gray-300 p-2 max-h-[500px] overflow-y-auto"
+        >
+          <div id="wordList"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Study Panel (Right) -->
+    <section class="lg:col-span-2">
+      <div class="flex flex-col gap-6">
+        <!-- Current Word Card -->
+        <div
+          class="bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-lg border border-blue-200 p-6"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div
+                class="text-xs uppercase tracking-wider text-indigo-600 font-bold mb-1"
+              >
+                Current Word
+              </div>
+              <div
+                class="text-3xl font-extrabold text-gray-900"
+                id="currentWord"
+              >
+                ?
+              </div>
+            </div>
+            <div
+              class="px-4 py-2 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-300"
+              id="currentScore"
+            >
+              점수: ?
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="flex flex-wrap items-center gap-3">
+              <label for="scoreInput" class="text-sm text-gray-600 font-medium"
+                >새 점수 (0~100):</label
+              >
+              <input
+                id="scoreInput"
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                class="w-32 px-4 py-2 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="예: 85"
+              />
+              <button
+                id="submitScore"
+                class="px-6 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-bold text-sm shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 transform hover:-translate-y-0.5"
+              >
+                <span class="mr-1">●</span> 입력 & 정렬
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">
+              점수를 입력하면 해당 단어의 점수가 업데이트되고, 단어 리스트가
+              자동으로 다시 정렬됩니다. (단어 이름을 클릭하면 학습 단어를 바꿀
+              수 있습니다.)
+            </p>
+          </div>
+        </div>
+
+        <!-- History Chart Card -->
+        <div
+          class="bg-gray-50 rounded-2xl shadow-lg border border-gray-300 p-6"
+        >
+          <div class="flex justify-between items-baseline mb-4">
+            <h3 class="text-lg font-bold text-gray-900" id="historyTitle">
+              점수 히스토리
+            </h3>
+            <span class="text-xs text-gray-500"
+              >단어 옆의 [속성] 버튼을 눌러 그래프를 확인하세요.</span
+            >
+          </div>
+          <div class="bg-white rounded-lg p-4">
+            <canvas id="historyChart" class="w-full" height="260"></canvas>
+            <p id="historyEmpty" class="text-sm text-gray-400 text-center py-8">
+              아직 아무 단어도 선택되지 않았습니다. 단어의
+              <strong>[속성]</strong> 버튼을 눌러 점수 변화를 확인해 보세요.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // ===== 데이터 초기화 =====
+  function randomScore() {
+    return Math.floor(Math.random() * 51) + 50; // 50 ~ 100
+  }
+
+  const baseWords = [
+    "학교",
+    "사람",
+    "음식",
+    "책",
+    "친구",
+    "가족",
+    "집",
+    "시간",
+    "나라",
+    "일",
+    "공부",
+    "사랑",
+    "시장",
+    "버스",
+    "날씨",
+    "영화",
+    "음악",
+    "질문",
+    "대답",
+    "생각",
+  ];
+
+  let words = baseWords.map((text, idx) => {
+    const score = randomScore();
+    return {
+      id: idx + 1,
+      text,
+      score,
+      history: [score],
+    };
+  });
+
+  let currentWord = null;
+  let lastHistoryWord = null;
+
+  const wordListEl = document.getElementById("wordList");
+  const currentWordEl = document.getElementById("currentWord");
+  const currentScoreEl = document.getElementById("currentScore");
+  const scoreInputEl = document.getElementById("scoreInput");
+  const submitScoreBtn = document.getElementById("submitScore");
+
+  const historyTitleEl = document.getElementById("historyTitle");
+  const historyEmptyEl = document.getElementById("historyEmpty");
+  const chartCanvas = document.getElementById("historyChart");
+  const chartCtx = chartCanvas.getContext("2d");
+
+  // ===== 렌더링 함수 =====
+  function sortWords() {
+    words.sort((a, b) => b.score - a.score);
+  }
+
+  function renderWordList() {
+    sortWords();
+    wordListEl.innerHTML = "";
+
+    words.forEach((word) => {
+      const row = document.createElement("div");
+      row.className =
+        "vocab-word-row grid grid-cols-12 gap-2 items-center p-2 rounded-lg mb-1";
+      if (currentWord && word.id === currentWord.id) {
+        row.classList.add("active");
+      }
+
+      const wordBtn = document.createElement("button");
+      wordBtn.className =
+        "col-span-5 text-left px-3 py-2 rounded-full font-semibold text-sm text-gray-900 hover:bg-indigo-600 hover:text-white transition-colors";
+      wordBtn.textContent = word.text;
+      wordBtn.addEventListener("click", () => {
+        currentWord = word;
+        updateStudyPanel();
+        renderWordList();
+      });
+
+      const scoreSpan = document.createElement("span");
+      scoreSpan.className =
+        "col-span-3 text-center px-2 py-1 rounded-full font-semibold text-xs bg-gray-100 text-gray-700";
+      scoreSpan.textContent = word.score + "점";
+
+      const attrBtn = document.createElement("button");
+      attrBtn.className =
+        "col-span-4 px-3 py-1 rounded-full text-xs font-semibold uppercase bg-cyan-100 text-cyan-700 border border-cyan-300 hover:bg-cyan-500 hover:text-white transition-all hover:-translate-y-0.5 hover:shadow-md";
+      attrBtn.textContent = "속성";
+      attrBtn.addEventListener("click", () => {
+        showHistory(word);
+      });
+
+      row.appendChild(wordBtn);
+      row.appendChild(scoreSpan);
+      row.appendChild(attrBtn);
+
+      wordListEl.appendChild(row);
+    });
+  }
+
+  function updateStudyPanel() {
+    if (!currentWord) return;
+    currentWordEl.textContent = currentWord.text;
+    currentScoreEl.textContent = "점수: " + currentWord.score + "점";
+  }
+
+  // ===== 그래프 그리기 =====
+  function showHistory(word) {
+    lastHistoryWord = word;
+    historyTitleEl.textContent = `「${word.text}」 점수 히스토리`;
+    historyEmptyEl.style.display = "none";
+
+    const parentWidth = chartCanvas.parentElement.clientWidth;
+    chartCanvas.width = parentWidth > 280 ? parentWidth - 32 : 280;
+    chartCanvas.height = 260;
+
+    const ctx = chartCtx;
+    ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+
+    const data = word.history;
+    if (!data || data.length === 0) {
+      historyEmptyEl.style.display = "block";
+      return;
+    }
+
+    const paddingLeft = 40;
+    const paddingRight = 20;
+    const paddingTop = 30;
+    const paddingBottom = 40;
+    const chartWidth = chartCanvas.width - paddingLeft - paddingRight;
+    const chartHeight = chartCanvas.height - paddingTop - paddingBottom;
+
+    const maxScore = Math.max(100, ...data);
+    const minScore = Math.min(0, ...data);
+    const range = maxScore - minScore || 1;
+
+    // ---- 축 & 그리드 ----
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#d1d5db";
+    ctx.beginPath();
+    ctx.moveTo(paddingLeft, paddingTop);
+    ctx.lineTo(paddingLeft, paddingTop + chartHeight);
+    ctx.lineTo(paddingLeft + chartWidth, paddingTop + chartHeight);
+    ctx.stroke();
+
+    const yTicks = [50, 60, 70, 80, 90, 100];
+    ctx.font = "12px Pretendard, system-ui";
+    ctx.fillStyle = "#9ca3af";
+
+    yTicks.forEach((tick) => {
+      const y = paddingTop + ((maxScore - tick) / range) * chartHeight;
+      if (y < paddingTop || y > paddingTop + chartHeight) return;
+
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.beginPath();
+      ctx.moveTo(paddingLeft, y);
+      ctx.lineTo(paddingLeft + chartWidth, y);
+      ctx.stroke();
+
+      ctx.fillText(String(tick), 8, y + 4);
+    });
+
+    // ---- 데이터 라인 ----
+    const stepX = data.length === 1 ? 0 : chartWidth / (data.length - 1);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#4f46e5";
+    ctx.beginPath();
+
+    data.forEach((value, index) => {
+      const x = paddingLeft + stepX * index;
+      const y = paddingTop + ((maxScore - value) / range) * chartHeight;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // ---- 포인트 표시 ----
+    ctx.fillStyle = "#6366f1";
+    data.forEach((value, index) => {
+      const x = paddingLeft + stepX * index;
+      const y = paddingTop + ((maxScore - value) / range) * chartHeight;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // ---- 점 위에 점수 숫자 표시 ----
+    ctx.fillStyle = "#374151";
+    ctx.font = "12px Pretendard, system-ui";
+    data.forEach((value, index) => {
+      const x = paddingLeft + stepX * index;
+      const y = paddingTop + ((maxScore - value) / range) * chartHeight;
+      ctx.fillText(String(value), x - 8, y - 8);
+    });
+
+    // ---- X축 레이블 (시도 번호 1,2,3…) ----
+    ctx.fillStyle = "#6b7280";
+    ctx.font = "11px Pretendard, system-ui";
+    data.forEach((_, index) => {
+      const x = paddingLeft + stepX * index;
+      const y = paddingTop + chartHeight + 16;
+      ctx.fillText(String(index + 1), x - 3, y + 4);
+    });
+
+    ctx.restore();
+  }
+
+  // ===== 이벤트 =====
+  submitScoreBtn.addEventListener("click", () => {
+    if (!currentWord) return;
+
+    const value = scoreInputEl.value.trim();
+    if (value === "") {
+      alert("점수를 입력해 주세요. (0~100)");
+      scoreInputEl.focus();
+      return;
+    }
+
+    const newScore = parseInt(value, 10);
+    if (isNaN(newScore) || newScore < 0 || newScore > 100) {
+      alert("0에서 100 사이의 정수를 입력해 주세요.");
+      scoreInputEl.focus();
+      return;
+    }
+
+    // 데이터 갱신
+    currentWord.score = newScore;
+    currentWord.history.push(newScore);
+
+    // 입력창 비우기
+    scoreInputEl.value = "";
+
+    // 리스트 재렌더 + 패널 업데이트
+    renderWordList();
+    updateStudyPanel();
+
+    // 이미 이 단어의 그래프를 보고 있던 경우, 그래프도 갱신
+    if (lastHistoryWord && lastHistoryWord.id === currentWord.id) {
+      showHistory(currentWord);
+    }
+  });
+
+  // Enter 키로도 입력 가능하게
+  scoreInputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      submitScoreBtn.click();
+    }
+  });
+
+  // ===== 초기 렌더링 =====
+  (function init() {
+    sortWords();
+    // 임의의 단어 선택
+    currentWord = words[Math.floor(Math.random() * words.length)];
+    renderWordList();
+    updateStudyPanel();
+  })();
+</script>
+{% endblock %}

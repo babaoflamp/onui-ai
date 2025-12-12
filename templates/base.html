@@ -222,6 +222,7 @@
                   <a href="/content-generation">📚 맞춤형 교재</a>
                   <a href="/fluency-test">✍️ 작문 테스트</a>
                   <a href="/media-generation">🎨 상황별 콘텐츠 생성</a>
+                  <a href="/vocabulary-progress">📈 어휘 진도</a>
                 </div>
               </div>
 
@@ -429,6 +430,11 @@
               href="/media-generation"
               class="block pl-4 py-1 text-sm text-gray-600"
               >🎨 상황별 콘텐츠 생성</a
+            >
+            <a
+              href="/vocabulary-progress"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >📈 어휘 진도</a
             >
           </div>
 
@@ -936,6 +942,20 @@
 
         addChatbotTyping();
 
+        // Log chatbot usage
+        const nickname = localStorage.getItem("user_nickname");
+        if (nickname && typeof logUserActivity === "function") {
+          logUserActivity(
+            nickname,
+            "CHATBOT_MESSAGE",
+            window.location.pathname,
+            {
+              messageLength: message.length,
+              messagePreview: message.substring(0, 30),
+            }
+          );
+        }
+
         try {
           const response = await fetch("/api/chatbot", {
             method: "POST",
@@ -1084,12 +1104,48 @@
       }
 
       function handleLogout() {
+        const nickname = localStorage.getItem("user_nickname");
+        if (nickname) {
+          logUserActivity(nickname, "LOGOUT", window.location.pathname);
+        }
         localStorage.removeItem("auth_token");
         localStorage.removeItem("user_nickname");
-        localStorage.removeItem("welcome_mail_sent");
+        localStorage.removeItem("is_guest");
         updateAuthDisplay();
         window.location.href = "/";
       }
+
+      // Log user activity helper
+      async function logUserActivity(nickname, action, page, details = {}) {
+        try {
+          await fetch("/api/log/activity", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nickname: nickname,
+              action: action,
+              page: page,
+              details: details,
+              timestamp: new Date().toISOString(),
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to log activity:", err);
+        }
+      }
+
+      // Log page view on load
+      window.addEventListener("load", () => {
+        const nickname = localStorage.getItem("user_nickname");
+        const isGuest = localStorage.getItem("is_guest");
+        if (nickname) {
+          logUserActivity(nickname, "PAGE_VIEW", window.location.pathname, {
+            isGuest: isGuest === "true",
+            referrer: document.referrer,
+            screenSize: `${window.screen.width}x${window.screen.height}`,
+          });
+        }
+      });
 
       // Get stored learning progress summary (from learning page)
       function getLearningProgressSummary() {
@@ -1100,12 +1156,11 @@
       }
 
       function showWelcomeTigerWithProgress(nickname) {
-        const summary = getLearningProgressSummary();
         if (typeof openCharacterModal === "function") {
           openCharacterModal("tiger");
           const msgEl = document.getElementById("character-message");
           if (msgEl) {
-            msgEl.textContent = `어흥! ${nickname}님 환영해요!\n${summary}`;
+            msgEl.textContent = `어흥! ${nickname}님, 환영해요! 오누이 한국어에서 발음·유창성 연습을 시작해보세요.`;
           }
         }
       }
@@ -1115,24 +1170,34 @@
       updateAuthDisplay();
       ensureNicknameInLocalStorage();
 
-      // Welcome mail on first visit (no auth dependency)
-      (function () {
-        const hasSeenWelcomeMail = localStorage.getItem("welcome_mail_sent");
-        if (hasSeenWelcomeMail) return;
+      // Watch for localStorage changes (e.g., from guest login)
+      window.addEventListener("storage", () => {
+        updateAuthDisplay();
+        setActiveNav();
+      });
 
+      // Also listen for custom events from other tabs/iframes
+      document.addEventListener("authStateChanged", () => {
+        updateAuthDisplay();
+      });
+
+      // Welcome mail on first visit per user (no auth dependency)
+      (function () {
         const nickname = localStorage.getItem("user_nickname") || "새 학습자";
-        const progressSummary = getLearningProgressSummary();
+        const flagKey = `welcome_mail_sent_${nickname}`;
+        const hasSeenWelcomeMail = localStorage.getItem(flagKey) === "true";
+        if (hasSeenWelcomeMail) return;
 
         setTimeout(() => {
           if (typeof addMailNotification === "function") {
             addMailNotification(
               "🎉 환영합니다!",
-              `${nickname}님, 오누이 한국어에 오신 것을 환영합니다! 현재 학습 현황을 확인하고 목표를 설정해보세요.\n${progressSummary}`,
+              `${nickname}님, 오누이 한국어에 오신 것을 환영합니다! AI와 함께 발음·유창성 연습을 바로 시작해보세요.`,
               "👋"
             );
             // Also show character popup (tiger) to greet the user
             showWelcomeTigerWithProgress(nickname);
-            localStorage.setItem("welcome_mail_sent", "true");
+            localStorage.setItem(flagKey, "true");
           }
         }, 1200);
       })();
@@ -1403,5 +1468,8 @@
     </script>
 
     {% block extra_js %}{% endblock %}
+
+    <!-- 캐릭터 팝업 컴포넌트 -->
+    {% include 'components/character-popup.html' %}
   </body>
 </html>

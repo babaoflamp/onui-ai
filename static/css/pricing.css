@@ -1,0 +1,197 @@
+/* Pricing Page Styles */
+
+/* Pricing Toggle Animation */
+#pricing-toggle[aria-checked="true"] {
+  background-color: #fb923c; /* Orange-400 */
+}
+
+#pricing-toggle[aria-checked="true"] #toggle-indicator {
+  transform: translateX(1.25rem);
+}
+
+#monthly-label {
+  transition: all 0.2s ease;
+}
+
+#annual-label {
+  transition: all 0.2s ease;
+}
+
+#pricing-toggle[aria-checked="false"] #monthly-label {
+  color: #111827; /* Gray-900 */
+  font-weight: 600;
+}
+
+#pricing-toggle[aria-checked="false"] #annual-label {
+  color: #6b7280; /* Gray-500 */
+  font-weight: 500;
+}
+
+#pricing-toggle[aria-checked="true"] #monthly-label {
+  color: #6b7280; /* Gray-500 */
+  font-weight: 500;
+}
+
+#pricing-toggle[aria-checked="true"] #annual-label {
+  color: #111827; /* Gray-900 */
+  font-weight: 600;
+}
+
+/* Pricing Card Animations */
+.pricing-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pricing-card:hover {
+  transform: translateY(-8px);
+}
+
+.pricing-card.recommended {
+  position: relative;
+  transform: scale(1.05);
+}
+
+.pricing-card.recommended:hover {
+  transform: scale(1.08) translateY(-8px);
+}
+
+/* Price Toggle Animations */
+.monthly-price,
+.annual-price,
+.monthly-period,
+.annual-period,
+.annual-savings {
+  transition: opacity 0.3s ease, display 0.3s ease;
+}
+
+/* FAQ Animations */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+  opacity: 0;
+}
+
+.faq-answer.show {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+.faq-question span {
+  transition: transform 0.3s ease;
+}
+
+.faq-question.active span {
+  transform: rotate(45deg);
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Button Hover Effects */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Gradient Background Animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradientShift 5s ease infinite;
+}
+
+/* Card Shadow Enhancement */
+.pricing-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.pricing-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.pricing-card.recommended {
+  box-shadow: 0 20px 25px -5px rgba(251, 146, 60, 0.2),
+              0 10px 10px -5px rgba(251, 146, 60, 0.1);
+}
+
+/* Discount Card Hover */
+.bg-white:hover {
+  transform: translateY(-4px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading State (for future use) */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Badge Animation */
+.absolute.-top-4 {
+  animation: badgeBounce 2s ease-in-out infinite;
+}
+
+@keyframes badgeBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+
+/* Focus States for Accessibility */
+button:focus,
+a:focus {
+  outline: 2px solid #fb923c;
+  outline-offset: 2px;
+}
+
+/* Price Number Animation */
+@keyframes priceSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.monthly-price,
+.annual-price {
+  animation: priceSlide 0.3s ease;
+}

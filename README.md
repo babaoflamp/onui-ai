@@ -8,29 +8,23 @@
 
 ## 주요 기능
 
-### 1. 🎓 AI 학습 도구
-- **맞춤형 교재 생성**: 주제와 레벨에 맞는 대화문과 단어장 자동 생성
-- **AI 발음 교정**: 음성 인식을 통한 실시간 발음 평가
-- **유창성 테스트**: 작문 능력 평가 및 피드백
+### 1. 🗣️ 발음 학습 (메뉴와 동일)
+- **발음 정확도 평가** (`/speechpro-practice`): 녹음 후 AI가 발음 점수와 피드백 제공
+- **유창성 평가** (`/fluency-practice`): 말하기 흐름·억양·문법을 실시간 평가
+- **단계별 발음 학습** (`/pronunciation-stages`): 단계/레벨별 발음 가이드
+- **발음 규칙** (`/pronunciation-rules`): 규칙 이해 ↔ 예제 연습 탭으로 학습
 
-### 2. 🎮 학습 게임
-- **단어 퍼즐**: 드래그 앤 드롭으로 올바른 어순 맞추기
-- **오늘의 표현**: 매일 바뀌는 한국어 표현 학습
-- **단어 꽃밭**: CEFR 레벨별 단어 학습 (이모지 기반 시각화)
+### 2. 🤖 AI 학습 (메뉴와 동일)
+- **AI 학습 도구** (`/learning`): 질문/주제 입력 후 AI 피드백
+- **맞춤형 교재** (`/content-generation`): 주제·레벨 맞춤 대화문·단어장 생성
+- **작문 테스트** (`/fluency-test`): 입력/음성 기반 작문 채점
+- **상황별 콘텐츠 생성** (`/media-generation`): 상황별 표현·대화 자동 생성
 
-### 3. 🎤 발음 연습 (NEW!)
-- **ELSA Speak 스타일** 2단계 학습 인터페이스
-- **Step 1 - 듣기**: MzTTS 전문 TTS로 네이티브 발음 듣기, 음소 분해, 발음 팁
-- **Step 2 - 말하기**: 녹음 및 AI 발음 평가, 오누이 캐릭터 (👦👧)
-- **20개 필수 표현**: A1~A2 레벨 인사말 및 일상 표현
-- **실시간 검색**: 한글, 로마자, 의미로 단어 검색
-- **레벨 필터링**: 전체, A1, A2 레벨 선택
-- **한나 화자**: 고품질 여성 목소리
+### 3. 🎲 활동하기 (메뉴와 동일)
+- **단어 삭제** (`/word-puzzle`): 드래그 앤 드롭 퍼즐
+- **조사 떠다니기** (`/vocab-garden`): 조사/어휘 조합 연습
+- **오늘의 표현** (`/daily-expression`): 매일 갱신 표현 학습
 
-### 4. 🤖 AI & 음성 통합
-- **Ollama 지원**: 로컬 LLM (EXAONE 모델) 사용
-- **MzTTS API**: 전문 한국어 TTS (한나 화자, 22kHz 고품질)
-- **VOSK**: 오프라인 음성 인식 (선택)
 
 ## 기술 스택
 
@@ -186,57 +180,236 @@ pkill -f ngrok
 
 ```
 onui-ai/
-├── main.py                 # FastAPI 메인 앱
-├── requirements.txt        # Python 패키지
-├── templates/              # Jinja2 템플릿
-│   ├── base.html          # 기본 레이아웃
-│   ├── index.html         # 홈페이지
-│   ├── learning.html      # AI 학습 도구
-│   ├── word-puzzle.html   # 단어 퍼즐
-│   ├── daily-expression.html  # 오늘의 표현
-│   ├── vocab-garden.html  # 단어 꽃밭
-│   └── pronunciation-practice.html  # 발음 연습 (NEW!)
-├── static/
-│   ├── css/               # 스타일시트
-│   │   ├── word-puzzle.css
-│   │   ├── daily-expression.css
-│   │   ├── vocab-garden.css
-│   │   └── pronunciation-practice.css  # (NEW!)
-│   └── js/                # JavaScript
-│       ├── word-puzzle.js
-│       ├── daily-expression.js
-│       ├── vocab-garden.js
-│       └── pronunciation-practice.js  # (NEW!)
-└── data/                  # JSON 데이터
-    ├── sentences.json     # 어순 연습 문장
-    ├── expressions.json   # 오늘의 표현
-    ├── vocabulary.json    # 단어 꽃밭 단어
-    └── pronunciation-words.json  # 발음 연습 단어 (NEW!)
+├── main.py                           # FastAPI 메인 앱
+├── requirements.txt                  # Python 패키지
+├── README.md                         # 프로젝트 설명서
+├── database_schema_learning_progress.sql  # 학습 진도 DB 스키마
+│
+├── backend/                          # 백엔드 모듈
+│   ├── models/                       # DB 모델 (empty - ORM 미사용)
+│   ├── services/                     # 비즈니스 로직
+│   │   ├── speechpro_service.py      # 발음 평가 서비스 (SpeechPro API)
+│   │   └── learning_progress_service.py  # 학습 진도 추적
+│   └── utils/                        # 유틸리티 (empty)
+│
+├── templates/                        # Jinja2 HTML 템플릿
+│   ├── base.html                     # 기본 레이아웃 (헤더, 내비게이션)
+│   ├── index.html                    # 홈페이지
+│   ├── components/
+│   │   └── character-popup.html      # 오누이 캐릭터 팝업
+│   │
+│   ├── 🗣️ 발음 학습
+│   │   ├── speechpro-practice.html   # 발음 정확도 평가
+│   │   ├── fluency-practice.html     # 유창성 평가
+│   │   ├── pronunciation-stages.html # 단계별 발음 학습
+│   │   └── pronunciation-rules.html  # 발음 규칙 (NEW!)
+│   │
+│   ├── 🤖 AI 학습
+│   │   ├── learning.html             # AI 학습 도구
+│   │   ├── content-generation.html   # 맞춤형 교재 생성
+│   │   ├── fluency-test.html         # 작문 테스트
+│   │   ├── media-generation.html     # 상황별 콘텐츠 생성
+│   │   └── essay-test.html           # 에세이 평가
+│   │
+│   ├── 🎲 활동하기
+│   │   ├── word-puzzle.html          # 단어 삭제 (어순 퍼즐)
+│   │   ├── vocab-garden.html         # 조사 떠다니기
+│   │   └── daily-expression.html     # 오늘의 표현
+│   │
+│   ├── 👤 사용자 기능
+│   │   ├── login.html                # 로그인
+│   │   ├── mypage.html               # 내 프로필
+│   │   ├── learning-progress.html    # 학습 진도 (NEW!)
+│   │   └── change-password.html      # 비밀번호 변경
+│   │
+│   ├── 🔧 관리자 페이지
+│   │   ├── api-test.html             # API 테스트
+│   │   ├── sitemap.html              # 사이트맵
+│   │   ├── chatbot.html              # 챗봇
+│   │   ├── pronunciation-check.html  # 발음 점검
+│   │   ├── pronunciation-correction.html  # 발음 교정
+│   │   ├── sentence-evaluation.html  # 문장 평가
+│   │   └── custom-materials.html     # 맞춤 교재
+│   │
+│   └── 🗂️ 기타
+│       ├── index_old.html.bak        # 구 홈페이지
+│       └── login.html                # 인증 페이지
+│
+├── static/                           # 정적 파일
+│   ├── css/                          # 스타일시트
+│   │   ├── pronunciation-practice.css  # 발음 연습 UI
+│   │   ├── vocab-garden.css          # 어휘 학습 UI
+│   │   ├── word-puzzle.css           # 퍼즐 UI
+│   │   └── daily-expression.css      # 표현 학습 UI
+│   │
+│   ├── js/                           # JavaScript
+│   │   ├── pronunciation-practice.js # 발음 연습 로직
+│   │   ├── vocab-garden.js           # 어휘 학습 로직
+│   │   ├── word-puzzle.js            # 퍼즐 로직
+│   │   └── daily-expression.js       # 표현 학습 로직
+│   │
+│   ├── img/                          # 이미지 (favicon, 캐릭터 등)
+│   └── (favicon, manifest 등)
+│
+├── data/                             # JSON 데이터 파일
+│   ├── sentences.json                # 어순 연습 문장
+│   ├── expressions.json              # 오늘의 표현
+│   ├── vocabulary.json               # 단어 꽃밭 단어
+│   ├── pronunciation-words.json      # 발음 연습 단어
+│   ├── sp_ko_questions.json          # SpeechPro 질문
+│   ├── sp_ko_questions.csv           # SpeechPro 질문 (CSV)
+│   ├── speechpro-sentences.json      # SpeechPro 문장
+│   ├── landing_intake.json           # 랜딩 페이지 데이터
+│   └── users.db                      # SQLite 사용자 DB
+│
+├── docs/                             # 문서
+│   ├── design/                       # 디자인 자료
+│   │   ├── character.png             # 오누이 캐릭터
+│   │   ├── elsaspeak.png             # ELSA Speak 참고 이미지
+│   │   ├── tiger_chatbot.svg         # 챗봇 캐릭터
+│   │   └── HTML 디자인 템플릿들
+│   ├── api/                          # API 문서
+│   └── requirements/                 # 요구사항 명세
+│
+├── scripts/                          # 유틸리티 스크립트
+│   └── test_speechpro_api.py         # SpeechPro API 테스트
+│
+├── tests/                            # 테스트 코드
+│   └── (테스트 파일들)
+│
+├── tools/                            # 도구/유틸리티
+│   └── (헬퍼 도구들)
+│
+├── .env                              # 환경 변수 (로컬)
+├── .env.example                      # 환경 변수 템플릿
+├── onui-ai.service                   # Systemd 서비스 파일
+├── start-service.sh                  # 서비스 시작 스크립트
+├── stop-service.sh                   # 서비스 중지 스크립트
+├── ngrok                             # ngrok 바이너리 (외부 공개용)
+│
+├── 📋 문서 파일
+│   ├── CLAUDE.md                     # 개발 노트
+│   ├── SPEECHPRO_API_WORKFLOW.md     # SpeechPro 워크플로우
+│   ├── SPEECHPRO_IMPLEMENTATION.md   # SpeechPro 구현 가이드
+│   ├── CURRICULUM_OPTIMIZATION_REPORT.md  # 커리큘럼 최적화 보고서
+│   └── MODEL_COMPARISON_REPORT.md    # 모델 비교 보고서
+│
+└── 📁 자동 생성 폴더
+    ├── __pycache__/                  # Python 캐시
+    ├── .git/                         # Git 저장소
+    ├── .pytest_cache/                # Pytest 캐시
+    ├── htmlcov/                      # 테스트 커버리지 리포트
+    ├── logs/                         # 로그 파일
+    ├── test_results/                 # 테스트 결과
+    └── .venv/                        # Python 가상환경
 ```
 
 ## API 엔드포인트
 
-### 페이지 라우트
-- `GET /` - 홈페이지
-- `GET /learning` - AI 학습 도구
-- `GET /word-puzzle` - 단어 퍼즐
-- `GET /daily-expression` - 오늘의 표현
-- `GET /vocab-garden` - 단어 꽃밭
-- `GET /pronunciation-practice` - 발음 연습 (NEW!)
+### 🏠 페이지 라우트 (GET)
+| 라우트 | 설명 |
+|--------|------|
+| `/` | 홈페이지 |
+| `/learning` | AI 학습 도구 |
+| `/content-generation` | 맞춤형 교재 생성 |
+| `/pronunciation-check` | 발음 점검 |
+| `/fluency-test` | 작문 테스트 |
+| `/custom-materials` | 맞춤 교재 |
+| `/essay-test` | 에세이 테스트 |
+| `/pronunciation-correction` | 발음 교정 |
+| `/word-puzzle` | 단어 삭제 (어순 퍼즐) |
+| `/daily-expression` | 오늘의 표현 |
+| `/vocab-garden` | 조사 떠다니기 |
+| `/pronunciation-practice` | 발음 연습 |
+| `/pronunciation-stages` | 단계별 발음 학습 |
+| `/pronunciation-rules` | 발음 규칙 |
+| `/speechpro-practice` | 발음 정확도 평가 |
+| `/fluency-practice` | 유창성 평가 |
+| `/api-test` | API 테스트 |
+| `/media-generation` | 상황별 콘텐츠 생성 |
+| `/sitemap` | 사이트맵 |
+| `/login` | 로그인 |
+| `/mypage` | 내 프로필 |
+| `/learning-progress` | 학습 진도 |
+| `/change-password` | 비밀번호 변경 |
+| `/chatbot` | 챗봇 |
 
-### API 엔드포인트
-- `POST /api/generate-content` - AI 교재 생성
-- `POST /api/pronunciation-check` - 발음 평가
-- `POST /api/fluency-check` - 유창성 평가
-- `GET /api/puzzle/sentences` - 퍼즐 문장 목록
-- `GET /api/expressions` - 표현 목록
-- `GET /api/expressions/today` - 오늘의 표현
-- `GET /api/vocabulary` - 단어 목록
-- `GET /api/vocabulary/{word_id}` - 특정 단어
-- `GET /api/pronunciation-words` - 발음 연습 단어 목록 (NEW!)
-- `GET /api/pronunciation-words/{word_id}` - 특정 발음 단어 (NEW!)
-- `GET /api/ollama/models` - Ollama 모델 목록
-- `POST /api/ollama/test` - Ollama 모델 테스트
+### 👤 사용자 인증 API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `POST` | `/api/signup` | 회원 가입 |
+| `POST` | `/api/login` | 로그인 |
+| `POST` | `/api/logout` | 로그아웃 |
+| `POST` | `/api/landing-intake` | 랜딩 페이지 입력 저장 |
+| `GET` | `/api/user/profile` | 사용자 프로필 조회 |
+| `POST` | `/api/user/profile/update` | 프로필 업데이트 |
+| `POST` | `/api/user/password/change` | 비밀번호 변경 |
+| `POST` | `/api/log/guest-login` | 게스트 로그인 |
+| `POST` | `/api/log/activity` | 활동 기록 |
+
+### 🎤 발음 평가 API (SpeechPro)
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `POST` | `/api/pronunciation-check` | 단어 발음 평가 |
+| `POST` | `/api/speechpro/gtp` | SpeechPro GTP 분석 |
+| `POST` | `/api/speechpro/model` | SpeechPro 모델 평가 |
+| `POST` | `/api/speechpro/score` | SpeechPro 점수 계산 |
+| `POST` | `/api/speechpro/evaluate` | 문장 발음 평가 (전체 워크플로우) |
+| `GET` | `/api/speechpro/sentences` | 모든 발음 연습 문장 |
+| `GET` | `/api/speechpro/sentences/{sentence_id}` | 특정 발음 문장 |
+| `GET` | `/api/speechpro/sentences/level/{level}` | 레벨별 발음 문장 |
+| `GET` | `/api/speechpro/config` | SpeechPro 설정 조회 |
+| `POST` | `/api/speechpro/config` | SpeechPro 설정 업데이트 |
+
+### 🗣️ 유창성 평가 API (FluencyPro)
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `POST` | `/api/fluency-check` | 작문 유창성 평가 |
+| `POST` | `/api/fluencypro/analyze` | FluencyPro 상세 분석 |
+| `POST` | `/api/fluencypro/combined-feedback` | SpeechPro + FluencyPro 복합 피드백 |
+| `GET` | `/api/fluencypro/metrics/{user_id}` | 사용자 유창성 지표 |
+
+### 🎓 AI 콘텐츠 생성 API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `POST` | `/api/generate-content` | AI 교재 생성 (주제/레벨 기반) |
+| `POST` | `/api/situational-content` | 상황별 표현/대화 생성 |
+| `POST` | `/api/chat/test` | 챗봇 메시지 (Ollama) |
+| `POST` | `/api/generate-image` | 이미지 생성 (Image API) |
+| `POST` | `/api/generate-music` | 음악 생성 (Music API) |
+
+### 🎲 학습 활동 API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `GET` | `/api/puzzle/sentences` | 어순 퍼즐 문장 목록 |
+| `GET` | `/api/puzzle/sentences/{sentence_id}` | 특정 퍼즐 문장 |
+| `GET` | `/api/expressions` | 전체 표현 목록 |
+| `GET` | `/api/expressions/today` | 오늘의 표현 (매일 갱신) |
+| `GET` | `/api/vocabulary` | 단어 꽃밭 단어 목록 |
+| `GET` | `/api/vocabulary/{word_id}` | 특정 단어 상세 정보 |
+| `GET` | `/api/pronunciation-words` | 발음 연습 단어 목록 |
+| `GET` | `/api/pronunciation-words/{word_id}` | 특정 발음 단어 상세 정보 |
+
+### 🎵 TTS (Text-to-Speech) API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `GET` | `/api/tts/info` | MzTTS 서버 정보 조회 |
+| `POST` | `/api/tts/generate` | MzTTS로 음성 생성 |
+
+### 🤖 Ollama (로컬 LLM) API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `GET` | `/api/ollama/models` | Ollama 사용 가능 모델 목록 |
+| `POST` | `/api/ollama/test` | Ollama 모델 테스트 |
+
+### 📊 학습 진도 API
+| 메서드 | 라우트 | 설명 |
+|--------|--------|------|
+| `POST` | `/api/learning/pronunciation-completed` | 발음 학습 완료 기록 |
+| `POST` | `/api/learning/popup-shown` | 캐릭터 팝업 표시 기록 |
+| `GET` | `/api/learning/user-stats/{user_id}` | 사용자 학습 통계 |
+| `GET` | `/api/learning/today-progress/{user_id}` | 오늘 학습 진도 |
+| `POST` | `/api/learning/check-popup/{user_id}` | 팝업 표시 여부 확인 |
 
 ## 주요 의존성
 
@@ -288,6 +461,14 @@ ollama pull exaone3.5:2.4b
 - HTTPS 환경에서만 MediaRecorder API 사용 가능
 
 ## 최근 업데이트
+
+### 2025-12-10
+
+#### 🎛 발음 규칙 학습 리뉴얼
+- 규칙 이해 / 예제 연습 탭 전환 UI 추가 (기본은 규칙, 클릭으로 연습 전환)
+- 연습 카드별 정답 보기/숨기기 토글 개선 (색상/텍스트 동기화)
+- 사용자 입력 정답 확인 기능 추가: 입력 → 확인/Enter로 즉시 채점, 피드백 표시
+- 연습 카드마다 입력창 자동 생성, 공백/대소문자 무시 비교
 
 ### 2025-12-02
 

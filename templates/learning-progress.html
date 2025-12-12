@@ -90,43 +90,84 @@ endblock %} {% block content %}
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">🌏 전체 학습 현황</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-indigo-50 to-white">
+        <div
+          class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-indigo-50 to-white"
+        >
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm font-semibold text-gray-700">문장 커버리지</p>
-            <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700" id="coverageSentencesPercent">-</span>
+            <span
+              class="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700"
+              id="coverageSentencesPercent"
+              >-</span
+            >
           </div>
           <p class="text-xs text-gray-500 mb-3">전체 문장 중 학습 완료 비율</p>
           <div class="w-full bg-gray-100 rounded-full h-2">
-            <div class="bg-indigo-500 h-2 rounded-full" id="coverageSentencesBar" style="width: 0%"></div>
+            <div
+              class="bg-indigo-500 h-2 rounded-full"
+              id="coverageSentencesBar"
+              style="width: 0%"
+            ></div>
           </div>
-          <p class="text-xs text-gray-600 mt-2" id="coverageSentencesText">0 / 0 문장</p>
+          <p class="text-xs text-gray-600 mt-2" id="coverageSentencesText">
+            0 / 0 문장
+          </p>
         </div>
 
-        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-emerald-50 to-white">
+        <div
+          class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-emerald-50 to-white"
+        >
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm font-semibold text-gray-700">어휘 커버리지</p>
-            <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700" id="coverageWordsPercent">-</span>
+            <span
+              class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700"
+              id="coverageWordsPercent"
+              >-</span
+            >
           </div>
           <p class="text-xs text-gray-500 mb-3">전체 단어 중 학습 완료 비율</p>
           <div class="w-full bg-gray-100 rounded-full h-2">
-            <div class="bg-emerald-500 h-2 rounded-full" id="coverageWordsBar" style="width: 0%"></div>
+            <div
+              class="bg-emerald-500 h-2 rounded-full"
+              id="coverageWordsBar"
+              style="width: 0%"
+            ></div>
           </div>
-          <p class="text-xs text-gray-600 mt-2" id="coverageWordsText">0 / 0 단어</p>
+          <p class="text-xs text-gray-600 mt-2" id="coverageWordsText">
+            0 / 0 단어
+          </p>
         </div>
 
-        <div class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-orange-50 to-white">
+        <div
+          class="p-5 rounded-xl border border-gray-100 bg-gradient-to-br from-orange-50 to-white"
+        >
           <div class="flex justify-between items-center mb-2">
             <p class="text-sm font-semibold text-gray-700">콘텐츠 생성</p>
-            <span class="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-700" id="coverageContentPercent">-</span>
+            <span
+              class="text-xs px-2 py-1 rounded-full bg-orange-100 text-orange-700"
+              id="coverageContentPercent"
+              >-</span
+            >
           </div>
-          <p class="text-xs text-gray-500 mb-3">맞춤형 콘텐츠 / 에세이 생성 진행도</p>
+          <p class="text-xs text-gray-500 mb-3">
+            맞춤형 콘텐츠 / 에세이 생성 진행도
+          </p>
           <div class="w-full bg-gray-100 rounded-full h-2">
-            <div class="bg-orange-500 h-2 rounded-full" id="coverageContentBar" style="width: 0%"></div>
+            <div
+              class="bg-orange-500 h-2 rounded-full"
+              id="coverageContentBar"
+              style="width: 0%"
+            ></div>
           </div>
-          <p class="text-xs text-gray-600 mt-2" id="coverageContentText">0 / 0 건</p>
+          <p class="text-xs text-gray-600 mt-2" id="coverageContentText">
+            0 / 0 건
+          </p>
         </div>
       </div>
-      <p class="text-xs text-gray-500 mt-4">* 커버리지 데이터는 학습 로그가 쌓이면 자동 집계됩니다. 데이터가 없을 경우 '-'로 표시됩니다.</p>
+      <p class="text-xs text-gray-500 mt-4">
+        * 커버리지 데이터는 학습 로그가 쌓이면 자동 집계됩니다. 데이터가 없을
+        경우 '-'로 표시됩니다.
+      </p>
     </div>
 
     <!-- Pronunciation Practice Stats -->
@@ -371,7 +412,15 @@ endblock %} {% block content %}
         ? Math.min(100, Math.round((contentDone / contentTotal) * 100))
         : null;
 
-      const setCoverage = (barId, textId, pillId, done, total, percent, label) => {
+      const setCoverage = (
+        barId,
+        textId,
+        pillId,
+        done,
+        total,
+        percent,
+        label
+      ) => {
         const bar = document.getElementById(barId);
         const text = document.getElementById(textId);
         const pill = document.getElementById(pillId);

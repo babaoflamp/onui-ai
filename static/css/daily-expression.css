@@ -35,7 +35,7 @@
   background: #ffffff;
   border-radius: 18px;
   padding: 16px 18px 18px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
   min-height: 150px;
   position: relative;
   overflow: hidden;
@@ -44,7 +44,7 @@
 
 .expression-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 26px rgba(0,0,0,0.16);
+  box-shadow: 0 16px 26px rgba(0, 0, 0, 0.16);
 }
 
 .card-label {
@@ -104,7 +104,7 @@
   border: none;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,7 +149,8 @@
 }
 
 /* Floating decoration */
-.sun, .moon {
+.sun,
+.moon {
   position: absolute;
   font-size: 26px;
   opacity: 0.35;
@@ -170,9 +171,15 @@
 }
 
 @keyframes float {
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 @media (max-width: 600px) {

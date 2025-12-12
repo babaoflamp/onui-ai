@@ -1,6 +1,95 @@
 {% extends "base.html" %} {% block title %}AI 학습 도구 - 오누이 한국어{%
 endblock %} {% block content %}
 <div class="max-w-4xl mx-auto px-4">
+  <script>
+    // Learning progress tracking
+    let learningStartTime = null;
+    let studiedSentences = 0;
+    let studyTimeMinutes = 0;
+    let hasAchievedScore = false;
+    let hasSent30MinMail = false;
+
+    // Start character popup timer (10 minutes = 600,000 ms)
+    const POPUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
+    const characters = ["brother", "sister", "tiger"];
+    let popupTimer;
+
+    function startCharacterPopupTimer() {
+      // Show popup every 10 minutes
+      popupTimer = setInterval(() => {
+        // Randomly select a character
+        const randomCharacter =
+          characters[Math.floor(Math.random() * characters.length)];
+        openCharacterModal(randomCharacter);
+      }, POPUP_INTERVAL);
+    }
+
+    // Start learning session timer
+    function startLearningSession() {
+      if (!learningStartTime) {
+        learningStartTime = Date.now();
+
+        // Check study time every minute
+        setInterval(() => {
+          studyTimeMinutes = Math.floor(
+            (Date.now() - learningStartTime) / 60000
+          );
+          localStorage.setItem("learning_minutes", studyTimeMinutes.toString());
+
+          // Send mail after 30 minutes of study
+          if (studyTimeMinutes >= 30 && !hasSent30MinMail) {
+            hasSent30MinMail = true;
+            addMailNotification(
+              "🎓 30분 학습 완료!",
+              `축하합니다! 30분 동안 ${studiedSentences}개의 문장을 학습하셨습니다. 꾸준한 학습이 실력 향상의 지름길입니다!`,
+              "⏰"
+            );
+          }
+        }, 60000); // Check every minute
+      }
+    }
+
+    // Track sentence completion
+    function onSentenceCompleted() {
+      studiedSentences++;
+      localStorage.setItem(
+        "learning_sentence_count",
+        studiedSentences.toString()
+      );
+
+      // Send mail on every sentence completion
+      addMailNotification(
+        "✨ 문장 학습 완료!",
+        `${studiedSentences}개 문장을 학습했습니다. 계속 이 페이스를 유지하세요!`,
+        "📝"
+      );
+    }
+
+    // Track score achievement
+    function onScoreAchieved(score) {
+      if (score >= 80 && !hasAchievedScore) {
+        hasAchievedScore = true;
+        addMailNotification(
+          "🏆 높은 점수 달성!",
+          `${score}점을 달성하셨습니다! 정말 훌륭합니다! 이 기세를 이어가세요!`,
+          "🌟"
+        );
+      }
+    }
+
+    // Start timer when page loads
+    document.addEventListener("DOMContentLoaded", () => {
+      startCharacterPopupTimer();
+      startLearningSession();
+    });
+
+    // Clear timer when user leaves the page
+    window.addEventListener("beforeunload", () => {
+      if (popupTimer) {
+        clearInterval(popupTimer);
+      }
+    });
+  </script>
   <style>
     /* Tweak vertical rhythm for learning page content */
     /* Dialogue text: slightly tighter but readable */
@@ -83,8 +172,8 @@ endblock %} {% block content %}
         <input
           id="topic"
           type="text"
-          placeholder="관심 주제 (예: 김치)"
-          value="김치"
+          placeholder="관심 주제 (예: K-POP, 음식, 여행)"
+          value="한국 여행"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-2"
           onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
         />
@@ -779,13 +868,12 @@ endblock %} {% block content %}
         });
       }
 
-      // Set targetText to the pronunciation if available, otherwise the plain text
-      if (jsonObj.dialogue && jsonObj.dialogue[0]) {
-        const first = jsonObj.dialogue[0];
-        document.getElementById("targetText").innerText =
-          first.pronunciation || first.text || "";
-      }
       resultDiv.innerHTML = html;
+
+      // Track sentence completion and send mail
+      if (jsonObj.dialogue && jsonObj.dialogue.length > 0) {
+        onSentenceCompleted();
+      }
 
       // Restore button state after successful generation
       updateGenerateButtonState(false);
@@ -937,7 +1025,6 @@ endblock %} {% block content %}
   window.addEventListener("DOMContentLoaded", () => {
     setupGenerateButton();
     populateVoiceList();
-    initializeRecordingButtons();
 
     // Force update after a short delay to ensure DOM is fully ready
     setTimeout(() => {
@@ -1022,6 +1109,148 @@ endblock %} {% block content %}
     }
   }
 
+  // ==========================================
+  // SpeechPro 모달 함수들
+  // ==========================================
+  function openSpeechProModal() {
+    const modal = document.getElementById("speechpro-modal");
+    if (modal) {
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+  }
+
+  function closeSpeechProModal() {
+    const modal = document.getElementById("speechpro-modal");
+    if (modal) {
+      modal.classList.add("hidden");
+      document.body.style.overflow = "auto";
+    }
+  }
+
+  function displaySpeechProResults(result) {
+    // 점수 업데이트
+    const overallScore = Math.round(result.overall_score || 0);
+    const overallScoreEl = document.getElementById("sp-overall-score");
+    if (overallScoreEl) {
+      overallScoreEl.textContent = overallScore;
+    }
+
+    // 피드백 메시지
+    let feedback = "";
+    if (overallScore >= 90) feedback = "완벽한 발음입니다! 🌟";
+    else if (overallScore >= 80) feedback = "매우 좋은 발음입니다! 👍";
+    else if (overallScore >= 70)
+      feedback = "좋은 발음입니다. 조금 더 연습하면 더 좋아질 거예요 💪";
+    else if (overallScore >= 60)
+      feedback = "더 연습이 필요합니다. 계속해서 노력해보세요 📚";
+    else feedback = "많은 연습이 필요합니다. 천천히 따라해보세요 🎯";
+
+    const feedbackEl = document.getElementById("sp-score-feedback");
+    if (feedbackEl) {
+      feedbackEl.textContent = feedback;
+    }
+
+    // 점수 바 업데이트
+    const scoreBar = document.getElementById("sp-score-bar");
+    if (scoreBar) {
+      scoreBar.style.width = overallScore + "%";
+    }
+
+    // 상세 정보 표시
+    const detailsContent = document.getElementById("sp-details-content");
+    if (detailsContent) {
+      let detailsHtml = "";
+
+      // SpeechPro 정확도 분석
+      if (result.score && result.score.details) {
+        const details = result.score.details;
+        detailsHtml += `
+          <div class="p-4 bg-orange-50 border-l-4 border-orange-500 rounded-lg">
+            <h4 class="font-semibold text-orange-900 mb-3">🎯 SpeechPro 정확도 분석</h4>
+            <div class="space-y-2 text-sm text-orange-800">
+        `;
+
+        if (details.overall_accuracy !== undefined) {
+          detailsHtml += `<div><strong>정확도:</strong> ${details.overall_accuracy.toFixed(
+            1
+          )}%</div>`;
+        }
+        if (details.completeness !== undefined) {
+          detailsHtml += `<div><strong>완성도:</strong> ${details.completeness.toFixed(
+            1
+          )}%</div>`;
+        }
+        if (details.phoneme_accuracy !== undefined) {
+          detailsHtml += `<div><strong>음소 정확도:</strong> ${details.phoneme_accuracy.toFixed(
+            1
+          )}%</div>`;
+        }
+
+        detailsHtml += `</div></div>`;
+      }
+
+      // FluencyPro 유창성 분석
+      if (result.fluency && result.fluency.details) {
+        const fluency = result.fluency.details;
+        detailsHtml += `
+          <div class="p-4 bg-purple-50 border-l-4 border-purple-500 rounded-lg">
+            <h4 class="font-semibold text-purple-900 mb-3">🌊 FluencyPro 유창성 분석</h4>
+            <div class="space-y-2 text-sm text-purple-800">
+        `;
+
+        if (fluency.speech_rate !== undefined) {
+          detailsHtml += `<div><strong>발화 속도:</strong> ${fluency.speech_rate.toFixed(
+            1
+          )} wpm</div>`;
+        }
+        if (fluency.rhythm_score !== undefined) {
+          detailsHtml += `<div><strong>리듬 점수:</strong> ${fluency.rhythm_score.toFixed(
+            1
+          )}%</div>`;
+        }
+        if (fluency.intonation_score !== undefined) {
+          detailsHtml += `<div><strong>억양 점수:</strong> ${fluency.intonation_score.toFixed(
+            1
+          )}%</div>`;
+        }
+        if (fluency.pause_distribution !== undefined) {
+          detailsHtml += `<div><strong>쉼 배분:</strong> ${fluency.pause_distribution.toFixed(
+            1
+          )}%</div>`;
+        }
+
+        detailsHtml += `</div></div>`;
+      }
+
+      // 데이터가 없을 경우 메시지 표시
+      if (!detailsHtml) {
+        detailsHtml = `
+          <div class="p-4 bg-gray-100 rounded-lg text-center text-gray-600">
+            <p>상세 분석 데이터를 준비 중입니다...</p>
+          </div>
+        `;
+      }
+
+      detailsContent.innerHTML = detailsHtml;
+    }
+
+    // AI 피드백 섹션
+    const aiFeedbackSection = document.getElementById("sp-ai-feedback-section");
+    const aiFeedbackContent = document.getElementById("sp-ai-feedback-content");
+
+    if (result.feedback && aiFeedbackContent) {
+      aiFeedbackContent.textContent = result.feedback;
+      if (aiFeedbackSection) {
+        aiFeedbackSection.classList.remove("hidden");
+      }
+    } else if (aiFeedbackSection) {
+      aiFeedbackSection.classList.add("hidden");
+    }
+
+    openSpeechProModal();
+  }
+
   function setupGenerateButton() {
     const topic = document.getElementById("topic");
     const btn = document.getElementById("generateBtn");
@@ -1032,90 +1261,7 @@ endblock %} {% block content %}
     topic.addEventListener("input", updateGenerateButton);
   }
 
-  // 2. Essay test functions
-
-    stopBtn.onclick = async () => {
-      try {
-        mediaRecorder.stop();
-        recordBtn.disabled = false;
-        recordBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        stopBtn.disabled = true;
-        stopBtn.classList.add(
-          "opacity-50",
-          "cursor-not-allowed",
-          "bg-gray-400"
-        );
-        stopBtn.classList.remove(
-          "bg-gradient-to-r",
-          "from-gray-600",
-          "to-gray-700"
-        );
-
-        mediaRecorder.onstop = async () => {
-          // Stop all tracks in the media stream
-          if (mediaStream) {
-            mediaStream.getTracks().forEach((track) => track.stop());
-            mediaStream = null;
-          }
-
-          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-          const formData = new FormData();
-          formData.append("file", audioBlob, "recording.wav");
-          const targetText = document.getElementById("targetText").innerText;
-          formData.append("text", targetText);
-
-          document.getElementById("pronResult").innerHTML =
-            '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600"></div><span class="text-sm text-gray-600">SpeechPro API로 분석 중입니다...</span></div>';
-
-          try {
-            const res = await fetch("/api/speechpro/evaluate", {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-
-            if (data.error) {
-              document.getElementById("pronResult").innerHTML = `
-                <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-                  <p class="text-red-600 text-xs mt-1">${data.error}</p>
-                  ${
-                    data.details
-                      ? '<p class="text-gray-600 text-xs mt-1">' +
-                        data.details +
-                        "</p>"
-                      : ""
-                  }
-                </div>
-              `;
-            } else {
-              // Show modal with SpeechPro results
-              showSpeechProModal(data, targetText);
-
-              // Also show brief result in pronResult
-              const score = data.score || 0;
-              document.getElementById("pronResult").innerHTML = `
-                <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p class="text-sm text-gray-700">✅ 분석 완료! 상세 결과는 모달창을 확인하세요.</p>
-                  <p class="text-lg font-bold text-green-700 mt-1">최종 점수: ${score}점</p>
-                </div>
-              `;
-            }
-          } catch (error) {
-            document.getElementById("pronResult").innerHTML = `
-              <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-                <p class="text-red-600 text-xs mt-1">발음 분석 중 문제가 발생했습니다.</p>
-              </div>
-            `;
-          }
-        };
-      } catch (error) {
-        console.error("녹음 중지 오류:", error);
-        alert("녹음 중 오류가 발생했습니다.");
-      }
-    };
-  }
+  // 2. Essay test functions (placeholder - recording logic removed)
 
   // Speak a given string using Web Speech API (used by per-item buttons)
   function speakText(txt) {
@@ -1233,19 +1379,8 @@ endblock %} {% block content %}
     const words = Array.from(vocabElements).map((el) => el.textContent.trim());
     const randomWord = words[Math.floor(Math.random() * words.length)];
 
-    document.getElementById("targetText").innerText = randomWord;
-
-    // Scroll to pronunciation section
-    document
-      .querySelector(".from-red-50")
-      .scrollIntoView({ behavior: "smooth", block: "center" });
-
-    // Visual feedback
-    const targetEl = document.getElementById("targetText");
-    targetEl.classList.add("animate-pulse");
-    setTimeout(() => {
-      targetEl.classList.remove("animate-pulse");
-    }, 1000);
+    // targetText element removed - just log the word
+    console.log("Random word selected:", randomWord);
   }
 
   // 3. Fluency test
@@ -1318,7 +1453,10 @@ endblock %} {% block content %}
     const formData = new FormData();
     formData.append("situation", situation);
     formData.append("level", level);
-    formData.append("model", document.getElementById("modelSelect").value || "llama2");
+    formData.append(
+      "model",
+      document.getElementById("modelSelect").value || "llama2"
+    );
 
     try {
       const res = await fetch("/api/situational-content", {
@@ -1353,13 +1491,21 @@ endblock %} {% block content %}
             <div class="p-3 bg-white border border-purple-200 rounded-lg">
               <p class="text-xs text-gray-600 font-semibold mb-2">💬 주요 표현</p>
               <div class="space-y-2">
-                ${data.key_expressions.map(expr => `
+                ${data.key_expressions
+                  .map(
+                    (expr) => `
                   <div class="p-2 bg-purple-50 rounded">
-                    <p class="text-sm font-medium text-gray-900">${expr.korean}</p>
-                    <p class="text-xs text-gray-600 italic">${expr.romanization || ''}</p>
+                    <p class="text-sm font-medium text-gray-900">${
+                      expr.korean
+                    }</p>
+                    <p class="text-xs text-gray-600 italic">${
+                      expr.romanization || ""
+                    }</p>
                     <p class="text-xs text-gray-700 mt-1">📝 ${expr.meaning}</p>
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </div>
             </div>
           `;
@@ -1371,11 +1517,19 @@ endblock %} {% block content %}
             <div class="p-3 bg-white border border-purple-200 rounded-lg">
               <p class="text-xs text-gray-600 font-semibold mb-2">🎭 예시 대화</p>
               <div class="space-y-2 text-sm">
-                ${data.example_dialogue.map(turn => `
-                  <div class="p-2 ${turn.role === 'A' ? 'bg-blue-50 ml-2' : 'bg-gray-50 mr-2'} rounded">
-                    <p class="font-medium text-gray-900">${turn.role}: ${turn.text}</p>
+                ${data.example_dialogue
+                  .map(
+                    (turn) => `
+                  <div class="p-2 ${
+                    turn.role === "A" ? "bg-blue-50 ml-2" : "bg-gray-50 mr-2"
+                  } rounded">
+                    <p class="font-medium text-gray-900">${turn.role}: ${
+                      turn.text
+                    }</p>
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </div>
             </div>
           `;
@@ -1387,17 +1541,21 @@ endblock %} {% block content %}
             <div class="p-3 bg-white border border-purple-200 rounded-lg">
               <p class="text-xs text-gray-600 font-semibold mb-2">📚 관련 어휘</p>
               <div class="flex flex-wrap gap-2">
-                ${data.vocabulary.map(word => `
+                ${data.vocabulary
+                  .map(
+                    (word) => `
                   <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
                     ${word}
                   </span>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </div>
             </div>
           `;
         }
 
-        html += '</div>';
+        html += "</div>";
         resultDiv.innerHTML = html;
       }
     } catch (error) {

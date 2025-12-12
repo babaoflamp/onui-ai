@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% block title %}가격 정책 - 오누이 한국어{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/pricing.css" />
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header Section -->
+  <div class="text-center mb-12">
+    <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold">
+      <span>💰</span>
+      <span>합리적인 가격, 최고의 가치</span>
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+      오누이 한국어 가격 정책
+    </h1>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+      무료로 시작하고, 필요할 때 업그레이드하세요.<br />
+      모든 플랜에서 AI 기반 개인화 학습을 제공합니다.
+    </p>
+  </div>
+
+  <!-- Pricing Toggle (월간/연간) -->
+  <div class="flex justify-center items-center gap-4 mb-10">
+    <span id="monthly-label" class="text-sm font-medium text-gray-900">월간</span>
+    <button
+      id="pricing-toggle"
+      class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+      role="switch"
+      aria-checked="false"
+    >
+      <span class="sr-only">연간 결제 전환</span>
+      <span
+        id="toggle-indicator"
+        class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1"
+      ></span>
+    </button>
+    <span id="annual-label" class="text-sm font-medium text-gray-500">
+      연간 <span class="text-orange-600 font-bold">(17% 할인)</span>
+    </span>
+  </div>
+
+  <!-- Pricing Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <!-- Free Plan -->
+    <div class="pricing-card bg-white rounded-2xl shadow-lg border-2 border-gray-200 p-8 transition-transform hover:scale-105">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">🆓</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Free</h3>
+        <p class="text-gray-600 mb-4">부담 없이 시작하세요</p>
+        <div class="text-4xl font-bold text-gray-900 mb-2">₩0</div>
+        <div class="text-sm text-gray-500">영구 무료</div>
+      </div>
+
+      <ul class="space-y-3 mb-8">
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">발음 평가 하루 3회</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">유창성 평가 하루 2회</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">AI 교재 생성 하루 2회</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">학습 활동 무제한</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">기본 학습 진도</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-red-500 font-bold mt-1">✗</span>
+          <span class="text-sm text-gray-400">AI 챗봇</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-red-500 font-bold mt-1">✗</span>
+          <span class="text-sm text-gray-400">상세 학습 리포트</span>
+        </li>
+      </ul>
+
+      <button class="w-full py-3 px-6 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+        무료로 시작하기
+      </button>
+
+      <p class="text-xs text-gray-500 text-center mt-4">
+        신용카드 불필요
+      </p>
+    </div>
+
+    <!-- Standard Plan (추천) -->
+    <div class="pricing-card recommended bg-white rounded-2xl shadow-2xl border-4 border-orange-400 p-8 relative transition-transform hover:scale-105">
+      <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+        ⭐ 추천
+      </div>
+
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">🚀</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Standard</h3>
+        <p class="text-gray-600 mb-4">진지한 학습자를 위한</p>
+        <div class="text-4xl font-bold text-orange-600 mb-2">
+          <span class="monthly-price">₩9,900</span>
+          <span class="annual-price hidden">₩8,250</span>
+        </div>
+        <div class="text-sm text-gray-500">
+          <span class="monthly-period">/ 월</span>
+          <span class="annual-period hidden">/ 월 (연간 결제)</span>
+        </div>
+        <div class="annual-savings hidden text-xs text-orange-600 font-semibold mt-1">
+          연간 ₩99,000 (₩20,880 절약)
+        </div>
+      </div>
+
+      <ul class="space-y-3 mb-8">
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700 font-semibold">발음/유창성 평가 무제한</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700 font-semibold">AI 교재 생성 무제한</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">세밀한 AI 복합 피드백</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">AI 챗봇 무제한</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">주간/월간 학습 리포트</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">고품질 TTS (8개 화자)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-green-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">학습 데이터 다운로드</span>
+        </li>
+      </ul>
+
+      <button class="w-full py-3 px-6 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition-colors shadow-lg">
+        Standard 시작하기
+      </button>
+
+      <p class="text-xs text-gray-500 text-center mt-4">
+        첫 30일 무료 체험
+      </p>
+    </div>
+
+    <!-- Premium Plan -->
+    <div class="pricing-card bg-white rounded-2xl shadow-lg border-2 border-indigo-200 p-8 transition-transform hover:scale-105">
+      <div class="text-center mb-6">
+        <div class="text-4xl mb-3">💎</div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
+        <p class="text-gray-600 mb-4">전문가 수준 학습</p>
+        <div class="text-4xl font-bold text-indigo-600 mb-2">
+          <span class="monthly-price">₩19,900</span>
+          <span class="annual-price hidden">₩16,583</span>
+        </div>
+        <div class="text-sm text-gray-500">
+          <span class="monthly-period">/ 월</span>
+          <span class="annual-period hidden">/ 월 (연간 결제)</span>
+        </div>
+        <div class="annual-savings hidden text-xs text-indigo-600 font-semibold mt-1">
+          연간 ₩199,000 (₩39,800 절약)
+        </div>
+      </div>
+
+      <ul class="space-y-3 mb-8">
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700 font-semibold">모든 Standard 기능</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700 font-semibold">월 2회 전문 튜터 수업</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">개인 학습 플랜 수립</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">과제 첨삭 (월 8건)</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">GPT-4 AI 챗봇</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">프리미엄 콘텐츠</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-indigo-500 font-bold mt-1">✓</span>
+          <span class="text-sm text-gray-700">공식 수료증 발급</span>
+        </li>
+      </ul>
+
+      <button class="w-full py-3 px-6 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600 transition-colors shadow-lg">
+        Premium 시작하기
+      </button>
+
+      <p class="text-xs text-gray-500 text-center mt-4">
+        첫 30일 무료 체험
+      </p>
+    </div>
+  </div>
+
+  <!-- Feature Comparison Table -->
+  <div class="bg-white rounded-2xl shadow-lg p-8 mb-16">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+      플랜별 기능 비교
+    </h2>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b-2 border-gray-200">
+            <th class="py-4 px-4 text-gray-900 font-semibold">기능</th>
+            <th class="py-4 px-4 text-center text-gray-900 font-semibold">Free</th>
+            <th class="py-4 px-4 text-center text-orange-600 font-semibold">Standard</th>
+            <th class="py-4 px-4 text-center text-indigo-600 font-semibold">Premium</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">발음 평가 (SpeechPro)</td>
+            <td class="py-4 px-4 text-center text-sm">하루 3회</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-orange-600">무제한</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-indigo-600">무제한</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">유창성 평가 (FluencyPro)</td>
+            <td class="py-4 px-4 text-center text-sm">하루 2회</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-orange-600">무제한</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-indigo-600">무제한</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">AI 교재 생성</td>
+            <td class="py-4 px-4 text-center text-sm">하루 2회</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-orange-600">무제한</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold text-indigo-600">무제한</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">AI 챗봇</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm">✅ Ollama</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold">✅ GPT-4</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">학습 리포트</td>
+            <td class="py-4 px-4 text-center text-sm">기본</td>
+            <td class="py-4 px-4 text-center text-sm">상세</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold">상세 + 맞춤 추천</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">고품질 TTS</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm">✅</td>
+            <td class="py-4 px-4 text-center text-sm">✅</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">전문 튜터 수업</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm font-semibold">월 2회</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">프리미엄 콘텐츠</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm">✅</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">수료증 발급</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm text-gray-400">❌</td>
+            <td class="py-4 px-4 text-center text-sm">✅</td>
+          </tr>
+          <tr>
+            <td class="py-4 px-4 text-sm text-gray-700">동시 접속 기기</td>
+            <td class="py-4 px-4 text-center text-sm">1대</td>
+            <td class="py-4 px-4 text-center text-sm">2대</td>
+            <td class="py-4 px-4 text-center text-sm">5대</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Discounts Section -->
+  <div class="bg-gradient-to-br from-orange-50 to-indigo-50 rounded-2xl shadow-lg p-8 mb-16">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+      🎉 할인 혜택
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">🎓</span>
+          <h3 class="text-lg font-bold text-gray-900">학생 할인</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">20% OFF</p>
+        <p class="text-sm text-gray-600">재학 중인 대학생/고등학생 대상</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">👨‍👩‍👧‍👦</span>
+          <h3 class="text-lg font-bold text-gray-900">다문화 가정</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">30% OFF</p>
+        <p class="text-sm text-gray-600">다문화 가정 증명서 제출 시</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">👥</span>
+          <h3 class="text-lg font-bold text-gray-900">그룹 할인</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">최대 30% OFF</p>
+        <p class="text-sm text-gray-600">3인 이상 동시 가입 시</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">🎁</span>
+          <h3 class="text-lg font-bold text-gray-900">친구 추천</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">30% OFF</p>
+        <p class="text-sm text-gray-600">추천인 다음 결제 시 적용</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">📅</span>
+          <h3 class="text-lg font-bold text-gray-900">연간 구독</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">17% OFF</p>
+        <p class="text-sm text-gray-600">2개월 무료 (연간 결제)</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="text-3xl">🚀</span>
+          <h3 class="text-lg font-bold text-gray-900">론칭 특가</h3>
+        </div>
+        <p class="text-2xl font-bold text-orange-600 mb-2">50% OFF</p>
+        <p class="text-sm text-gray-600">첫 3개월 (한정 기간)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="bg-white rounded-2xl shadow-lg p-8 mb-16">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+      자주 묻는 질문
+    </h2>
+
+    <div class="space-y-6">
+      <div class="border-b border-gray-200 pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            무료 플랜을 계속 사용할 수 있나요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          네! 무료 플랜은 영구 무료이며, 언제든지 유료 플랜으로 업그레이드 가능합니다.
+        </div>
+      </div>
+
+      <div class="border-b border-gray-200 pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            플랜을 변경하면 어떻게 되나요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          업그레이드는 즉시 적용되며 차액만 결제됩니다. 다운그레이드는 다음 결제일부터 적용됩니다.
+        </div>
+      </div>
+
+      <div class="border-b border-gray-200 pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            연간 구독을 중간에 해지하면 환불받을 수 있나요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          네, 사용하지 않은 기간에 대해 비례 환불됩니다. (단, 프로모션 할인 제외)
+        </div>
+      </div>
+
+      <div class="border-b border-gray-200 pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            학생 할인은 어떻게 받나요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          마이페이지에서 학생증 또는 재학증명서를 업로드하면 24시간 내 승인됩니다.
+        </div>
+      </div>
+
+      <div class="border-b border-gray-200 pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            여러 기기에서 동시 사용이 가능한가요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          Free/Standard는 최대 2대, Premium은 최대 5대에서 동시 사용 가능합니다.
+        </div>
+      </div>
+
+      <div class="pb-6">
+        <button class="faq-question w-full text-left flex items-start justify-between gap-4" onclick="toggleFAQ(this)">
+          <h3 class="text-lg font-semibold text-gray-900">
+            해외에서도 사용할 수 있나요?
+          </h3>
+          <span class="text-orange-500 text-xl flex-shrink-0">+</span>
+        </button>
+        <div class="faq-answer hidden mt-4 text-gray-600">
+          네, 전 세계 어디서나 인터넷만 연결되면 사용 가능합니다. PayPal 결제를 지원합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="bg-gradient-to-r from-orange-500 to-indigo-500 rounded-2xl shadow-2xl p-12 text-center text-white">
+    <h2 class="text-3xl font-bold mb-4">
+      지금 바로 시작하세요!
+    </h2>
+    <p class="text-lg mb-8 opacity-90">
+      무료로 시작하고, 필요할 때 언제든 업그레이드하세요.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/signup" class="px-8 py-4 bg-white text-orange-600 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg">
+        무료로 시작하기
+      </a>
+      <a href="/login" class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-lg font-bold hover:bg-white hover:text-orange-600 transition-colors">
+        로그인
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/pricing.js"></script>
+{% endblock %}

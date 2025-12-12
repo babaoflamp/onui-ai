@@ -146,62 +146,61 @@
   // 캐릭터 정보
   const characterInfo = {
     oppa: {
-      emoji: "🧑",
-      name: "오빠",
-      color: "blue",
+      emoji: "👦",
+      name: "오빠 (남동생)",
       style: "popup-oppa",
-      messages: [
-        "안녕! 오늘도 열심히 공부하고 있네요.",
-        "발음 연습 좋아요! 계속 화이팅!",
-        "오늘 학습을 시작했네요. 화이팅!",
-      ],
     },
     tiger: {
       emoji: "🐯",
       name: "호랑이",
-      color: "orange",
       style: "popup-tiger",
-      messages: [
-        "야! 너는 할 수 있어!",
-        "계속 연습해봐. 너라면 되지!",
-        "경고: 이대로는 진행이 느려. 좀 더 열심히!",
-      ],
     },
     sister: {
       emoji: "👧",
-      name: "동생",
-      color: "pink",
+      name: "여동생",
       style: "popup-sister",
-      messages: [
-        "오빠/언니, 발음이 좋아졌어!",
-        "대단해! 정말 잘하고 있어!",
-        "칭찬해! 너 정말 멋있어!",
-      ],
     },
   };
 
-  function showCharacterPopup(character, message, popupType) {
-    const modal = document.getElementById("character-popup-modal");
-    const letter = document.getElementById("popup-letter");
+  // 팝업 데이터 저장
+  let currentPopupData = null;
+
+  /**
+   * 캐릭터 팝업 표시 (백엔드 데이터 사용)
+   * @param {Object} popupData - 백엔드에서 받은 팝업 데이터
+   */
+  function showCharacterPopup(popupData) {
+    if (!popupData || !popupData.should_show) return;
+
+    currentPopupData = popupData;
+    const character = popupData.character;
     const charInfo = characterInfo[character];
 
-    if (!charInfo) return;
+    if (!charInfo) {
+      console.error('Unknown character:', character);
+      return;
+    }
+
+    const modal = document.getElementById("character-popup-modal");
+    const letter = document.getElementById("popup-letter");
 
     // 스타일 적용
-    letter.className = charInfo.style;
+    letter.className = `bg-yellow-50 rounded-none border-8 border-yellow-900 p-8 shadow-2xl relative ${charInfo.style}`;
 
     // 캐릭터 설정
     document.getElementById("popup-character").textContent = charInfo.emoji;
-    document.getElementById(
-      "popup-sender"
-    ).textContent = `${charInfo.name}로부터`;
-    document.getElementById("popup-message").textContent = message;
+    document.getElementById("popup-sender").textContent = `${charInfo.name}로부터`;
+    document.getElementById("popup-message").textContent = popupData.message;
 
-    // 날짜
-    const today = new Date().toLocaleDateString("ko-KR");
+    // 날짜 설정
+    const today = new Date().toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
     document.getElementById("popup-date").textContent = today;
 
-    // 색상 테마
+    // 색상 테마 (왁스 씰)
     const sealElement = document.getElementById("popup-seal");
     sealElement.textContent = charInfo.emoji;
 
@@ -209,36 +208,97 @@
     modal.classList.remove("hidden");
 
     // 팝업 표시 기록 (서버에)
-    recordPopupShown(character, popupType, message);
+    recordPopupShown(popupData);
   }
 
+  /**
+   * 서버에서 팝업 트리거 확인
+   */
+  async function checkPopupTrigger() {
+    try {
+      const token = localStorage.getItem('session_token');
+      if (!token) return;
+
+      const response = await fetch('/api/learning/check-popup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+      if (data.popup) {
+        showCharacterPopup(data.popup);
+      }
+    } catch (error) {
+      console.error('팝업 확인 실패:', error);
+    }
+  }
+
+  /**
+   * 팝업 닫기
+   */
   function closeCharacterPopup() {
     const modal = document.getElementById("character-popup-modal");
     modal.classList.add("hidden");
+    currentPopupData = null;
   }
 
+  /**
+   * 팝업 다음에 보기 (나중에 다시 표시)
+   */
   function dismissCharacterPopup() {
     const modal = document.getElementById("character-popup-modal");
     modal.classList.add("hidden");
-    // 나중에 다시 보여주도록 처리
+    // TODO: 다음에 다시 보기 기능 구현
+    currentPopupData = null;
   }
 
-  async function recordPopupShown(character, popupType, message) {
+  /**
+   * 팝업 표시 기록
+   */
+  async function recordPopupShown(popupData) {
     try {
+      const token = localStorage.getItem('session_token');
+      if (!token) return;
+
       await fetch("/api/learning/popup-shown", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          character,
-          popup_type: popupType,
-          message,
-          trigger_reason: "user_activity",
+          popup_type: popupData.type,
+          character: popupData.character,
+          message: popupData.message,
+          trigger_reason: popupData.trigger,
         }),
       });
     } catch (error) {
-      console.error("Failed to record popup:", error);
+      console.error("팝업 기록 실패:", error);
     }
   }
+
+  // ESC 키로 팝업 닫기
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById("character-popup-modal");
+      if (!modal.classList.contains('hidden')) {
+        closeCharacterPopup();
+      }
+    }
+  });
+
+  // 페이지 로드 시 팝업 확인 (로그인된 경우)
+  window.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('session_token');
+    if (token) {
+      // 3초 후에 팝업 확인 (페이지 로딩 완료 후)
+      setTimeout(checkPopupTrigger, 3000);
+    }
+  });
 </script>

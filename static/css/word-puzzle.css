@@ -65,7 +65,7 @@
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 }
 
 .puzzle-header-row {
@@ -109,7 +109,7 @@
   border-radius: 999px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
   font-size: 13px;
   cursor: grab;
   user-select: none;
@@ -118,13 +118,14 @@
   justify-content: center;
   min-width: 48px;
   text-align: center;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .word-card:active {
   cursor: grabbing;
   transform: scale(1.03);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.14);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.14);
 }
 
 .word-card.dragging {
@@ -151,17 +152,33 @@
 }
 
 @keyframes pop {
-  0% { transform: translateY(0) scale(1); }
-  40% { transform: translateY(-3px) scale(1.03); }
-  100% { transform: translateY(0) scale(1); }
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-3px) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  50% { transform: translateX(2px); }
-  75% { transform: translateX(-2px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  50% {
+    transform: translateX(2px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .buttons-row {
@@ -180,19 +197,18 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s ease, transform 0.12s ease,
-    box-shadow 0.12s ease;
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: #ffffff;
-  box-shadow: 0 5px 12px rgba(99,102,241,0.35);
+  box-shadow: 0 5px 12px rgba(99, 102, 241, 0.35);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 14px rgba(99,102,241,0.45);
+  box-shadow: 0 8px 14px rgba(99, 102, 241, 0.45);
 }
 
 .btn-outline {

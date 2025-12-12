@@ -133,9 +133,11 @@ endblock %} {% block content %}
         }
 
         const data = await res.json();
-        // Store token in localStorage
+        // Store token and nickname in localStorage
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_nickname", data.nickname);
+        // Reset welcome mail flag for new login
+        localStorage.removeItem("welcome_mail_sent");
         setStatus(`✓ ${data.nickname}님 환영합니다!`);
 
         // Redirect after 1.5 seconds

@@ -4,6 +4,7 @@ import csv
 import sqlite3
 import hashlib
 import hmac
+import logging
 from functools import lru_cache
 from pathlib import Path
 from datetime import datetime
@@ -11,6 +12,7 @@ from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 # from openai import OpenAI
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
@@ -577,9 +579,66 @@ def _get_user_by_id(user_id: int) -> dict:
         conn.close()
 
 
+# ==========================================
+# 로깅 설정
+# ==========================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/detailed.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Uvicorn 로거 설정
+uvicorn_logger = logging.getLogger("uvicorn")
+uvicorn_logger.setLevel(logging.INFO)
+
+
+# 요청/응답 로깅 미들웨어
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # 요청 정보 기록
+        client_host = request.client.host if request.client else "Unknown"
+        method = request.method
+        path = request.url.path
+        query_params = dict(request.query_params) if request.query_params else {}
+        
+        logger.info(f"[REQUEST] {method} {path} from {client_host}")
+        if query_params:
+            logger.info(f"[QUERY] {query_params}")
+        
+        # 요청 본문 (POST/PUT 등)
+        if method in ["POST", "PUT", "PATCH"]:
+            try:
+                body = await request.body()
+                if body:
+                    # JSON 형식이면 파싱, 아니면 문자열로
+                    try:
+                        body_json = json.loads(body)
+                        logger.info(f"[BODY] {json.dumps(body_json, ensure_ascii=False)[:500]}")
+                    except:
+                        logger.info(f"[BODY] {body.decode('utf-8', errors='ignore')[:500]}")
+            except Exception as e:
+                logger.debug(f"[BODY_ERROR] {e}")
+        
+        try:
+            response = await call_next(request)
+            # 응답 정보 기록
+            logger.info(f"[RESPONSE] {method} {path} - Status: {response.status_code}")
+            return response
+        except Exception as e:
+            logger.error(f"[ERROR] {method} {path} - {str(e)}", exc_info=True)
+            raise
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+# 로깅 미들웨어 추가
+app.add_middleware(LoggingMiddleware)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -587,16 +646,22 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 def startup_event():
+    logger.info("=" * 50)
+    logger.info("FastAPI 서버 시작")
+    logger.info("=" * 50)
+    logger.info(f"모델 백엔드: {MODEL_BACKEND}")
     # If using Ollama, try to auto-select a suitable model when app starts
     if MODEL_BACKEND == "ollama":
         try:
             _auto_select_ollama_model()
+            logger.info("Ollama 모델 자동 선택 완료")
         except Exception as e:
-            print(f"Ollama auto-select failed: {e}")
+            logger.error(f"Ollama auto-select failed: {e}")
     try:
         _init_user_db()
+        logger.info("사용자 데이터베이스 초기화 완료")
     except Exception as e:
-        print(f"User DB init failed: {e}")
+        logger.error(f"User DB init failed: {e}")
 
 # ==========================================
 # 학습 데이터 로드 헬퍼 함수
@@ -849,6 +914,11 @@ def vocab_garden_page(request: Request):
     """단어 꽃밭 (Vocabulary Garden)"""
     return templates.TemplateResponse("vocab-garden.html", {"request": request})
 
+@app.get("/vocabulary-progress")
+def vocabulary_progress_page(request: Request):
+    """어휘 진도 (Vocabulary Progress)"""
+    return templates.TemplateResponse("vocabulary-progress.html", {"request": request})
+
 @app.get("/pronunciation-practice")
 def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
@@ -928,7 +998,7 @@ async def landing_intake(payload: dict):
 # 로그인 (계정 인증)
 # ------------------------------------------
 @app.post("/api/login")
-async def login(payload: dict):
+async def login(request: Request, payload: dict):
     """사용자 로그인: 이메일과 비밀번호로 인증."""
     email = (payload.get("email") or "").strip().lower()
     password = payload.get("password") or ""
@@ -943,12 +1013,47 @@ async def login(payload: dict):
     # Create session token
     token = _create_session_token(user["id"], user["email"])
     
+    # Log successful login
+    client_host = request.client.host if request.client else "Unknown"
+    logger.info(f"[USER_LOGIN] {user['nickname']} ({user['email']}) logged in from {client_host}")
+    
     return {
         "success": True,
         "token": token,
         "email": user["email"],
         "nickname": user["nickname"],
     }
+
+
+@app.post("/api/log/guest-login")
+async def log_guest_login(request: Request, payload: dict):
+    """게스트 로그인 로그 기록"""
+    nickname = payload.get("nickname", "Unknown")
+    timestamp = payload.get("timestamp", "")
+    user_agent = payload.get("userAgent", "")
+    language = payload.get("language", "")
+    client_host = request.client.host if request.client else "Unknown"
+    
+    logger.info(f"[GUEST_LOGIN] {nickname} logged in from {client_host}")
+    logger.info(f"[GUEST_INFO] UserAgent: {user_agent}, Language: {language}, Time: {timestamp}")
+    
+    return {"success": True, "message": "Guest login logged"}
+
+
+@app.post("/api/log/activity")
+async def log_user_activity(request: Request, payload: dict):
+    """사용자 활동 로그 기록"""
+    nickname = payload.get("nickname", "Unknown")
+    action = payload.get("action", "")
+    page = payload.get("page", "")
+    details = payload.get("details", {})
+    client_host = request.client.host if request.client else "Unknown"
+    
+    logger.info(f"[USER_ACTIVITY] {nickname} - {action} on {page} from {client_host}")
+    if details:
+        logger.info(f"[ACTIVITY_DETAILS] {details}")
+    
+    return {"success": True, "message": "Activity logged"}
 
 
 @app.post("/api/logout")
@@ -2673,21 +2778,32 @@ async def record_pronunciation_completed(request: Request):
 
 @app.post("/api/learning/popup-shown")
 async def record_popup_shown(request: Request):
-    """Pop-Up 표시 기록"""
+    """Pop-Up 표시 기록 (인증 필요)"""
     try:
+        # 사용자 인증 확인
+        user = await get_current_user(request)
+        if not user:
+            return JSONResponse(
+                status_code=401,
+                content={"error": "Unauthorized"}
+            )
+
         data = await request.json()
-        user_id = data.get("user_id", "anonymous")
+        user_id = user['id']
         popup_type = data.get("popup_type")
         character = data.get("character")
         message = data.get("message")
         trigger_reason = data.get("trigger_reason", "user_activity")
-        
+
         learning_service.record_popup_shown(
             user_id, popup_type, character, message, trigger_reason
         )
-        
+
         return JSONResponse({"success": True})
     except Exception as e:
+        print(f"Error recording popup: {e}")
+        import traceback
+        traceback.print_exc()
         return JSONResponse(
             status_code=500,
             content={"error": str(e)}
@@ -2717,29 +2833,33 @@ async def get_today_progress(user_id: str):
             content={"error": str(e)}
         )
 
-@app.post("/api/learning/check-popup/{user_id}")
-async def check_popup_trigger(user_id: str):
-    """Pop-Up 트리거 확인"""
+@app.post("/api/learning/check-popup")
+async def check_popup_trigger(request: Request):
+    """Pop-Up 트리거 확인 (인증 필요)"""
     try:
+        # 사용자 인증 확인
+        user = await get_current_user(request)
+        if not user:
+            return JSONResponse(
+                status_code=401,
+                content={"error": "Unauthorized"}
+            )
+
+        user_id = user['id']
         popup = learning_service.check_popup_trigger(user_id)
-        if popup:
+
+        if popup and popup.get('should_show'):
             return JSONResponse({
-                "should_show_popup": True,
-                "character": popup.get("character", "오빠"),
-                "popup_message": popup.get("message", ""),
-                "popup_type": popup.get("type", "info"),
-                "trigger": popup.get("trigger", "")
+                "popup": popup
             })
         else:
             return JSONResponse({
-                "should_show_popup": False,
-                "character": None,
-                "popup_message": None,
-                "popup_type": None,
-                "trigger": None
+                "popup": None
             })
     except Exception as e:
         print(f"Error checking popup: {e}")
+        import traceback
+        traceback.print_exc()
         return JSONResponse(
             status_code=500,
             content={"error": str(e)}
@@ -2807,4 +2927,12 @@ async def generate_music(request: Request):
         )
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=9000, reload=True)
+    logger.info("Uvicorn 서버 시작: 0.0.0.0:9000")
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=9000,
+        reload=True,
+        log_level="info",
+        access_log=True
+    )
