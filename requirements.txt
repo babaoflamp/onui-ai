@@ -8,3 +8,5 @@ requests
 jinja2
 vosk
 google-generativeai
+websockets
+pydub
