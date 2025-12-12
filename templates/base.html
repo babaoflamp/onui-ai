@@ -205,7 +205,10 @@
                 <div class="dropdown-content">
                   <a href="/speechpro-practice">🎤 발음 정확도 평가</a>
                   <a href="/fluency-practice">🗣️ 유창성 평가</a>
+                  <a href="/pronunciation-check">🎯 발음 검사</a>
+                  <a href="/pronunciation-correction">✏️ 발음 교정</a>
                   <a href="/pronunciation-stages">📚 단계별 발음 학습</a>
+                  <a href="/pronunciation-practice">🎵 발음 연습</a>
                   <a href="/pronunciation-rules">📖 발음 규칙</a>
                   <a href="/vocabulary-progress">📈 어휘 진도</a>
                 </div>
@@ -221,7 +224,9 @@
                 <div class="dropdown-content">
                   <a href="/learning">🎓 AI 학습 도구</a>
                   <a href="/content-generation">📚 맞춤형 교재</a>
-                  <a href="/fluency-test">✍️ 작문 테스트</a>
+                  <a href="/custom-materials">📑 맞춤 학습 자료</a>
+                  <a href="/essay-test">📝 에세이 평가</a>
+                  <a href="/fluency-test">✍️ 작문 유창성 테스트</a>
                   <a href="/media-generation">🎨 상황별 콘텐츠 생성</a>
                 </div>
               </div>
@@ -239,8 +244,8 @@
                   >
                     재미있는 놀이
                   </div>
-                  <a href="/word-puzzle">🧩 단어 삭제</a>
-                  <a href="/vocab-garden">🌊 조사 떠다니기</a>
+                  <a href="/word-puzzle">🧩 문장 순서 맞추기</a>
+                  <a href="/vocab-garden">🌸 단어 꽃밭</a>
                   <a href="/daily-expression">💬 오늘의 표현</a>
                   <span class="menu-disabled block px-4 py-3 text-xs"
                     >👽 갤러그 (준비중)</span
@@ -313,7 +318,15 @@
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
-              내 프로필
+              👤 내 프로필
+            </a>
+            <a
+              href="/change-password"
+              id="change-password-link"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
+              style="display: none"
+            >
+              🔐 비밀번호 변경
             </a>
             <span
               id="user-display"
@@ -397,9 +410,24 @@
               >🗣️ 유창성 평가</a
             >
             <a
+              href="/pronunciation-check"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >🎯 발음 검사</a
+            >
+            <a
+              href="/pronunciation-correction"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >✏️ 발음 교정</a
+            >
+            <a
               href="/pronunciation-stages"
               class="block pl-4 py-1 text-sm text-gray-600"
               >📚 단계별 발음 학습</a
+            >
+            <a
+              href="/pronunciation-practice"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >🎵 발음 연습</a
             >
             <a
               href="/pronunciation-rules"
@@ -427,9 +455,19 @@
               >📚 맞춤형 교재</a
             >
             <a
+              href="/custom-materials"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >📑 맞춤 학습 자료</a
+            >
+            <a
+              href="/essay-test"
+              class="block pl-4 py-1 text-sm text-gray-600"
+              >📝 에세이 평가</a
+            >
+            <a
               href="/fluency-test"
               class="block pl-4 py-1 text-sm text-gray-600"
-              >✍️ 작문 테스트</a
+              >✍️ 작문 유창성 테스트</a
             >
             <a
               href="/media-generation"
@@ -450,12 +488,12 @@
               <a
                 href="/word-puzzle"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🧩 단어 삭제</a
+                >🧩 문장 순서 맞추기</a
               >
               <a
                 href="/vocab-garden"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🌊 조사 떠다니기</a
+                >🌸 단어 꽃밭</a
               >
               <a
                 href="/daily-expression"
@@ -555,6 +593,12 @@
               class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
             >
               👤 내 프로필
+            </a>
+            <a
+              href="/change-password"
+              class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+            >
+              🔐 비밀번호 변경
             </a>
             <button
               id="mobile-logout-btn"
@@ -1049,6 +1093,7 @@
         const loginLink = document.getElementById("login-link");
         const progressLink = document.getElementById("progress-link");
         const mypageLink = document.getElementById("mypage-link");
+        const changePasswordLink = document.getElementById("change-password-link");
         const userDisplay = document.getElementById("user-display");
         const logoutBtn = document.getElementById("logout-btn");
         const mobileUserMenu = document.getElementById("mobile-user-menu");
@@ -1058,6 +1103,7 @@
           if (loginLink) loginLink.style.display = "none";
           if (progressLink) progressLink.style.display = "inline-block";
           if (mypageLink) mypageLink.style.display = "inline-block";
+          if (changePasswordLink) changePasswordLink.style.display = "inline-block";
           if (userDisplay) {
             userDisplay.textContent = `👤 ${nickname}`;
             userDisplay.style.display = "inline";
@@ -1075,6 +1121,7 @@
           if (loginLink) loginLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
           if (mypageLink) mypageLink.style.display = "none";
+          if (changePasswordLink) changePasswordLink.style.display = "none";
           if (userDisplay) userDisplay.style.display = "none";
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";

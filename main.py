@@ -2458,6 +2458,18 @@ def chatbot_page(request: Request):
     return templates.TemplateResponse("chatbot.html", {"request": request})
 
 
+@app.get("/pricing")
+def pricing_page(request: Request):
+    """가격 정책 페이지"""
+    return templates.TemplateResponse("pricing.html", {"request": request})
+
+
+@app.get("/sentence-evaluation")
+def sentence_evaluation_page(request: Request):
+    """문장 평가 페이지"""
+    return templates.TemplateResponse("sentence-evaluation.html", {"request": request})
+
+
 @app.post("/api/chatbot")
 async def chatbot_api(request: Request):
     """EXAONE 기반 챗봇 API"""
