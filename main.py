@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
-# from openai import OpenAI
+from openai import OpenAI
 from dotenv import load_dotenv
 from difflib import SequenceMatcher
 import requests
@@ -45,6 +45,12 @@ from backend.services.learning_progress_service import LearningProgressService
 from backend.services.fluencypro_service import (
     call_fluencypro_analyze,
     parse_fluency_output
+)
+
+# DALL-E 서비스 임포트
+from backend.services.dalle_service import (
+    generate_image_dall_e,
+    enhance_prompt_for_korean_learning
 )
 
 # Try to provide a server-side romanization fallback for Korean -> Latin
@@ -2960,24 +2966,56 @@ async def check_popup_trigger(request: Request):
 
 @app.post("/api/generate-image")
 async def generate_image(request: Request):
-    """AI 이미지 생성 API (Placeholder)"""
+    """AI 이미지 생성 API (OpenAI DALL-E 3)"""
     try:
         data = await request.json()
-        situation = data.get("situation", "")
+        situation = data.get("situation", "").strip()
         style = data.get("style", "illustration")
-        
-        # TODO: 실제 AI 이미지 생성 API 연동 (Stable Diffusion, DALL-E 등)
-        # 현재는 placeholder 응답
-        
-        return JSONResponse({
-            "success": True,
-            "image_url": "https://via.placeholder.com/800x600/9333EA/ffffff?text=AI+Generated+Image",
-            "prompt": f"{situation} in {style} style",
-            "message": "이미지 생성 기능은 개발 중입니다. AI 이미지 생성 API 연동이 필요합니다."
-        })
-        
+
+        if not situation:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "message": "상황 설명을 입력해주세요."
+                }
+            )
+
+        logger.info(f"Image generation request - situation: {situation}, style: {style}")
+
+        # 한국어 프롬프트를 영어로 최적화
+        enhanced_prompt = enhance_prompt_for_korean_learning(situation, style)
+
+        # DALL-E API 호출 (로컬 저장 포함)
+        result = await generate_image_dall_e(
+            prompt=enhanced_prompt,
+            size=os.getenv("DALLE_IMAGE_SIZE", "1024x1024"),
+            quality=os.getenv("DALLE_QUALITY", "standard"),
+            style=os.getenv("DALLE_STYLE", "vivid"),
+            save_locally=True
+        )
+
+        if result["success"]:
+            logger.info(f"Image generated successfully: {result.get('local_path', result.get('image_url'))}")
+            return JSONResponse({
+                "success": True,
+                "image_url": result.get("image_url"),
+                "local_path": result.get("local_path"),
+                "revised_prompt": result.get("revised_prompt", enhanced_prompt),
+                "prompt": enhanced_prompt
+            })
+        else:
+            logger.error(f"Image generation failed: {result.get('error')}")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "message": f"이미지 생성 실패: {result.get('error', 'Unknown error')}"
+                }
+            )
+
     except Exception as e:
-        print(f"Error generating image: {e}")
+        logger.error(f"Error generating image: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content={

@@ -1,8 +1,8 @@
 fastapi
 uvicorn
 python-multipart
-# Pin `openai` to a version that doesn't require a missing `jiter` dependency
-openai==0.27.8
+# Updated to support OpenAI class import for DALL-E integration
+openai>=2.2.0
 python-dotenv
 requests
 jinja2
@@ -10,3 +10,5 @@ vosk
 google-generativeai
 websockets
 pydub
+aiohttp
+aiofiles
