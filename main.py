@@ -12,6 +12,7 @@ from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 # from openai import OpenAI
 from dotenv import load_dotenv
@@ -666,6 +667,25 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+# CORS 설정
+# 개발 환경: localhost 허용
+# 프로덕션 환경: ngrok 도메인 허용
+allowed_origins = [
+    "http://localhost:9000",
+    "http://127.0.0.1:9000",
+    "https://brainlessly-unequestrian-ember.ngrok-free.dev",
+    # 개발 중 다른 포트에서 테스트 시 필요하면 추가
+    "http://localhost:5173",  # Vite dev server (if needed)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 로깅 미들웨어 추가
 app.add_middleware(LoggingMiddleware)
@@ -2698,8 +2718,6 @@ async def get_fluency_metrics(user_id: str):
     """사용자 유창성 지표 조회"""
     try:
         # 데이터베이스에서 사용자의 유창성 데이터 조회
-        # TODO: 실제 데이터베이스 연동
-        
         db_path = "data/users.db"
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
