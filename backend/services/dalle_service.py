@@ -11,6 +11,10 @@ import aiofiles
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
