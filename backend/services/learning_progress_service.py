@@ -3,8 +3,51 @@
 """
 import sqlite3
 import json
+from pathlib import Path
+from functools import lru_cache
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+
+# Static dataset paths for coverage calculations
+DATA_DIR = Path("data")
+VOCAB_PATH = DATA_DIR / "vocabulary.json"
+SENTENCE_PATH = DATA_DIR / "sentences.json"
+
+
+@lru_cache(maxsize=1)
+def _load_dataset_totals():
+    """Load total counts for vocab/sentences once."""
+    vocab_total = 0
+    sentence_total = 0
+    try:
+        if VOCAB_PATH.exists():
+            with open(VOCAB_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    vocab_total = len(data)
+                elif isinstance(data, dict):
+                    vocab_total = len(data.get("words", []))
+    except Exception:
+        vocab_total = 0
+
+    try:
+        if SENTENCE_PATH.exists():
+            with open(SENTENCE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    sentence_total = len(data)
+                elif isinstance(data, dict):
+                    sentence_total = len(data.get("sentences", []))
+    except Exception:
+        sentence_total = 0
+
+    return {
+        "vocab_total": vocab_total,
+        "sentence_total": sentence_total,
+        # 콘텐츠 생성 목표치는 명시적 데이터가 없으므로 기본 20건으로 설정
+        "content_total": 20,
+    }
+
 
 class LearningProgressService:
     def __init__(self, db_path: str = "data/users.db"):
@@ -17,48 +60,9 @@ class LearningProgressService:
         cursor = conn.cursor()
         
         # 스키마 생성
-        cursor.executescript("""
+        cursor.executescript(
+            """
             CREATE TABLE IF NOT EXISTS user_learning_progress (
-
-        # Static dataset paths for coverage calculations
-        DATA_DIR = Path("data")
-        VOCAB_PATH = DATA_DIR / "vocabulary.json"
-        SENTENCE_PATH = DATA_DIR / "sentences.json"
-
-
-        @lru_cache(maxsize=1)
-        def _load_dataset_totals():
-            """Load total counts for vocab/sentences once."""
-            vocab_total = 0
-            sentence_total = 0
-            try:
-                if VOCAB_PATH.exists():
-                    with open(VOCAB_PATH, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        if isinstance(data, list):
-                            vocab_total = len(data)
-                        elif isinstance(data, dict):
-                            vocab_total = len(data.get("words", []))
-            except Exception:
-                vocab_total = 0
-
-            try:
-                if SENTENCE_PATH.exists():
-                    with open(SENTENCE_PATH, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        if isinstance(data, list):
-                            sentence_total = len(data)
-                        elif isinstance(data, dict):
-                            sentence_total = len(data.get("sentences", []))
-            except Exception:
-                sentence_total = 0
-
-            return {
-                "vocab_total": vocab_total,
-                "sentence_total": sentence_total,
-                # 콘텐츠 생성 목표치는 명시적 데이터가 없으므로 기본 20건으로 설정
-                "content_total": 20,
-            }
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT NOT NULL,
                 date TEXT NOT NULL,
@@ -111,7 +115,8 @@ class LearningProgressService:
                 ON popup_history(user_id);
             CREATE INDEX IF NOT EXISTS idx_session_log_user 
                 ON user_session_log(user_id);
-        """)
+            """
+        )
         conn.commit()
         conn.close()
     
@@ -166,43 +171,97 @@ class LearningProgressService:
         return {"updated": True, "new_score": new_avg}
     
     def check_popup_trigger(self, user_id: str) -> Optional[Dict]:
-        """Pop-Up 트리거 확인"""
+        """Pop-Up 트리거 확인 - 하루 1회 제한"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        # 오늘 이미 팝업 표시했는지 확인
+        cursor.execute(
+            """SELECT COUNT(*) FROM popup_history
+               WHERE user_id = ? AND DATE(shown_at) = ?""",
+            (user_id, today)
+        )
+        popup_count_today = cursor.fetchone()[0]
+        conn.close()
+
+        if popup_count_today > 0:
+            return None  # 오늘 이미 표시함
+
         progress = self.get_or_create_today_progress(user_id)
-        
-        # 트리거 조건 확인
+        stats = self.get_user_stats(user_id)
+
+        # 트리거 조건 확인 (우선순위 순서)
         triggers = []
-        
-        # 1. 첫 학습 (인사) - 오빠: 현재 상황 안내
-        if progress.get('pronunciation_practice_count', 0) == 1:
-            triggers.append(('greeting', '오빠', '첫 발음 연습을 시작했네요! 화이팅!'))
-        
-        # 2. 연속 3일 학습 (호랑이 격려)
-        if progress.get('consecutive_days', 0) == 3:
-            triggers.append(('achievement', '호랑이', '3일 연속 학습! 정말 대단해요!'))
-        
-        # 3. 평균 점수 80점 이상 (동생 칭찬)
-        if progress.get('pronunciation_avg_score', 0) >= 80:
-            triggers.append(('praise', '동생', '발음이 정말 좋아지고 있어요! 계속 화이팅!'))
-        
-        # 4. 발음 연습 5회 (호랑이 독려)
-        if progress.get('pronunciation_practice_count', 0) == 5:
-            triggers.append(('encouragement', '호랑이', '5번 연습했어요! 꾸준함이 최고입니다!'))
-        
-        # 5. 평균 점수 60점 이하 (호랑이 경고)
-        if progress.get('pronunciation_avg_score', 0) < 60 and progress.get('pronunciation_practice_count', 0) > 0:
-            triggers.append(('warning', '호랑이', '발음 점수가 낮네요. 천천히 다시 시도해보세요!'))
-        
+
+        # 1. 연속 학습일 달성 (오빠: 상황 안내)
+        consecutive_days = stats.get('consecutive_days', 0)
+        if consecutive_days in [3, 7, 14, 30]:
+            message = self._get_consecutive_message(consecutive_days)
+            triggers.append(('achievement', 'oppa', message, f'{consecutive_days}일 연속 학습'))
+
+        # 2. 발음 점수 우수 (동생: 칭찬)
+        avg_score = progress.get('pronunciation_avg_score', 0)
+        practice_count = progress.get('pronunciation_practice_count', 0)
+        if practice_count >= 3 and avg_score >= 85:
+            message = f"와! 오늘 평균 점수가 {avg_score:.0f}점이에요! 정말 멋져요! 이 실력이면 곧 완벽한 발음이 될 거예요! 💕"
+            triggers.append(('praise', 'sister', message, '높은 평균 점수'))
+
+        # 3. 학습 목표 달성 (동생: 칭찬)
+        if practice_count >= 10:
+            message = f"헉! 오늘 발음 연습을 {practice_count}번이나 했어요! 진짜 대단해요! 이렇게 열심히 하면 금방 고수가 될 거예요! 👏"
+            triggers.append(('praise', 'sister', message, '학습 목표 달성'))
+
+        # 4. 발음 점수 낮음 (호랑이: 독려)
+        if practice_count >= 3 and avg_score < 60:
+            message = f"흠... 오늘 평균 점수가 {avg_score:.0f}점이네요. 괜찮아요! 천천히 또박또박 발음해보세요. 꾸준히 연습하면 분명 좋아질 거예요! 🐯"
+            triggers.append(('encouragement', 'tiger', message, '낮은 점수 독려'))
+
+        # 5. 첫 학습 (오빠: 환영)
+        if stats.get('total_practices', 0) == 1:
+            message = "오누이 한국어에 오신 걸 환영해요! 오늘부터 함께 한국어 발음을 연습해볼까요? 천천히 하나씩 해나가면 돼요 😊"
+            triggers.append(('greeting', 'oppa', message, '첫 학습'))
+
+        # 6. 학습 재개 (호랑이: 경고)
+        last_learning = progress.get('last_learning_date')
+        if last_learning:
+            last_date = datetime.strptime(last_learning, "%Y-%m-%d")
+            days_gap = (datetime.now() - last_date).days
+            if days_gap >= 3 and days_gap < 7:
+                message = f"어? {days_gap}일 동안 안 오셨네요! 😿 연속 학습 기록이 끊어지기 전에 지금 바로 시작해볼까요? 조금만 더 힘내요!"
+                triggers.append(('warning', 'tiger', message, f'{days_gap}일 미접속'))
+
+        # 7. 오늘 첫 학습 (오빠: 상황 안내)
+        if practice_count == 1:
+            message = f"오늘 첫 발음 연습을 시작했네요! 현재 총 {stats.get('total_practices', 0)}번 연습했어요. 오늘도 화이팅! 📚"
+            triggers.append(('status', 'oppa', message, '오늘 첫 학습'))
+
         if triggers:
-            popup_type, character, message = triggers[0]
+            popup_type, character, message, trigger_reason = triggers[0]
             return {
                 'should_show': True,
                 'type': popup_type,
                 'character': character,
                 'message': message,
-                'trigger': triggers[0][0]
+                'trigger': trigger_reason,
+                'stats': {
+                    'consecutive_days': consecutive_days,
+                    'avg_score': avg_score,
+                    'practice_count': practice_count
+                }
             }
-        
+
         return None
+
+    def _get_consecutive_message(self, days: int) -> str:
+        """연속 학습일 메시지 생성"""
+        messages = {
+            3: "축하해요! 3일 연속 학습을 달성했어요! 🎉 이 페이스를 유지하면 한국어 실력이 쑥쑥 늘 거예요!",
+            7: "대단해요! 벌써 일주일 연속 학습이에요! 🌟 꾸준함이 최고의 실력이랍니다!",
+            14: "와! 2주 연속 학습! 정말 대단해요! 💪 이 정도면 진정한 한국어 학습자예요!",
+            30: "완전 놀라워요! 한 달 연속 학습! 🏆 이제 한국어가 완전히 익숙해졌을 거예요!"
+        }
+        return messages.get(days, f"{days}일 연속 학습 달성!")
     
     def record_popup_shown(self, user_id: str, popup_type: str, character: str, message: str, trigger_reason: str):
         """Pop-Up 표시 기록"""
