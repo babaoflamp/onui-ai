@@ -262,12 +262,14 @@
                 </div>
               </div>
 
+              <!-- API 테스트 - 관리자 페이지로 이동 예정
               <a
                 href="/api-test"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
                 🔧 API 테스트
               </a>
+              -->
 
               <a
                 href="/sitemap"
@@ -290,25 +292,10 @@
             </a>
             <a
               href="/mypage"
-              id="mypage-link"
-              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
-              style="display: none"
-            >
-              👤 내 프로필
-            </a>
-            <a
-              href="/change-password"
-              id="change-password-link"
-              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
-              style="display: none"
-            >
-              🔐 비밀번호 변경
-            </a>
-            <span
               id="user-display"
-              class="text-xs sm:text-sm text-gray-600"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
-            ></span>
+            ></a>
             <button
               id="logout-btn"
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900"
@@ -534,12 +521,14 @@
             </div>
           </div>
 
+          <!-- API 테스트 - 관리자 페이지로 이동 예정
           <a
             href="/api-test"
             class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
           >
             🔧 API 테스트
           </a>
+          -->
 
           <a
             href="/sitemap"
@@ -562,16 +551,9 @@
             </a>
             <a
               href="/mypage"
+              id="mobile-user-display"
               class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-            >
-              👤 내 프로필
-            </a>
-            <a
-              href="/change-password"
-              class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-            >
-              🔐 비밀번호 변경
-            </a>
+            ></a>
             <button
               id="mobile-logout-btn"
               class="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
@@ -1064,9 +1046,8 @@
         const nickname = localStorage.getItem("user_nickname");
         const loginLink = document.getElementById("login-link");
         const progressLink = document.getElementById("progress-link");
-        const mypageLink = document.getElementById("mypage-link");
-        const changePasswordLink = document.getElementById("change-password-link");
         const userDisplay = document.getElementById("user-display");
+        const mobileUserDisplay = document.getElementById("mobile-user-display");
         const logoutBtn = document.getElementById("logout-btn");
         const mobileUserMenu = document.getElementById("mobile-user-menu");
         const mobileLinkoutBtn = document.getElementById("mobile-logout-btn");
@@ -1074,11 +1055,12 @@
         if (token && nickname) {
           if (loginLink) loginLink.style.display = "none";
           if (progressLink) progressLink.style.display = "inline-block";
-          if (mypageLink) mypageLink.style.display = "inline-block";
-          if (changePasswordLink) changePasswordLink.style.display = "inline-block";
           if (userDisplay) {
             userDisplay.textContent = `👤 ${nickname}`;
-            userDisplay.style.display = "inline";
+            userDisplay.style.display = "inline-block";
+          }
+          if (mobileUserDisplay) {
+            mobileUserDisplay.textContent = `👤 ${nickname}`;
           }
           if (logoutBtn) {
             logoutBtn.style.display = "inline-block";
@@ -1092,8 +1074,6 @@
         } else {
           if (loginLink) loginLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
-          if (mypageLink) mypageLink.style.display = "none";
-          if (changePasswordLink) changePasswordLink.style.display = "none";
           if (userDisplay) userDisplay.style.display = "none";
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";
