@@ -8469,3 +8469,438 @@ jinja2.exceptions.TemplateNotFound: 'typing-game.html' not found in search path:
 2025-12-14 00:50:49,628 - main - INFO - [RESPONSE] GET /api-test - Status: 200
 2025-12-14 00:50:50,142 - main - INFO - [REQUEST] GET /api/ollama/models from 112.220.79.218 | User: Guest
 2025-12-14 00:50:50,154 - main - INFO - [RESPONSE] GET /api/ollama/models - Status: 200
+2025-12-14 00:53:18,011 - main - INFO - [REQUEST] GET /api-test from 112.220.79.218 | User: Guest
+2025-12-14 00:53:18,017 - main - INFO - [RESPONSE] GET /api-test - Status: 200
+2025-12-14 00:53:18,432 - main - INFO - [REQUEST] GET /api/ollama/models from 112.220.79.218 | User: Guest
+2025-12-14 00:53:18,448 - main - INFO - [RESPONSE] GET /api/ollama/models - Status: 200
+2025-12-14 00:53:18,722 - main - INFO - [REQUEST] GET /static/favicon.png from 112.220.79.218 | User: Guest
+2025-12-14 00:53:18,725 - main - INFO - [RESPONSE] GET /static/favicon.png - Status: 200
+2025-12-14 00:53:18,910 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:53:18,912 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:53:55,059 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:53:55,060 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:53:56,731 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:53:56,733 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:53:57,905 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:53:57,907 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:53:59,239 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:53:59,241 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:00,456 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:00,458 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:01,648 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:01,650 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:02,741 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:02,743 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:03,903 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:03,906 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:04,787 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:04,789 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:05,551 - main - INFO - [REQUEST] GET /static/favicon.png from 112.220.79.218 | User: Guest
+2025-12-14 00:54:05,553 - main - INFO - [RESPONSE] GET /static/favicon.png - Status: 200
+2025-12-14 00:54:06,127 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:06,144 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:07,523 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:54:07,525 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:54:08,423 - main - INFO - [REQUEST] GET /sitemap from 112.220.79.218 | User: Guest
+2025-12-14 00:54:08,431 - main - INFO - [RESPONSE] GET /sitemap - Status: 200
+2025-12-14 00:55:24,836 - main - INFO - [REQUEST] GET /sitemap from 112.220.79.218 | User: Guest
+2025-12-14 00:55:24,857 - main - INFO - [RESPONSE] GET /sitemap - Status: 200
+2025-12-14 00:55:27,736 - main - INFO - [REQUEST] GET /sitemap from 112.220.79.218 | User: Guest
+2025-12-14 00:55:27,738 - main - INFO - [RESPONSE] GET /sitemap - Status: 200
+2025-12-14 00:55:56,444 - main - INFO - [REQUEST] GET /login from 112.220.79.218 | User: Guest
+2025-12-14 00:55:56,451 - main - INFO - [RESPONSE] GET /login - Status: 200
+2025-12-14 00:55:58,533 - main - INFO - [REQUEST] POST /api/login from 112.220.79.218 | User: Guest
+2025-12-14 00:55:58,534 - main - INFO - [BODY] {"email": "yh.kim@mediazen.co.kr", "password": "mz1234!@"}
+2025-12-14 00:55:58,645 - main - INFO - [USER_LOGIN] 김스캇 (yh.kim@mediazen.co.kr) logged in from 112.220.79.218
+2025-12-14 00:55:58,646 - main - INFO - [RESPONSE] POST /api/login - Status: 200
+2025-12-14 00:56:00,250 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 00:56:00,252 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 00:56:01,071 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:01,071 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/login", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:01.018Z"}
+2025-12-14 00:56:01,073 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on / from 112.220.79.218
+2025-12-14 00:56:01,073 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/login', 'screenSize': '1740x830'}
+2025-12-14 00:56:01,074 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:08,837 - main - INFO - [REQUEST] GET /learning-progress from 112.220.79.218 | User: Guest
+2025-12-14 00:56:08,850 - main - INFO - [RESPONSE] GET /learning-progress - Status: 200
+2025-12-14 00:56:09,582 - main - INFO - [REQUEST] GET /api/learning/today-progress/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 00:56:09,607 - main - INFO - [RESPONSE] GET /api/learning/today-progress/김스캇 - Status: 200
+2025-12-14 00:56:09,610 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:09,611 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/learning-progress", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:09.522Z"}
+2025-12-14 00:56:09,612 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /learning-progress from 112.220.79.218
+2025-12-14 00:56:09,612 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/', 'screenSize': '1740x830'}
+2025-12-14 00:56:09,613 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:09,692 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 00:56:09,696 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 00:56:09,786 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 00:56:09,789 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 00:56:16,124 - main - INFO - [REQUEST] GET /pronunciation-check from 112.220.79.218 | User: Guest
+2025-12-14 00:56:16,135 - main - INFO - [RESPONSE] GET /pronunciation-check - Status: 200
+2025-12-14 00:56:17,004 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:17,004 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-check", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:16.836Z"}
+2025-12-14 00:56:17,006 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-check from 112.220.79.218
+2025-12-14 00:56:17,006 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress', 'screenSize': '1740x830'}
+2025-12-14 00:56:17,007 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:24,984 - main - INFO - [REQUEST] GET /vocabulary-progress from 112.220.79.218 | User: Guest
+2025-12-14 00:56:24,995 - main - INFO - [RESPONSE] GET /vocabulary-progress - Status: 200
+2025-12-14 00:56:25,830 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:25,831 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/vocabulary-progress", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-check", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:25.671Z"}
+2025-12-14 00:56:25,833 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /vocabulary-progress from 112.220.79.218
+2025-12-14 00:56:25,833 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-check', 'screenSize': '1740x830'}
+2025-12-14 00:56:25,834 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:31,100 - main - INFO - [REQUEST] GET /pronunciation-practice from 112.220.79.218 | User: Guest
+2025-12-14 00:56:31,110 - main - INFO - [RESPONSE] GET /pronunciation-practice - Status: 200
+2025-12-14 00:56:31,316 - main - INFO - [REQUEST] GET /static/css/pronunciation-practice.css from 112.220.79.218 | User: Guest
+2025-12-14 00:56:31,318 - main - INFO - [RESPONSE] GET /static/css/pronunciation-practice.css - Status: 304
+2025-12-14 00:56:31,353 - main - INFO - [REQUEST] GET /static/js/pronunciation-practice.js from 112.220.79.218 | User: Guest
+2025-12-14 00:56:31,355 - main - INFO - [RESPONSE] GET /static/js/pronunciation-practice.js - Status: 304
+2025-12-14 00:56:31,821 - main - INFO - [REQUEST] GET /api/pronunciation-words from 112.220.79.218 | User: Guest
+2025-12-14 00:56:31,824 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:31,824 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-practice", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/vocabulary-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:31.763Z"}
+2025-12-14 00:56:31,825 - main - INFO - [RESPONSE] GET /api/pronunciation-words - Status: 200
+2025-12-14 00:56:31,827 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-practice from 112.220.79.218
+2025-12-14 00:56:31,827 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/vocabulary-progress', 'screenSize': '1740x830'}
+2025-12-14 00:56:31,828 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:42,601 - main - INFO - [REQUEST] GET /pronunciation-check from 112.220.79.218 | User: Guest
+2025-12-14 00:56:42,604 - main - INFO - [RESPONSE] GET /pronunciation-check - Status: 200
+2025-12-14 00:56:43,274 - main - INFO - [REQUEST] GET /static/favicon.png from 112.220.79.218 | User: Guest
+2025-12-14 00:56:43,276 - main - INFO - [RESPONSE] GET /static/favicon.png - Status: 200
+2025-12-14 00:56:43,398 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:43,398 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-check", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-practice", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:43.234Z"}
+2025-12-14 00:56:43,399 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-check from 112.220.79.218
+2025-12-14 00:56:43,400 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-practice', 'screenSize': '1740x830'}
+2025-12-14 00:56:43,400 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:44,313 - main - INFO - [REQUEST] GET /pronunciation-correction from 112.220.79.218 | User: Guest
+2025-12-14 00:56:44,321 - main - INFO - [RESPONSE] GET /pronunciation-correction - Status: 200
+2025-12-14 00:56:45,115 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:45,116 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-correction", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-check", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:44.950Z"}
+2025-12-14 00:56:45,118 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-correction from 112.220.79.218
+2025-12-14 00:56:45,118 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-check', 'screenSize': '1740x830'}
+2025-12-14 00:56:45,119 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:45,940 - main - INFO - [REQUEST] GET /pronunciation-practice from 112.220.79.218 | User: Guest
+2025-12-14 00:56:45,942 - main - INFO - [RESPONSE] GET /pronunciation-practice - Status: 200
+2025-12-14 00:56:46,649 - main - INFO - [REQUEST] GET /api/pronunciation-words from 112.220.79.218 | User: Guest
+2025-12-14 00:56:46,654 - main - INFO - [RESPONSE] GET /api/pronunciation-words - Status: 200
+2025-12-14 00:56:46,656 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:46,656 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-practice", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-correction", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:46.579Z"}
+2025-12-14 00:56:46,657 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-practice from 112.220.79.218
+2025-12-14 00:56:46,657 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-correction', 'screenSize': '1740x830'}
+2025-12-14 00:56:46,658 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:47,281 - main - INFO - [REQUEST] GET /pronunciation-rules from 112.220.79.218 | User: Guest
+2025-12-14 00:56:47,301 - main - INFO - [RESPONSE] GET /pronunciation-rules - Status: 200
+2025-12-14 00:56:48,131 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:48,131 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-rules", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-practice", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:48.068Z"}
+2025-12-14 00:56:48,133 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-rules from 112.220.79.218
+2025-12-14 00:56:48,133 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-practice', 'screenSize': '1740x830'}
+2025-12-14 00:56:48,134 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:50,039 - main - INFO - [REQUEST] GET /pronunciation-stages from 112.220.79.218 | User: Guest
+2025-12-14 00:56:50,048 - main - INFO - [RESPONSE] GET /pronunciation-stages - Status: 200
+2025-12-14 00:56:50,877 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:50,877 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/pronunciation-stages", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-rules", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:50.704Z"}
+2025-12-14 00:56:50,879 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /pronunciation-stages from 112.220.79.218
+2025-12-14 00:56:50,879 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-rules', 'screenSize': '1740x830'}
+2025-12-14 00:56:50,880 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:53,925 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2025-12-14 00:56:53,944 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2025-12-14 00:56:54,716 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2025-12-14 00:56:54,734 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2025-12-14 00:56:54,736 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:54,737 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-stages", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:54.689Z"}
+2025-12-14 00:56:54,738 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /speechpro-practice from 112.220.79.218
+2025-12-14 00:56:54,738 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/pronunciation-stages', 'screenSize': '1740x830'}
+2025-12-14 00:56:54,738 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:55,907 - main - INFO - [REQUEST] GET /fluency-practice from 112.220.79.218 | User: Guest
+2025-12-14 00:56:55,921 - main - INFO - [RESPONSE] GET /fluency-practice - Status: 200
+2025-12-14 00:56:56,592 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:56:56,592 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/fluency-practice", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/speechpro-practice", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:56.541Z"}
+2025-12-14 00:56:56,593 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /fluency-practice from 112.220.79.218
+2025-12-14 00:56:56,594 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/speechpro-practice', 'screenSize': '1740x830'}
+2025-12-14 00:56:56,594 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:56:59,119 - main - INFO - [REQUEST] GET /vocabulary-progress from 112.220.79.218 | User: Guest
+2025-12-14 00:56:59,122 - main - INFO - [RESPONSE] GET /vocabulary-progress - Status: 200
+2025-12-14 00:57:00,020 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:57:00,020 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/vocabulary-progress", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/fluency-practice", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:56:59.857Z"}
+2025-12-14 00:57:00,021 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /vocabulary-progress from 112.220.79.218
+2025-12-14 00:57:00,022 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/fluency-practice', 'screenSize': '1740x830'}
+2025-12-14 00:57:00,022 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:57:10,927 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2025-12-14 00:57:10,929 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2025-12-14 00:57:11,666 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2025-12-14 00:57:11,673 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2025-12-14 00:57:11,697 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:57:11,697 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/vocabulary-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:57:11.641Z"}
+2025-12-14 00:57:11,698 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /speechpro-practice from 112.220.79.218
+2025-12-14 00:57:11,698 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/vocabulary-progress', 'screenSize': '1740x830'}
+2025-12-14 00:57:11,698 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:57:21,027 - main - INFO - [REQUEST] GET /media-generation from 112.220.79.218 | User: Guest
+2025-12-14 00:57:21,035 - main - INFO - [RESPONSE] GET /media-generation - Status: 200
+2025-12-14 00:57:21,757 - main - INFO - [REQUEST] GET /static/favicon.png from 112.220.79.218 | User: Guest
+2025-12-14 00:57:21,760 - main - INFO - [RESPONSE] GET /static/favicon.png - Status: 200
+2025-12-14 00:57:21,881 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:57:21,882 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/media-generation", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/speechpro-practice", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:57:21.714Z"}
+2025-12-14 00:57:21,884 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /media-generation from 112.220.79.218
+2025-12-14 00:57:21,884 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/speechpro-practice', 'screenSize': '1740x830'}
+2025-12-14 00:57:21,884 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:57:26,625 - main - INFO - [REQUEST] POST /api/generate-image from 112.220.79.218 | User: Guest
+2025-12-14 00:57:26,626 - main - INFO - [BODY] {"situation": "서울 시장에서 과일을 사는 상황", "style": "illustration", "quality": "standard"}
+2025-12-14 00:57:26,627 - main - INFO - Image generation request - situation: 서울 시장에서 과일을 사는 상황, style: illustration, quality: standard
+2025-12-14 00:57:26,627 - backend.services.dalle_service - INFO - Enhanced prompt: 서울 시장에서 과일을 사는 상황, illustration style, clean and educational, bright and clear, suitable for language learning materials, Korean cultural context, educational purpose, no text, no letters, no words, no writing, no signs with text
+2025-12-14 00:57:26,665 - backend.services.dalle_service - INFO - Generating image (attempt 1/3)...
+2025-12-14 00:57:26,665 - backend.services.dalle_service - INFO - Prompt: 서울 시장에서 과일을 사는 상황, illustration style, clean and educational, bright and clear, suitable for languag...
+2025-12-14 00:57:26,665 - backend.services.dalle_service - INFO - Settings: model=dall-e-3, size=1024x1024, quality=standard, style=vivid
+2025-12-14 00:57:46,055 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/images/generations "HTTP/1.1 200 OK"
+2025-12-14 00:57:46,064 - backend.services.dalle_service - INFO - Image generated successfully: https://oaidalleapiprodscus.blob.core.windows.net/private/org-zksa3rldKIWFuL4i5WIW1jog/user-wHF2y2GvI1EiZzEyq0esprQt/img-478AChKuuf9GVKbg6uI4qkwL.png?st=2025-12-13T14%3A57%3A45Z&se=2025-12-13T16%3A57%3A45Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=31d50bd4-689f-439b-a875-f22bd677744d&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-12-13T15%3A57%3A45Z&ske=2025-12-14T15%3A57%3A45Z&sks=b&skv=2024-08-04&sig=ksrErNNdVXgCHCBQWMYCpJcfUYUmZChONpyc1FH0TkU%3D
+2025-12-14 00:57:48,310 - backend.services.dalle_service - INFO - Image saved to uploads/images/dalle_20251214_005746.png
+2025-12-14 00:57:48,311 - backend.services.dalle_service - INFO - Image saved locally: /uploads/images/dalle_20251214_005746.png
+2025-12-14 00:57:48,311 - main - INFO - Image generated successfully: /uploads/images/dalle_20251214_005746.png
+2025-12-14 00:57:48,312 - main - INFO - [RESPONSE] POST /api/generate-image - Status: 200
+2025-12-14 00:57:48,399 - main - INFO - [REQUEST] GET /uploads/images/dalle_20251214_005746.png from 112.220.79.218 | User: Guest
+2025-12-14 00:57:48,401 - main - INFO - [RESPONSE] GET /uploads/images/dalle_20251214_005746.png - Status: 200
+2025-12-14 00:58:17,992 - main - INFO - [REQUEST] GET /change-password from 112.220.79.218 | User: Guest
+2025-12-14 00:58:18,001 - main - INFO - [RESPONSE] GET /change-password - Status: 200
+2025-12-14 00:58:18,786 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:18,787 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/change-password", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/media-generation", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:18.623Z"}
+2025-12-14 00:58:18,789 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /change-password from 112.220.79.218
+2025-12-14 00:58:18,789 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/media-generation', 'screenSize': '1740x830'}
+2025-12-14 00:58:18,790 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:19,713 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:19,728 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:20,303 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:20,305 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:20,347 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:20,348 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:20.301Z"}
+2025-12-14 00:58:20,349 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:20,349 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:20,350 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:47,311 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:47,313 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:47,897 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:47,898 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:47,963 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:47,964 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:47.901Z"}
+2025-12-14 00:58:47,965 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:47,965 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:47,965 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:51,140 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:51,144 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:51,720 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:51,721 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:51,771 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:51,771 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:51.726Z"}
+2025-12-14 00:58:51,772 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:51,772 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:51,772 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:52,306 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:52,309 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:52,916 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:52,918 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:53,073 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:53,074 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:53,703 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:53,705 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:53,763 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:53,763 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:53.710Z"}
+2025-12-14 00:58:53,765 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:53,765 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:53,766 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:54,097 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:54,099 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:54,699 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:54,701 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:54,756 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:54,757 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:54.707Z"}
+2025-12-14 00:58:54,758 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:54,758 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:54,759 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:55,790 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:55,793 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:56,374 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:56,377 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:56,424 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:56,424 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:56.382Z"}
+2025-12-14 00:58:56,426 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:56,426 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:56,426 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:57,467 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:57,469 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:58:58,100 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:58:58,102 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:58:58,153 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:58:58,154 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:58:58.107Z"}
+2025-12-14 00:58:58,155 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:58:58,155 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:58:58,155 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:58:59,478 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:58:59,494 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:00,105 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:00,106 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:00,159 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:00,159 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:00.110Z"}
+2025-12-14 00:59:00,160 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:00,161 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:00,161 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:01,024 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:01,026 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:01,623 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:01,625 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:01,673 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:01,673 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:01.628Z"}
+2025-12-14 00:59:01,675 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:01,675 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:01,675 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:02,727 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:02,729 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:03,354 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:03,358 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:03,395 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:03,396 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:03.349Z"}
+2025-12-14 00:59:03,397 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:03,397 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:03,397 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:04,996 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:04,998 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:05,590 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:05,593 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:05,649 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:05,649 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:05.591Z"}
+2025-12-14 00:59:05,650 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:05,650 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:05,650 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:18,268 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:18,286 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:18,973 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:18,975 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:19,037 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:19,037 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:18.989Z"}
+2025-12-14 00:59:19,038 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:19,038 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:19,039 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:20,812 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:20,814 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:21,433 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:21,436 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:21,494 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:21,495 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:21.451Z"}
+2025-12-14 00:59:21,496 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:21,496 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:21,497 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:32,938 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:32,941 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:33,535 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:33,537 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:33,608 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:33,609 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:33.555Z"}
+2025-12-14 00:59:33,611 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:33,611 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:33,612 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 00:59:54,962 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 00:59:54,981 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 00:59:55,605 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 00:59:55,607 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 00:59:55,667 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 00:59:55,667 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T15:59:55.615Z"}
+2025-12-14 00:59:55,669 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 00:59:55,669 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 00:59:55,669 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:39,874 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:00:39,894 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:00:40,515 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:00:40,518 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:00:40,581 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:40,581 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:40.523Z"}
+2025-12-14 01:00:40,583 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:00:40,583 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 01:00:40,584 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:41,437 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:00:41,439 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:00:42,060 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:00:42,063 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:00:42,109 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:42,110 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:42.065Z"}
+2025-12-14 01:00:42,112 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:00:42,112 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/change-password', 'screenSize': '1740x830'}
+2025-12-14 01:00:42,113 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:42,796 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:00:42,798 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:00:43,430 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:00:43,432 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:00:43,496 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:43,496 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:43.445Z"}
+2025-12-14 01:00:43,498 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:00:43,498 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage', 'screenSize': '1740x830'}
+2025-12-14 01:00:43,498 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:46,495 - main - INFO - [REQUEST] GET /learning-progress from 112.220.79.218 | User: Guest
+2025-12-14 01:00:46,498 - main - INFO - [RESPONSE] GET /learning-progress - Status: 200
+2025-12-14 01:00:47,186 - main - INFO - [REQUEST] GET /api/learning/today-progress/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:00:47,189 - main - INFO - [RESPONSE] GET /api/learning/today-progress/김스캇 - Status: 200
+2025-12-14 01:00:47,191 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:47,191 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/learning-progress", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:47.132Z"}
+2025-12-14 01:00:47,193 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /learning-progress from 112.220.79.218
+2025-12-14 01:00:47,193 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage', 'screenSize': '1740x830'}
+2025-12-14 01:00:47,194 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:47,270 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:00:47,272 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 01:00:47,355 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:00:47,358 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 01:00:48,653 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:00:48,655 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:00:49,235 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:00:49,236 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:00:49,286 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:49,287 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:49.238Z"}
+2025-12-14 01:00:49,288 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:00:49,288 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress', 'screenSize': '1740x830'}
+2025-12-14 01:00:49,289 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:00:59,037 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:00:59,056 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:00:59,666 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:00:59,669 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:00:59,718 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:00:59,718 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:00:59.674Z"}
+2025-12-14 01:00:59,720 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:00:59,720 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress', 'screenSize': '1740x830'}
+2025-12-14 01:00:59,720 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:01:01,010 - main - INFO - [REQUEST] GET /learning-progress from 112.220.79.218 | User: Guest
+2025-12-14 01:01:01,013 - main - INFO - [RESPONSE] GET /learning-progress - Status: 200
+2025-12-14 01:01:01,730 - main - INFO - [REQUEST] GET /api/learning/today-progress/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:01:01,734 - main - INFO - [RESPONSE] GET /api/learning/today-progress/김스캇 - Status: 200
+2025-12-14 01:01:01,736 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:01:01,737 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/learning-progress", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:01:01.673Z"}
+2025-12-14 01:01:01,738 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /learning-progress from 112.220.79.218
+2025-12-14 01:01:01,738 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage', 'screenSize': '1740x830'}
+2025-12-14 01:01:01,739 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:01:01,817 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:01:01,819 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 01:01:02,020 - main - INFO - [REQUEST] GET /api/learning/user-stats/김스캇 from 112.220.79.218 | User: Guest
+2025-12-14 01:01:02,023 - main - INFO - [RESPONSE] GET /api/learning/user-stats/김스캇 - Status: 200
+2025-12-14 01:01:02,303 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:01:02,306 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:01:02,906 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:01:02,909 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:01:02,986 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:01:02,987 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:01:02.939Z"}
+2025-12-14 01:01:02,988 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:01:02,988 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/learning-progress', 'screenSize': '1740x830'}
+2025-12-14 01:01:02,988 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:01:07,653 - main - INFO - [REQUEST] GET /sitemap from 112.220.79.218 | User: Guest
+2025-12-14 01:01:07,670 - main - INFO - [RESPONSE] GET /sitemap - Status: 200
+2025-12-14 01:01:08,326 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:01:08,326 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/sitemap", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:01:08.267Z"}
+2025-12-14 01:01:08,327 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /sitemap from 112.220.79.218
+2025-12-14 01:01:08,327 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage', 'screenSize': '1740x830'}
+2025-12-14 01:01:08,328 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:01:19,263 - main - INFO - [REQUEST] GET /mypage from 112.220.79.218 | User: Guest
+2025-12-14 01:01:19,266 - main - INFO - [RESPONSE] GET /mypage - Status: 200
+2025-12-14 01:01:19,886 - main - INFO - [REQUEST] GET /api/user/profile from 112.220.79.218 | User: 김스캇 (yh.kim@mediazen.co.kr)
+2025-12-14 01:01:19,888 - main - INFO - [RESPONSE] GET /api/user/profile - Status: 200
+2025-12-14 01:01:19,959 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:01:19,959 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/mypage", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/sitemap", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:01:19.904Z"}
+2025-12-14 01:01:19,961 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on /mypage from 112.220.79.218
+2025-12-14 01:01:19,961 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/sitemap', 'screenSize': '1740x830'}
+2025-12-14 01:01:19,962 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2025-12-14 01:01:24,520 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2025-12-14 01:01:24,523 - main - INFO - [RESPONSE] GET / - Status: 200
+2025-12-14 01:01:25,402 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2025-12-14 01:01:25,402 - main - INFO - [BODY] {"nickname": "김스캇", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage", "screenSize": "1740x830"}, "timestamp": "2025-12-13T16:01:25.356Z"}
+2025-12-14 01:01:25,403 - main - INFO - [USER_ACTIVITY] 김스캇 - PAGE_VIEW on / from 112.220.79.218
+2025-12-14 01:01:25,403 - main - INFO - [ACTIVITY_DETAILS] {'isGuest': False, 'referrer': 'https://brainlessly-unequestrian-ember.ngrok-free.dev/mypage', 'screenSize': '1740x830'}
+2025-12-14 01:01:25,404 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
