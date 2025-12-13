@@ -1,0 +1,582 @@
+[
+  {
+    "id": 1,
+    "title": "흥부와 놀부",
+    "titleEn": "Heungbu and Nolbu",
+    "story": "옛날에 형 놀부와 동생 흥부가 살았습니다. 놀부는 욕심이 많고 심술이 나빴지만, 흥부는 착하고 정직했습니다. 부모님이 돌아가신 후, 놀부는 재산을 혼자 차지하고 흥부를 쫓아냈습니다. 가난하게 살던 흥부는 어느 날 다친 제비를 구해주었습니다. 이듬해 봄, 그 제비가 박씨를 물고 와서 흥부네 집에 떨어뜨렸습니다. 흥부가 박을 타니 금은보화가 쏟아져 나왔습니다. 이 소식을 들은 놀부는 일부러 제비 다리를 부러뜨렸다가 고쳐주었습니다. 그 제비도 박씨를 물고 왔지만, 놀부가 박을 타자 도깨비와 빚쟁이가 나와 재산을 모두 빼앗아갔습니다. 결국 놀부는 흥부에게 용서를 빌고, 두 형제는 함께 행복하게 살았습니다.",
+    "summary": "착한 동생 흥부는 제비를 도와 복을 받고, 욕심 많은 형 놀부는 벌을 받는다는 이야기입니다.",
+    "level": "B1",
+    "vocabulary": [
+      {"word": "욕심", "meaning": "greed"},
+      {"word": "심술", "meaning": "nastiness, spite"},
+      {"word": "정직하다", "meaning": "to be honest"},
+      {"word": "재산", "meaning": "property, wealth"},
+      {"word": "쫓아내다", "meaning": "to drive out, expel"},
+      {"word": "제비", "meaning": "swallow (bird)"},
+      {"word": "구해주다", "meaning": "to save, rescue"},
+      {"word": "박", "meaning": "gourd"},
+      {"word": "금은보화", "meaning": "gold, silver, and treasures"},
+      {"word": "쏟아지다", "meaning": "to pour out"},
+      {"word": "일부러", "meaning": "on purpose, deliberately"},
+      {"word": "도깨비", "meaning": "goblin, dokkaebi"},
+      {"word": "빚쟁이", "meaning": "creditor"},
+      {"word": "빼앗다", "meaning": "to take away, snatch"},
+      {"word": "용서", "meaning": "forgiveness"}
+    ],
+    "moralLesson": "착한 일을 하면 복을 받고, 욕심을 부리면 벌을 받는다.",
+    "questions": [
+      {
+        "question": "흥부가 복을 받은 이유는 무엇입니까?",
+        "choices": [
+          "제비를 구해주었기 때문에",
+          "형에게 재산을 나누어 주었기 때문에",
+          "열심히 일했기 때문에",
+          "부모님께 효도했기 때문에"
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "question": "놀부는 왜 제비 다리를 일부러 부러뜨렸습니까?",
+        "choices": [
+          "제비가 싫어서",
+          "흥부처럼 복을 받으려고",
+          "실수로 그렇게 되었다",
+          "제비를 잡으려고"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "이 이야기의 교훈은 무엇입니까?",
+        "choices": [
+          "돈이 가장 중요하다",
+          "형제는 항상 싸워야 한다",
+          "착한 일을 하면 복을 받는다",
+          "제비를 키워야 한다"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "토끼와 거북이",
+    "titleEn": "The Rabbit and the Turtle",
+    "story": "옛날 바다 속 용궁에 용왕님이 살고 있었습니다. 어느 날 용왕님이 병에 걸렸는데, 의원이 말하기를 토끼의 간을 먹어야 낫는다고 했습니다. 용왕님은 충신인 거북이에게 토끼를 데려오라고 명령했습니다. 거북이는 육지로 올라가 토끼를 만났습니다. 거북이는 토끼에게 \"용궁은 아름다운 곳입니다. 함께 가시지 않겠습니까?\"라고 꾀었습니다. 호기심 많은 토끼는 거북이 등에 올라타고 용궁으로 갔습니다. 용궁에 도착하자 토끼는 자신이 속았다는 것을 알았습니다. 토끼는 꾀를 내어 \"제 간은 너무 무거워서 바위 밑에 두고 왔습니다\"라고 거짓말을 했습니다. 용왕님은 거북이에게 토끼를 다시 육지로 데려가 간을 가져오라고 했습니다. 육지에 도착한 토끼는 재빨리 도망쳐서 목숨을 구했습니다.",
+    "summary": "병든 용왕을 위해 거북이가 토끼를 용궁으로 데려가지만, 토끼가 꾀를 내어 살아남는 이야기입니다.",
+    "level": "B1",
+    "vocabulary": [
+      {"word": "용궁", "meaning": "dragon palace (underwater palace)"},
+      {"word": "용왕", "meaning": "dragon king"},
+      {"word": "병에 걸리다", "meaning": "to fall ill"},
+      {"word": "의원", "meaning": "doctor (traditional)"},
+      {"word": "간", "meaning": "liver"},
+      {"word": "낫다", "meaning": "to be cured, recover"},
+      {"word": "충신", "meaning": "loyal subject"},
+      {"word": "명령하다", "meaning": "to order, command"},
+      {"word": "꾀다", "meaning": "to lure, entice"},
+      {"word": "호기심", "meaning": "curiosity"},
+      {"word": "속다", "meaning": "to be deceived"},
+      {"word": "꾀를 내다", "meaning": "to come up with a scheme"},
+      {"word": "거짓말", "meaning": "lie, falsehood"},
+      {"word": "재빨리", "meaning": "quickly, swiftly"},
+      {"word": "목숨을 구하다", "meaning": "to save one's life"}
+    ],
+    "moralLesson": "위기에 처했을 때 지혜로운 생각이 목숨을 구할 수 있다.",
+    "questions": [
+      {
+        "question": "용왕님은 왜 토끼의 간이 필요했습니까?",
+        "choices": [
+          "맛있게 먹으려고",
+          "병을 낫게 하려고",
+          "선물하려고",
+          "연구하려고"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "토끼는 어떻게 목숨을 구했습니까?",
+        "choices": [
+          "싸워서 이겼다",
+          "간을 바위 밑에 두고 왔다고 거짓말했다",
+          "용왕님께 용서를 빌었다",
+          "다른 토끼를 데려왔다"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "이 이야기에서 토끼의 특징은 무엇입니까?",
+        "choices": [
+          "힘이 세다",
+          "빨리 달린다",
+          "지혜롭고 꾀가 많다",
+          "정직하다"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "해와 달이 된 오누이",
+    "titleEn": "The Sun and Moon Siblings",
+    "story": "옛날 어느 마을에 오누이가 어머니와 함께 살았습니다. 어느 날 어머니는 부잣집에 떡을 팔러 갔습니다. 돌아오는 길에 호랑이가 나타나 \"떡 하나 주면 안 잡아먹지\"라고 했습니다. 어머니는 떡을 하나씩 주었지만, 떡이 다 떨어지자 호랑이는 어머니를 잡아먹었습니다. 호랑이는 어머니의 옷을 입고 오누이의 집으로 갔습니다. \"엄마야, 문 열어라\"라고 했지만, 오누이는 목소리가 이상해서 문을 열어주지 않았습니다. 호랑이는 참기름을 먹고 목소리를 부드럽게 만들어 오누이를 속였습니다. 집에 들어온 호랑이를 본 오누이는 놀라서 뒷마당 나무 위로 올라갔습니다. 호랑이도 나무를 타고 올라왔습니다. 오누이가 하늘에 빌자, 하늘에서 동아줄이 내려왔습니다. 오누이는 동아줄을 타고 하늘로 올라가 해와 달이 되었습니다. 호랑이는 썩은 동아줄을 타다가 떨어져 죽었습니다.",
+    "summary": "호랑이에게 쫓긴 오누이가 하늘로 올라가 해와 달이 되었다는 이야기입니다.",
+    "level": "B1",
+    "vocabulary": [
+      {"word": "오누이", "meaning": "brother and sister"},
+      {"word": "부잣집", "meaning": "rich house"},
+      {"word": "떡", "meaning": "rice cake"},
+      {"word": "호랑이", "meaning": "tiger"},
+      {"word": "잡아먹다", "meaning": "to catch and eat"},
+      {"word": "떨어지다", "meaning": "to run out, fall"},
+      {"word": "참기름", "meaning": "sesame oil"},
+      {"word": "부드럽다", "meaning": "to be soft, smooth"},
+      {"word": "속이다", "meaning": "to deceive, trick"},
+      {"word": "뒷마당", "meaning": "backyard"},
+      {"word": "타다", "meaning": "to climb, ride"},
+      {"word": "빌다", "meaning": "to pray, wish"},
+      {"word": "동아줄", "meaning": "thick rope"},
+      {"word": "내려오다", "meaning": "to come down"},
+      {"word": "썩다", "meaning": "to rot, decay"}
+    ],
+    "moralLesson": "위험한 상황에서도 희망을 잃지 않으면 구원받을 수 있다.",
+    "questions": [
+      {
+        "question": "호랑이는 왜 참기름을 먹었습니까?",
+        "choices": [
+          "배가 고파서",
+          "목소리를 부드럽게 만들려고",
+          "약으로 사용하려고",
+          "어머니가 주셔서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "오누이는 어떻게 하늘로 올라갔습니까?",
+        "choices": [
+          "날개를 달고",
+          "하늘에서 내려온 동아줄을 타고",
+          "새를 타고",
+          "구름 위를 걸어서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "오누이는 하늘에 올라가서 무엇이 되었습니까?",
+        "choices": [
+          "별과 구름",
+          "천사",
+          "해와 달",
+          "새"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "콩쥐 팥쥐",
+    "titleEn": "Kongjwi and Patjwi",
+    "story": "옛날에 콩쥐라는 착한 소녀가 계모와 이복 언니 팥쥐와 함께 살았습니다. 계모와 팥쥐는 콩쥐를 괴롭히고 힘든 일만 시켰습니다. 어느 날 마을에 잔치가 열렸는데, 계모는 콩쥐에게 \"항아리의 물이 새는 구멍을 막고, 낟알에서 쭉정이를 골라내면 잔치에 가도 좋다\"고 했습니다. 콩쥐가 울고 있는데 두꺼비, 참새, 소가 나타나 일을 도와주었습니다. 신기한 일이 일어나 콩쥐는 아름다운 옷을 입고 잔치에 갔습니다. 잔치에서 원님의 아들이 콩쥐를 보고 첫눈에 반했습니다. 콩쥐가 급히 돌아오다가 신발 한 짝을 잃어버렸습니다. 원님의 아들은 신발 주인을 찾아 나섰고, 콩쥐를 찾아 결혼했습니다. 질투한 팥쥐는 콩쥐를 우물에 밀어 넣고 콩쥐인 척 했지만, 콩쥐는 꽃과 새가 되어 돌아와 진실이 밝혀졌습니다.",
+    "summary": "계모와 언니에게 괴롭힘을 당한 착한 콩쥐가 마침내 행복을 찾는 이야기입니다.",
+    "level": "B2",
+    "vocabulary": [
+      {"word": "계모", "meaning": "stepmother"},
+      {"word": "이복", "meaning": "step- (sibling)"},
+      {"word": "괴롭히다", "meaning": "to bully, torment"},
+      {"word": "잔치", "meaning": "feast, banquet"},
+      {"word": "항아리", "meaning": "jar, pot"},
+      {"word": "구멍", "meaning": "hole"},
+      {"word": "막다", "meaning": "to block, stop"},
+      {"word": "낟알", "meaning": "grain"},
+      {"word": "쭉정이", "meaning": "chaff, empty grain"},
+      {"word": "골라내다", "meaning": "to pick out, sort out"},
+      {"word": "두꺼비", "meaning": "toad"},
+      {"word": "원님", "meaning": "governor, magistrate"},
+      {"word": "첫눈에 반하다", "meaning": "to fall in love at first sight"},
+      {"word": "질투하다", "meaning": "to be jealous"},
+      {"word": "우물", "meaning": "well"}
+    ],
+    "moralLesson": "착하게 살면 결국 행복이 찾아온다. 악한 마음은 스스로를 망친다.",
+    "questions": [
+      {
+        "question": "누가 콩쥐의 일을 도와주었습니까?",
+        "choices": [
+          "계모와 팥쥐",
+          "이웃 사람들",
+          "두꺼비, 참새, 소",
+          "원님의 아들"
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "question": "원님의 아들은 어떻게 콩쥐를 찾았습니까?",
+        "choices": [
+          "신발로 찾았다",
+          "목소리를 듣고 찾았다",
+          "계모가 알려주었다",
+          "잔치에서 다시 만났다"
+        ],
+        "correctAnswer": 0
+      },
+      {
+        "question": "이 이야기는 어떤 서양 동화와 비슷합니까?",
+        "choices": [
+          "백설공주",
+          "신데렐라",
+          "빨간 모자",
+          "미녀와 야수"
+        ],
+        "correctAnswer": 1
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "선녀와 나무꾼",
+    "titleEn": "The Fairy and the Woodcutter",
+    "story": "옛날 산골에 홀어머니를 모시고 사는 나무꾼이 있었습니다. 어느 날 사냥꾼에게 쫓기는 사슴을 구해주었습니다. 사슴은 은혜를 갚기 위해 \"연못에서 목욕하는 선녀들의 옷을 하나 숨기면 선녀와 결혼할 수 있습니다. 하지만 아이를 셋 낳기 전에는 절대 옷을 돌려주면 안 됩니다\"라고 알려주었습니다. 나무꾼은 사슴의 말대로 선녀의 옷을 숨겼고, 하늘로 돌아가지 못한 선녀와 결혼했습니다. 세월이 흘러 두 아이를 낳았습니다. 선녀는 매일 하늘을 그리워했고, 나무꾼은 불쌍한 마음에 옷을 돌려주었습니다. 선녀는 아이들을 안고 하늘로 올라가 버렸습니다. 나무꾼은 다시 사슴을 만나 두레박을 타고 하늘로 올라갔습니다. 하지만 용왕님을 만나려 간 사이에 아이들이 나무꾼을 그리워해서, 선녀는 나무꾼을 하늘로 데려왔습니다. 나무꾼 가족은 하늘나라에서 행복하게 살았습니다.",
+    "summary": "나무꾼이 선녀와 결혼하여 함께 하늘나라로 가는 이야기입니다.",
+    "level": "B2",
+    "vocabulary": [
+      {"word": "홀어머니", "meaning": "widowed mother"},
+      {"word": "모시다", "meaning": "to serve, attend to"},
+      {"word": "나무꾼", "meaning": "woodcutter"},
+      {"word": "사냥꾼", "meaning": "hunter"},
+      {"word": "쫓기다", "meaning": "to be chased"},
+      {"word": "사슴", "meaning": "deer"},
+      {"word": "은혜를 갚다", "meaning": "to repay a favor"},
+      {"word": "연못", "meaning": "pond"},
+      {"word": "목욕하다", "meaning": "to bathe"},
+      {"word": "선녀", "meaning": "fairy, celestial maiden"},
+      {"word": "숨기다", "meaning": "to hide"},
+      {"word": "그리워하다", "meaning": "to miss, long for"},
+      {"word": "불쌍하다", "meaning": "to be pitiful, pathetic"},
+      {"word": "두레박", "meaning": "well bucket"},
+      {"word": "하늘나라", "meaning": "heaven, celestial realm"}
+    ],
+    "moralLesson": "약속을 지키는 것이 중요하며, 진정한 사랑은 서로를 이해하는 것이다.",
+    "questions": [
+      {
+        "question": "사슴은 왜 나무꾼을 도와주었습니까?",
+        "choices": [
+          "친구여서",
+          "나무꾼이 사슴을 구해줘서",
+          "돈을 받아서",
+          "심심해서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "선녀는 왜 하늘로 돌아갔습니까?",
+        "choices": [
+          "나무꾼이 싫어서",
+          "나무꾼이 옷을 돌려줘서",
+          "어머니가 부르셔서",
+          "아이들이 말을 안 들어서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "나무꾼은 어떻게 하늘로 올라갔습니까?",
+        "choices": [
+          "사다리를 타고",
+          "새를 타고",
+          "두레박을 타고",
+          "선녀가 데려가서"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "금도끼 은도끼",
+    "titleEn": "The Golden Axe and Silver Axe",
+    "story": "옛날 어느 마을에 가난하지만 정직한 나무꾼이 살았습니다. 어느 날 나무를 하다가 도끼를 연못에 빠뜨렸습니다. 나무꾼은 도끼가 없으면 일을 할 수 없어 슬피 울었습니다. 그때 산신령이 나타나 \"당신의 도끼가 이것입니까?\"라고 물으며 금도끼를 보여주었습니다. 나무꾼은 \"아닙니다\"라고 정직하게 대답했습니다. 산신령은 다시 은도끼를 보여주었지만, 나무꾼은 또 \"아닙니다\"라고 했습니다. 마침내 산신령이 쇠도끼를 보여주자 나무꾼은 \"네, 이것이 제 도끼입니다\"라고 했습니다. 산신령은 나무꾼의 정직함에 감동하여 금도끼, 은도끼, 쇠도끼를 모두 주었습니다. 이 소식을 들은 욕심 많은 나무꾼이 일부러 도끼를 연못에 던졌습니다. 산신령이 나타나 금도끼를 보여주자, 그는 거짓말로 \"네, 제 도끼입니다\"라고 했습니다. 화가 난 산신령은 금도끼도 쇠도끼도 주지 않고 사라졌습니다.",
+    "summary": "정직한 나무꾼은 상을 받고, 거짓말하는 나무꾼은 벌을 받는다는 이야기입니다.",
+    "level": "A2",
+    "vocabulary": [
+      {"word": "정직하다", "meaning": "to be honest"},
+      {"word": "도끼", "meaning": "axe"},
+      {"word": "빠뜨리다", "meaning": "to drop (into water/hole)"},
+      {"word": "슬프다", "meaning": "to be sad"},
+      {"word": "산신령", "meaning": "mountain spirit"},
+      {"word": "금도끼", "meaning": "golden axe"},
+      {"word": "은도끼", "meaning": "silver axe"},
+      {"word": "쇠도끼", "meaning": "iron axe"},
+      {"word": "감동하다", "meaning": "to be moved, touched"},
+      {"word": "욕심", "meaning": "greed"},
+      {"word": "일부러", "meaning": "on purpose"},
+      {"word": "던지다", "meaning": "to throw"},
+      {"word": "거짓말", "meaning": "lie"},
+      {"word": "화가 나다", "meaning": "to be angry"},
+      {"word": "사라지다", "meaning": "to disappear"}
+    ],
+    "moralLesson": "정직하면 복을 받고, 거짓말하면 아무것도 얻지 못한다.",
+    "questions": [
+      {
+        "question": "정직한 나무꾼이 받은 것은 무엇입니까?",
+        "choices": [
+          "금도끼만",
+          "은도끼만",
+          "쇠도끼만",
+          "금도끼, 은도끼, 쇠도끼 모두"
+        ],
+        "correctAnswer": 3
+      },
+      {
+        "question": "욕심 많은 나무꾼은 왜 도끼를 연못에 던졌습니까?",
+        "choices": [
+          "실수로",
+          "금도끼를 받으려고",
+          "도끼가 필요 없어서",
+          "산신령을 만나고 싶어서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "이 이야기의 교훈은 무엇입니까?",
+        "choices": [
+          "도끼는 중요하다",
+          "연못에 조심해야 한다",
+          "정직이 최선이다",
+          "산에 가면 안 된다"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "방귀쟁이 며느리",
+    "titleEn": "The Daughter-in-Law Who Broke Wind",
+    "story": "옛날 어느 마을에 효성이 지극한 며느리가 살았습니다. 그런데 이 며느리에게는 큰 고민이 있었습니다. 바로 방귀를 참을 수 없다는 것이었습니다. 시어머니 앞에서 방귀를 뀌면 쫓겨날까 봐 매일 걱정했습니다. 어느 날 시어머니와 함께 앉아 있는데 갑자기 참을 수 없는 방귀가 나오려고 했습니다. 며느리는 재빨리 생각을 내어 \"어머니, 제가 재채기를 크게 할 테니 놀라지 마세요\"라고 말했습니다. 그리고 \"에취!\" 하면서 동시에 방귀를 뀌었습니다. 그런데 방귀 소리가 너무 커서 집이 흔들리고 대문이 날아갔습니다. 시어머니는 \"세상에 이렇게 큰 재채기가 있구나!\"라고 놀랐습니다. 며느리는 안도의 한숨을 쉬었지만, 그 후로도 방귀를 참느라 늘 고생했다고 합니다.",
+    "summary": "방귀를 참지 못하는 며느리가 재치 있게 위기를 넘기는 유머러스한 이야기입니다.",
+    "level": "A2",
+    "vocabulary": [
+      {"word": "방귀", "meaning": "fart, flatulence"},
+      {"word": "며느리", "meaning": "daughter-in-law"},
+      {"word": "효성", "meaning": "filial piety"},
+      {"word": "지극하다", "meaning": "to be utmost, extreme"},
+      {"word": "고민", "meaning": "worry, concern"},
+      {"word": "참다", "meaning": "to endure, hold back"},
+      {"word": "시어머니", "meaning": "mother-in-law"},
+      {"word": "쫓겨나다", "meaning": "to be kicked out"},
+      {"word": "재빨리", "meaning": "quickly"},
+      {"word": "재채기", "meaning": "sneeze"},
+      {"word": "놀라다", "meaning": "to be surprised"},
+      {"word": "흔들리다", "meaning": "to shake"},
+      {"word": "대문", "meaning": "main gate"},
+      {"word": "날아가다", "meaning": "to fly away"},
+      {"word": "안도", "meaning": "relief"}
+    ],
+    "moralLesson": "위기 상황에서 재치와 순발력이 중요하다.",
+    "questions": [
+      {
+        "question": "며느리의 고민은 무엇이었습니까?",
+        "choices": [
+          "요리를 못한다",
+          "방귀를 참을 수 없다",
+          "시어머니가 무섭다",
+          "집안일이 너무 많다"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "며느리는 방귀를 숨기기 위해 무엇을 했습니까?",
+        "choices": [
+          "밖으로 나갔다",
+          "재채기를 한다고 말했다",
+          "노래를 불렀다",
+          "기침을 했다"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "이 이야기의 특징은 무엇입니까?",
+        "choices": [
+          "슬픈 이야기다",
+          "무서운 이야기다",
+          "유머러스한 이야기다",
+          "역사적인 이야기다"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "팥죽 할머니와 호랑이",
+    "titleEn": "The Red Bean Porridge Grandma and the Tiger",
+    "story": "옛날 깊은 산골에 할머니 혼자 살았습니다. 어느 날 할머니가 밭에서 일하다가 호랑이를 만났습니다. 호랑이는 \"할머니, 내가 잡아먹겠다\"고 으르렁거렸습니다. 할머니는 \"동지날 팥죽을 쓰고 오면 잡아먹어라\" 하고 약속했습니다. 집으로 돌아온 할머니는 팥죽을 쑤다가 울었습니다. \"호랑이가 나를 잡아먹으러 올 텐데 어떡하지?\" 그때 밤알, 자라, 송곳, 맷돌, 지게, 쇠똥이 나타나 \"팥죽 한 그릇씩 주면 도와주겠다\"고 했습니다. 할머니는 팥죽을 주고 그들을 숨겼습니다. 밤이 되자 호랑이가 왔습니다. 호랑이가 아궁이에 손을 넣자 밤알이 튀어 나와 \"딱!\" 하고 터졌습니다. 놀란 호랑이가 물독에 손을 넣자 자라가 물어뜯었습니다. 송곳은 찔렀고, 맷돌은 떨어져 내렸고, 지게는 걸려 넘어뜨렸습니다. 마지막으로 쇠똥이 \"미끄러져라!\" 하니 호랑이는 넘어져서 도망갔습니다. 할머니는 친구들 덕분에 목숨을 구했습니다.",
+    "summary": "팥죽을 준 친구들의 도움으로 할머니가 호랑이로부터 살아남는 이야기입니다.",
+    "level": "B1",
+    "vocabulary": [
+      {"word": "팥죽", "meaning": "red bean porridge"},
+      {"word": "산골", "meaning": "mountain village"},
+      {"word": "밭", "meaning": "field"},
+      {"word": "으르렁거리다", "meaning": "to growl"},
+      {"word": "동지", "meaning": "winter solstice"},
+      {"word": "약속하다", "meaning": "to promise"},
+      {"word": "쑤다", "meaning": "to cook porridge"},
+      {"word": "밤알", "meaning": "chestnut"},
+      {"word": "자라", "meaning": "soft-shelled turtle"},
+      {"word": "송곳", "meaning": "awl"},
+      {"word": "맷돌", "meaning": "millstone"},
+      {"word": "지게", "meaning": "A-frame carrier"},
+      {"word": "쇠똥", "meaning": "cow dung"},
+      {"word": "아궁이", "meaning": "fireplace, furnace"},
+      {"word": "물독", "meaning": "water jar"}
+    ],
+    "moralLesson": "나눔과 협력으로 큰 위기를 극복할 수 있다.",
+    "questions": [
+      {
+        "question": "할머니는 친구들에게 무엇을 주었습니까?",
+        "choices": [
+          "돈",
+          "팥죽",
+          "옷",
+          "집"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "호랑이를 쫓아낸 것은 누구입니까?",
+        "choices": [
+          "할머니 혼자",
+          "마을 사람들",
+          "밤알, 자라, 송곳, 맷돌, 지게, 쇠똥",
+          "다른 호랑이"
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "question": "이 이야기는 언제 일어난 일입니까?",
+        "choices": [
+          "설날",
+          "추석",
+          "동지",
+          "단오"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "바보 온달과 평강 공주",
+    "titleEn": "Fool Ondal and Princess Pyeonggang",
+    "story": "고구려 시대에 평강 공주라는 공주님이 있었습니다. 어릴 때 공주가 울면 왕은 \"그렇게 울면 바보 온달에게 시집보내겠다\"고 농담을 했습니다. 공주가 자라서 왕은 훌륭한 귀족과 결혼시키려 했습니다. 하지만 평강 공주는 \"어릴 적 약속을 지키겠습니다\"라며 바보 온달을 찾아갔습니다. 온달은 가난했지만 마음씨가 착했습니다. 공주는 온달과 결혼하여 함께 살며 온달을 훌륭한 장군으로 키웠습니다. 온달은 공주의 도움으로 말 타기와 활쏘기를 배워 뛰어난 무사가 되었습니다. 전쟁에서 큰 공을 세운 온달은 왕으로부터 인정받았습니다. 바보라고 불리던 온달은 나라를 지키는 영웅이 되었습니다. 평강 공주는 사람을 겉모습이 아닌 마음으로 판단해야 한다는 것을 보여주었습니다.",
+    "summary": "바보로 불리던 온달이 평강 공주의 사랑과 지혜로 훌륭한 장군이 되는 이야기입니다.",
+    "level": "B2",
+    "vocabulary": [
+      {"word": "고구려", "meaning": "Goguryeo (ancient Korean kingdom)"},
+      {"word": "공주", "meaning": "princess"},
+      {"word": "바보", "meaning": "fool, idiot"},
+      {"word": "시집보내다", "meaning": "to marry off (a daughter)"},
+      {"word": "농담", "meaning": "joke"},
+      {"word": "귀족", "meaning": "nobleman, aristocrat"},
+      {"word": "약속", "meaning": "promise"},
+      {"word": "마음씨", "meaning": "heart, disposition"},
+      {"word": "장군", "meaning": "general"},
+      {"word": "무사", "meaning": "warrior"},
+      {"word": "전쟁", "meaning": "war"},
+      {"word": "공을 세우다", "meaning": "to achieve merit, distinguish oneself"},
+      {"word": "인정받다", "meaning": "to be recognized, acknowledged"},
+      {"word": "영웅", "meaning": "hero"},
+      {"word": "겉모습", "meaning": "outward appearance"}
+    ],
+    "moralLesson": "사람은 겉모습이 아니라 마음으로 판단해야 하며, 진정한 사랑과 노력으로 누구나 변할 수 있다.",
+    "questions": [
+      {
+        "question": "왕은 왜 온달의 이름을 말했습니까?",
+        "choices": [
+          "온달이 훌륭해서",
+          "공주를 놀리려고",
+          "온달과 친해서",
+          "온달이 장군이어서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "온달은 어떻게 훌륭한 장군이 되었습니까?",
+        "choices": [
+          "혼자 노력해서",
+          "왕이 가르쳐 줘서",
+          "평강 공주의 도움으로",
+          "다른 장군들이 도와줘서"
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "question": "이 이야기의 교훈은 무엇입니까?",
+        "choices": [
+          "돈이 중요하다",
+          "사람은 마음을 보아야 한다",
+          "공주는 귀족과 결혼해야 한다",
+          "전쟁은 나쁘다"
+        ],
+        "correctAnswer": 1
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "의좋은 형제",
+    "titleEn": "The Brotherly Love",
+    "story": "옛날 어느 마을에 형제가 살았습니다. 형은 결혼해서 아내와 자식들이 있었고, 동생은 혼자 살았습니다. 부모님이 돌아가시며 남긴 땅을 둘이 반씩 나누어 농사를 지었습니다. 어느 가을, 추수를 마친 형은 생각했습니다. \"동생은 혼자 사는데 나중에 결혼하면 돈이 많이 필요하겠지.\" 그래서 밤중에 몰래 자기 곡식을 동생의 창고로 옮겼습니다. 같은 밤, 동생도 생각했습니다. \"형님은 식구가 많아 먹을 것이 많이 필요하실 텐데.\" 그래서 밤중에 몰래 자기 곡식을 형의 창고로 옮겼습니다. 다음 날 아침, 두 형제는 자기 창고의 곡식이 줄지 않은 것을 보고 이상하게 여겼습니다. 그날 밤도 똑같이 곡식을 서로 나르다가 길에서 만났습니다. 서로의 마음을 알게 된 형제는 뜨겁게 껴안고 눈물을 흘렸습니다. 하늘이 이 형제의 우애에 감동하여 그 자리에서 오곡이 풍성하게 자라게 했다고 합니다.",
+    "summary": "서로를 아끼는 형제의 아름다운 우애를 보여주는 이야기입니다.",
+    "level": "B1",
+    "vocabulary": [
+      {"word": "형제", "meaning": "brothers, siblings"},
+      {"word": "결혼하다", "meaning": "to get married"},
+      {"word": "식구", "meaning": "family members"},
+      {"word": "땅", "meaning": "land"},
+      {"word": "나누다", "meaning": "to divide, share"},
+      {"word": "농사", "meaning": "farming"},
+      {"word": "추수", "meaning": "harvest"},
+      {"word": "곡식", "meaning": "grain, crops"},
+      {"word": "창고", "meaning": "warehouse, storehouse"},
+      {"word": "옮기다", "meaning": "to move, transfer"},
+      {"word": "줄다", "meaning": "to decrease, diminish"},
+      {"word": "나르다", "meaning": "to carry, transport"},
+      {"word": "껴안다", "meaning": "to embrace, hug"},
+      {"word": "우애", "meaning": "brotherly love, fraternity"},
+      {"word": "오곡", "meaning": "five grains"}
+    ],
+    "moralLesson": "가족 간의 사랑과 희생정신은 가장 아름다운 덕목이다.",
+    "questions": [
+      {
+        "question": "형은 왜 곡식을 동생에게 주려고 했습니까?",
+        "choices": [
+          "곡식이 너무 많아서",
+          "동생이 나중에 결혼할 때 돈이 필요할까 봐",
+          "동생이 농사를 못 지어서",
+          "부모님이 그러라고 하셔서"
+        ],
+        "correctAnswer": 1
+      },
+      {
+        "question": "두 형제는 언제 서로의 마음을 알게 되었습니까?",
+        "choices": [
+          "아침에 창고를 보고",
+          "낮에 밭에서",
+          "밤에 곡식을 나르다 만나서",
+          "이웃이 알려줘서"
+        ],
+        "correctAnswer": 2
+      },
+      {
+        "question": "하늘이 형제에게 준 보상은 무엇입니까?",
+        "choices": [
+          "돈",
+          "큰 집",
+          "오곡이 풍성하게 자라게 함",
+          "건강"
+        ],
+        "correctAnswer": 2
+      }
+    ]
+  }
+]

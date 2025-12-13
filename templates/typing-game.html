@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}타이핑 게임 - 오누이 한국어{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+        ONUI · 타이핑 게임
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">⌨️ 타이핑 게임</h1>
+      <p class="text-sm text-gray-600">한글 단어를 빠르고 정확하게 타이핑하세요</p>
+    </header>
+
+    <!-- Level Selection -->
+    <section class="mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <label class="text-sm font-semibold text-gray-700">레벨 선택:</label>
+        <select id="levelSelect" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+          <option value="A1">초급 (A1)</option>
+          <option value="A2">중급 (A2)</option>
+          <option value="B1">고급 (B1)</option>
+        </select>
+        <button id="startBtn" class="ml-auto px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-semibold transition-all">
+          게임 시작
+        </button>
+      </div>
+    </section>
+
+    <!-- Game Panel -->
+    <section id="gamePanel" class="hidden">
+      <!-- Timer and Stats -->
+      <div class="flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-xl">
+        <div class="text-center">
+          <div class="text-xs text-gray-600 mb-1">남은 시간</div>
+          <div id="timer" class="text-2xl font-bold text-green-600">30</div>
+        </div>
+        <div class="text-center">
+          <div class="text-xs text-gray-600 mb-1">점수</div>
+          <div id="score" class="text-2xl font-bold text-blue-600">0</div>
+        </div>
+        <div class="text-center">
+          <div class="text-xs text-gray-600 mb-1">WPM</div>
+          <div id="wpm" class="text-2xl font-bold text-purple-600">0</div>
+        </div>
+      </div>
+
+      <!-- Word Display -->
+      <div class="mb-6 p-8 bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl text-center">
+        <div class="text-sm text-gray-600 mb-2">타이핑하세요</div>
+        <div id="currentWord" class="text-5xl font-bold text-gray-900 mb-2">단어</div>
+        <div id="wordMeaning" class="text-lg text-gray-600"></div>
+      </div>
+
+      <!-- Input Field -->
+      <div class="mb-6">
+        <input
+          type="text"
+          id="typingInput"
+          placeholder="여기에 타이핑하세요..."
+          class="w-full px-6 py-4 text-2xl border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          autocomplete="off"
+          disabled
+        />
+        <div id="inputFeedback" class="mt-2 text-sm text-center min-h-6"></div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="mb-4">
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="progressBar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Over Panel -->
+    <section id="gameOverPanel" class="hidden">
+      <div class="p-8 bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl text-center">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">게임 종료!</h2>
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">최종 점수:</span>
+            <span id="finalScore" class="text-3xl font-bold text-green-600">0</span>
+          </div>
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">타이핑 속도:</span>
+            <span id="finalWPM" class="text-3xl font-bold text-purple-600">0</span>
+            <span class="text-lg text-gray-700">WPM</span>
+          </div>
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">정확도:</span>
+            <span id="accuracy" class="text-3xl font-bold text-blue-600">0</span>
+            <span class="text-lg text-gray-700">%</span>
+          </div>
+        </div>
+        <button id="restartBtn" class="px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 font-semibold text-lg transition-all">
+          다시 하기
+        </button>
+      </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>정확도 우선</strong>: 처음엔 천천히, 정확하게 타이핑하세요</p>
+        <p>• <strong>속도 향상</strong>: 정확도가 높아지면 자연스럽게 속도가 빨라집니다</p>
+        <p>• <strong>한글 타이핑</strong>: 자음과 모음의 조합을 익혀보세요</p>
+        <p>• <strong>WPM</strong>: Words Per Minute (분당 단어 수)로 타이핑 속도를 측정합니다</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  // DOM elements
+  const levelSelect = document.getElementById('levelSelect');
+  const startBtn = document.getElementById('startBtn');
+  const gamePanel = document.getElementById('gamePanel');
+  const gameOverPanel = document.getElementById('gameOverPanel');
+  const currentWordEl = document.getElementById('currentWord');
+  const wordMeaningEl = document.getElementById('wordMeaning');
+  const typingInput = document.getElementById('typingInput');
+  const inputFeedback = document.getElementById('inputFeedback');
+  const timerEl = document.getElementById('timer');
+  const scoreEl = document.getElementById('score');
+  const wpmEl = document.getElementById('wpm');
+  const progressBar = document.getElementById('progressBar');
+  const finalScoreEl = document.getElementById('finalScore');
+  const finalWPMEl = document.getElementById('finalWPM');
+  const accuracyEl = document.getElementById('accuracy');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // Game state
+  let words = [];
+  let currentWord = null;
+  let score = 0;
+  let timeLeft = 30;
+  let timerInterval = null;
+  let gameStartTime = null;
+  let totalAttempts = 0;
+  let correctAttempts = 0;
+
+  // Load vocabulary
+  async function loadVocabulary(level) {
+    try {
+      const response = await fetch(`/api/vocabulary?level=${level}`);
+      const data = await response.json();
+      words = data.vocabulary || [];
+      if (words.length === 0) {
+        alert('해당 레벨의 단어가 없습니다.');
+      }
+    } catch (error) {
+      console.error('Error loading vocabulary:', error);
+      alert('단어를 불러오는데 실패했습니다.');
+    }
+  }
+
+  // Get random word
+  function getRandomWord() {
+    if (words.length === 0) return null;
+    return words[Math.floor(Math.random() * words.length)];
+  }
+
+  // Display new word
+  function displayNewWord() {
+    currentWord = getRandomWord();
+    if (!currentWord) return;
+
+    currentWordEl.textContent = currentWord.word;
+    wordMeaningEl.textContent = currentWord.meaning || '';
+    typingInput.value = '';
+    inputFeedback.textContent = '';
+    inputFeedback.className = 'mt-2 text-sm text-center min-h-6';
+  }
+
+  // Update timer
+  function updateTimer() {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  // Calculate WPM
+  function calculateWPM() {
+    if (!gameStartTime) return 0;
+    const elapsedMinutes = (Date.now() - gameStartTime) / 60000;
+    return elapsedMinutes > 0 ? Math.round(score / elapsedMinutes) : 0;
+  }
+
+  // Update stats
+  function updateStats() {
+    scoreEl.textContent = score;
+    wpmEl.textContent = calculateWPM();
+    const progress = ((30 - timeLeft) / 30) * 100;
+    progressBar.style.width = `${progress}%`;
+  }
+
+  // Check input
+  function checkInput() {
+    const input = typingInput.value.trim();
+    const target = currentWord.word;
+
+    if (input === target) {
+      // Correct
+      score++;
+      correctAttempts++;
+      totalAttempts++;
+      inputFeedback.textContent = '✓ 정확합니다!';
+      inputFeedback.className = 'mt-2 text-sm text-center min-h-6 text-green-600 font-semibold';
+      updateStats();
+      setTimeout(() => {
+        displayNewWord();
+      }, 300);
+    } else if (target.startsWith(input) && input.length > 0) {
+      // Typing in progress
+      inputFeedback.textContent = '계속 타이핑하세요...';
+      inputFeedback.className = 'mt-2 text-sm text-center min-h-6 text-blue-600';
+    }
+  }
+
+  // Start game
+  async function startGame() {
+    const level = levelSelect.value;
+    await loadVocabulary(level);
+
+    if (words.length === 0) return;
+
+    // Reset state
+    score = 0;
+    timeLeft = 30;
+    totalAttempts = 0;
+    correctAttempts = 0;
+    gameStartTime = Date.now();
+
+    // Show game panel
+    gamePanel.classList.remove('hidden');
+    gameOverPanel.classList.add('hidden');
+    startBtn.disabled = true;
+    levelSelect.disabled = true;
+
+    // Enable input
+    typingInput.disabled = false;
+    typingInput.focus();
+
+    // Display first word
+    displayNewWord();
+    updateStats();
+
+    // Start timer
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  // End game
+  function endGame() {
+    clearInterval(timerInterval);
+    typingInput.disabled = true;
+    gamePanel.classList.add('hidden');
+    gameOverPanel.classList.remove('hidden');
+
+    // Calculate stats
+    const finalWPM = calculateWPM();
+    const finalAccuracy = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0;
+
+    finalScoreEl.textContent = score;
+    finalWPMEl.textContent = finalWPM;
+    accuracyEl.textContent = finalAccuracy;
+
+    startBtn.disabled = false;
+    levelSelect.disabled = false;
+  }
+
+  // Restart game
+  function restartGame() {
+    gameOverPanel.classList.add('hidden');
+    startGame();
+  }
+
+  // Event listeners
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', restartGame);
+  typingInput.addEventListener('input', checkInput);
+
+  // Prevent form submission on Enter
+  typingInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  });
+})();
+</script>
+{% endblock %}

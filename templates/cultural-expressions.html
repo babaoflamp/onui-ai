@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}문화 표현 학습 - 오누이 한국어{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-xs font-semibold mb-2"
+      >
+        <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
+        ONUI · 재미있는 이야기
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <span class="text-2xl">🎨</span>
+        문화 표현 학습
+      </h1>
+      <p class="text-sm text-gray-600">
+        한국 문화와 관련된 표현을 배우고 이해해보세요
+      </p>
+    </header>
+
+    <!-- Filters -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <!-- Level Selection -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          난이도 선택
+        </label>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            class="level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-pink-500 text-white"
+            data-level="all"
+          >
+            전체
+          </button>
+          <button
+            class="level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
+            data-level="A1"
+          >
+            A1
+          </button>
+          <button
+            class="level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
+            data-level="A2"
+          >
+            A2
+          </button>
+          <button
+            class="level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
+            data-level="B1"
+          >
+            B1
+          </button>
+          <button
+            class="level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
+            data-level="B2"
+          >
+            B2
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Selection -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          카테고리 선택
+        </label>
+        <select
+          id="categorySelect"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+        >
+          <option value="all">전체</option>
+          <option value="인사 예절">인사 예절</option>
+          <option value="식사 문화">식사 문화</option>
+          <option value="명절">명절</option>
+          <option value="효도">효도</option>
+          <option value="나이/호칭">나이/호칭</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Expression Cards -->
+    <div id="expressionList" class="space-y-4 mb-6">
+      <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Expression Detail Modal (hidden initially) -->
+    <div
+      id="expressionModal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h2
+              id="modalExpression"
+              class="text-2xl font-bold text-gray-900 mb-1"
+            ></h2>
+            <p id="modalMeaning" class="text-sm text-gray-600"></p>
+          </div>
+          <button
+            id="closeModal"
+            class="text-gray-400 hover:text-gray-600 text-2xl"
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="mb-4 flex gap-2">
+          <span
+            id="modalLevel"
+            class="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold"
+          ></span>
+          <span
+            id="modalCategory"
+            class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold"
+          ></span>
+        </div>
+
+        <!-- Explanation -->
+        <div class="mb-6">
+          <h3 class="text-sm font-bold text-gray-800 mb-2">📝 설명</h3>
+          <p id="modalExplanation" class="text-sm text-gray-700"></p>
+        </div>
+
+        <!-- Cultural Context -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <h3 class="text-sm font-bold text-yellow-800 mb-2">
+            🏛️ 문화적 배경
+          </h3>
+          <p id="modalCulturalContext" class="text-sm text-yellow-900"></p>
+        </div>
+
+        <!-- Examples -->
+        <div class="mb-6">
+          <h3 class="text-sm font-bold text-gray-800 mb-3">💬 사용 예시</h3>
+          <div id="modalExamples" class="space-y-2"></div>
+        </div>
+
+        <!-- Related Expressions -->
+        <div>
+          <h3 class="text-sm font-bold text-gray-800 mb-3">🔗 관련 표현</h3>
+          <div id="modalRelated" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      id="emptyState"
+      class="hidden text-center py-12 text-gray-500"
+    >
+      해당 조건의 표현이 없습니다
+    </div>
+
+    <!-- Tips Section -->
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
+      <h3 class="text-sm font-bold text-gray-800 mb-3">💡 학습 팁</h3>
+      <ul class="space-y-2 text-sm text-gray-700">
+        <li class="flex items-start gap-2">
+          <span class="text-pink-500 mt-0.5">•</span>
+          <span
+            >각 표현을 클릭하면 자세한 설명과 문화적 배경을 볼 수
+            있습니다</span
+          >
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-pink-500 mt-0.5">•</span>
+          <span
+            >사용 예시를 통해 실제 상황에서 어떻게 쓰이는지
+            학습하세요</span
+          >
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-pink-500 mt-0.5">•</span>
+          <span
+            >관련 표현을 함께 학습하면 더욱 효과적입니다</span
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // DOM elements
+    const expressionList = document.getElementById("expressionList");
+    const emptyState = document.getElementById("emptyState");
+    const levelBtns = document.querySelectorAll(".level-btn");
+    const categorySelect = document.getElementById("categorySelect");
+    const expressionModal = document.getElementById("expressionModal");
+    const closeModal = document.getElementById("closeModal");
+
+    // State
+    let expressions = [];
+    let allExpressions = [];
+    let currentLevel = "all";
+    let currentCategory = "all";
+
+    // Initialize
+    async function init() {
+      await loadExpressions();
+      renderExpressions();
+      setupEventListeners();
+    }
+
+    // Load expressions from API
+    async function loadExpressions() {
+      try {
+        const response = await fetch("/api/cultural-expressions");
+        const data = await response.json();
+        allExpressions = data.expressions || [];
+        filterExpressions();
+      } catch (error) {
+        console.error("Failed to load expressions:", error);
+        allExpressions = [];
+        expressions = [];
+      }
+    }
+
+    // Filter expressions by level and category
+    function filterExpressions() {
+      expressions = allExpressions.filter((expr) => {
+        const levelMatch =
+          currentLevel === "all" || expr.level === currentLevel;
+        const categoryMatch =
+          currentCategory === "all" || expr.category === currentCategory;
+        return levelMatch && categoryMatch;
+      });
+    }
+
+    // Render expression cards
+    function renderExpressions() {
+      if (expressions.length === 0) {
+        expressionList.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      expressionList.innerHTML = expressions
+        .map(
+          (expr) => `
+        <div class="expression-card bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-xl p-5 cursor-pointer hover:shadow-lg transition-shadow" data-id="${expr.id}">
+          <div class="flex items-start justify-between mb-2">
+            <h3 class="text-lg font-bold text-gray-900">${expr.expression}</h3>
+            <div class="flex gap-2">
+              <span class="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-semibold">${expr.level}</span>
+            </div>
+          </div>
+          <p class="text-sm text-gray-600 mb-2">${expr.meaning}</p>
+          <div class="flex items-center gap-2 text-xs text-gray-500">
+            <span class="px-2 py-1 bg-white rounded">${expr.category}</span>
+            <span>•</span>
+            <span>${expr.examples.length}개 예시</span>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+
+      // Add click listeners
+      document.querySelectorAll(".expression-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          const id = parseInt(card.dataset.id);
+          showExpressionDetail(id);
+        });
+      });
+    }
+
+    // Show expression detail in modal
+    function showExpressionDetail(id) {
+      const expr = allExpressions.find((e) => e.id === id);
+      if (!expr) return;
+
+      // Populate modal
+      document.getElementById("modalExpression").textContent = expr.expression;
+      document.getElementById("modalMeaning").textContent = expr.meaning;
+      document.getElementById("modalLevel").textContent = expr.level;
+      document.getElementById("modalCategory").textContent = expr.category;
+      document.getElementById("modalExplanation").textContent =
+        expr.explanation;
+      document.getElementById("modalCulturalContext").textContent =
+        expr.culturalContext;
+
+      // Examples
+      const examplesDiv = document.getElementById("modalExamples");
+      examplesDiv.innerHTML = expr.examples
+        .map(
+          (example) => `
+        <div class="bg-white border border-gray-200 rounded-lg p-3">
+          <p class="text-sm text-gray-700">${example}</p>
+        </div>
+      `
+        )
+        .join("");
+
+      // Related expressions
+      const relatedDiv = document.getElementById("modalRelated");
+      relatedDiv.innerHTML = expr.relatedExpressions
+        .map(
+          (related) => `
+        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">${related}</span>
+      `
+        )
+        .join("");
+
+      // Show modal
+      expressionModal.classList.remove("hidden");
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Level buttons
+      levelBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          currentLevel = btn.dataset.level;
+
+          // Update button styles
+          levelBtns.forEach((b) => {
+            b.className =
+              "level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200";
+          });
+          btn.className =
+            "level-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-pink-500 text-white";
+
+          filterExpressions();
+          renderExpressions();
+        });
+      });
+
+      // Category select
+      categorySelect.addEventListener("change", (e) => {
+        currentCategory = e.target.value;
+        filterExpressions();
+        renderExpressions();
+      });
+
+      // Modal close button
+      closeModal.addEventListener("click", () => {
+        expressionModal.classList.add("hidden");
+      });
+
+      // Click outside modal to close
+      expressionModal.addEventListener("click", (e) => {
+        if (e.target === expressionModal) {
+          expressionModal.classList.add("hidden");
+        }
+      });
+    }
+
+    // Start
+    init();
+  })();
+</script>
+{% endblock %}
