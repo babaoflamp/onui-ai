@@ -201,20 +201,27 @@ def enhance_prompt_for_korean_learning(
     """
     # 스타일 매핑
     style_descriptions = {
+        "watercolor": "watercolor painting style, soft and flowing",
         "illustration": "illustration style, clean and educational",
-        "realistic": "photorealistic style, professional photography",
-        "painting": "oil painting style, artistic",
-        "sketch": "detailed pencil sketch, line art",
         "cartoon": "cartoon style, cheerful and colorful",
-        "watercolor": "watercolor painting style"
+        "realistic": "photorealistic style, professional photography",
+        "oil-painting": "oil painting style, rich textures and brushstrokes",
+        "pencil-sketch": "detailed pencil sketch, line art, grayscale",
+        "digital-art": "digital art style, modern and vibrant",
+        "anime": "anime style, Japanese animation aesthetic",
+        "vintage": "vintage style, retro colors and aged look",
+        "minimalist": "minimalist style, simple and clean composition",
+        "pop-art": "pop art style, bold colors and graphic elements",
+        "3d-render": "3D rendered style, polished and dimensional"
     }
 
-    style_desc = style_descriptions.get(style, "illustration style")
+    style_desc = style_descriptions.get(style, "watercolor painting style")
 
     # 한국 학습 컨텍스트 추가
     enhanced_prompt = f"{korean_situation}, {style_desc}, "
     enhanced_prompt += "bright and clear, suitable for language learning materials, "
-    enhanced_prompt += "Korean cultural context, educational purpose"
+    enhanced_prompt += "Korean cultural context, educational purpose, "
+    enhanced_prompt += "no text, no letters, no words, no writing, no signs with text"
 
     logger.info(f"Enhanced prompt: {enhanced_prompt}")
 

@@ -704,6 +704,7 @@ app.add_middleware(LoggingMiddleware)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.on_event("startup")
@@ -973,8 +974,33 @@ def daily_expression_page(request: Request):
 
 @app.get("/vocab-garden")
 def vocab_garden_page(request: Request):
-    """단어 꽃밭 (Vocabulary Garden)"""
+    """어휘 정원 (Vocabulary Garden)"""
     return templates.TemplateResponse("vocab-garden.html", {"request": request})
+
+@app.get("/typing-game")
+def typing_game_page(request: Request):
+    """타이핑 게임"""
+    return templates.TemplateResponse("typing-game.html", {"request": request})
+
+@app.get("/listening-dictation")
+def listening_dictation_page(request: Request):
+    """듣고 받아쓰기"""
+    return templates.TemplateResponse("listening-dictation.html", {"request": request})
+
+@app.get("/speed-quiz")
+def speed_quiz_page(request: Request):
+    """스피드 퀴즈"""
+    return templates.TemplateResponse("speed-quiz.html", {"request": request})
+
+@app.get("/folktales")
+def folktales_page(request: Request):
+    """전래동화 읽기"""
+    return templates.TemplateResponse("folktales.html", {"request": request})
+
+@app.get("/cultural-expressions")
+def cultural_expressions_page(request: Request):
+    """문화 표현 학습"""
+    return templates.TemplateResponse("cultural-expressions.html", {"request": request})
 
 @app.get("/vocabulary-progress")
 def vocabulary_progress_page(request: Request):
@@ -2006,6 +2032,56 @@ async def get_vocabulary_word(word_id: str):
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "Failed to load vocabulary word", "details": str(e)})
 
+# Folktales APIs
+@app.get("/api/folktales")
+async def get_folktales(level: str = None):
+    """Get all folktales, optionally filtered by CEFR level"""
+    try:
+        folktales = load_json_data("folktales.json")
+        if level:
+            folktales = [f for f in folktales if f.get("level") == level.upper()]
+        return JSONResponse(content={"folktales": folktales})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load folktales", "details": str(e)})
+
+@app.get("/api/folktales/{folktale_id}")
+async def get_folktale(folktale_id: int):
+    """Get a specific folktale by ID"""
+    try:
+        folktales = load_json_data("folktales.json")
+        folktale = next((f for f in folktales if f.get("id") == folktale_id), None)
+        if folktale:
+            return JSONResponse(content=folktale)
+        return JSONResponse(status_code=404, content={"error": "Folktale not found"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load folktale", "details": str(e)})
+
+# Cultural Expressions APIs
+@app.get("/api/cultural-expressions")
+async def get_cultural_expressions(level: str = None, category: str = None):
+    """Get cultural expressions, optionally filtered by level or category"""
+    try:
+        expressions = load_json_data("cultural-expressions.json")
+        if level:
+            expressions = [e for e in expressions if e.get("level") == level.upper()]
+        if category:
+            expressions = [e for e in expressions if e.get("category") == category]
+        return JSONResponse(content={"expressions": expressions})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load cultural expressions", "details": str(e)})
+
+@app.get("/api/cultural-expressions/{expression_id}")
+async def get_cultural_expression(expression_id: int):
+    """Get a specific cultural expression by ID"""
+    try:
+        expressions = load_json_data("cultural-expressions.json")
+        expression = next((e for e in expressions if e.get("id") == expression_id), None)
+        if expression:
+            return JSONResponse(content=expression)
+        return JSONResponse(status_code=404, content={"error": "Expression not found"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "Failed to load cultural expression", "details": str(e)})
+
 # Pronunciation Practice APIs
 @app.get("/api/pronunciation-words")
 async def get_pronunciation_words(level: str = None):
@@ -2971,6 +3047,7 @@ async def generate_image(request: Request):
         data = await request.json()
         situation = data.get("situation", "").strip()
         style = data.get("style", "illustration")
+        quality = data.get("quality", "standard")
 
         if not situation:
             return JSONResponse(
@@ -2981,7 +3058,7 @@ async def generate_image(request: Request):
                 }
             )
 
-        logger.info(f"Image generation request - situation: {situation}, style: {style}")
+        logger.info(f"Image generation request - situation: {situation}, style: {style}, quality: {quality}")
 
         # 한국어 프롬프트를 영어로 최적화
         enhanced_prompt = enhance_prompt_for_korean_learning(situation, style)
@@ -2990,7 +3067,7 @@ async def generate_image(request: Request):
         result = await generate_image_dall_e(
             prompt=enhanced_prompt,
             size=os.getenv("DALLE_IMAGE_SIZE", "1024x1024"),
-            quality=os.getenv("DALLE_QUALITY", "standard"),
+            quality=quality,
             style=os.getenv("DALLE_STYLE", "vivid"),
             save_locally=True
         )

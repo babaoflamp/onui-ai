@@ -24,6 +24,13 @@
 - **단어 삭제** (`/word-puzzle`): 드래그 앤 드롭 퍼즐
 - **조사 떠다니기** (`/vocab-garden`): 조사/어휘 조합 연습
 - **오늘의 표현** (`/daily-expression`): 매일 갱신 표현 학습
+- **타이핑 게임** (`/typing-game`): 30초 안에 한글 단어 빠르게 타이핑 (72개 어휘)
+- **듣고 받아쓰기** (`/listening-dictation`): 문장을 듣고 정확하게 받아쓰기 (35개 문장)
+- **스피드 퀴즈** (`/speed-quiz`): 10초 안에 단어의 뜻 맞추기 (72개 어휘)
+
+### 4. 📖 재미있는 이야기
+- **전래동화 읽기** (`/folktales`): 10개 한국 전래동화 + 이해도 퀴즈
+- **문화 표현 학습** (`/cultural-expressions`): 30개 한국 문화 표현 + 문화적 배경 설명
 
 
 ## 기술 스택
@@ -214,7 +221,14 @@ onui-ai/
 │   ├── 🎲 활동하기
 │   │   ├── word-puzzle.html          # 단어 삭제 (어순 퍼즐)
 │   │   ├── vocab-garden.html         # 조사 떠다니기
-│   │   └── daily-expression.html     # 오늘의 표현
+│   │   ├── daily-expression.html     # 오늘의 표현
+│   │   ├── typing-game.html          # 타이핑 게임
+│   │   ├── listening-dictation.html  # 듣고 받아쓰기
+│   │   └── speed-quiz.html           # 스피드 퀴즈
+│   │
+│   ├── 📖 재미있는 이야기
+│   │   ├── folktales.html            # 전래동화 읽기
+│   │   └── cultural-expressions.html # 문화 표현 학습
 │   │
 │   ├── 👤 사용자 기능
 │   │   ├── login.html                # 로그인
@@ -252,10 +266,12 @@ onui-ai/
 │   └── (favicon, manifest 등)
 │
 ├── data/                             # JSON 데이터 파일
-│   ├── sentences.json                # 어순 연습 문장
+│   ├── sentences.json                # 어순 연습 문장 (35개)
 │   ├── expressions.json              # 오늘의 표현
-│   ├── vocabulary.json               # 단어 꽃밭 단어
+│   ├── vocabulary.json               # 단어 꽃밭 단어 (72개)
 │   ├── pronunciation-words.json      # 발음 연습 단어
+│   ├── folktales.json                # 전래동화 (10개)
+│   ├── cultural-expressions.json     # 문화 표현 (30개)
 │   ├── sp_ko_questions.json          # SpeechPro 질문
 │   ├── sp_ko_questions.csv           # SpeechPro 질문 (CSV)
 │   ├── speechpro-sentences.json      # SpeechPro 문장
@@ -320,6 +336,11 @@ onui-ai/
 | `/word-puzzle` | 단어 삭제 (어순 퍼즐) |
 | `/daily-expression` | 오늘의 표현 |
 | `/vocab-garden` | 조사 떠다니기 |
+| `/typing-game` | 타이핑 게임 |
+| `/listening-dictation` | 듣고 받아쓰기 |
+| `/speed-quiz` | 스피드 퀴즈 |
+| `/folktales` | 전래동화 읽기 |
+| `/cultural-expressions` | 문화 표현 학습 |
 | `/pronunciation-practice` | 발음 연습 |
 | `/pronunciation-stages` | 단계별 발음 학습 |
 | `/pronunciation-rules` | 발음 규칙 |
@@ -385,10 +406,12 @@ onui-ai/
 | `GET` | `/api/puzzle/sentences/{sentence_id}` | 특정 퍼즐 문장 |
 | `GET` | `/api/expressions` | 전체 표현 목록 |
 | `GET` | `/api/expressions/today` | 오늘의 표현 (매일 갱신) |
-| `GET` | `/api/vocabulary` | 단어 꽃밭 단어 목록 |
+| `GET` | `/api/vocabulary` | 단어 꽃밭 단어 목록 (72개) |
 | `GET` | `/api/vocabulary/{word_id}` | 특정 단어 상세 정보 |
 | `GET` | `/api/pronunciation-words` | 발음 연습 단어 목록 |
 | `GET` | `/api/pronunciation-words/{word_id}` | 특정 발음 단어 상세 정보 |
+| `GET` | `/api/folktales` | 전래동화 목록 (10개) |
+| `GET` | `/api/cultural-expressions` | 문화 표현 목록 (30개) |
 
 ### 🎵 TTS (Text-to-Speech) API
 | 메서드 | 라우트 | 설명 |
@@ -462,6 +485,28 @@ ollama pull exaone3.5:2.4b
 
 ## 최근 업데이트
 
+### 2025-12-14
+
+#### 🎮 인터랙티브 학습 게임 추가
+- **타이핑 게임**: 30초 안에 한글 단어 빠르게 타이핑 (72개 어휘, WPM 측정)
+- **듣고 받아쓰기**: 브라우저 TTS로 문장 듣고 받아쓰기 (35개 문장)
+- **스피드 퀴즈**: 10초 안에 단어 뜻 맞추기 (72개 어휘, 타이머 포함)
+
+#### 📖 재미있는 이야기 섹션 추가
+- **전래동화 읽기**: 10개 한국 전래동화 + 이해도 퀴즈 (흥부와 놀부, 토끼와 거북이 등)
+- **문화 표현 학습**: 30개 한국 문화 표현 + 문화적 배경 설명 (인사 예절, 식사 문화, 명절 등)
+
+#### 📊 데이터 확장
+- vocabulary.json: 8개 → 72개 단어 (레벨 A1-B2, 카테고리별 분류)
+- sentences.json: 4개 → 35개 문장 (TTS용 text 필드 추가)
+- folktales.json: 10개 전래동화 + 어휘 + 도덕적 교훈
+- cultural-expressions.json: 30개 문화 표현 + 문화적 맥락
+
+#### 🎨 UI/UX 개선
+- 홈페이지: 새로운 기능 카드 5개 추가 (게임 3개 + 이야기 2개)
+- Footer: 회사 이름 "Mediazen" 추가
+- 네비게이션: "재미있는 이야기" 메뉴에 실제 기능 링크 추가
+
 ### 2025-12-10
 
 #### 🎛 발음 규칙 학습 리뉴얼
@@ -508,7 +553,7 @@ MIT License
 
 ## 개발자
 
-김영훈 (Kim Young-hoon)
+김영훈 (Kim Young-hoon) - Mediazen
 
 ## 저장소
 

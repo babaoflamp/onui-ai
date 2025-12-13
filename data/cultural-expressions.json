@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "expression": "잘 먹겠습니다",
+    "meaning": "I will eat well (said before eating)",
+    "explanation": "식사를 시작하기 전에 하는 인사로, 음식을 준비해 준 사람에게 감사를 표현합니다.",
+    "culturalContext": "한국에서는 식사 전에 반드시 '잘 먹겠습니다'라고 말하는 것이 예의입니다. 이는 음식과 준비해 준 사람에 대한 감사를 나타냅니다.",
+    "level": "A1",
+    "category": "식사 문화",
+    "examples": [
+      "어머니가 아침을 차려주시면 '잘 먹겠습니다'라고 인사합니다.",
+      "식당에서도 음식이 나오면 '잘 먹겠습니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["잘 먹었습니다", "맛있게 드세요"]
+  },
+  {
+    "id": 2,
+    "expression": "잘 먹었습니다",
+    "meaning": "I ate well (said after eating)",
+    "explanation": "식사를 마친 후 하는 인사로, 맛있게 먹었다는 감사를 표현합니다.",
+    "culturalContext": "식사 후 '잘 먹었습니다'라고 말하는 것은 한국의 기본 식사 예절입니다. 음식을 대접한 사람에게 감사를 전하는 중요한 표현입니다.",
+    "level": "A1",
+    "category": "식사 문화",
+    "examples": [
+      "할머니 댁에서 저녁을 먹고 '잘 먹었습니다'라고 인사했습니다.",
+      "친구 집에서 식사 후 반드시 '잘 먹었습니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["잘 먹겠습니다", "맛있었어요"]
+  },
+  {
+    "id": 3,
+    "expression": "수고하셨습니다",
+    "meaning": "Thank you for your hard work",
+    "explanation": "상대방의 노력과 수고를 인정하고 감사를 표현하는 말입니다.",
+    "culturalContext": "한국 직장 문화에서 퇴근할 때나 일을 마친 후 자주 사용하는 표현입니다. 동료나 손님에게도 사용할 수 있습니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "퇴근할 때 동료들에게 '수고하셨습니다'라고 인사합니다.",
+      "택배 기사님께 '수고하셨습니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["수고하세요", "고생하셨어요"]
+  },
+  {
+    "id": 4,
+    "expression": "안녕히 계세요",
+    "meaning": "Goodbye (said by person leaving)",
+    "explanation": "자신이 떠날 때 머무르는 사람에게 하는 작별 인사입니다.",
+    "culturalContext": "한국어에는 떠나는 사람과 머무르는 사람이 사용하는 작별 인사가 다릅니다. '안녕히 계세요'는 떠나는 사람이 사용합니다.",
+    "level": "A1",
+    "category": "인사 예절",
+    "examples": [
+      "선생님 댁을 방문했다가 돌아갈 때 '안녕히 계세요'라고 인사합니다.",
+      "가게에서 나올 때 주인에게 '안녕히 계세요'라고 말합니다."
+    ],
+    "relatedExpressions": ["안녕히 가세요", "다녀오겠습니다"]
+  },
+  {
+    "id": 5,
+    "expression": "안녕히 가세요",
+    "meaning": "Goodbye (said by person staying)",
+    "explanation": "자신은 머물고 상대방이 떠날 때 하는 작별 인사입니다.",
+    "culturalContext": "머무르는 사람이 떠나는 사람에게 하는 인사로, '안녕히 계세요'와 구분하여 사용해야 합니다.",
+    "level": "A1",
+    "category": "인사 예절",
+    "examples": [
+      "손님이 집을 떠날 때 '안녕히 가세요'라고 배웅합니다.",
+      "가게 주인이 손님에게 '안녕히 가세요'라고 인사합니다."
+    ],
+    "relatedExpressions": ["안녕히 계세요", "다녀오세요"]
+  },
+  {
+    "id": 6,
+    "expression": "다녀오겠습니다",
+    "meaning": "I'm leaving (and will return)",
+    "explanation": "집을 나설 때 가족에게 하는 인사로, 다시 돌아온다는 의미를 담고 있습니다.",
+    "culturalContext": "한국에서는 외출할 때 집에 있는 사람에게 '다녀오겠습니다'라고 말하는 것이 일반적입니다.",
+    "level": "A1",
+    "category": "인사 예절",
+    "examples": [
+      "아침에 학교 가면서 부모님께 '다녀오겠습니다'라고 인사합니다.",
+      "출근할 때 가족에게 '다녀오겠습니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["다녀왔습니다", "다녀오세요"]
+  },
+  {
+    "id": 7,
+    "expression": "다녀왔습니다",
+    "meaning": "I'm back (I have returned)",
+    "explanation": "외출했다가 집에 돌아왔을 때 하는 인사입니다.",
+    "culturalContext": "귀가했을 때 집에 있는 가족에게 하는 인사로, 한국 가정에서 중요한 예절입니다.",
+    "level": "A1",
+    "category": "인사 예절",
+    "examples": [
+      "학교에서 돌아와 '다녀왔습니다'라고 인사합니다.",
+      "퇴근 후 집에 들어서며 '다녀왔습니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["다녀오겠습니다", "왔어요"]
+  },
+  {
+    "id": 8,
+    "expression": "새해 복 많이 받으세요",
+    "meaning": "Happy New Year (receive much fortune)",
+    "explanation": "새해 첫날에 하는 인사로, 상대방의 행복과 행운을 기원합니다.",
+    "culturalContext": "설날 (음력 1월 1일)에 어른들께 세배를 하며 하는 전통 인사입니다. 양력 1월 1일에도 사용합니다.",
+    "level": "A2",
+    "category": "명절",
+    "examples": [
+      "설날에 할아버지께 세배를 하며 '새해 복 많이 받으세요'라고 인사합니다.",
+      "친구에게 문자로 '새해 복 많이 받으세요'라고 보냅니다."
+    ],
+    "relatedExpressions": ["새해 복 많이 받아", "건강하세요"]
+  },
+  {
+    "id": 9,
+    "expression": "세배 드리러 왔습니다",
+    "meaning": "I came to pay New Year's respects",
+    "explanation": "설날에 어른께 새해 인사를 드리러 왔다는 표현입니다.",
+    "culturalContext": "설날에 어른 댁을 방문하여 큰절을 하며 새해 인사를 드리는 것을 '세배'라고 합니다. 전통적으로 어른들은 세배를 받고 아이들에게 세배돈을 줍니다.",
+    "level": "A2",
+    "category": "명절",
+    "examples": [
+      "설날 아침에 조부모님 댁에 가서 '세배 드리러 왔습니다'라고 말합니다.",
+      "친척 어른들을 찾아뵙고 세배를 드립니다."
+    ],
+    "relatedExpressions": ["새해 복 많이 받으세요", "절 올립니다"]
+  },
+  {
+    "id": 10,
+    "expression": "송편 드세요",
+    "meaning": "Please have some songpyeon (rice cake)",
+    "explanation": "추석에 먹는 전통 떡인 송편을 권하는 표현입니다.",
+    "culturalContext": "추석 (음력 8월 15일)은 한국의 대표적인 명절로, 가족들이 모여 송편을 만들어 먹습니다. 송편은 반달 모양의 쌀떡입니다.",
+    "level": "A2",
+    "category": "명절",
+    "examples": [
+      "추석에 할머니가 '송편 드세요'라고 권하십니다.",
+      "이웃에게 만든 송편을 나누어 드립니다."
+    ],
+    "relatedExpressions": ["맛있게 드세요", "떡 드세요"]
+  },
+  {
+    "id": 11,
+    "expression": "연세가 어떻게 되세요?",
+    "meaning": "How old are you? (respectful)",
+    "explanation": "어른의 나이를 공손하게 여쭙는 표현입니다.",
+    "culturalContext": "한국에서는 나이가 사회관계에서 중요한 역할을 합니다. 어른께는 '나이'가 아닌 '연세'라는 높임말을 사용합니다.",
+    "level": "A2",
+    "category": "나이/호칭",
+    "examples": [
+      "어르신을 처음 뵐 때 '연세가 어떻게 되세요?'라고 여쭙습니다.",
+      "경로당에서 할머니께 연세를 공손히 여쭙니다."
+    ],
+    "relatedExpressions": ["몇 살이세요?", "나이가 어떻게 되세요?"]
+  },
+  {
+    "id": 12,
+    "expression": "형/오빠/누나/언니",
+    "meaning": "Older sibling titles (gender-specific)",
+    "explanation": "자기보다 나이가 많은 사람을 부르는 호칭으로, 성별과 화자의 성별에 따라 다릅니다.",
+    "culturalContext": "한국에서는 나이가 한 살만 많아도 존댓말을 사용하고 호칭도 달라집니다. 남자는 형/누나, 여자는 오빠/언니를 사용합니다.",
+    "level": "A1",
+    "category": "나이/호칭",
+    "examples": [
+      "남자가 나이 많은 남자 친구를 '형'이라고 부릅니다.",
+      "여자가 나이 많은 여자 친구를 '언니'라고 부릅니다."
+    ],
+    "relatedExpressions": ["동생", "선배/후배"]
+  },
+  {
+    "id": 13,
+    "expression": "효도하다",
+    "meaning": "To be filial, to show respect to parents",
+    "explanation": "부모님을 잘 모시고 공경하는 것을 말합니다.",
+    "culturalContext": "유교 문화의 영향으로 한국에서는 부모님께 효도하는 것을 매우 중요한 덕목으로 여깁니다.",
+    "level": "B1",
+    "category": "효도",
+    "examples": [
+      "부모님께 용돈을 드리는 것도 효도입니다.",
+      "자주 전화 드리고 안부를 여쭙는 것이 효도입니다."
+    ],
+    "relatedExpressions": ["부모님을 모시다", "공경하다"]
+  },
+  {
+    "id": 14,
+    "expression": "어버이날",
+    "meaning": "Parents' Day (May 8th)",
+    "explanation": "부모님의 은혜에 감사하는 기념일로, 매년 5월 8일입니다.",
+    "culturalContext": "어버이날에는 부모님께 카네이션을 달아드리고 선물이나 용돈을 드립니다. 효도를 강조하는 한국 문화를 보여주는 날입니다.",
+    "level": "A2",
+    "category": "효도",
+    "examples": [
+      "어버이날에 부모님께 카네이션을 달아드립니다.",
+      "어버이날을 맞아 부모님을 식사에 모십니다."
+    ],
+    "relatedExpressions": ["스승의 날", "어린이날"]
+  },
+  {
+    "id": 15,
+    "expression": "큰절하다",
+    "meaning": "To do a deep bow (traditional Korean bow)",
+    "explanation": "무릎을 꿇고 머리가 땅에 닿도록 하는 전통적인 절입니다.",
+    "culturalContext": "설날, 추석 같은 명절이나 결혼식 등 중요한 행사에서 어른께 큰절을 올립니다. 남녀의 절하는 방법이 약간 다릅니다.",
+    "level": "B1",
+    "category": "인사 예절",
+    "examples": [
+      "설날에 조부모님께 큰절을 올립니다.",
+      "결혼식에서 신랑 신부가 부모님께 큰절을 합니다."
+    ],
+    "relatedExpressions": ["세배", "인사드리다"]
+  },
+  {
+    "id": 16,
+    "expression": "밥 먹었어요?",
+    "meaning": "Have you eaten? (Korean greeting)",
+    "explanation": "안부를 묻는 한국식 인사로, 실제로 식사 여부를 묻기보다는 '안녕하세요'와 비슷한 의미입니다.",
+    "culturalContext": "과거 식량이 부족했던 시절, 밥을 먹었는지 물어보는 것이 상대방을 걱정하는 마음의 표현이었습니다. 현재도 친근한 인사로 사용됩니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "이웃 할머니를 만나면 '밥 먹었어요?'라고 인사합니다.",
+      "오랜만에 만난 친구에게 '밥 먹었어?'라고 묻습니다."
+    ],
+    "relatedExpressions": ["어디 가세요?", "안녕하세요"]
+  },
+  {
+    "id": 17,
+    "expression": "손윗사람/손아랫사람",
+    "meaning": "Elder/younger person in social hierarchy",
+    "explanation": "나이나 지위가 위인 사람과 아래인 사람을 구분하는 표현입니다.",
+    "culturalContext": "한국 사회에서는 수직적 관계가 중요하며, 손윗사람에게는 존댓말과 예의를 갖춰야 합니다.",
+    "level": "B1",
+    "category": "나이/호칭",
+    "examples": [
+      "손윗사람 앞에서는 존댓말을 사용해야 합니다.",
+      "회식 자리에서 손윗사람께 먼저 술을 따릅니다."
+    ],
+    "relatedExpressions": ["어른/아이", "선배/후배"]
+  },
+  {
+    "id": 18,
+    "expression": "어른 먼저",
+    "meaning": "Elders first",
+    "explanation": "어른이 먼저 하시도록 양보하는 예절입니다.",
+    "culturalContext": "문을 들어가거나 식사를 시작할 때, 어른이 먼저 하시도록 기다리는 것이 한국의 기본 예절입니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "식탁에서 할아버지가 먼저 수저를 드신 후에 식사를 시작합니다.",
+      "엘리베이터에서 어른이 먼저 타시도록 양보합니다."
+    ],
+    "relatedExpressions": ["양보하다", "예의를 지키다"]
+  },
+  {
+    "id": 19,
+    "expression": "맞절하다",
+    "meaning": "To bow to each other simultaneously",
+    "explanation": "같은 항렬이나 비슷한 나이의 사람들이 서로 동시에 절하는 것입니다.",
+    "culturalContext": "명절에 형제자매나 사촌들끼리 맞절을 합니다. 어른께는 큰절을, 동등한 사람끼리는 맞절을 합니다.",
+    "level": "B1",
+    "category": "인사 예절",
+    "examples": [
+      "설날에 사촌들끼리 맞절을 합니다.",
+      "부부가 결혼식에서 서로 맞절을 합니다."
+    ],
+    "relatedExpressions": ["큰절하다", "인사하다"]
+  },
+  {
+    "id": 20,
+    "expression": "두 손으로 드리다/받다",
+    "meaning": "To give/receive with both hands",
+    "explanation": "물건이나 돈을 주고받을 때 두 손을 사용하는 예의입니다.",
+    "culturalContext": "한국에서는 어른께 무언가를 드리거나 받을 때 두 손을 사용하는 것이 기본 예절입니다. 한 손으로 하는 것은 무례한 행동으로 여겨집니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "할머니께 선물을 드릴 때 두 손으로 공손히 드립니다.",
+      "명함을 받을 때 두 손으로 받습니다."
+    ],
+    "relatedExpressions": ["공손히", "예의 바르게"]
+  },
+  {
+    "id": 21,
+    "expression": "처음 뵙겠습니다",
+    "meaning": "Nice to meet you (formal)",
+    "explanation": "처음 만나는 사람에게 하는 공손한 인사입니다.",
+    "culturalContext": "비즈니스 상황이나 격식 있는 자리에서 처음 만나는 사람에게 사용하는 표현입니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "회의에서 처음 만난 고객에게 '처음 뵙겠습니다'라고 인사합니다.",
+      "친구의 부모님을 처음 뵐 때 '처음 뵙겠습니다'라고 합니다."
+    ],
+    "relatedExpressions": ["만나서 반갑습니다", "잘 부탁드립니다"]
+  },
+  {
+    "id": 22,
+    "expression": "잘 부탁드립니다",
+    "meaning": "Please take care of me / I look forward to working with you",
+    "explanation": "앞으로의 관계에서 잘 도와달라고 부탁하는 표현입니다.",
+    "culturalContext": "새로운 환경에서 처음 만난 사람들에게 하는 인사로, 겸손함과 협력 의지를 나타냅니다.",
+    "level": "A2",
+    "category": "인사 예절",
+    "examples": [
+      "새 직장에서 동료들에게 '잘 부탁드립니다'라고 인사합니다.",
+      "새 학기에 선생님께 '잘 부탁드립니다'라고 말합니다."
+    ],
+    "relatedExpressions": ["처음 뵙겠습니다", "열심히 하겠습니다"]
+  },
+  {
+    "id": 23,
+    "expression": "수저를 놓다",
+    "meaning": "To put down chopsticks/spoon (finish eating)",
+    "explanation": "식사를 마쳤다는 의미로 수저를 내려놓는 것입니다.",
+    "culturalContext": "한국에서는 어른이 수저를 먼저 놓으실 때까지 기다렸다가 식사를 마치는 것이 예의입니다.",
+    "level": "B1",
+    "category": "식사 문화",
+    "examples": [
+      "할아버지가 수저를 놓으신 후에 수저를 내려놓습니다.",
+      "식사 중에는 수저를 그릇 위에 걸쳐 놓지 않습니다."
+    ],
+    "relatedExpressions": ["식사를 마치다", "잘 먹었습니다"]
+  },
+  {
+    "id": 24,
+    "expression": "국그릇을 들지 않는다",
+    "meaning": "Don't lift the soup bowl",
+    "explanation": "한국에서는 국그릇을 들고 먹지 않고, 숟가락으로 떠먹습니다.",
+    "culturalContext": "중국이나 일본과 달리, 한국에서는 밥그릇이나 국그릇을 들고 먹는 것이 예의에 어긋납니다. 상을 받고 먹는 문화의 차이입니다.",
+    "level": "B1",
+    "category": "식사 문화",
+    "examples": [
+      "외국인 친구에게 한국에서는 국그릇을 들지 않는다고 설명합니다.",
+      "식사할 때 그릇을 식탁에 둔 채로 숟가락으로 떠먹습니다."
+    ],
+    "relatedExpressions": ["젓가락과 숟가락을 함께 사용하지 않는다", "식사 예절"]
+  },
+  {
+    "id": 25,
+    "expression": "고개를 돌려서 마시다",
+    "meaning": "Turn head away when drinking (in front of elders)",
+    "explanation": "어른 앞에서 술을 마실 때 고개를 돌려 마시는 예절입니다.",
+    "culturalContext": "유교 문화의 영향으로, 어른 앞에서 술을 마실 때는 고개를 옆으로 돌려 마시는 것이 예의입니다.",
+    "level": "B2",
+    "category": "식사 문화",
+    "examples": [
+      "회식 자리에서 상사 앞에서 술을 마실 때 고개를 돌립니다.",
+      "할아버지와 술을 마실 때 옆으로 고개를 돌려 마십니다."
+    ],
+    "relatedExpressions": ["술을 따르다", "두 손으로 받다"]
+  },
+  {
+    "id": 26,
+    "expression": "만 나이 / 세는 나이",
+    "meaning": "International age / Korean traditional age",
+    "explanation": "만 나이는 생일 기준 나이이고, 세는 나이는 태어나자마자 1살로 계산하는 한국 전통 방식입니다.",
+    "culturalContext": "2023년까지 한국에서는 세는 나이를 일상적으로 사용했으나, 법적으로는 만 나이를 사용합니다. 2023년 6월부터 공식적으로 만 나이를 사용합니다.",
+    "level": "B1",
+    "category": "나이/호칭",
+    "examples": [
+      "'몇 살이에요?'라고 물으면 만 나이로 대답합니다.",
+      "예전에는 '한국 나이로 20살'이라고 말했습니다."
+    ],
+    "relatedExpressions": ["연세", "나이"]
+  },
+  {
+    "id": 27,
+    "expression": "한 살 차이면 존댓말",
+    "meaning": "Use honorifics even with one year age difference",
+    "explanation": "나이가 한 살만 많아도 존댓말을 사용하는 한국 문화입니다.",
+    "culturalContext": "한국에서는 또래 문화가 강하며, 같은 해에 태어난 사람끼리는 반말을 하지만, 한 살만 차이 나도 존댓말을 사용합니다.",
+    "level": "B1",
+    "category": "나이/호칭",
+    "examples": [
+      "92년생과 93년생은 한 살 차이로 존댓말을 사용합니다.",
+      "같은 반 친구라도 나이가 많으면 존댓말을 씁니다."
+    ],
+    "relatedExpressions": ["존댓말/반말", "형/오빠/누나/언니"]
+  },
+  {
+    "id": 28,
+    "expression": "어른께 술을 따르다",
+    "meaning": "To pour alcohol for elders",
+    "explanation": "어른께 술을 따를 때는 두 손으로 공손히 따르는 예절입니다.",
+    "culturalContext": "한국의 술자리 문화에서는 어른께 술을 따르는 것이 예의이며, 반드시 두 손으로 공손히 따라야 합니다. 자기 잔에 스스로 따르는 것은 예의에 어긋납니다.",
+    "level": "B2",
+    "category": "식사 문화",
+    "examples": [
+      "회식 때 상사의 잔이 비면 두 손으로 술을 따릅니다.",
+      "어른께서 술잔을 드시면 재빨리 술을 따라 드립니다."
+    ],
+    "relatedExpressions": ["고개를 돌려서 마시다", "두 손으로 받다"]
+  },
+  {
+    "id": 29,
+    "expression": "함께 나눠 먹기",
+    "meaning": "Sharing food together",
+    "explanation": "한국에서는 음식을 여러 사람이 함께 나눠 먹는 문화가 있습니다.",
+    "culturalContext": "한국 식사 문화의 특징으로, 찌개나 반찬을 각자의 접시에 덜지 않고 공동 그릇에서 함께 먹는 경우가 많습니다. 공동체 문화를 보여줍니다.",
+    "level": "B1",
+    "category": "식사 문화",
+    "examples": [
+      "삼겹살을 구워서 여러 명이 함께 먹습니다.",
+      "찌개를 큰 냄비에 끓여 다같이 숟가락으로 떠먹습니다."
+    ],
+    "relatedExpressions": ["반찬은 공동으로", "같이 먹다"]
+  },
+  {
+    "id": 30,
+    "expression": "더치페이 / 각자 계산",
+    "meaning": "Going Dutch / paying separately",
+    "explanation": "식사나 모임 비용을 각자 내는 것을 말합니다.",
+    "culturalContext": "전통적으로 한국에서는 누군가 한 사람이 전체 식사비를 내는 문화가 강했지만, 최근에는 더치페이도 일반화되고 있습니다. 특히 친구들끼리는 더치페이를 많이 합니다.",
+    "level": "A2",
+    "category": "식사 문화",
+    "examples": [
+      "친구들과 식사 후 '더치페이 할까?'라고 묻습니다.",
+      "회식이 아닌 경우 각자 계산하는 경우가 많습니다."
+    ],
+    "relatedExpressions": ["N분의 1", "제가 살게요"]
+  }
+]

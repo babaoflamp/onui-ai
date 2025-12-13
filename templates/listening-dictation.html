@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}듣고 받아쓰기 - 오누이 한국어{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+        ONUI · 듣고 받아쓰기
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">🎧 듣고 받아쓰기</h1>
+      <p class="text-sm text-gray-600">문장을 듣고 정확하게 받아쓰세요</p>
+    </header>
+
+    <!-- Level Selection -->
+    <section class="mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <label class="text-sm font-semibold text-gray-700">레벨 선택:</label>
+        <select id="levelSelect" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+          <option value="A1">초급 (A1)</option>
+          <option value="A2">중급 (A2)</option>
+          <option value="B1">고급 (B1)</option>
+        </select>
+        <button id="startBtn" class="ml-auto px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-semibold transition-all">
+          시작하기
+        </button>
+      </div>
+    </section>
+
+    <!-- Practice Panel -->
+    <section id="practicePanel" class="hidden">
+      <!-- Progress -->
+      <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-semibold text-gray-700">진행 상황</span>
+          <span id="progress" class="text-sm font-semibold text-purple-600">1 / 5</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div id="progressBar" class="bg-purple-500 h-2 rounded-full transition-all" style="width: 20%"></div>
+        </div>
+      </div>
+
+      <!-- Audio Player -->
+      <div class="mb-6 p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl text-center">
+        <div class="text-6xl mb-4">🎧</div>
+        <div class="text-sm text-gray-600 mb-4">아래 버튼을 눌러 문장을 들어보세요</div>
+        <div class="flex justify-center gap-3">
+          <button id="playBtn" class="px-6 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 font-semibold transition-all flex items-center gap-2">
+            <span>▶</span>
+            <span>재생</span>
+          </button>
+          <button id="replayBtn" class="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 font-semibold transition-all flex items-center gap-2" disabled>
+            <span>🔄</span>
+            <span>다시 듣기</span>
+          </button>
+        </div>
+        <div id="playCount" class="mt-3 text-xs text-gray-500"></div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">받아쓰기</label>
+        <textarea
+          id="dictationInput"
+          rows="3"
+          placeholder="들은 문장을 여기에 입력하세요..."
+          class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+          disabled
+        ></textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3 mb-6">
+        <button id="submitBtn" class="flex-1 px-6 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 font-semibold transition-all" disabled>
+          정답 확인
+        </button>
+        <button id="nextBtn" class="flex-1 px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 font-semibold transition-all hidden">
+          다음 문장
+        </button>
+      </div>
+
+      <!-- Feedback -->
+      <div id="feedbackPanel" class="hidden">
+        <div id="feedbackContent" class="p-6 rounded-xl mb-4"></div>
+
+        <!-- Correct Answer Display -->
+        <div id="answerDisplay" class="p-6 bg-blue-50 rounded-xl">
+          <div class="text-sm font-semibold text-gray-700 mb-2">정답</div>
+          <div id="correctAnswer" class="text-lg text-gray-900 mb-2"></div>
+          <div id="translation" class="text-sm text-gray-600"></div>
+        </div>
+      </div>
+
+      <!-- Score Display -->
+      <div class="mt-6 p-4 bg-purple-50 rounded-xl text-center">
+        <div class="text-sm text-gray-600 mb-1">현재 점수</div>
+        <div id="currentScore" class="text-3xl font-bold text-purple-600">0 / 0</div>
+      </div>
+    </section>
+
+    <!-- Result Panel -->
+    <section id="resultPanel" class="hidden">
+      <div class="p-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl text-center">
+        <div class="text-6xl mb-4">🎉</div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">완료!</h2>
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">최종 점수:</span>
+            <span id="finalScore" class="text-3xl font-bold text-purple-600">0 / 5</span>
+          </div>
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">정확도:</span>
+            <span id="finalAccuracy" class="text-3xl font-bold text-blue-600">0</span>
+            <span class="text-lg text-gray-700">%</span>
+          </div>
+        </div>
+        <button id="restartBtn" class="px-8 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 font-semibold text-lg transition-all">
+          다시 하기
+        </button>
+      </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>반복 청취</strong>: 문장을 여러 번 들으며 세부 내용을 파악하세요</p>
+        <p>• <strong>띄어쓰기</strong>: 한국어 띄어쓰기 규칙도 함께 학습하세요</p>
+        <p>• <strong>맞춤법</strong>: 정확한 철자를 익히는 것이 중요합니다</p>
+        <p>• <strong>듣기 훈련</strong>: 자연스러운 한국어 발음에 귀를 익히세요</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  // DOM elements
+  const levelSelect = document.getElementById('levelSelect');
+  const startBtn = document.getElementById('startBtn');
+  const practicePanel = document.getElementById('practicePanel');
+  const resultPanel = document.getElementById('resultPanel');
+  const progressEl = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const playBtn = document.getElementById('playBtn');
+  const replayBtn = document.getElementById('replayBtn');
+  const playCountEl = document.getElementById('playCount');
+  const dictationInput = document.getElementById('dictationInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const feedbackPanel = document.getElementById('feedbackPanel');
+  const feedbackContent = document.getElementById('feedbackContent');
+  const answerDisplay = document.getElementById('answerDisplay');
+  const correctAnswerEl = document.getElementById('correctAnswer');
+  const translationEl = document.getElementById('translation');
+  const currentScoreEl = document.getElementById('currentScore');
+  const finalScoreEl = document.getElementById('finalScore');
+  const finalAccuracyEl = document.getElementById('finalAccuracy');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // Game state
+  let sentences = [];
+  let currentIndex = 0;
+  let currentSentence = null;
+  let score = 0;
+  let totalQuestions = 5;
+  let playCount = 0;
+  let utterance = null;
+
+  // Load sentences
+  async function loadSentences(level) {
+    try {
+      const response = await fetch(`/api/puzzle/sentences?level=${level}`);
+      const data = await response.json();
+      const allSentences = data.sentences || [];
+
+      // Shuffle and take first 5
+      sentences = allSentences.sort(() => Math.random() - 0.5).slice(0, totalQuestions);
+
+      if (sentences.length === 0) {
+        alert('해당 레벨의 문장이 없습니다.');
+      }
+    } catch (error) {
+      console.error('Error loading sentences:', error);
+      alert('문장을 불러오는데 실패했습니다.');
+    }
+  }
+
+  // Speak sentence using browser TTS
+  function speakSentence(text) {
+    if (!text) return;
+
+    // Cancel previous speech
+    window.speechSynthesis.cancel();
+
+    utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ko-KR';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+
+    window.speechSynthesis.speak(utterance);
+    playCount++;
+    playCountEl.textContent = `재생 횟수: ${playCount}회`;
+  }
+
+  // Display current sentence
+  function displaySentence() {
+    currentSentence = sentences[currentIndex];
+    playCount = 0;
+    playCountEl.textContent = '';
+    dictationInput.value = '';
+    dictationInput.disabled = false;
+    submitBtn.disabled = false;
+    playBtn.disabled = false;
+    replayBtn.disabled = false;
+    nextBtn.classList.add('hidden');
+    feedbackPanel.classList.add('hidden');
+
+    updateProgress();
+  }
+
+  // Update progress
+  function updateProgress() {
+    const current = currentIndex + 1;
+    progressEl.textContent = `${current} / ${totalQuestions}`;
+    const percent = (current / totalQuestions) * 100;
+    progressBar.style.width = `${percent}%`;
+    currentScoreEl.textContent = `${score} / ${current - 1}`;
+  }
+
+  // Calculate similarity (simple string comparison)
+  function calculateAccuracy(input, target) {
+    const cleanInput = input.trim().replace(/\s+/g, '');
+    const cleanTarget = target.trim().replace(/\s+/g, '');
+
+    if (cleanInput === cleanTarget) return 100;
+
+    let matches = 0;
+    const maxLen = Math.max(cleanInput.length, cleanTarget.length);
+
+    for (let i = 0; i < Math.min(cleanInput.length, cleanTarget.length); i++) {
+      if (cleanInput[i] === cleanTarget[i]) matches++;
+    }
+
+    return Math.round((matches / maxLen) * 100);
+  }
+
+  // Submit answer
+  function submitAnswer() {
+    const input = dictationInput.value.trim();
+    const target = currentSentence.text;
+    const accuracy = calculateAccuracy(input, target);
+
+    dictationInput.disabled = true;
+    submitBtn.disabled = true;
+    playBtn.disabled = true;
+    replayBtn.disabled = true;
+
+    // Show feedback
+    feedbackPanel.classList.remove('hidden');
+
+    if (accuracy === 100) {
+      score++;
+      feedbackContent.className = 'p-6 rounded-xl mb-4 bg-green-50 border-2 border-green-500';
+      feedbackContent.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-2">✓</div>
+          <div class="text-lg font-semibold text-green-800">정확합니다!</div>
+          <div class="text-sm text-green-700 mt-1">완벽한 받아쓰기입니다.</div>
+        </div>
+      `;
+    } else if (accuracy >= 70) {
+      feedbackContent.className = 'p-6 rounded-xl mb-4 bg-yellow-50 border-2 border-yellow-500';
+      feedbackContent.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-2">△</div>
+          <div class="text-lg font-semibold text-yellow-800">거의 맞았습니다!</div>
+          <div class="text-sm text-yellow-700 mt-1">정확도: ${accuracy}%</div>
+        </div>
+      `;
+    } else {
+      feedbackContent.className = 'p-6 rounded-xl mb-4 bg-red-50 border-2 border-red-500';
+      feedbackContent.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-2">✗</div>
+          <div class="text-lg font-semibold text-red-800">다시 확인해보세요</div>
+          <div class="text-sm text-red-700 mt-1">정확도: ${accuracy}%</div>
+        </div>
+      `;
+    }
+
+    // Show correct answer
+    correctAnswerEl.textContent = target;
+    translationEl.textContent = currentSentence.translation || '';
+
+    // Show next button
+    nextBtn.classList.remove('hidden');
+
+    // Update score
+    currentScoreEl.textContent = `${score} / ${currentIndex + 1}`;
+  }
+
+  // Next sentence
+  function nextSentence() {
+    currentIndex++;
+
+    if (currentIndex >= totalQuestions) {
+      showResults();
+    } else {
+      displaySentence();
+    }
+  }
+
+  // Show results
+  function showResults() {
+    practicePanel.classList.add('hidden');
+    resultPanel.classList.remove('hidden');
+
+    const accuracy = Math.round((score / totalQuestions) * 100);
+    finalScoreEl.textContent = `${score} / ${totalQuestions}`;
+    finalAccuracyEl.textContent = accuracy;
+  }
+
+  // Start practice
+  async function startPractice() {
+    const level = levelSelect.value;
+    await loadSentences(level);
+
+    if (sentences.length === 0) return;
+
+    // Reset state
+    currentIndex = 0;
+    score = 0;
+
+    // Show practice panel
+    practicePanel.classList.remove('hidden');
+    resultPanel.classList.add('hidden');
+    startBtn.disabled = true;
+    levelSelect.disabled = true;
+
+    displaySentence();
+  }
+
+  // Restart practice
+  function restartPractice() {
+    resultPanel.classList.add('hidden');
+    startBtn.disabled = false;
+    levelSelect.disabled = false;
+  }
+
+  // Event listeners
+  startBtn.addEventListener('click', startPractice);
+  playBtn.addEventListener('click', () => speakSentence(currentSentence.text));
+  replayBtn.addEventListener('click', () => speakSentence(currentSentence.text));
+  submitBtn.addEventListener('click', submitAnswer);
+  nextBtn.addEventListener('click', nextSentence);
+  restartBtn.addEventListener('click', restartPractice);
+
+  // Enable submit on Enter
+  dictationInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !submitBtn.disabled) {
+      e.preventDefault();
+      submitAnswer();
+    }
+  });
+})();
+</script>
+{% endblock %}

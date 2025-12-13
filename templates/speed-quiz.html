@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}스피드 퀴즈 - 오누이 한국어{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4">
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Header -->
+    <header class="mb-6">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold mb-2">
+        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+        ONUI · 스피드 퀴즈
+      </div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">⚡ 스피드 퀴즈</h1>
+      <p class="text-sm text-gray-600">제한 시간 내에 단어의 뜻을 맞추세요</p>
+    </header>
+
+    <!-- Level Selection -->
+    <section class="mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <label class="text-sm font-semibold text-gray-700">레벨 선택:</label>
+        <select id="levelSelect" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+          <option value="A1">초급 (A1)</option>
+          <option value="A2">중급 (A2)</option>
+          <option value="B1">고급 (B1)</option>
+        </select>
+        <button id="startBtn" class="ml-auto px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition-all">
+          퀴즈 시작
+        </button>
+      </div>
+    </section>
+
+    <!-- Quiz Panel -->
+    <section id="quizPanel" class="hidden">
+      <!-- Progress and Timer -->
+      <div class="flex justify-between items-center mb-6 p-4 bg-gray-50 rounded-xl">
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <div class="text-xs text-gray-600 mb-1">문제</div>
+            <div id="questionNumber" class="text-xl font-bold text-gray-900">1 / 10</div>
+          </div>
+          <div class="text-center">
+            <div class="text-xs text-gray-600 mb-1">점수</div>
+            <div id="score" class="text-xl font-bold text-blue-600">0</div>
+          </div>
+        </div>
+        <div class="text-center">
+          <div class="text-xs text-gray-600 mb-1">남은 시간</div>
+          <div id="timer" class="text-3xl font-bold text-red-600">10</div>
+        </div>
+      </div>
+
+      <!-- Question Display -->
+      <div class="mb-6 p-8 bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl text-center">
+        <div class="text-sm text-gray-600 mb-2">다음 단어의 뜻은?</div>
+        <div id="questionWord" class="text-5xl font-bold text-gray-900 mb-4">단어</div>
+        <div id="questionEmoji" class="text-6xl">🌸</div>
+      </div>
+
+      <!-- Answer Options -->
+      <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        <!-- Options will be inserted here -->
+      </div>
+
+      <!-- Feedback -->
+      <div id="feedbackPanel" class="hidden mb-6"></div>
+    </section>
+
+    <!-- Result Panel -->
+    <section id="resultPanel" class="hidden">
+      <div class="p-8 bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl text-center">
+        <div class="text-6xl mb-4">🏆</div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">퀴즈 완료!</h2>
+        <div class="space-y-3 mb-6">
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">최종 점수:</span>
+            <span id="finalScore" class="text-3xl font-bold text-red-600">0</span>
+            <span class="text-lg text-gray-700">/ 10</span>
+          </div>
+          <div class="flex justify-center items-center gap-3">
+            <span class="text-lg text-gray-700">정답률:</span>
+            <span id="finalAccuracy" class="text-3xl font-bold text-blue-600">0</span>
+            <span class="text-lg text-gray-700">%</span>
+          </div>
+          <div id="performanceMessage" class="text-lg text-gray-700 mt-4"></div>
+        </div>
+        <button id="restartBtn" class="px-8 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 font-semibold text-lg transition-all">
+          다시 하기
+        </button>
+      </div>
+    </section>
+
+    <!-- Tips Section -->
+    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+      <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
+      <div class="text-xs text-gray-700 space-y-1">
+        <p>• <strong>빠른 판단</strong>: 10초 안에 정답을 선택하세요</p>
+        <p>• <strong>직관 활용</strong>: 처음 떠오르는 답이 종종 정답입니다</p>
+        <p>• <strong>반복 학습</strong>: 틀린 단어는 다시 복습하세요</p>
+        <p>• <strong>어휘 확장</strong>: 다양한 레벨의 단어를 학습하세요</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  // DOM elements
+  const levelSelect = document.getElementById('levelSelect');
+  const startBtn = document.getElementById('startBtn');
+  const quizPanel = document.getElementById('quizPanel');
+  const resultPanel = document.getElementById('resultPanel');
+  const questionNumberEl = document.getElementById('questionNumber');
+  const scoreEl = document.getElementById('score');
+  const timerEl = document.getElementById('timer');
+  const questionWordEl = document.getElementById('questionWord');
+  const questionEmojiEl = document.getElementById('questionEmoji');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const feedbackPanel = document.getElementById('feedbackPanel');
+  const finalScoreEl = document.getElementById('finalScore');
+  const finalAccuracyEl = document.getElementById('finalAccuracy');
+  const performanceMessageEl = document.getElementById('performanceMessage');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // Game state
+  let words = [];
+  let questions = [];
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let timeLeft = 10;
+  let timerInterval = null;
+  let totalQuestions = 10;
+  let answeredCorrectly = false;
+
+  // Load vocabulary
+  async function loadVocabulary(level) {
+    try {
+      const response = await fetch(`/api/vocabulary?level=${level}`);
+      const data = await response.json();
+      words = data.vocabulary || [];
+
+      if (words.length === 0) {
+        alert('해당 레벨의 단어가 없습니다.');
+        return false;
+      }
+
+      // Generate questions
+      generateQuestions();
+      return true;
+    } catch (error) {
+      console.error('Error loading vocabulary:', error);
+      alert('단어를 불러오는데 실패했습니다.');
+      return false;
+    }
+  }
+
+  // Generate questions with multiple choice options
+  function generateQuestions() {
+    questions = [];
+    const shuffledWords = [...words].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < Math.min(totalQuestions, shuffledWords.length); i++) {
+      const correctWord = shuffledWords[i];
+      const otherWords = words.filter(w => w.id !== correctWord.id);
+      const wrongOptions = otherWords.sort(() => Math.random() - 0.5).slice(0, 3);
+
+      const options = [correctWord, ...wrongOptions].sort(() => Math.random() - 0.5);
+
+      questions.push({
+        word: correctWord.word,
+        emoji: correctWord.emoji || '❓',
+        correctAnswer: correctWord.meaning,
+        options: options.map(w => w.meaning)
+      });
+    }
+  }
+
+  // Display current question
+  function displayQuestion() {
+    const question = questions[currentQuestionIndex];
+    answeredCorrectly = false;
+
+    questionNumberEl.textContent = `${currentQuestionIndex + 1} / ${totalQuestions}`;
+    questionWordEl.textContent = question.word;
+    questionEmojiEl.textContent = question.emoji;
+
+    // Create option buttons
+    optionsContainer.innerHTML = question.options.map((option, index) => `
+      <button
+        class="option-btn p-4 border-2 border-gray-300 rounded-xl hover:border-red-500 hover:bg-red-50 transition-all text-left font-medium text-gray-900"
+        data-answer="${option}"
+      >
+        <span class="inline-block w-8 h-8 rounded-full bg-gray-200 text-center leading-8 mr-2 font-semibold">${index + 1}</span>
+        ${option}
+      </button>
+    `).join('');
+
+    // Add click handlers
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectAnswer(btn.dataset.answer));
+    });
+
+    feedbackPanel.classList.add('hidden');
+
+    // Reset and start timer
+    timeLeft = 10;
+    timerEl.textContent = timeLeft;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  // Update timer
+  function updateTimer() {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answeredCorrectly) {
+        showFeedback(false, questions[currentQuestionIndex].correctAnswer);
+      }
+    }
+  }
+
+  // Select answer
+  function selectAnswer(answer) {
+    if (answeredCorrectly) return; // Already answered
+
+    clearInterval(timerInterval);
+    const question = questions[currentQuestionIndex];
+    const isCorrect = answer === question.correctAnswer;
+
+    if (isCorrect) {
+      score++;
+      scoreEl.textContent = score;
+      answeredCorrectly = true;
+    }
+
+    showFeedback(isCorrect, question.correctAnswer);
+  }
+
+  // Show feedback
+  function showFeedback(isCorrect, correctAnswer) {
+    // Disable all buttons
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      if (btn.dataset.answer === correctAnswer) {
+        btn.classList.add('border-green-500', 'bg-green-50');
+      } else if (!isCorrect && btn.classList.contains('border-red-500')) {
+        btn.classList.add('border-red-500', 'bg-red-50');
+      }
+    });
+
+    feedbackPanel.classList.remove('hidden');
+
+    if (isCorrect) {
+      feedbackPanel.className = 'p-4 rounded-xl mb-6 bg-green-50 border-2 border-green-500 text-center';
+      feedbackPanel.innerHTML = `
+        <div class="text-2xl mb-1">✓</div>
+        <div class="font-semibold text-green-800">정답입니다!</div>
+      `;
+    } else {
+      feedbackPanel.className = 'p-4 rounded-xl mb-6 bg-red-50 border-2 border-red-500 text-center';
+      feedbackPanel.innerHTML = `
+        <div class="text-2xl mb-1">✗</div>
+        <div class="font-semibold text-red-800">틀렸습니다</div>
+        <div class="text-sm text-red-700 mt-1">정답: ${correctAnswer}</div>
+      `;
+    }
+
+    // Auto-advance to next question after 2 seconds
+    setTimeout(() => {
+      nextQuestion();
+    }, 2000);
+  }
+
+  // Next question
+  function nextQuestion() {
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= totalQuestions) {
+      showResults();
+    } else {
+      displayQuestion();
+    }
+  }
+
+  // Show results
+  function showResults() {
+    clearInterval(timerInterval);
+    quizPanel.classList.add('hidden');
+    resultPanel.classList.remove('hidden');
+
+    const accuracy = Math.round((score / totalQuestions) * 100);
+    finalScoreEl.textContent = score;
+    finalAccuracyEl.textContent = accuracy;
+
+    // Performance message
+    let message = '';
+    if (accuracy === 100) {
+      message = '완벽합니다! 🌟';
+    } else if (accuracy >= 80) {
+      message = '훌륭합니다! 👏';
+    } else if (accuracy >= 60) {
+      message = '잘했습니다! 💪';
+    } else {
+      message = '다시 도전해보세요! 📚';
+    }
+    performanceMessageEl.textContent = message;
+  }
+
+  // Start quiz
+  async function startQuiz() {
+    const level = levelSelect.value;
+    const loaded = await loadVocabulary(level);
+
+    if (!loaded) return;
+
+    // Reset state
+    currentQuestionIndex = 0;
+    score = 0;
+    scoreEl.textContent = score;
+
+    // Show quiz panel
+    quizPanel.classList.remove('hidden');
+    resultPanel.classList.add('hidden');
+    startBtn.disabled = true;
+    levelSelect.disabled = true;
+
+    displayQuestion();
+  }
+
+  // Restart quiz
+  function restartQuiz() {
+    resultPanel.classList.add('hidden');
+    startBtn.disabled = false;
+    levelSelect.disabled = false;
+  }
+
+  // Event listeners
+  startBtn.addEventListener('click', startQuiz);
+  restartBtn.addEventListener('click', restartQuiz);
+})();
+</script>
+{% endblock %}
