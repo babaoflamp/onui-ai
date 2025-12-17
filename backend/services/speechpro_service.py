@@ -299,9 +299,18 @@ def call_speechpro_score(
             url,
             json=payload,
             headers={'Content-Type': 'application/json'},
-            timeout=30  # 발음 평가 타임아웃 단축
+            timeout=60  # 긴 문장 처리를 위해 타임아웃 증가
         )
         print(f"[Score] Response status: {response.status_code}")
+        
+        # 500 에러 시 더 자세한 정보 로깅
+        if response.status_code >= 500:
+            print(f"[Score] Server error response: {response.text[:500]}")
+            raise RuntimeError(
+                f"SpeechPro 서버에서 오류가 발생했습니다 (상태: {response.status_code}). "
+                "문장이 너무 길거나 복잡할 수 있습니다. 더 짧은 문장으로 시도해주세요."
+            )
+        
         response.raise_for_status()
         data = response.json()
         print(f"[Score] Response data: {data}")

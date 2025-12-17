@@ -1,0 +1,221 @@
+{% extends "base.html" %} {% block title %}관리자 대시보드 - 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p
+        class="text-xs font-semibold text-orange-600 uppercase tracking-widest"
+      >
+        Admin
+      </p>
+      <h1 class="text-3xl font-bold text-gray-900 mt-1">관리자 대시보드</h1>
+      <p class="text-gray-600 mt-2">요약 통계와 최근 가입 내역을 확인하세요.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        id="refreshAdmin"
+        class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+      >
+        ↻ 새로고침
+      </button>
+      <button
+        id="adminLogout"
+        class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800"
+      >
+        로그아웃
+      </button>
+    </div>
+  </div>
+
+  <div id="adminStatus" class="text-sm text-gray-600 mb-6"></div>
+
+  <!-- Admin Menu Quick Links -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+    <a
+      href="/admin/dashboard"
+      class="p-4 rounded-lg bg-orange-100 border-2 border-orange-500 hover:bg-orange-200 transition text-center"
+    >
+      <p class="text-2xl mb-1">📊</p>
+      <p class="text-xs font-semibold text-orange-900">대시보드</p>
+    </a>
+    <a
+      href="/admin/users"
+      class="p-4 rounded-lg bg-blue-100 border-2 border-blue-500 hover:bg-blue-200 transition text-center"
+    >
+      <p class="text-2xl mb-1">👥</p>
+      <p class="text-xs font-semibold text-blue-900">사용자</p>
+    </a>
+    <a
+      href="/admin/logs"
+      class="p-4 rounded-lg bg-purple-100 border-2 border-purple-500 hover:bg-purple-200 transition text-center"
+    >
+      <p class="text-2xl mb-1">📋</p>
+      <p class="text-xs font-semibold text-purple-900">로그</p>
+    </a>
+    <a
+      href="/api-test"
+      class="p-4 rounded-lg bg-green-100 border-2 border-green-500 hover:bg-green-200 transition text-center"
+    >
+      <p class="text-2xl mb-1">🔧</p>
+      <p class="text-xs font-semibold text-green-900">API 테스트</p>
+    </a>
+    <a
+      href="/admin/settings"
+      class="p-4 rounded-lg bg-gray-100 border-2 border-gray-500 hover:bg-gray-200 transition text-center"
+    >
+      <p class="text-2xl mb-1">⚙️</p>
+      <p class="text-xs font-semibold text-gray-900">설정</p>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-xs font-semibold text-slate-500 uppercase">전체 사용자</p>
+      <p id="totalUsers" class="text-3xl font-bold text-gray-900 mt-2">-</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-xs font-semibold text-slate-500 uppercase">관리자 계정</p>
+      <p id="adminUsers" class="text-3xl font-bold text-gray-900 mt-2">-</p>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <p class="text-xs font-semibold text-slate-500 uppercase">최근 가입</p>
+      <p id="recentCount" class="text-3xl font-bold text-gray-900 mt-2">-</p>
+    </div>
+  </div>
+
+  <div
+    class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+  >
+    <div
+      class="px-5 py-4 border-b border-slate-200 flex items-center justify-between"
+    >
+      <h2 class="text-lg font-semibold text-gray-900">최근 가입한 사용자</h2>
+      <span class="text-xs text-gray-500" id="recentSummary">-</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">
+              이메일
+            </th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">
+              닉네임
+            </th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">
+              가입일
+            </th>
+          </tr>
+        </thead>
+        <tbody id="recentTbody" class="divide-y divide-slate-100 bg-white">
+          <tr>
+            <td class="px-4 py-3 text-gray-500" colspan="3">
+              데이터 불러오는 중...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  (function () {
+    const statusEl = document.getElementById("adminStatus");
+    const totalEl = document.getElementById("totalUsers");
+    const adminEl = document.getElementById("adminUsers");
+    const recentCountEl = document.getElementById("recentCount");
+    const recentSummaryEl = document.getElementById("recentSummary");
+    const tbody = document.getElementById("recentTbody");
+    const refreshBtn = document.getElementById("refreshAdmin");
+    const logoutBtn = document.getElementById("adminLogout");
+
+    function setStatus(msg, ok = true) {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = ok
+        ? "text-sm text-emerald-600"
+        : "text-sm text-red-600";
+    }
+
+    function ensureAdmin() {
+      const token = localStorage.getItem("auth_token");
+      const isAdmin = localStorage.getItem("is_admin") === "true";
+      if (!token || !isAdmin) {
+        window.location.href = "/admin/login";
+        return null;
+      }
+      return token;
+    }
+
+    async function loadSummary() {
+      const token = ensureAdmin();
+      if (!token) return;
+      setStatus("요약 정보를 불러오는 중...", true);
+
+      try {
+        const res = await fetch("/api/admin/summary", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          setStatus("다시 로그인해주세요.", false);
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("user_nickname");
+          localStorage.removeItem("is_admin");
+          setTimeout(() => (window.location.href = "/admin/login"), 800);
+          return;
+        }
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({}));
+          throw new Error(error.detail || "요약 정보를 불러오지 못했습니다.");
+        }
+
+        const data = await res.json();
+        const stats = data.stats || {};
+        totalEl.textContent = stats.total_users ?? "0";
+        adminEl.textContent = stats.admin_users ?? "0";
+        const recents = stats.recent_signups || [];
+        recentCountEl.textContent = recents.length;
+        recentSummaryEl.textContent = recents.length
+          ? `${recents.length}명 표시`
+          : "최근 데이터 없음";
+
+        tbody.innerHTML = recents.length
+          ? recents
+              .map(
+                (item) => `
+              <tr>
+                <td class="px-4 py-3 text-gray-900">${item.email}</td>
+                <td class="px-4 py-3 text-gray-700">${item.nickname}</td>
+                <td class="px-4 py-3 text-gray-500">${
+                  item.created_at || "-"
+                }</td>
+              </tr>`
+              )
+              .join("")
+          : '<tr><td class="px-4 py-3 text-gray-500" colspan="3">최근 가입 사용자가 없습니다.</td></tr>';
+
+        setStatus("최신 데이터로 업데이트되었습니다.", true);
+      } catch (err) {
+        console.error(err);
+        setStatus(err.message || "오류가 발생했습니다.", false);
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_nickname");
+      localStorage.removeItem("is_admin");
+      localStorage.removeItem("is_guest");
+      window.location.href = "/admin/login";
+    }
+
+    if (refreshBtn) refreshBtn.addEventListener("click", loadSummary);
+    if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+
+    loadSummary();
+  })();
+</script>
+{% endblock %}

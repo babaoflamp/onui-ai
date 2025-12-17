@@ -13,6 +13,11 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
+
 # .env 파일 로드
 load_dotenv()
 
@@ -26,6 +31,10 @@ DALLE_QUALITY = os.getenv("DALLE_QUALITY", "standard")
 DALLE_STYLE = os.getenv("DALLE_STYLE", "vivid")
 DALLE_TIMEOUT = int(os.getenv("DALLE_TIMEOUT", "60"))
 DALLE_RETRY_ATTEMPTS = int(os.getenv("DALLE_RETRY_ATTEMPTS", "3"))
+
+# Gemini 설정 (옵션)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
 
 # 이미지 저장 디렉토리
 UPLOAD_DIR = Path("uploads/images")
@@ -178,6 +187,79 @@ async def generate_image_dall_e(
         "success": False,
         "error": "Unknown error occurred"
     }
+
+
+async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[str, Any]:
+    """Google Gemini 이미지 생성 (시범용 간단 래퍼)."""
+    if not GEMINI_API_KEY:
+        return {"success": False, "error": "GEMINI_API_KEY not configured"}
+    if genai is None:
+        return {"success": False, "error": "google-generativeai not installed"}
+
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel(GEMINI_MODEL)
+        resp = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: model.generate_content(
+                [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"text": prompt},
+                            {"inline_data": None},
+                        ],
+                    }
+                ],
+                generation_config={"response_mime_type": "image/png"},
+            ),
+        )
+
+        if not resp or not getattr(resp, "_result", None):
+            return {"success": False, "error": "No response from Gemini"}
+
+        # Gemini 응답에서 base64 PNG 추출 (v1beta style)
+        image_base64 = None
+        try:
+            if resp._result.candidates:
+                for cand in resp._result.candidates:
+                    parts = getattr(cand, "content", {}).get("parts", []) if hasattr(cand, "content") else []
+                    for p in parts:
+                        if getattr(p, "inline_data", None):
+                            if p.inline_data.get("mime_type", "").startswith("image/"):
+                                image_base64 = p.inline_data.get("data")
+                                break
+                    if image_base64:
+                        break
+        except Exception:
+            pass
+
+        if not image_base64:
+            return {"success": False, "error": "Gemini did not return inline image data"}
+
+        result: Dict[str, Any] = {
+            "success": True,
+            "image_base64": image_base64,
+            "mime_type": "image/png",
+            "model": GEMINI_MODEL,
+        }
+
+        if save_locally:
+            try:
+                binary = base64.b64decode(image_base64)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"gemini_{timestamp}.png"
+                filepath = UPLOAD_DIR / filename
+                async with aiofiles.open(filepath, "wb") as f:
+                    await f.write(binary)
+                result["local_path"] = f"/uploads/images/{filename}"
+            except Exception as e:
+                logger.warning(f"Failed to save Gemini image locally: {e}")
+
+        return result
+
+    except Exception as e:
+        return {"success": False, "error": f"Gemini image generation failed: {e}"}
 
 
 def enhance_prompt_for_korean_learning(

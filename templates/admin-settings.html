@@ -1,0 +1,287 @@
+{% extends "base.html" %} {% block title %}설정 - 관리자{% endblock %} {% block
+content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-xs font-semibold text-gray-600 uppercase tracking-widest">
+        Administration
+      </p>
+      <h1 class="text-3xl font-bold text-gray-900 mt-1">관리자 설정</h1>
+      <p class="text-gray-600 mt-2">모델, API, 로그 설정</p>
+    </div>
+    <a
+      href="/admin/dashboard"
+      class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+      >← 대시보드</a
+    >
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- AI Model Settings -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">🤖 AI 모델 설정</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >백엔드 선택</label
+          >
+          <select
+            id="modelBackend"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="ollama">Ollama (로컬)</option>
+            <option value="gemini">Google Gemini</option>
+            <option value="openai">OpenAI (비활성화)</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-2">
+            현재 설정: <code id="currentBackend" class="font-mono">ollama</code>
+          </p>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >Ollama 모델</label
+          >
+          <input
+            id="ollamaModel"
+            type="text"
+            placeholder="exaone3.5:2.4b"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          />
+          <p class="text-xs text-gray-500 mt-2">
+            현재 모델: <code id="currentModel" class="font-mono">exaone</code>
+          </p>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >Ollama URL</label
+          >
+          <input
+            id="ollamaUrl"
+            type="text"
+            placeholder="http://localhost:11434"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          />
+          <p class="text-xs text-gray-500 mt-2">
+            현재 URL:
+            <code id="currentUrl" class="font-mono"
+              >http://localhost:11434</code
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TTS & STT Settings -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">🎤 TTS/STT 설정</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >MzTTS API URL</label
+          >
+          <input
+            id="mzttsUrl"
+            type="text"
+            placeholder="http://112.220.79.218:56014"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          />
+          <p class="text-xs text-gray-500 mt-2">
+            현재 URL:
+            <code id="currentMztts" class="font-mono"
+              >http://112.220.79.218:56014</code
+            >
+          </p>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >로컬 STT 엔진</label
+          >
+          <select
+            id="localStt"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="none">비활성화</option>
+            <option value="vosk">VOSK</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-2">
+            VOSK 모델 경로:
+            <code id="voskPath" class="font-mono">/path/to/vosk-model</code>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Romanization Settings -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        📝 로마자 표기 설정
+      </h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >로마자 모드</label
+          >
+          <select
+            id="romanizeMode"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="force">Force (항상 로마자 변환)</option>
+            <option value="prefer">Prefer (유효한 것 유지, 없으면 변환)</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-2">
+            현재 모드: <code id="currentRomanize" class="font-mono">force</code>
+          </p>
+        </div>
+
+        <div
+          class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800"
+        >
+          <p>
+            <strong>정보:</strong> 한국어 발음을 라틴 문자로 자동 변환합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logging Settings -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">📋 로깅 설정</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >로그 레벨</label
+          >
+          <select
+            id="logLevel"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="DEBUG">DEBUG</option>
+            <option value="INFO" selected>INFO</option>
+            <option value="WARNING">WARNING</option>
+            <option value="ERROR">ERROR</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-gray-600 block mb-2"
+            >로그 파일</label
+          >
+          <p class="text-xs text-gray-600 font-mono">logs/detailed.log</p>
+          <button
+            onclick="downloadLogs()"
+            class="mt-2 px-3 py-2 rounded-lg bg-blue-500 text-white text-xs font-semibold hover:bg-blue-600"
+          >
+            📥 로그 다운로드
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <div class="mt-6 flex justify-center">
+    <button
+      onclick="saveSettings()"
+      class="px-8 py-3 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600"
+    >
+      💾 설정 저장
+    </button>
+  </div>
+
+  <div id="settingsStatus" class="mt-4 text-sm text-gray-600 text-center"></div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  (function () {
+    const statusEl = document.getElementById("settingsStatus");
+
+    function setStatus(msg, ok = true) {
+      statusEl.textContent = msg;
+      statusEl.className = ok
+        ? "text-sm text-emerald-600 text-center"
+        : "text-sm text-red-600 text-center";
+    }
+
+    function ensureAdmin() {
+      const token = localStorage.getItem("auth_token");
+      const isAdmin = localStorage.getItem("is_admin") === "true";
+      if (!token || !isAdmin) {
+        alert("관리자 권한이 필요합니다.");
+        window.location.href = "/admin/login";
+        return null;
+      }
+      return token;
+    }
+
+    // Load current settings (from env or server)
+    async function loadSettings() {
+      const token = ensureAdmin();
+      if (!token) return;
+
+      try {
+        const res = await fetch("/api/admin/settings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({}));
+          throw new Error(error.detail || "설정을 불러오지 못했습니다.");
+        }
+
+        const data = await res.json();
+        const settings = data.settings || {};
+
+        document.getElementById("currentBackend").textContent =
+          settings.model_backend || "ollama";
+        document.getElementById("currentModel").textContent =
+          settings.ollama_model || "exaone";
+        document.getElementById("currentUrl").textContent =
+          settings.ollama_url || "http://localhost:11434";
+        document.getElementById("currentMztts").textContent =
+          settings.mztts_url || "http://112.220.79.218:56014";
+        document.getElementById("currentRomanize").textContent =
+          settings.romanize_mode || "force";
+
+        // Pre-fill form fields
+        document.getElementById("modelBackend").value =
+          settings.model_backend || "ollama";
+        document.getElementById("ollamaModel").value =
+          settings.ollama_model || "";
+        document.getElementById("ollamaUrl").value = settings.ollama_url || "";
+        document.getElementById("mzttsUrl").value = settings.mztts_url || "";
+        document.getElementById("romanizeMode").value =
+          settings.romanize_mode || "force";
+
+        setStatus("설정을 불러왔습니다.", true);
+      } catch (err) {
+        console.error("Failed to load settings", err);
+        setStatus(err.message, false);
+      }
+    }
+
+    window.saveSettings = async function () {
+      const token = ensureAdmin();
+      if (!token) return;
+
+      setStatus("설정을 저장하는 중...", true);
+
+      // Note: Settings are read-only from environment variables
+      // In production, implement a proper settings update endpoint
+      setStatus(
+        "설정은 환경변수로 관리됩니다. 서버를 재시작하여 변경사항을 적용해주세요.",
+        false
+      );
+    };
+
+    window.downloadLogs = function () {
+      // TODO: Implement log download
+      alert("로그 다운로드 기능은 다음 업데이트에서 추가됩니다.");
+    };
+
+    loadSettings();
+  })();
+</script>
+{% endblock %}

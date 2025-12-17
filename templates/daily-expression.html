@@ -1,12 +1,7 @@
-{% extends "base.html" %}
-
-{% block title %}오늘의 한국어 표현 - 오누이 한국어{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="/static/css/daily-expression.css">
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}오늘의 한국어 표현 - 오누이 한국어{%
+endblock %} {% block extra_css %}
+<link rel="stylesheet" href="/static/css/daily-expression.css" />
+{% endblock %} {% block content %}
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
     <!-- Floating decorations -->
@@ -15,11 +10,15 @@
 
     <!-- Header -->
     <header class="mb-6 relative z-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2"
+      >
         <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
         ONUI · 오늘의 한국어 표현
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">오늘의 한국어 표현 카드 슬라이더</h1>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        오늘의 한국어 표현 카드 슬라이더
+      </h1>
       <p class="text-sm text-gray-600">
         매일 한 장씩 넘겨 보면서, 자연스럽게 표현과 문화를 같이 익혀 보세요.
       </p>
@@ -33,8 +32,12 @@
       </div>
 
       <div class="slider-frame">
-        <button class="nav-btn left" id="prevBtn" aria-label="이전 표현">&lt;</button>
-        <button class="nav-btn right" id="nextBtn" aria-label="다음 표현">&gt;</button>
+        <button class="nav-btn left" id="prevBtn" aria-label="이전 표현">
+          &lt;
+        </button>
+        <button class="nav-btn right" id="nextBtn" aria-label="다음 표현">
+          &gt;
+        </button>
 
         <div class="expression-card" id="expressionCard">
           <div class="card-label">
@@ -66,8 +69,6 @@
     </section>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script src="/static/js/daily-expression.js"></script>
 {% endblock %}

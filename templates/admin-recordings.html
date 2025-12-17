@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% block title %}녹음 관리 - 관리자 대시보드{%
+endblock %} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">🎙️ 녹음 관리</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">전체 녹음 수</p>
+        <p class="text-3xl font-bold text-blue-600" id="total-recordings">0</p>
+      </div>
+      <div class="bg-green-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">오늘 녹음</p>
+        <p class="text-3xl font-bold text-green-600" id="today-recordings">0</p>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">평균 길이</p>
+        <p class="text-3xl font-bold text-orange-600" id="avg-length">0초</p>
+      </div>
+      <div class="bg-purple-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">총 저장소</p>
+        <p class="text-3xl font-bold text-purple-600" id="total-size">0MB</p>
+      </div>
+    </div>
+
+    <div class="border-t pt-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">최근 녹음</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border border-gray-300 px-4 py-2 text-left">사용자</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">문장</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">길이</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                저장 시간
+              </th>
+              <th class="border border-gray-300 px-4 py-2 text-center">작업</th>
+            </tr>
+          </thead>
+          <tbody id="recordings-table">
+            <tr>
+              <td
+                colspan="5"
+                class="border border-gray-300 px-4 py-2 text-center text-gray-500"
+              >
+                녹음 데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 관리자 권한 확인
+  function checkAdminAccess() {
+    const isAdmin = localStorage.getItem("is_admin") === "true";
+    if (!isAdmin) {
+      alert("관리자 권한이 필요합니다.");
+      window.location.href = "/";
+    }
+  }
+
+  // 녹음 데이터 로드
+  async function loadRecordings() {
+    try {
+      checkAdminAccess();
+      // 실제 API 구현 예정
+      document.getElementById("recordings-table").innerHTML = `
+        <tr>
+          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+            녹음 데이터를 불러올 수 없습니다. (API 개발 예정)
+          </td>
+        </tr>
+      `;
+    } catch (error) {
+      console.error("Error loading recordings:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadRecordings);
+</script>
+{% endblock %}

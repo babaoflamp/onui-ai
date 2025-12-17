@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block title %}단어 관리 - 관리자 대시보드{%
+endblock %} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">📚 단어 관리</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">전체 단어 수</p>
+        <p class="text-3xl font-bold text-blue-600" id="total-words">0</p>
+      </div>
+      <div class="bg-green-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">카테고리 수</p>
+        <p class="text-3xl font-bold text-green-600" id="category-count">0</p>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">난이도별 분포</p>
+        <p class="text-3xl font-bold text-orange-600" id="difficulty-count">
+          0
+        </p>
+      </div>
+    </div>
+
+    <div class="border-t pt-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">단어 목록</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border border-gray-300 px-4 py-2 text-left">단어</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">뜻</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                카테고리
+              </th>
+              <th class="border border-gray-300 px-4 py-2 text-left">난이도</th>
+              <th class="border border-gray-300 px-4 py-2 text-center">작업</th>
+            </tr>
+          </thead>
+          <tbody id="words-table">
+            <tr>
+              <td
+                colspan="5"
+                class="border border-gray-300 px-4 py-2 text-center text-gray-500"
+              >
+                단어 데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 관리자 권한 확인
+  function checkAdminAccess() {
+    const isAdmin = localStorage.getItem("is_admin") === "true";
+    if (!isAdmin) {
+      alert("관리자 권한이 필요합니다.");
+      window.location.href = "/";
+    }
+  }
+
+  // 단어 데이터 로드
+  async function loadWords() {
+    try {
+      checkAdminAccess();
+      // 실제 API 구현 예정
+      document.getElementById("words-table").innerHTML = `
+        <tr>
+          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+            단어 데이터를 불러올 수 없습니다. (API 개발 예정)
+          </td>
+        </tr>
+      `;
+    } catch (error) {
+      console.error("Error loading words:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadWords);
+</script>
+{% endblock %}
