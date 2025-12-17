@@ -1,0 +1,285 @@
+{% extends "base.html" %} {% block title %}발음 학습 허브 | 오누이 한국어{%
+endblock %} {% block content %}
+<div
+  class="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100 to-yellow-50 py-10"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- 헤더 -->
+    <div class="text-center mb-10">
+      <h1 class="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
+        🗣️ 발음 학습 허브
+      </h1>
+      <p class="mt-2 text-gray-600">
+        단어/문장 학습, 진행상황, 랭킹 정보를 한곳에서 확인하세요.
+      </p>
+    </div>
+
+    <!-- 3열 레이아웃 -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <!-- 좌측 패널 -->
+      <div class="space-y-4 lg:col-span-1">
+        <div
+          class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl shadow-md p-4 border border-purple-200"
+        >
+          <h2 class="text-sm font-semibold text-purple-900 mb-3">⚙️ 필터</h2>
+          <div class="space-y-2 text-sm text-purple-800">
+            <label class="flex items-center gap-2"
+              ><input type="checkbox" class="rounded" /> 초급</label
+            >
+            <label class="flex items-center gap-2"
+              ><input type="checkbox" class="rounded" /> 중급</label
+            >
+            <label class="flex items-center gap-2"
+              ><input type="checkbox" class="rounded" /> 고급</label
+            >
+          </div>
+        </div>
+        <div
+          class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-md p-4 border border-green-200"
+        >
+          <h2 class="text-sm font-semibold text-green-900 mb-3">
+            📝 학습 리스트
+          </h2>
+          <div class="flex flex-wrap gap-2 max-h-96 overflow-y-auto p-2">
+            <button
+              onclick="loadFlower('장미', 'jang-mi', '🌹', '봄에 피는 아름다운 꽃입니다. 붉은색이 가장 유명합니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              장미
+            </button>
+            <button
+              onclick="loadFlower('튤립', 'ty-lip', '🌷', '네덜란드에서 유명한 봄 꽃입니다. 다양한 색상이 있습니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              튤립
+            </button>
+            <button
+              onclick="loadFlower('해바라기', 'hae-ba-ra-gi', '🌻', '해를 따라 움직이는 큰 노란 꽃입니다. 여름의 상징입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              해바라기
+            </button>
+            <button
+              onclick="loadFlower('벚꽃', 'beot-kkoch', '🌸', '봄의 대표 꽃으로 한국에서 매우 인기 있습니다. 연분홍색입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              벚꽃
+            </button>
+            <button
+              onclick="loadFlower('매화', 'mae-hwa', '🌼', '겨울과 초봄에 피는 고급스러운 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              매화
+            </button>
+            <button
+              onclick="loadFlower('목련', 'mok-nyeon', '🌺', '봄에 먼저 피는 우아한 흰 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              목련
+            </button>
+            <button
+              onclick="loadFlower('철쭉', 'cheol-jjuk', '🌸', '봄에 산에서 볼 수 있는 화려한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              철쭉
+            </button>
+            <button
+              onclick="loadFlower('동백', 'dong-baek', '🌹', '겨울에도 피는 빨간 꽃으로 남쪽 지방에서 찾을 수 있습니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              동백
+            </button>
+            <button
+              onclick="loadFlower('수국', 'su-guk', '🌺', '여름을 대표하는 파란색 또는 분홍색 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              수국
+            </button>
+            <button
+              onclick="loadFlower('라벤더', 'ra-be-ndeo', '�', '보라색의 향기로운 꽃으로 유럽에서 인기 있습니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              라벤더
+            </button>
+            <button
+              onclick="loadFlower('카네이션', 'ka-ne-i-syeon', '🌷', '어머니날에 주는 감사의 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              카네이션
+            </button>
+            <button
+              onclick="loadFlower('국화', 'guk-hwa', '🌼', '가을을 대표하는 꽃으로 추석에 많이 봅니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              국화
+            </button>
+            <button
+              onclick="loadFlower('나팔꽃', 'na-pal-kkoch', '💜', '여름 아침에 피는 가지런한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              나팔꽃
+            </button>
+            <button
+              onclick="loadFlower('봉선화', 'bong-seon-hwa', '🌸', '여름철에 손톱에 물을 드리기 위해 사용하는 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              봉선화
+            </button>
+            <button
+              onclick="loadFlower('작약', 'ja-gyak', '🌷', '여름에 피는 매력적이고 풍성한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              작약
+            </button>
+            <button
+              onclick="loadFlower('아네모네', 'a-ne-mo-ne', '🌸', '겨울과 봄에 피는 우아한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              아네모네
+            </button>
+            <button
+              onclick="loadFlower('팬지', 'paen-ji', '💜', '겨울부터 봄까지 피는 알록달록한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              팬지
+            </button>
+            <button
+              onclick="loadFlower('달리아', 'dal-li-a', '🌺', '여름과 가을에 피는 크고 화려한 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              달리아
+            </button>
+            <button
+              onclick="loadFlower('백합', 'baek-hab', '🌷', '고급스럽고 향기로운 큰 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              백합
+            </button>
+            <button
+              onclick="loadFlower('진달래', 'jin-dal-lae', '🌸', '봄의 야산을 물들이는 한국의 대표 꽃입니다.')"
+              class="px-3 py-1 text-xs font-medium bg-green-200 text-green-900 rounded-full hover:bg-green-300"
+            >
+              진달래
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 중앙 영역 -->
+      <div class="lg:col-span-3">
+        <div
+          class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl shadow-md p-6 border border-orange-200"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs font-semibold text-orange-700">현재 학습</p>
+              <div class="text-3xl mb-2" id="flower-emoji">🌹</div>
+              <h3 class="text-2xl font-bold text-gray-900" id="flower-name">
+                장미
+              </h3>
+              <p
+                class="text-sm text-gray-600 font-medium"
+                id="flower-pronunciation"
+              >
+                jang-mi
+              </p>
+            </div>
+            <button
+              class="px-3 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              🔊 들어보기
+            </button>
+          </div>
+          <div
+            class="bg-orange-100 border border-orange-300 rounded-xl p-4 text-sm text-orange-900 leading-relaxed"
+          >
+            <p class="font-semibold text-orange-900 mb-1">꽃 설명</p>
+            <p id="flower-description">
+              봄에 피는 아름다운 꽃입니다. 붉은색이 가장 유명합니다.
+            </p>
+            <div class="mt-4 flex gap-2">
+              <button
+                class="flex-1 px-4 py-3 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600"
+              >
+                �️ 녹음 시작
+              </button>
+              <button
+                class="flex-1 px-4 py-3 rounded-lg bg-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-300"
+              >
+                � 다시 듣기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측 패널 -->
+      <div class="lg:col-span-1 space-y-4">
+        <div
+          class="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-2xl shadow-md p-4 border border-cyan-200"
+        >
+          <h2 class="text-sm font-semibold text-cyan-900 mb-2">📊 진행 상황</h2>
+          <div class="space-y-2 text-sm text-cyan-800">
+            <div class="flex justify-between">
+              <span>주간 학습</span
+              ><span class="font-semibold text-orange-600">64%</span>
+            </div>
+            <div class="flex justify-between">
+              <span>완료한 문장</span
+              ><span class="font-semibold text-orange-600">18/30</span>
+            </div>
+            <div class="flex justify-between">
+              <span>최근 점수</span
+              ><span class="font-semibold text-orange-600">82점</span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl shadow-md p-4 border border-yellow-200"
+        >
+          <h2 class="text-sm font-semibold text-yellow-900 mb-2">🏅 랭킹</h2>
+          <ol
+            class="space-y-1 text-sm text-yellow-800 list-decimal list-inside"
+          >
+            <li>홍길동 — 92점</li>
+            <li>김영희 — 88점</li>
+            <li>이민수 — 85점</li>
+          </ol>
+        </div>
+        <div
+          class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-2xl shadow-md p-4 border border-rose-200"
+        >
+          <h2 class="text-sm font-semibold text-rose-900 mb-2">
+            📚 셀프스터디
+          </h2>
+          <ul class="space-y-1 text-sm text-rose-800">
+            <li>• 뉴스 한 문장 따라 읽기</li>
+            <li>• 팝송 한 줄 쉐도잉</li>
+            <li>• Tongue Twister 3회</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadFlower(name, pronunciation, emoji, description) {
+      document.getElementById("flower-emoji").textContent = emoji;
+      document.getElementById("flower-name").textContent = name;
+      document.getElementById("flower-pronunciation").textContent =
+        pronunciation;
+      document.getElementById("flower-description").textContent = description;
+    }
+
+    // 페이지 로드 시 기본값으로 장미 표시
+    window.addEventListener("DOMContentLoaded", () => {
+      loadFlower(
+        "장미",
+        "jang-mi",
+        "🌹",
+        "봄에 피는 아름다운 꽃입니다. 붉은색이 가장 유명합니다."
+      );
+    });
+  </script>
+  {% endblock %}
+</div>

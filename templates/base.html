@@ -186,49 +186,35 @@
 
             <!-- Desktop Navigation -->
             <div
+              id="learner-nav"
               class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
             >
-              <a
-                href="/"
-                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap"
-              >
-                🏠 홈
-              </a>
-
-              <!-- 발음 학습 드롭다운 -->
+              <!-- 발음학습 -->
               <div class="dropdown inline-flex items-center">
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  🗣️ 발음 학습 ▾
+                  🎤 발음학습 ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/pronunciation-check">🎯 발음 검사</a>
-                  <a href="/pronunciation-correction">✏️ 발음 교정</a>
-                  <a href="/pronunciation-practice">🎵 발음 연습</a>
+                  <a href="/pronunciation-stages">📚 학습 커리큘럼</a>
+                  <a href="/speechpro-practice">🤖 AI 발음 분석</a>
                   <a href="/pronunciation-rules">📖 발음 규칙</a>
-                  <a href="/pronunciation-stages">📚 단계별 학습</a>
-                  <div class="border-t border-gray-200 my-1"></div>
-                  <a href="/speechpro-practice">🎤 발음 정확도 (SpeechPro)</a>
-                  <a href="/fluency-practice">🗣️ 유창성 평가 (FluencyPro)</a>
-                  <a href="/vocabulary-progress">📈 어휘 진도</a>
                 </div>
               </div>
 
-              <!-- AI 학습 드롭다운 -->
+              <!-- AI 학습 -->
               <div class="dropdown inline-flex items-center">
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  🤖 AI 학습 ▾
+                  💡 AI 학습 ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/learning">🎓 AI 학습 도구</a>
-                  <a href="/content-generation">📚 맞춤형 교재</a>
-                  <a href="/custom-materials">📑 맞춤 학습 자료</a>
-                  <a href="/essay-test">📝 에세이 평가</a>
-                  <a href="/fluency-test">✍️ 작문 유창성 테스트</a>
-                  <a href="/media-generation">🎨 상황별 콘텐츠 생성</a>
+                  <a href="/learning">🧠 AI 학습 도구</a>
+                  <a href="/content-generation">📘 맞춤형 교재</a>
+                  <a href="/fluency-test">✍️ 작문 테스트</a>
+                  <a href="/media-generation">🎬 상황별 콘텐츠</a>
                 </div>
               </div>
 
@@ -271,11 +257,20 @@
               </a>
               -->
 
+              <!-- 도움말 -->
               <a
                 href="/sitemap"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
-                📍 사이트맵
+                ❓ 도움말
+              </a>
+
+              <!-- 내정보 -->
+              <a
+                href="/mypage"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+              >
+                👤 내정보
               </a>
             </div>
           </div>
@@ -290,6 +285,62 @@
             >
               📊 학습 진도
             </a>
+            <!-- Admin Dropdown (Desktop) -->
+            <div
+              class="relative group"
+              id="admin-dropdown"
+              style="display: none"
+            >
+              <button
+                class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
+              >
+                🛠️ 관리자 ▼
+              </button>
+              <div
+                class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
+              >
+                <a
+                  href="/admin/dashboard"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >📊 대시보드</a
+                >
+                <a
+                  href="/admin/users"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >👥 사용자 관리</a
+                >
+                <a
+                  href="/admin/words"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >📚 단어 관리</a
+                >
+                <a
+                  href="/admin/recordings"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >🎙️ 녹음 관리</a
+                >
+                <a
+                  href="/admin/analytics"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >📈 통계 분석</a
+                >
+                <a
+                  href="/admin/content"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >🤖 AI 콘텐츠 관리</a
+                >
+                <a
+                  href="/admin/api"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >⚙️ API 설정</a
+                >
+                <a
+                  href="/admin/system"
+                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >🔧 시스템 설정</a
+                >
+              </div>
+            </div>
             <a
               href="/mypage"
               id="user-display"
@@ -349,99 +400,54 @@
 
       <!-- Mobile menu (hidden by default) -->
       <div class="sm:hidden" id="mobile-menu" style="display: none">
-        <div class="pt-2 pb-3 space-y-1">
-          <a
-            href="/"
-            class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-          >
-            🏠 홈
-          </a>
-
-          <!-- 발음 학습 -->
-          <div class="pl-3 pr-4 py-2">
+        <div class="pt-2 pb-3 space-y-2">
+          <!-- 발음학습 -->
+          <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
             <div class="text-sm font-semibold text-gray-900 mb-1">
-              🗣️ 발음 학습
+              🎤 발음학습
             </div>
             <a
-              href="/pronunciation-check"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >🎯 발음 검사</a
+              href="/pronunciation-stages"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >📚 학습 커리큘럼</a
             >
             <a
-              href="/pronunciation-correction"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >✏️ 발음 교정</a
-            >
-            <a
-              href="/pronunciation-practice"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >🎵 발음 연습</a
+              href="/speechpro-practice"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >🤖 AI 발음 분석</a
             >
             <a
               href="/pronunciation-rules"
-              class="block pl-4 py-1 text-sm text-gray-600"
+              class="block pl-4 py-1 text-sm text-gray-700"
               >📖 발음 규칙</a
-            >
-            <a
-              href="/pronunciation-stages"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >📚 단계별 학습</a
-            >
-            <div class="border-t border-gray-200 my-1 ml-4"></div>
-            <a
-              href="/speechpro-practice"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >🎤 발음 정확도 (SpeechPro)</a
-            >
-            <a
-              href="/fluency-practice"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >🗣️ 유창성 평가 (FluencyPro)</a
-            >
-            <a
-              href="/vocabulary-progress"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >📈 어휘 진도</a
             >
           </div>
 
           <!-- AI 학습 -->
-          <div class="pl-3 pr-4 py-2">
+          <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
             <div class="text-sm font-semibold text-gray-900 mb-1">
-              🤖 AI 학습
+              💡 AI 학습
             </div>
-            <a href="/learning" class="block pl-4 py-1 text-sm text-gray-600"
-              >🎓 AI 학습 도구</a
+            <a href="/learning" class="block pl-4 py-1 text-sm text-gray-700"
+              >🧠 AI 학습 도구</a
             >
             <a
               href="/content-generation"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >📚 맞춤형 교재</a
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >📘 맞춤형 교재</a
             >
-            <a
-              href="/custom-materials"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >📑 맞춤 학습 자료</a
-            >
-            <a
-              href="/essay-test"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >📝 에세이 평가</a
-            >
-            <a
-              href="/fluency-test"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >✍️ 작문 유창성 테스트</a
+            <a href="/fluency-test" class="block pl-4 py-1 text-sm text-gray-700"
+              >✍️ 작문 테스트</a
             >
             <a
               href="/media-generation"
-              class="block pl-4 py-1 text-sm text-gray-600"
-              >🎨 상황별 콘텐츠 생성</a
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >🎬 상황별 콘텐츠</a
             >
           </div>
 
           <!-- 활동하기 -->
-          <div class="pl-3 pr-4 py-2">
+          <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
             <div class="text-sm font-semibold text-gray-900 mb-1">
               🎲 활동하기
             </div>
@@ -484,9 +490,7 @@
               <div class="text-xs font-semibold text-gray-700 mb-1">
                 재미있는 이야기
               </div>
-              <a
-                href="/folktales"
-                class="block pl-4 py-1 text-sm text-gray-600"
+              <a href="/folktales" class="block pl-4 py-1 text-sm text-gray-600"
                 >📖 전래동화 읽기</a
               >
               <a
@@ -498,44 +502,18 @@
           </div>
 
           <!-- 도움말 -->
-          <div class="pl-3 pr-4 py-2">
-            <div class="text-sm font-semibold text-gray-900 mb-1">
-              🆘 도움말
-            </div>
-            <span class="block pl-4 py-1 text-sm text-gray-400"
-              >❓ Q&A(자주묻는질문) (준비중)</span
-            >
-            <div class="pl-2 py-1 mt-2">
-              <div class="text-xs font-semibold text-gray-700 mb-1">
-                1:1문의 채널
-              </div>
-              <span class="block pl-4 py-1 text-sm text-gray-400"
-                >💬 게시판 문의 (준비중)</span
-              >
-              <span class="block pl-4 py-1 text-sm text-gray-400"
-                >✉️ 이메일 발송 (준비중)</span
-              >
-              <span class="block pl-4 py-1 text-sm text-gray-400"
-                >📞 전화 상담 (준비중)</span
-              >
-            </div>
-          </div>
-
-          <!-- API 테스트 - 관리자 페이지로 이동 예정
-          <a
-            href="/api-test"
-            class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-          >
-            🔧 API 테스트
-          </a>
-          -->
-
           <a
             href="/sitemap"
-            class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+            class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
+            >❓ 도움말</a
           >
-            📍 사이트맵
-          </a>
+
+          <!-- 내정보 -->
+          <a
+            href="/mypage"
+            class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
+            >👤 내정보</a
+          >
 
           <!-- User Menu Mobile -->
           <div
@@ -549,6 +527,49 @@
             >
               📊 학습 진도
             </a>
+            <!-- Admin Menu Mobile -->
+            <div id="mobile-admin-menu" style="display: none">
+              <a
+                href="/admin/dashboard"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >📊 대시보드</a
+              >
+              <a
+                href="/admin/users"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >👥 사용자 관리</a
+              >
+              <a
+                href="/admin/words"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >📚 단어 관리</a
+              >
+              <a
+                href="/admin/recordings"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >🎙️ 녹음 관리</a
+              >
+              <a
+                href="/admin/analytics"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >📈 통계 분석</a
+              >
+              <a
+                href="/admin/content"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >🤖 AI 콘텐츠 관리</a
+              >
+              <a
+                href="/admin/api"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >⚙️ API 설정</a
+              >
+              <a
+                href="/admin/system"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                >🔧 시스템 설정</a
+              >
+            </div>
             <a
               href="/mypage"
               id="mobile-user-display"
@@ -1044,17 +1065,29 @@
       function updateAuthDisplay() {
         const token = localStorage.getItem("auth_token");
         const nickname = localStorage.getItem("user_nickname");
+        const isAdmin = localStorage.getItem("is_admin") === "true";
         const loginLink = document.getElementById("login-link");
         const progressLink = document.getElementById("progress-link");
+        const learnerNav = document.getElementById("learner-nav");
+        const adminDropdown = document.getElementById("admin-dropdown");
+        const mobileAdminMenu = document.getElementById("mobile-admin-menu");
         const userDisplay = document.getElementById("user-display");
-        const mobileUserDisplay = document.getElementById("mobile-user-display");
+        const mobileUserDisplay = document.getElementById(
+          "mobile-user-display"
+        );
         const logoutBtn = document.getElementById("logout-btn");
         const mobileUserMenu = document.getElementById("mobile-user-menu");
         const mobileLinkoutBtn = document.getElementById("mobile-logout-btn");
 
         if (token && nickname) {
           if (loginLink) loginLink.style.display = "none";
-          if (progressLink) progressLink.style.display = "inline-block";
+          if (progressLink)
+            progressLink.style.display = isAdmin ? "none" : "inline-block";
+          if (learnerNav) learnerNav.style.display = isAdmin ? "none" : "flex";
+          if (adminDropdown)
+            adminDropdown.style.display = isAdmin ? "block" : "none";
+          if (mobileAdminMenu)
+            mobileAdminMenu.style.display = isAdmin ? "block" : "none";
           if (userDisplay) {
             userDisplay.textContent = `👤 ${nickname}`;
             userDisplay.style.display = "inline-block";
@@ -1074,6 +1107,9 @@
         } else {
           if (loginLink) loginLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
+          if (learnerNav) learnerNav.style.display = "flex";
+          if (adminDropdown) adminDropdown.style.display = "none";
+          if (mobileAdminMenu) mobileAdminMenu.style.display = "none";
           if (userDisplay) userDisplay.style.display = "none";
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";
@@ -1110,6 +1146,7 @@
         localStorage.removeItem("auth_token");
         localStorage.removeItem("user_nickname");
         localStorage.removeItem("is_guest");
+        localStorage.removeItem("is_admin");
         updateAuthDisplay();
         window.location.href = "/";
       }

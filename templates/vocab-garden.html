@@ -1,22 +1,21 @@
-{% extends "base.html" %}
-
-{% block title %}오누이 단어 꽃밭 - 오누이 한국어{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="/static/css/vocab-garden.css">
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}오누이 단어 꽃밭 - 오누이 한국어{%
+endblock %} {% block extra_css %}
+<link rel="stylesheet" href="/static/css/vocab-garden.css" />
+{% endblock %} {% block content %}
 <div class="max-w-6xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
     <header class="mb-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold mb-2">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold mb-2"
+      >
         <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
         ONUI · 단어 꽃밭
       </div>
       <h1 class="text-3xl font-bold text-gray-900 mb-2">오누이 단어 꽃밭 🌸</h1>
-      <p class="text-sm text-gray-600">꽃을 눌러 단어와 CEFR 레벨을 확인해 보세요.</p>
+      <p class="text-sm text-gray-600">
+        꽃을 눌러 단어와 CEFR 레벨을 확인해 보세요.
+      </p>
     </header>
 
     <!-- Main Layout -->
@@ -37,7 +36,9 @@
       <section class="vocab-panel vocab-panel-right">
         <div class="vocab-panel-header">
           <div class="vocab-panel-title">단어 정보</div>
-          <div class="vocab-panel-caption" id="infoCaption">왼쪽에서 단어를 선택해 주세요.</div>
+          <div class="vocab-panel-caption" id="infoCaption">
+            왼쪽에서 단어를 선택해 주세요.
+          </div>
         </div>
 
         <div id="details">
@@ -47,7 +48,7 @@
               id="playWordBtn"
               onclick="playWord()"
               class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style="font-size: 14px;"
+              style="font-size: 14px"
             >
               🔊 발음 듣기
             </button>
@@ -69,7 +70,9 @@
             </button>
           </div>
 
-          <p class="hint">TIP: 발음 듣기 버튼을 눌러 원어민 발음을 들어보세요.</p>
+          <p class="hint">
+            TIP: 발음 듣기 버튼을 눌러 원어민 발음을 들어보세요.
+          </p>
         </div>
       </section>
     </div>
@@ -78,15 +81,17 @@
     <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
       <div class="text-sm font-semibold text-gray-900 mb-2">💡 학습 팁</div>
       <div class="text-xs text-gray-700 space-y-1">
-        <p>• 레벨별 색상: <span class="text-green-600">초록(A1)</span>, <span class="text-blue-600">파랑(A2)</span>, <span class="text-purple-600">보라(B1)</span></p>
+        <p>
+          • 레벨별 색상: <span class="text-green-600">초록(A1)</span>,
+          <span class="text-blue-600">파랑(A2)</span>,
+          <span class="text-purple-600">보라(B1)</span>
+        </p>
         <p>• 단어를 클릭하면 발음(로마자), 뜻, 예문을 확인할 수 있습니다</p>
         <p>• 예문을 통해 단어가 실제로 어떻게 사용되는지 학습하세요</p>
       </div>
     </section>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script src="/static/js/vocab-garden.js"></script>
 {% endblock %}

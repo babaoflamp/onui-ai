@@ -136,6 +136,12 @@ endblock %} {% block content %}
         // Store token and nickname in localStorage
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_nickname", data.nickname);
+        if (data.is_admin) {
+          localStorage.setItem("is_admin", "true");
+        } else {
+          localStorage.removeItem("is_admin");
+        }
+        localStorage.removeItem("is_guest");
         // Reset welcome mail flag for new login
         localStorage.removeItem("welcome_mail_sent");
         setStatus(`✓ ${data.nickname}님 환영합니다!`);

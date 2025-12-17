@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% block title %}통계 분석 - 관리자 대시보드{%
+endblock %} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">📈 통계 분석</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">총 사용자</p>
+        <p class="text-3xl font-bold text-blue-600" id="total-users">0</p>
+      </div>
+      <div class="bg-green-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">활성 사용자</p>
+        <p class="text-3xl font-bold text-green-600" id="active-users">0</p>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">평균 학습 시간</p>
+        <p class="text-3xl font-bold text-orange-600" id="avg-study-time">
+          0시간
+        </p>
+      </div>
+      <div class="bg-purple-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">평균 점수</p>
+        <p class="text-3xl font-bold text-purple-600" id="avg-score">0점</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">일별 활동</h2>
+        <div class="bg-gray-50 h-64 rounded flex items-center justify-center">
+          <p class="text-gray-500">차트 데이터 준비 중...</p>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-4">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">난이도별 분포</h2>
+        <div class="bg-gray-50 h-64 rounded flex items-center justify-center">
+          <p class="text-gray-500">차트 데이터 준비 중...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t pt-6 mt-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">학습 진도 현황</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border border-gray-300 px-4 py-2 text-left">사용자</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                학습 수
+              </th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                평균 점수
+              </th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                최근 학습
+              </th>
+            </tr>
+          </thead>
+          <tbody id="analytics-table">
+            <tr>
+              <td
+                colspan="4"
+                class="border border-gray-300 px-4 py-2 text-center text-gray-500"
+              >
+                통계 데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 관리자 권한 확인
+  function checkAdminAccess() {
+    const isAdmin = localStorage.getItem("is_admin") === "true";
+    if (!isAdmin) {
+      alert("관리자 권한이 필요합니다.");
+      window.location.href = "/";
+    }
+  }
+
+  // 통계 데이터 로드
+  async function loadAnalytics() {
+    try {
+      checkAdminAccess();
+      // 실제 API 구현 예정
+      document.getElementById("analytics-table").innerHTML = `
+        <tr>
+          <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+            통계 데이터를 불러올 수 없습니다. (API 개발 예정)
+          </td>
+        </tr>
+      `;
+    } catch (error) {
+      console.error("Error loading analytics:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadAnalytics);
+</script>
+{% endblock %}
