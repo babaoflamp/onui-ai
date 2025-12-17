@@ -50,6 +50,7 @@ from backend.services.fluencypro_service import (
 # DALL-E 서비스 임포트
 from backend.services.dalle_service import (
     generate_image_dall_e,
+    generate_image_gemini,
     enhance_prompt_for_korean_learning
 )
 
@@ -119,10 +120,8 @@ except Exception:
 # ==========================================
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# OpenAI integration disabled/commented out by user request.
-# If you want to re-enable OpenAI, uncomment the import at the top and
-# restore `client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None`.
-client = None
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
 MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
@@ -133,6 +132,9 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
+
+# Gemini image model (optional override)
+GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
 
 # MzTTS Configuration
 MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
@@ -398,7 +400,7 @@ EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def _init_user_db():
-    """Ensure the users table exists."""
+    """Ensure the users table exists and has the is_admin column."""
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute(
@@ -416,13 +418,55 @@ def _init_user_db():
                 exam_level TEXT,
                 reason TEXT,
                 style TEXT,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                is_admin INTEGER DEFAULT 0
             )
             """
         )
         conn.commit()
+        _ensure_is_admin_column(conn)
+        _seed_admin_user(conn)
     finally:
         conn.close()
+
+
+def _ensure_is_admin_column(conn):
+    """Add is_admin column if missing for existing databases."""
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(users)")
+    cols = [row[1] for row in cursor.fetchall()]
+    if "is_admin" not in cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+        conn.commit()
+
+
+def _seed_admin_user(conn):
+    """Seed a default admin account if none exists."""
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@urimalzen.com").lower().strip()
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123!@#")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE is_admin = 1")
+    row = cursor.fetchone()
+    if row:
+        return
+
+    password_hash = _hash_password(admin_password)
+    created_at = datetime.utcnow().isoformat()
+    cursor.execute(
+        """
+        INSERT OR IGNORE INTO users (
+            email, nickname, password_hash, native_lang, affiliation, time_pref,
+            interests, goal, exam_level, reason, style, created_at, is_admin
+        ) VALUES (?, ?, ?, '', '', '', '[]', '', '', '', '', ?, 1)
+        """,
+        (
+            admin_email,
+            "Admin",
+            password_hash,
+            created_at,
+        ),
+    )
+    conn.commit()
 
 
 def _hash_password(password: str) -> str:
@@ -479,8 +523,8 @@ def _store_user_signup(payload: dict) -> dict:
             """
             INSERT INTO users (
                 email, nickname, password_hash, native_lang, affiliation,
-                time_pref, interests, goal, exam_level, reason, style, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                time_pref, interests, goal, exam_level, reason, style, created_at, is_admin
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
             """,
             (
                 email,
@@ -530,7 +574,7 @@ def _get_user_by_email(email: str) -> dict:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, email, nickname, password_hash FROM users WHERE email = ?",
+            "SELECT id, email, nickname, password_hash, is_admin FROM users WHERE email = ?",
             ((email or "").strip().lower(),)
         )
         row = cursor.fetchone()
@@ -539,15 +583,15 @@ def _get_user_by_email(email: str) -> dict:
         conn.close()
 
 
-def _create_session_token(user_id: int, email: str) -> str:
+def _create_session_token(user_id: int, email: str, is_admin: bool = False) -> str:
     """Create a simple JWT-like session token (in production, use proper JWT library)."""
     import secrets
     import time
     
-    # Simple format: base64(id|email|timestamp|random)
+    # Simple format: base64(id|email|timestamp|random|is_admin)
     timestamp = str(int(time.time()))
     random_str = secrets.token_hex(16)
-    data = f"{user_id}|{email}|{timestamp}|{random_str}"
+    data = f"{user_id}|{email}|{timestamp}|{random_str}|{int(bool(is_admin))}"
     return base64.b64encode(data.encode()).decode()
 
 
@@ -557,10 +601,25 @@ def _parse_session_token(token: str) -> dict:
         data = base64.b64decode(token.encode()).decode()
         parts = data.split("|")
         if len(parts) >= 2:
-            return {"user_id": int(parts[0]), "email": parts[1]}
+            payload = {"user_id": int(parts[0]), "email": parts[1]}
+            if len(parts) >= 5:
+                payload["is_admin"] = parts[4] == "1"
+            else:
+                payload["is_admin"] = False
+            return payload
     except Exception:
         pass
     return None
+
+
+def _extract_session_from_request(request: Request) -> dict:
+    """Extract session data from Authorization header or cookie."""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        token = request.cookies.get("session_token", "")
+    if not token:
+        return None
+    return _parse_session_token(token)
 
 
 def _get_user_by_id(user_id: int) -> dict:
@@ -572,7 +631,7 @@ def _get_user_by_id(user_id: int) -> dict:
         cursor.execute(
             """
             SELECT id, email, nickname, native_lang, affiliation, time_pref,
-                   interests, goal, exam_level, reason, style, created_at
+                   interests, goal, exam_level, reason, style, created_at, is_admin
             FROM users WHERE id = ?
             """,
             (user_id,)
@@ -588,6 +647,47 @@ def _get_user_by_id(user_id: int) -> dict:
                     data["interests"] = []
             return data
         return None
+    finally:
+        conn.close()
+
+
+def _require_authenticated_user(request: Request) -> dict:
+    """Return authenticated user or raise HTTP 401/404."""
+    session = _extract_session_from_request(request)
+    if not session:
+        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+
+    user = _get_user_by_id(session.get("user_id"))
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+
+    return user
+
+
+def _require_admin(request: Request) -> dict:
+    """Return admin user or raise HTTP 403."""
+    user = _require_authenticated_user(request)
+    if not user.get("is_admin"):
+        raise HTTPException(status_code=403, detail="관리자 권한이 필요합니다.")
+    return user
+
+
+def _get_user_stats() -> dict:
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*), SUM(is_admin) FROM users")
+        total, admin_count = cursor.fetchone() or (0, 0)
+        cursor.execute("SELECT email, nickname, created_at FROM users ORDER BY created_at DESC LIMIT 5")
+        recent = [
+            {"email": row[0], "nickname": row[1], "created_at": row[2]}
+            for row in cursor.fetchall()
+        ]
+        return {
+            "total_users": total or 0,
+            "admin_users": admin_count or 0,
+            "recent_signups": recent,
+        }
     finally:
         conn.close()
 
@@ -947,16 +1047,6 @@ def fluency_test_page(request: Request):
     """한국어 작문 테스트 페이지"""
     return templates.TemplateResponse("fluency-test.html", {"request": request})
 
-@app.get("/custom-materials")
-def custom_materials_page(request: Request):
-    """맞춤형 교재 생성 페이지"""
-    return templates.TemplateResponse("custom-materials.html", {"request": request})
-
-@app.get("/essay-test")
-def essay_test_page(request: Request):
-    """한국어 작문 테스트 페이지"""
-    return templates.TemplateResponse("essay-test.html", {"request": request})
-
 @app.get("/pronunciation-correction")
 def pronunciation_correction_page(request: Request):
     """발음 교정 페이지"""
@@ -1002,11 +1092,6 @@ def cultural_expressions_page(request: Request):
     """문화 표현 학습"""
     return templates.TemplateResponse("cultural-expressions.html", {"request": request})
 
-@app.get("/vocabulary-progress")
-def vocabulary_progress_page(request: Request):
-    """어휘 진도 (Vocabulary Progress)"""
-    return templates.TemplateResponse("vocabulary-progress.html", {"request": request})
-
 @app.get("/pronunciation-practice")
 def pronunciation_practice_page(request: Request):
     """발음 연습 (ELSA Speak 스타일 2-Step: Listen → Speak)"""
@@ -1015,26 +1100,28 @@ def pronunciation_practice_page(request: Request):
 @app.get("/pronunciation-stages")
 def pronunciation_stages_page(request: Request):
     """단계별 발음 학습"""
-    return templates.TemplateResponse("pronunciation-stages.html", {"request": request})
+    return templates.TemplateResponse("pronunciation-learning.html", {"request": request})
 
 @app.get("/pronunciation-rules")
 def pronunciation_rules_page(request: Request):
     """발음 규칙 학습"""
     return templates.TemplateResponse("pronunciation-rules.html", {"request": request})
 
+@app.get("/pronunciation-learning")
+def pronunciation_learning_page(request: Request):
+    """발음 학습 허브 페이지"""
+    return templates.TemplateResponse("pronunciation-learning.html", {"request": request})
+
 @app.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
     """SpeechPro 발음 정확도 평가"""
     return templates.TemplateResponse("speechpro-practice.html", {"request": request})
 
-@app.get("/fluency-practice")
-def fluency_practice_page(request: Request):
-    """FluencyPro 유창성 평가"""
-    return templates.TemplateResponse("fluency-practice.html", {"request": request})
-
 @app.get("/api-test")
 def api_test_page(request: Request):
-    """API 테스트 도구"""
+    """관리자 API 테스트 도구 (클라이언트 측 인증 검사)"""
+    # Note: Token validation happens on client-side (JavaScript)
+    # Client will redirect to /admin/login if not authenticated
     return templates.TemplateResponse("api-test.html", {"request": request})
 
 @app.get("/media-generation")
@@ -1066,6 +1153,80 @@ def learning_progress(request: Request):
 def change_password_page(request: Request):
     """비밀번호 변경 페이지"""
     return templates.TemplateResponse("change-password.html", {"request": request})
+
+
+@app.get("/admin/login")
+def admin_login_page(request: Request):
+    """관리자 로그인 페이지"""
+    return templates.TemplateResponse("admin-login.html", {"request": request})
+
+
+@app.get("/admin/dashboard")
+def admin_dashboard_page(request: Request):
+    """관리자 대시보드 페이지 (클라이언트 측 인증 검사)"""
+    # Note: Token validation happens on client-side (JavaScript)
+    # API endpoints enforce _require_admin for actual operations
+    return templates.TemplateResponse("admin-dashboard.html", {"request": request})
+
+
+@app.get("/admin/users")
+def admin_users_page(request: Request):
+    """관리자 사용자 관리 페이지 (클라이언트 측 인증 검사)"""
+    # Note: Token validation happens on client-side (JavaScript)
+    # API endpoints enforce _require_admin for actual operations
+    return templates.TemplateResponse("admin-users.html", {"request": request})
+
+
+@app.get("/admin/words")
+def admin_words_page(request: Request):
+    """관리자 단어 관리 페이지"""
+    return templates.TemplateResponse("admin-words.html", {"request": request})
+
+
+@app.get("/admin/recordings")
+def admin_recordings_page(request: Request):
+    """관리자 녹음 관리 페이지"""
+    return templates.TemplateResponse("admin-recordings.html", {"request": request})
+
+
+@app.get("/admin/analytics")
+def admin_analytics_page(request: Request):
+    """관리자 통계 분석 페이지"""
+    return templates.TemplateResponse("admin-analytics.html", {"request": request})
+
+
+@app.get("/admin/content")
+def admin_content_page(request: Request):
+    """관리자 AI 콘텐츠 관리 페이지"""
+    return templates.TemplateResponse("admin-content.html", {"request": request})
+
+
+@app.get("/admin/api")
+def admin_api_page(request: Request):
+    """관리자 API 설정 페이지"""
+    return templates.TemplateResponse("admin-api.html", {"request": request})
+
+
+@app.get("/admin/system")
+def admin_system_page(request: Request):
+    """관리자 시스템 설정 페이지"""
+    return templates.TemplateResponse("admin-system.html", {"request": request})
+
+
+@app.get("/admin/logs")
+def admin_logs_page(request: Request):
+    """관리자 로그 모니터링 페이지 (클라이언트 측 인증 검사)"""
+    # Note: Token validation happens on client-side (JavaScript)
+    # API endpoints enforce _require_admin for actual operations
+    return templates.TemplateResponse("admin-logs.html", {"request": request})
+
+
+@app.get("/admin/settings")
+def admin_settings_page(request: Request):
+    """관리자 설정 페이지 (클라이언트 측 인증 검사)"""
+    # Note: Token validation happens on client-side (JavaScript)
+    # API endpoints enforce _require_admin for actual operations
+    return templates.TemplateResponse("admin-settings.html", {"request": request})
 
 # ------------------------------------------
 # 회원가입 (실제 계정 생성)
@@ -1099,7 +1260,7 @@ async def login(request: Request, payload: dict):
         raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
 
     # Create session token
-    token = _create_session_token(user["id"], user["email"])
+    token = _create_session_token(user["id"], user["email"], bool(user.get("is_admin")))
     
     # Log successful login
     client_host = request.client.host if request.client else "Unknown"
@@ -1110,6 +1271,7 @@ async def login(request: Request, payload: dict):
         "token": token,
         "email": user["email"],
         "nickname": user["nickname"],
+        "is_admin": bool(user.get("is_admin")),
     }
 
 
@@ -1158,19 +1320,8 @@ async def logout(request: Request):
 @app.get("/api/user/profile")
 async def get_user_profile(request: Request):
     """로그인한 사용자의 프로필 조회."""
-    # Get token from header or query (header preferred for security)
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
-    
-    parsed = _parse_session_token(token)
-    if not parsed:
-        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-    
-    user = _get_user_by_id(parsed["user_id"])
-    if not user:
-        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
-    
+    user = _require_authenticated_user(request)
+
     # Remove sensitive fields
     user.pop("password_hash", None)
     return {"success": True, "user": user}
@@ -1179,19 +1330,8 @@ async def get_user_profile(request: Request):
 @app.post("/api/user/profile/update")
 async def update_user_profile(request: Request, payload: dict):
     """사용자 프로필 업데이트 (비밀번호 제외)."""
-    # Get token
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
-    
-    parsed = _parse_session_token(token)
-    if not parsed:
-        raise HTTPException(status_code=401, detail="유효하지 않은 토큰입니다.")
-    
-    user_id = parsed["user_id"]
-    user = _get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    user = _require_authenticated_user(request)
+    user_id = user["id"]
     
     # Update allowed fields
     nickname = (payload.get("nickname") or "").strip()
@@ -1254,6 +1394,195 @@ async def update_user_profile(request: Request, payload: dict):
     updated = _get_user_by_id(user_id)
     updated.pop("password_hash", None)
     return {"success": True, "user": updated}
+
+
+# ------------------------------------------
+# 관리자 API (스켈레톤)
+# ------------------------------------------
+@app.get("/api/admin/summary")
+async def admin_summary(request: Request):
+    """관리자 대시보드를 위한 간단한 요약 정보."""
+    admin = _require_admin(request)
+    stats = _get_user_stats()
+    logger.info(f"[ADMIN_SUMMARY] {admin['email']} accessed summary")
+    return {
+        "success": True,
+        "admin": {
+            "email": admin["email"],
+            "nickname": admin["nickname"],
+        },
+        "stats": stats,
+    }
+
+
+@app.get("/api/admin/logs-tail")
+async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", search: str = ""):
+    """관리자용 최근 로그 조회 (필터링 포함)."""
+    admin = _require_admin(request)
+    
+    log_file = Path("logs/detailed.log")
+    if not log_file.exists():
+        return {"success": True, "logs": [], "count": 0, "total_available": 0}
+    
+    try:
+        with open(log_file, "r", encoding="utf-8") as f:
+            all_lines = f.readlines()
+        
+        # Filter logs
+        filtered = []
+        for line in all_lines:
+            # Level filter
+            if level and f"[{level.upper()}]" not in line and f" {level.upper()} " not in line:
+                continue
+            # Search filter
+            if search and search.lower() not in line.lower():
+                continue
+            filtered.append(line)
+        
+        # Get last N filtered lines
+        recent = filtered[-min(lines, len(filtered)):]
+        logger.info(f"[ADMIN_LOGS] {admin['email']} retrieved {len(recent)} log lines (level={level}, search={search})")
+        
+        return {
+            "success": True,
+            "logs": recent,
+            "count": len(recent),
+            "total_available": len(all_lines),
+            "total_filtered": len(filtered),
+        }
+    except Exception as e:
+        logger.error(f"Failed to read logs: {e}")
+        return {"success": False, "detail": str(e)}
+
+
+@app.get("/api/admin/users")
+async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
+    """관리자용 사용자 목록 조회."""
+    admin = _require_admin(request)
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get total count
+        cursor.execute("SELECT COUNT(*) FROM users")
+        total = cursor.fetchone()[0]
+        
+        # Get paginated users
+        cursor.execute(
+            """
+            SELECT id, email, nickname, is_admin, created_at
+            FROM users
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+            """,
+            (limit, skip)
+        )
+        users = [dict(row) for row in cursor.fetchall()]
+        
+        logger.info(f"[ADMIN_USERS] {admin['email']} retrieved {len(users)} users")
+        
+        return {
+            "success": True,
+            "users": users,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+        }
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/users/{user_id}/toggle-admin")
+async def admin_toggle_user_admin(request: Request, user_id: int, payload: dict):
+    """사용자 관리자 권한 토글."""
+    admin = _require_admin(request)
+    
+    if admin["id"] == user_id:
+        raise HTTPException(status_code=400, detail="자신의 관리자 권한은 수정할 수 없습니다.")
+    
+    is_admin = payload.get("is_admin", False)
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET is_admin = ? WHERE id = ?",
+            (int(bool(is_admin)), user_id)
+        )
+        conn.commit()
+        
+        user = _get_user_by_id(user_id)
+        logger.info(f"[ADMIN_TOGGLE] {admin['email']} set is_admin={is_admin} for user {user['email']}")
+        
+        return {"success": True, "user": {"id": user_id, "is_admin": bool(is_admin)}}
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/users/{user_id}/reset-password")
+async def admin_reset_user_password(request: Request, user_id: int, payload: dict):
+    """사용자 비밀번호 초기화."""
+    admin = _require_admin(request)
+    
+    if admin["id"] == user_id:
+        raise HTTPException(status_code=400, detail="자신의 비밀번호는 이 방법으로 초기화할 수 없습니다.")
+    
+    new_password = payload.get("new_password", "")
+    if not new_password or len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="새 비밀번호는 8자 이상이어야 합니다.")
+    
+    new_hash = _hash_password(new_password)
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            (new_hash, user_id)
+        )
+        conn.commit()
+        
+        user = _get_user_by_id(user_id)
+        logger.info(f"[ADMIN_RESET_PWD] {admin['email']} reset password for user {user['email']}")
+        
+        return {"success": True, "message": f"{user['email']}의 비밀번호가 초기화되었습니다."}
+    finally:
+        conn.close()
+
+
+@app.get("/api/admin/users/{user_id}")
+async def admin_get_user_detail(request: Request, user_id: int):
+    """사용자 상세 조회."""
+    admin = _require_admin(request)
+    
+    user = _get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    user.pop("password_hash", None)
+    logger.info(f"[ADMIN_VIEW_USER] {admin['email']} viewed user {user['email']}")
+    
+    return {"success": True, "user": user}
+
+
+@app.get("/api/admin/settings")
+async def admin_get_settings(request: Request):
+    """관리자 설정 조회."""
+    admin = _require_admin(request)
+    
+    settings = {
+        "model_backend": MODEL_BACKEND,
+        "ollama_url": OLLAMA_URL,
+        "ollama_model": OLLAMA_MODEL,
+        "mztts_url": MZTTS_API_URL,
+        "romanize_mode": ROMANIZE_MODE,
+        "romanizer_available": ROMANIZER_AVAILABLE,
+    }
+    
+    logger.info(f"[ADMIN_SETTINGS] {admin['email']} retrieved settings")
+    return {"success": True, "settings": settings}
 
 
 @app.post("/api/user/password/change")
@@ -1572,6 +1901,21 @@ async def generate_content(
     return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
 
 
+# ==========================================
+# 이미지 생성 (Gemini 시범용) API
+# ==========================================
+@app.post("/api/gemini/image")
+async def gemini_image(prompt: str = Form(...), save_locally: bool = Form(True)):
+    if MODEL_BACKEND not in ("gemini", "openai", "ollama", "gemini-image", "mixed"):
+        # 여유 있게 허용 (프롬프트가 올 때 백엔드 무관하게 시도)
+        pass
+
+    result = await generate_image_gemini(prompt, save_locally=save_locally)
+    if not result.get("success"):
+        return JSONResponse(status_code=500, content=result)
+    return JSONResponse(content=result)
+
+
 @app.get("/api/ollama/models")
 def get_ollama_models():
     """Proxy endpoint to list Ollama models available on the local server."""
@@ -1657,6 +2001,26 @@ async def chat_test(prompt: str = Form(...), model: str = Form(None), backend: s
         except Exception as e:
             return JSONResponse(status_code=500, content={"error": "gemini test failed", "details": str(e)})
     
+    # Use OpenAI backend
+    elif selected_backend == "openai":
+        try:
+            if not OPENAI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "OPENAI_API_KEY not configured"})
+            if not client:
+                return JSONResponse(status_code=500, content={"error": "OpenAI client not initialized"})
+
+            use_model = model or OPENAI_MODEL
+            completion = client.chat.completions.create(
+                model=use_model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+            )
+
+            out = completion.choices[0].message.content if completion and completion.choices else ""
+            return JSONResponse(content={"model": use_model, "text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "openai test failed", "details": str(e)})
+
     # Use Ollama backend
     elif selected_backend == "ollama":
         use_model = model or OLLAMA_MODEL

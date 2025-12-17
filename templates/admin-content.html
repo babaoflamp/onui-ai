@@ -1,0 +1,122 @@
+{% extends "base.html" %} {% block title %}AI 콘텐츠 관리 - 관리자 대시보드{%
+endblock %} {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-3xl font-bold text-gray-900 mb-6">🤖 AI 콘텐츠 관리</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">생성된 콘텐츠</p>
+        <p class="text-3xl font-bold text-blue-600" id="total-content">0</p>
+      </div>
+      <div class="bg-green-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">활성 모델</p>
+        <p class="text-3xl font-bold text-green-600" id="active-models">3</p>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">API 호출 수</p>
+        <p class="text-3xl font-bold text-orange-600" id="api-calls">0</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="border rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          사용 중인 AI 모델
+        </h3>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">Ollama (EXAONE)</span>
+            <span class="text-sm text-gray-600">로컬</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">OpenAI (GPT-4o Mini)</span>
+            <span class="text-sm text-gray-600">API</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">Gemini</span>
+            <span class="text-sm text-gray-600">API</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">콘텐츠 유형별</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">발음 피드백</span>
+            <span class="text-sm text-gray-600" id="feedback-count">0</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">문장 생성</span>
+            <span class="text-sm text-gray-600" id="sentence-count">0</span>
+          </div>
+          <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span class="font-medium">이미지 생성</span>
+            <span class="text-sm text-gray-600" id="image-count">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t pt-6">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">최근 AI 콘텐츠</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border border-gray-300 px-4 py-2 text-left">유형</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">모델</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">사용자</th>
+              <th class="border border-gray-300 px-4 py-2 text-left">
+                생성 시간
+              </th>
+              <th class="border border-gray-300 px-4 py-2 text-center">상태</th>
+            </tr>
+          </thead>
+          <tbody id="content-table">
+            <tr>
+              <td
+                colspan="5"
+                class="border border-gray-300 px-4 py-2 text-center text-gray-500"
+              >
+                콘텐츠 데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 관리자 권한 확인
+  function checkAdminAccess() {
+    const isAdmin = localStorage.getItem("is_admin") === "true";
+    if (!isAdmin) {
+      alert("관리자 권한이 필요합니다.");
+      window.location.href = "/";
+    }
+  }
+
+  // 콘텐츠 데이터 로드
+  async function loadContent() {
+    try {
+      checkAdminAccess();
+      // 실제 API 구현 예정
+      document.getElementById("content-table").innerHTML = `
+        <tr>
+          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+            콘텐츠 데이터를 불러올 수 없습니다. (API 개발 예정)
+          </td>
+        </tr>
+      `;
+    } catch (error) {
+      console.error("Error loading content:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadContent);
+</script>
+{% endblock %}

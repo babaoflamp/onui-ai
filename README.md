@@ -10,7 +10,6 @@
 
 ### 1. 🗣️ 발음 학습 (메뉴와 동일)
 - **발음 정확도 평가** (`/speechpro-practice`): 녹음 후 AI가 발음 점수와 피드백 제공
-- **유창성 평가** (`/fluency-practice`): 말하기 흐름·억양·문법을 실시간 평가
 - **단계별 발음 학습** (`/pronunciation-stages`): 단계/레벨별 발음 가이드
 - **발음 규칙** (`/pronunciation-rules`): 규칙 이해 ↔ 예제 연습 탭으로 학습
 
@@ -207,7 +206,6 @@ onui-ai/
 │   │
 │   ├── 🗣️ 발음 학습
 │   │   ├── speechpro-practice.html   # 발음 정확도 평가
-│   │   ├── fluency-practice.html     # 유창성 평가
 │   │   ├── pronunciation-stages.html # 단계별 발음 학습
 │   │   └── pronunciation-rules.html  # 발음 규칙 (NEW!)
 │   │
@@ -215,8 +213,7 @@ onui-ai/
 │   │   ├── learning.html             # AI 학습 도구
 │   │   ├── content-generation.html   # 맞춤형 교재 생성
 │   │   ├── fluency-test.html         # 작문 테스트
-│   │   ├── media-generation.html     # 상황별 콘텐츠 생성
-│   │   └── essay-test.html           # 에세이 평가
+│   │   └── media-generation.html     # 상황별 콘텐츠 생성
 │   │
 │   ├── 🎲 활동하기
 │   │   ├── word-puzzle.html          # 단어 삭제 (어순 퍼즐)
@@ -242,8 +239,7 @@ onui-ai/
 │   │   ├── chatbot.html              # 챗봇
 │   │   ├── pronunciation-check.html  # 발음 점검
 │   │   ├── pronunciation-correction.html  # 발음 교정
-│   │   ├── sentence-evaluation.html  # 문장 평가
-│   │   └── custom-materials.html     # 맞춤 교재
+│   │   └── sentence-evaluation.html  # 문장 평가
 │   │
 │   └── 🗂️ 기타
 │       ├── index_old.html.bak        # 구 홈페이지
@@ -330,8 +326,6 @@ onui-ai/
 | `/content-generation` | 맞춤형 교재 생성 |
 | `/pronunciation-check` | 발음 점검 |
 | `/fluency-test` | 작문 테스트 |
-| `/custom-materials` | 맞춤 교재 |
-| `/essay-test` | 에세이 테스트 |
 | `/pronunciation-correction` | 발음 교정 |
 | `/word-puzzle` | 단어 삭제 (어순 퍼즐) |
 | `/daily-expression` | 오늘의 표현 |
@@ -345,7 +339,6 @@ onui-ai/
 | `/pronunciation-stages` | 단계별 발음 학습 |
 | `/pronunciation-rules` | 발음 규칙 |
 | `/speechpro-practice` | 발음 정확도 평가 |
-| `/fluency-practice` | 유창성 평가 |
 | `/api-test` | API 테스트 |
 | `/media-generation` | 상황별 콘텐츠 생성 |
 | `/sitemap` | 사이트맵 |

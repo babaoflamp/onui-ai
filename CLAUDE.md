@@ -265,13 +265,11 @@ VOSK_MODEL_PATH=/path/to/vosk-model-ko
 - `GET /pronunciation-stages` - Level-based pronunciation guide
 - `GET /pronunciation-rules` - Korean phoneme rules with interactive exercises (tabs: rules ↔ practice)
 - `GET /speechpro-practice` - SpeechPro sentence evaluation
-- `GET /fluency-practice` - FluencyPro fluency analysis
 
 **AI 학습 (AI Learning)**:
 - `GET /learning` - AI learning tools with feedback
 - `GET /content-generation` - Custom dialogue + vocabulary generation
 - `GET /fluency-test` - Writing fluency test with scoring
-- `GET /essay-test` - Essay evaluation
 - `GET /media-generation` - Situational content generation
 
 **활동하기 (Activities)**:

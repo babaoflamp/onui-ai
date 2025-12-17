@@ -1,139 +1,171 @@
 {% extends "base.html" %} {% block title %}오누이 한국어 학습 플랫폼{% endblock
-%} {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-  <!-- Hero Section -->
-  <div class="text-center py-12">
-    <h1 class="text-5xl font-bold text-gray-900 mb-4">
-      🎯 오누이 한국어 - AI 기반 전문 발음 평가
-    </h1>
-    <p class="text-xl text-gray-600 mb-8">
-      SpeechPro·FluencyPro로 정확한 발음부터 유창한 말하기까지 한 번에
-    </p>
-  </div>
-
-  <!-- Key Features Highlight -->
-  <div
-    class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-50 via-white to-indigo-50 border border-orange-100 shadow-lg mb-10"
-  >
-    <div
-      class="absolute -left-10 -top-10 w-40 h-40 bg-orange-100 rounded-full blur-3xl opacity-60"
-    ></div>
-    <div
-      class="absolute -right-8 bottom-0 w-36 h-36 bg-indigo-100 rounded-full blur-3xl opacity-50"
-    ></div>
-    <div class="relative p-6 sm:p-8">
-      <div
-        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
-      >
-        <div class="flex items-center gap-3">
-          <span class="text-3xl">🚀</span>
-          <div>
-            <p
-              class="text-xs font-semibold text-orange-600 uppercase tracking-wide"
-            >
-              Why Onui
-            </p>
-            <h2 class="text-2xl font-bold text-gray-900">
-              이 플랫폼의 주요 특징
-            </h2>
-          </div>
+%} {% block extra_css %}
+<link rel="stylesheet" href="/static/css/landing.css" />
+{% endblock %} {% block content %}
+<div class="landing-shell">
+  <section class="landing-hero">
+    <div class="landing-hero__layout">
+      <div class="landing-hero__content">
+        <p class="landing-hero__eyebrow">한글부터 회화까지 원하는 속도로</p>
+        <h1>
+          AI로 배우는 스마트한 한국어 학습
+          <span class="landing-hero__brand">ONUI 한국어</span>
+        </h1>
+        <p class="landing-hero__description">
+          AI 튜터 오누이와 함께 발음·회화·문화까지 한 번에 연습하세요. 실시간
+          발음 분석과 맞춤 교재, 인터랙티브 게임으로 편하게 따라오면 됩니다.
+        </p>
+        <div class="landing-hero__actions">
+          <a class="landing-btn landing-btn--primary" href="/learning">
+            오늘 한국어 시작하기
+          </a>
+          <a class="landing-btn landing-btn--ghost" href="/speechpro-practice">
+            발음 교정 체험하기
+          </a>
         </div>
-        <div
-          class="flex items-center gap-2 text-xs font-semibold text-orange-700 bg-white/70 border border-orange-200 rounded-full px-4 py-2 shadow-sm"
-        >
-          <span class="text-lg">⚡</span>
-          <span>AI + 실시간 피드백</span>
-        </div>
+        <ul class="landing-hero__badges">
+          <li>실시간 발음 분석</li>
+          <li>AI 맞춤 교재</li>
+          <li>게임형 연습</li>
+        </ul>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-orange-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">🧠</span>
-            <h3 class="text-base sm:text-lg font-bold text-orange-700">
-              AI 복합 피드백
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            SpeechPro로 음소 단위 정확도를, FluencyPro로 발화 리듬과 속도를 실시간 분석해 <strong>과학적 근거 기반</strong> 맞춤 피드백을 제공합니다.
-          </p>
+      <div class="landing-hero__illustration">
+        <div class="hero-cloud hero-cloud--sun">
+          <span class="hero-avatar">🌞</span>
+          <p>따뜻한 오빠 튜터</p>
         </div>
-
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-blue-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">🎬</span>
-            <h3 class="text-base sm:text-lg font-bold text-blue-700">
-              상황별 콘텐츠 생성
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            <strong>DALL-E 3 이미지 생성</strong>과 함께 카페·식당·병원 등 실생활 상황별 대화와 어휘를 AI가 즉시 생성합니다.
-          </p>
+        <div class="hero-cloud hero-cloud--moon">
+          <span class="hero-avatar">🌜</span>
+          <p>차분한 동생 튜터</p>
         </div>
-
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-emerald-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">📈</span>
-            <h3 class="text-base sm:text-lg font-bold text-emerald-700">
-              발음·유창성 평가
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            <strong>음소 단위(GTP 변환)</strong>로 발음 오류를 정밀 진단하고, <strong>WebSocket 실시간 평가</strong>로 즉각적인 교정 가이드를 제공합니다.
-          </p>
-        </div>
-
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-purple-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">📖</span>
-            <h3 class="text-base sm:text-lg font-bold text-purple-700">
-              전래동화·문화 학습
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            <strong>10개 한국 전래동화</strong>와 <strong>30개 문화 표현</strong>으로 읽기 이해도 퀴즈와 문화적 배경 설명을 함께 제공합니다.
-          </p>
-        </div>
-
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-amber-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">🐯</span>
-            <h3 class="text-base sm:text-lg font-bold text-amber-700">
-              캐릭터 팝업 코칭
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            <strong>AI 에이전트 캐릭터 코칭</strong> - 학습 연속일, 성취 이정표, 휴식 경고 시 오빠·호랑이·동생이 자동으로 등장해 동기를 부여합니다.
-          </p>
-        </div>
-
-        <div
-          class="p-4 rounded-xl bg-white/80 backdrop-blur border border-pink-200 shadow-sm"
-        >
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-2xl">🎮</span>
-            <h3 class="text-base sm:text-lg font-bold text-pink-700">
-              인터랙티브 학습 게임
-            </h3>
-          </div>
-          <p class="text-sm sm:text-base text-gray-700">
-            <strong>타이핑 게임, 듣고 받아쓰기, 스피드 퀴즈</strong> - 72개 어휘와 35개 문장으로 재미있게 학습하고 실력을 테스트합니다.
-          </p>
-        </div>
+        <div class="hero-sparkle hero-sparkle--one"></div>
+        <div class="hero-sparkle hero-sparkle--two"></div>
       </div>
     </div>
-  </div>
+  </section>
 
+  <section class="landing-overview">
+    <div class="landing-section-heading">
+      <p>쉽게 배우고 편하게 따라오는 한국어 친구</p>
+      <h2>오누이 한국어 핵심 기능</h2>
+    </div>
+    <div class="landing-feature-grid">
+      <article class="landing-feature-card">
+        <span class="emoji">🎯</span>
+        <h3>AI 발음/회화 분석</h3>
+        <p>
+          SpeechPro · FluencyPro가 음소 단위 발음과 문장 유창성을
+          실시간으로 분석해 정확한 교정을 도와줘요.
+        </p>
+      </article>
+      <article class="landing-feature-card">
+        <span class="emoji">📚</span>
+        <h3>맞춤형 교재 생성</h3>
+        <p>
+          수준·목표에 맞는 주제, 대화문, 어휘장을 자동 생성해 복습과
+          예습을 동시에 진행할 수 있어요.
+        </p>
+      </article>
+      <article class="landing-feature-card">
+        <span class="emoji">🎮</span>
+        <h3>인터랙티브 활동</h3>
+        <p>
+          단어 퍼즐, 받아쓰기, 스피드 퀴즈 등 게임형 활동으로 지루하지
+          않게 반복 학습을 제공합니다.
+        </p>
+      </article>
+      <article class="landing-feature-card">
+        <span class="emoji">🧭</span>
+        <h3>학습 지도 & 진단</h3>
+        <p>
+          레벨별 커리큘럼과 학습 진도 보드로 오늘 해야 할 공부를 한눈에
+          파악하고 진도를 관리합니다.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="landing-flow">
+    <div class="landing-section-heading">
+      <p>오누이 한국어 앱 화면 미리보기</p>
+      <h2>실시간 진단과 맞춤 피드백</h2>
+    </div>
+    <div class="landing-flow__cards">
+      <div class="flow-card">
+        <div class="flow-card__header">
+          <span>발음 평가 리포트</span>
+          <strong>85점</strong>
+        </div>
+        <p>
+          발음 정확도, 강세, 말하기 속도까지 한 번에 점검하고, 틀린 음소를
+          즉시 들려줍니다.
+        </p>
+      </div>
+      <div class="flow-arrow">➜</div>
+      <div class="flow-card">
+        <div class="flow-card__header">
+          <span>AI 학습 계획</span>
+          <strong>맞춤 추천</strong>
+        </div>
+        <p>
+          진단 결과에 맞추어 필요한 문장 패턴과 문화 표현, 게임 미션을
+          자동으로 큐레이션합니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-recommend">
+    <div class="landing-section-heading">
+      <p>KIP 기반 한국어 학습 플랫폼</p>
+      <h2>이런 분들에게 추천해요!</h2>
+    </div>
+    <div class="recommend-grid">
+      <article>
+        <span class="recommend-emoji">🧑‍🏫</span>
+        <h3>한국어를 처음 접하는 학습자</h3>
+        <p>한글 · 발음 기초부터 순서대로 따라가요.</p>
+      </article>
+      <article>
+        <span class="recommend-emoji">💼</span>
+        <h3>업무·유학 준비생</h3>
+        <p>실무 회화, 면접 표현을 AI가 만들어 줍니다.</p>
+      </article>
+      <article>
+        <span class="recommend-emoji">👨‍👩‍👧</span>
+        <h3>한국 생활을 시작하는 가족</h3>
+        <p>문화 표현, 필수 상황별 회화를 집중 학습.</p>
+      </article>
+      <article>
+        <span class="recommend-emoji">🎨</span>
+        <h3>재미있게 배우고 싶은 사람</h3>
+        <p>게임형 학습과 전래동화, 문화 스토리 제공.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="landing-cta">
+    <div>
+      <p class="landing-hero__eyebrow">오누이와 함께라면</p>
+      <h2>걱정없는 한국 생활을 시작해요</h2>
+      <ul class="cta-list">
+        <li>AI가 하루 목표를 제안하고 진도를 추적합니다.</li>
+        <li>발음 코치 캐릭터가 실수도 친근하게 알려줘요.</li>
+        <li>필요할 때 바로 사용할 표현만 모아 드립니다.</li>
+      </ul>
+    </div>
+    <div class="landing-cta__actions">
+      <a class="landing-btn landing-btn--primary" href="/learning-progress">
+        지금 학습 여정 만들기
+      </a>
+      <a class="landing-btn landing-btn--ghost" href="/content-generation">
+        교재 추천 살펴보기
+      </a>
+    </div>
+  </section>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
   <!-- Toast (login) -->
   <div
     id="loginToast"
@@ -191,7 +223,9 @@
           회원가입 - 맞춤 학습을 위한 프로필 설정
         </h2>
         <p class="text-sm text-gray-600 mt-2">
-          <strong>안전한 계정 생성</strong> - 비밀번호는 PBKDF2 해시로 암호화됩니다. 추가 정보(국적·관심사·목표)는 AI 맞춤 교재 생성에 활용됩니다.
+          <strong>안전한 계정 생성</strong> - 비밀번호는 PBKDF2 해시로
+          암호화됩니다. 추가 정보(국적·관심사·목표)는 AI 맞춤 교재 생성에
+          활용됩니다.
         </p>
       </div>
       <div
@@ -415,34 +449,6 @@
         </div>
       </a>
 
-      <a href="/fluency-practice" class="block">
-        <div
-          class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500"
-        >
-          <div class="text-4xl mb-4">🗣️</div>
-          <h3 class="text-xl font-bold text-gray-900 mb-2">
-            유창성 평가 (FluencyPro)
-          </h3>
-          <p class="text-gray-600 text-sm mb-4">
-            발화 리듬·속도·끊김을 측정해 가볍게 말하기 연습을 이어갑니다.
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span
-              class="inline-block bg-sky-100 text-sky-800 text-xs px-2 py-1 rounded"
-              >리듬</span
-            >
-            <span
-              class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
-              >속도</span
-            >
-            <span
-              class="inline-block bg-lime-100 text-lime-800 text-xs px-2 py-1 rounded"
-              >코칭</span
-            >
-          </div>
-        </div>
-      </a>
-
       <a href="/learning" class="block">
         <div
           class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-orange-500"
@@ -450,7 +456,8 @@
           <div class="text-4xl mb-4">🤖</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">AI 학습 도구</h3>
           <p class="text-gray-600 text-sm mb-4">
-            SpeechPro·FluencyPro·<strong>DALL-E 이미지 생성</strong>까지 한 화면에서 통합 AI 학습을 시작하세요.
+            SpeechPro·FluencyPro·<strong>DALL-E 이미지 생성</strong>까지 한
+            화면에서 통합 AI 학습을 시작하세요.
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -505,7 +512,8 @@
             상황별 콘텐츠 생성
           </h3>
           <p class="text-gray-600 text-sm mb-4">
-            카페·식당·병원 등 실전 시나리오 대화와 <strong>DALL-E 생성 이미지</strong>를 함께 제공합니다.
+            카페·식당·병원 등 실전 시나리오 대화와
+            <strong>DALL-E 생성 이미지</strong>를 함께 제공합니다.
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -558,7 +566,8 @@
           <div class="text-4xl mb-4">🧩</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">문장 순서 맞추기</h3>
           <p class="text-gray-600 text-sm mb-4">
-            섞인 단어를 올바른 순서로 배열해 자연스러운 문장을 완성하며 어순 감각을 익힙니다.
+            섞인 단어를 올바른 순서로 배열해 자연스러운 문장을 완성하며 어순
+            감각을 익힙니다.
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -584,7 +593,8 @@
           <div class="text-4xl mb-4">🌸</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">어휘 정원</h3>
           <p class="text-gray-600 text-sm mb-4">
-            이모지와 함께 어휘를 시각적으로 학습하고, 반복 연습으로 장기 기억에 저장합니다.
+            이모지와 함께 어휘를 시각적으로 학습하고, 반복 연습으로 장기 기억에
+            저장합니다.
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -637,7 +647,8 @@
           <div class="text-4xl mb-4">⌨️</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">타이핑 게임</h3>
           <p class="text-gray-600 text-sm mb-4">
-            30초 안에 한국어 단어를 빠르고 정확하게 입력하며 타이핑 속도를 향상시킵니다. (72개 어휘)
+            30초 안에 한국어 단어를 빠르고 정확하게 입력하며 타이핑 속도를
+            향상시킵니다. (72개 어휘)
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -663,7 +674,8 @@
           <div class="text-4xl mb-4">🎧</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">듣고 받아쓰기</h3>
           <p class="text-gray-600 text-sm mb-4">
-            TTS 음성을 듣고 문장을 정확히 받아쓰며 듣기와 쓰기 실력을 동시에 향상시킵니다. (35개 문장)
+            TTS 음성을 듣고 문장을 정확히 받아쓰며 듣기와 쓰기 실력을 동시에
+            향상시킵니다. (35개 문장)
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -689,7 +701,8 @@
           <div class="text-4xl mb-4">⚡</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">스피드 퀴즈</h3>
           <p class="text-gray-600 text-sm mb-4">
-            10초 안에 정답을 선택하는 빠른 어휘 퀴즈로 순발력과 단어 암기를 강화합니다.
+            10초 안에 정답을 선택하는 빠른 어휘 퀴즈로 순발력과 단어 암기를
+            강화합니다.
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -716,7 +729,8 @@
           <div class="text-4xl mb-4">📖</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">전래동화 읽기</h3>
           <p class="text-gray-600 text-sm mb-4">
-            10개의 한국 전래동화를 읽고 이해도 퀴즈로 독해 실력을 향상시킵니다. (흥부와 놀부, 토끼와 거북이 등)
+            10개의 한국 전래동화를 읽고 이해도 퀴즈로 독해 실력을 향상시킵니다.
+            (흥부와 놀부, 토끼와 거북이 등)
           </p>
           <div class="flex flex-wrap gap-2">
             <span
@@ -742,7 +756,8 @@
           <div class="text-4xl mb-4">🎨</div>
           <h3 class="text-xl font-bold text-gray-900 mb-2">문화 표현 학습</h3>
           <p class="text-gray-600 text-sm mb-4">
-            30개의 한국 문화 표현과 예절을 배우고 문화적 배경을 이해합니다. (인사, 식사, 명절, 효도 등)
+            30개의 한국 문화 표현과 예절을 배우고 문화적 배경을 이해합니다.
+            (인사, 식사, 명절, 효도 등)
           </p>
           <div class="flex flex-wrap gap-2">
             <span
