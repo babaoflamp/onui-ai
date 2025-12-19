@@ -45,7 +45,7 @@
           </select>
           <button
             onclick="loadSentencesData()"
-            class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium"
+            class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
           >
             새로고침
           </button>
@@ -66,7 +66,7 @@
             />
             <button
               onclick="setCustomSentence()"
-              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium"
+              class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
             >
               설정
             </button>
@@ -100,7 +100,7 @@
           <button
             id="startRecordingBtn"
             onclick="startSentenceRecording()"
-            class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-lg hover:from-pink-600 hover:to-red-600 transition font-medium shadow-md"
+            class="flex items-center gap-2 px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg hover:bg-[#e67a15] transition font-semibold shadow-md"
           >
             <span>🎤</span>
             녹음 시작
@@ -109,7 +109,7 @@
             id="stopRecordingBtn"
             onclick="stopSentenceRecording()"
             disabled
-            class="flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-700 rounded-lg opacity-50 cursor-not-allowed font-medium"
+            class="flex items-center gap-2 px-6 py-3 bg-white border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FFE6BF] transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>⏹️</span>
             정지 및 평가
@@ -238,6 +238,55 @@
 
     document.getElementById("selectedSentenceDisplay").textContent = sentence;
     document.getElementById("sentence-select").selectedIndex = 0; // 드롭다운 초기화
+  }
+
+  // 문장 데이터 로드 (inline 로딩 상태 사용, full-screen 스피너 없음)
+  async function loadSentencesData() {
+    console.log("loadSentencesData() called");
+    const select = document.getElementById("sentence-select");
+
+    try {
+      if (select) {
+        select.disabled = true;
+        select.innerHTML = '<option value="">문장 불러오는 중...</option>';
+      }
+
+      const response = await fetch("/api/speechpro/sentences");
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Sentences loaded:", data);
+
+      // Clear existing options (except first)
+      if (select) {
+        select.innerHTML = '<option value="">-- 문장 선택 --</option>';
+
+        // Add sentences
+        if (data.sentences && Array.isArray(data.sentences)) {
+          data.sentences.forEach((sentence) => {
+            const option = document.createElement("option");
+            option.value = sentence;
+            option.textContent = sentence;
+            select.appendChild(option);
+          });
+          console.log(`Added ${data.sentences.length} sentences to dropdown`);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load sentences:", error);
+      if (select) {
+        select.innerHTML =
+          '<option value="">문장을 불러올 수 없습니다</option>';
+      }
+    } finally {
+      if (select) {
+        select.disabled = false;
+      }
+    }
   }
 
   // 녹음 시작
@@ -446,43 +495,6 @@
   // 모달 닫기
   function closeSpeechProModal() {
     document.getElementById("speechpro-modal").classList.add("hidden");
-  }
-
-  // 문장 데이터 로드 (pronunciation-practice.js에서 재사용)
-  async function loadSentencesData() {
-    console.log("loadSentencesData() called");
-    const select = document.getElementById("sentence-select");
-
-    try {
-      const response = await fetch("/api/speechpro/sentences");
-      console.log("Response status:", response.status);
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("Sentences loaded:", data);
-
-      // Clear existing options (except first)
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
-
-      // Add sentences
-      if (data.sentences && Array.isArray(data.sentences)) {
-        data.sentences.forEach((sentence) => {
-          const option = document.createElement("option");
-          option.value = sentence;
-          option.textContent = sentence;
-          select.appendChild(option);
-        });
-        console.log(`Added ${data.sentences.length} sentences to dropdown`);
-      }
-    } catch (error) {
-      console.error("Failed to load sentences:", error);
-      select.innerHTML = '<option value="">문장을 불러올 수 없습니다</option>';
-    }
   }
 </script>
 {% endblock %}

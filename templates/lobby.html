@@ -1,0 +1,447 @@
+{% extends "base.html" %} {% block title %}오누이 한국어 · 로비{% endblock %} {%
+block extra_css %}
+<style>
+  .lobby-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(251, 146, 60, 0.08),
+      rgba(99, 102, 241, 0.08)
+    );
+  }
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="min-h-screen bg-gray-50 text-gray-900">
+  <div class="max-w-7xl mx-auto px-4 lg:px-6 py-6 flex gap-6">
+    <!-- Sidebar -->
+    <aside
+      class="hidden lg:flex w-64 rounded-2xl shadow-lg bg-white border border-gray-100 flex-col justify-between sticky top-20 h-[calc(100vh-5rem)]"
+    >
+      <div class="p-6 space-y-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-2xl bg-orange-100 flex items-center justify-center text-lg font-bold text-orange-600"
+          >
+            ON
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">ONUI AI</p>
+            <p class="text-base font-semibold text-gray-900">Korean Tutor</p>
+          </div>
+        </div>
+
+        <nav class="space-y-1 text-sm text-gray-700">
+          <p class="px-3 text-[11px] uppercase tracking-[0.08em] text-gray-400">
+            메뉴
+          </p>
+          <a
+            href="/lobby"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl bg-orange-50 text-orange-700 font-semibold"
+          >
+            <span class="w-2 h-2 rounded-full bg-green-500"></span> 로비
+          </a>
+          <a
+            href="/learning"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+          >
+            <span class="w-2 h-2 rounded-full bg-orange-500"></span> 학습 플로우
+          </a>
+          <a
+            href="/speechpro-practice"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+          >
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span> 발음 교정
+          </a>
+          <a
+            href="/chatbot"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+          >
+            <span class="w-2 h-2 rounded-full bg-teal-500"></span> 회화 튜터
+          </a>
+          <a
+            href="/fluency-test"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+          >
+            <span class="w-2 h-2 rounded-full bg-purple-500"></span> 작문 &
+            피드백
+          </a>
+          <a
+            href="/content-generation"
+            class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition"
+          >
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span> 콘텐츠 생성
+          </a>
+        </nav>
+      </div>
+      <div class="p-6 space-y-3 text-sm text-gray-700 border-t border-gray-100">
+        <p class="font-semibold text-gray-900">오늘의 목표</p>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          발음 10분 · 회화 10분 · 작문 1회. 꾸준한 루틴이 실력을 만듭니다.
+        </p>
+        <a
+          href="/learning"
+          class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold shadow-lg shadow-orange-200 hover:bg-orange-400 transition"
+          >오늘 학습 시작</a
+        >
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <main class="flex-1 space-y-6">
+      <!-- Top bar -->
+      <div
+        class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between bg-white rounded-2xl border border-gray-100 shadow-sm px-4 md:px-6 py-4"
+      >
+        <div class="space-y-1">
+          <p class="text-xs text-gray-500">Lobby</p>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+            AI 한국어 학습 로비
+          </h1>
+        </div>
+        <div class="flex items-center gap-3">
+          <div
+            class="px-3 py-2 rounded-full bg-orange-50 border border-orange-100 text-xs text-orange-700"
+          >
+            AI Tutor · 실시간
+          </div>
+          <a
+            href="/learning"
+            class="px-4 py-2 rounded-full bg-orange-500 text-white font-semibold shadow-lg shadow-orange-200 hover:bg-orange-400 transition"
+            >학습 시작하기</a
+          >
+        </div>
+      </div>
+
+      <!-- Hero area -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div
+          class="xl:col-span-2 relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg"
+        >
+          <div class="relative p-6 lg:p-8 space-y-4 lobby-gradient">
+            <p class="text-sm text-orange-600 font-semibold">
+              오늘의 학습 플랜
+            </p>
+            <h2
+              class="text-2xl lg:text-3xl font-bold leading-tight text-gray-900"
+            >
+              발음 · 회화 · 작문을 한 번에, 맞춤 루틴으로 시작하세요
+            </h2>
+            <p class="text-sm text-gray-700 max-w-2xl">
+              20분 루틴: 발음 5분 → 회화 10분 → 작문 5분. AI 튜터가 즉시
+              피드백을 제공합니다.
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <a
+                href="/speechpro-practice"
+                class="px-4 py-2 rounded-xl bg-white text-gray-900 font-semibold shadow hover:shadow-lg transition"
+                >발음 교정</a
+              >
+              <a
+                href="/chatbot"
+                class="px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold shadow hover:bg-orange-400 transition"
+                >회화 튜터</a
+              >
+              <a
+                href="/fluency-test"
+                class="px-4 py-2 rounded-xl bg-white/90 border border-orange-100 text-gray-900 font-semibold shadow hover:bg-white transition"
+                >작문 테스트</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-700">오늘 학습 시간</p>
+              <span
+                class="text-xs px-2 py-1 rounded-full bg-green-50 text-green-700 border border-green-100"
+                >on track</span
+              >
+            </div>
+            <p class="text-3xl font-bold text-gray-900 mt-2">18분</p>
+            <p class="text-xs text-gray-500">목표 20분 / 남은 2분</p>
+            <div class="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
+              <div
+                class="h-full w-[90%] bg-gradient-to-r from-orange-400 to-pink-500"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm space-y-3"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-700">학습 루틴</p>
+              <span class="text-xs text-gray-500">다음 순서</span>
+            </div>
+            <ol class="space-y-2 text-sm text-gray-700">
+              <li class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-orange-500 rounded-full"></span> 발음
+                드릴 2세트
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-teal-500 rounded-full"></span> 회화
+                롤플레이 5세트
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-purple-500 rounded-full"></span> 작문
+                피드백 1회
+              </li>
+            </ol>
+          </div>
+
+          <div
+            class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm space-y-3"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-700">내 랭킹</p>
+              <span
+                class="text-xs px-2 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100"
+                >Top 12%</span
+              >
+            </div>
+            <div class="space-y-2 text-sm text-gray-700">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                  <span>오늘 참여도</span>
+                </div>
+                <span class="font-semibold text-gray-900">상위 10%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                  <span>주간 연속 학습</span>
+                </div>
+                <span class="font-semibold text-gray-900">5일 연속</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                  <span>목표 달성률</span>
+                </div>
+                <span class="font-semibold text-gray-900">82%</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm space-y-4"
+          >
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-700">출석 체크</p>
+              <span class="text-xs text-gray-500">12월</span>
+            </div>
+            <div
+              class="grid grid-cols-7 gap-2 text-center text-xs text-gray-500"
+            >
+              <span>일</span><span>월</span><span>화</span><span>수</span
+              ><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div class="grid grid-cols-7 gap-2 text-center text-sm">
+              <span class="text-gray-300">1</span>
+              <span class="text-gray-300">2</span>
+              <span class="text-gray-300">3</span>
+              <span class="text-gray-300">4</span>
+              <span class="text-gray-300">5</span>
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-orange-500 text-white font-semibold"
+                >6</span
+              >
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-orange-100 text-orange-700 font-semibold"
+                >7</span
+              >
+              <span class="text-gray-800">8</span>
+              <span class="text-gray-800">9</span>
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-orange-100 text-orange-700 font-semibold"
+                >10</span
+              >
+              <span class="text-gray-800">11</span>
+              <span class="text-gray-800">12</span>
+              <span class="text-gray-800">13</span>
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-green-50 text-green-700 font-semibold border border-green-100"
+                >14</span
+              >
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-green-50 text-green-700 font-semibold border border-green-100"
+                >15</span
+              >
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-orange-500 text-white font-semibold"
+                >16</span
+              >
+              <span
+                class="inline-flex items-center justify-center h-8 rounded-full bg-orange-500 text-white font-semibold"
+                >17</span
+              >
+              <span class="text-gray-800">18</span>
+              <span class="text-gray-800">19</span>
+              <span class="text-gray-800">20</span>
+              <span class="text-gray-800">21</span>
+              <span class="text-gray-800">22</span>
+              <span class="text-gray-800">23</span>
+              <span class="text-gray-800">24</span>
+              <span class="text-gray-800">25</span>
+              <span class="text-gray-800">26</span>
+              <span class="text-gray-800">27</span>
+              <span class="text-gray-800">28</span>
+              <span class="text-gray-800">29</span>
+              <span class="text-gray-800">30</span>
+              <span class="text-gray-800">31</span>
+            </div>
+            <div class="text-xs text-gray-500 space-y-1">
+              <p>
+                <span
+                  class="inline-block w-3 h-3 rounded-full bg-orange-500 align-middle mr-1"
+                ></span
+                >금일 출석
+              </p>
+              <p>
+                <span
+                  class="inline-block w-3 h-3 rounded-full bg-orange-100 align-middle mr-1"
+                ></span
+                >최근 출석
+              </p>
+              <p>
+                <span
+                  class="inline-block w-3 h-3 rounded-full bg-green-50 border border-green-100 align-middle mr-1"
+                ></span
+                >연속 출석
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <p class="text-sm text-gray-600">발음 점수</p>
+          <p class="text-3xl font-bold mt-2 text-gray-900">92</p>
+          <p class="text-xs text-green-600">+3 vs 어제</p>
+          <div class="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full w-[85%] bg-green-400"></div>
+          </div>
+        </div>
+        <div class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <p class="text-sm text-gray-600">회화 유창도</p>
+          <p class="text-3xl font-bold mt-2 text-gray-900">B1</p>
+          <p class="text-xs text-orange-600">롤플레이 2회 남음</p>
+          <div class="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full w-[70%] bg-orange-400"></div>
+          </div>
+        </div>
+        <div class="p-5 rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <p class="text-sm text-gray-600">작문 완주율</p>
+          <p class="text-3xl font-bold mt-2 text-gray-900">68%</p>
+          <p class="text-xs text-purple-600">오늘 1/2 완료</p>
+          <div class="mt-3 h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div class="h-full w-[68%] bg-purple-400"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lower grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div
+          class="xl:col-span-2 p-6 rounded-3xl border border-gray-100 bg-white shadow-sm space-y-4"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-700">학습 히스토리</p>
+              <p class="text-xs text-gray-500">최근 7일 진행</p>
+            </div>
+            <a
+              href="/learning"
+              class="text-xs text-orange-600 hover:text-orange-500"
+              >전체 보기 →</a
+            >
+          </div>
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700"
+          >
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span>발음 피드백</span
+                ><span class="text-gray-500">완료 · 12/15</span>
+              </div>
+              <div class="flex justify-between">
+                <span>회화 롤플레이</span
+                ><span class="text-gray-500">진행 · 12/15</span>
+              </div>
+              <div class="flex justify-between">
+                <span>작문 코칭</span
+                ><span class="text-gray-500">예약 · 12/16</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span>문화 표현 학습</span
+                ><span class="text-gray-500">완료 · 12/14</span>
+              </div>
+              <div class="flex justify-between">
+                <span>맞춤 단어장</span
+                ><span class="text-gray-500">진행 · 12/14</span>
+              </div>
+              <div class="flex justify-between">
+                <span>AI 챗 복습</span
+                ><span class="text-gray-500">완료 · 12/13</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="p-6 rounded-3xl border border-gray-100 bg-white shadow-sm space-y-4"
+        >
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-700">추천 학습</p>
+            <a
+              href="/learning"
+              class="text-xs text-orange-600 hover:text-orange-500"
+              >모두 보기</a
+            >
+          </div>
+          <div class="space-y-3 text-sm text-gray-700">
+            <a
+              href="/speechpro-practice"
+              class="block p-3 rounded-2xl bg-orange-50 border border-orange-100 hover:border-orange-300 transition"
+            >
+              <p class="font-semibold text-gray-900">발음 클리닉</p>
+              <p class="text-xs text-gray-600">
+                포착된 억양/리듬 개선 포인트 3개
+              </p>
+            </a>
+            <a
+              href="/chatbot"
+              class="block p-3 rounded-2xl bg-teal-50 border border-teal-100 hover:border-teal-300 transition"
+            >
+              <p class="font-semibold text-gray-900">회화 튜터</p>
+              <p class="text-xs text-gray-600">여행·비즈니스 상황별 롤플레이</p>
+            </a>
+            <a
+              href="/fluency-test"
+              class="block p-3 rounded-2xl bg-purple-50 border border-purple-100 hover:border-purple-300 transition"
+            >
+              <p class="font-semibold text-gray-900">작문 피드백</p>
+              <p class="text-xs text-gray-600">
+                짧은 에세이 작성 후 실시간 교정
+              </p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

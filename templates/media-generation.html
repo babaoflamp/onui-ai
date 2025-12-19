@@ -1,29 +1,29 @@
 {% extends "base.html" %} {% block title %}상황별 콘텐츠 생성 - 오누이 한국어{%
 endblock %} {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
-  <div class="bg-white rounded-2xl p-6 shadow-lg">
-    <!-- Header -->
-    <header class="mb-8">
-      <div
-        class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold mb-2"
-      >
-        <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
-        ONUI · AI 콘텐츠 생성
-      </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        🎨 상황별 이미지 생성
-      </h1>
-      <p class="text-sm text-gray-600">
-        학습 상황에 맞는 이미지를 AI로 자동 생성합니다 (DALL-E 3)
-      </p>
-    </header>
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+    >
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      ONUI · AI 학습 도구
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      🎨 AI 상황별 이미지 생성
+    </h1>
+    <p class="text-sm text-gray-600">
+      학습 상황에 맞는 이미지를 AI로 자동 생성합니다 (DALL-E 3)
+    </p>
+  </div>
 
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Input Section -->
     <section
-      class="mb-8 p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
+      class="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
     >
       <h2
-        class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2"
+        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
       >
         <span class="text-2xl">📝</span>
         상황 설명
@@ -95,7 +95,7 @@ endblock %} {% block content %}
         <!-- Generate Button -->
         <button
           onclick="generateImage()"
-          class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium"
+          class="w-full bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white px-6 py-3 rounded-lg hover:bg-[#e67a15] transition-all shadow-md hover:shadow-lg font-semibold"
         >
           🎨 이미지 생성하기
         </button>
@@ -122,13 +122,13 @@ endblock %} {% block content %}
         <div class="mt-4 flex gap-2">
           <button
             onclick="downloadImage()"
-            class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm"
+            class="flex-1 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 px-6 py-2 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
           >
             📥 이미지 다운로드
           </button>
           <button
             onclick="regenerateImage()"
-            class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition text-sm"
+            class="flex-1 bg-white border-2 border-[#FF8C1A] text-gray-800 px-6 py-2 rounded-lg hover:bg-[#FFE6BF] transition font-semibold"
           >
             🔄 다시 생성
           </button>
@@ -137,7 +137,7 @@ endblock %} {% block content %}
     </section>
 
     <!-- Info Section -->
-    <section class="mt-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
+    <section class="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
       <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 가이드</div>
       <div class="text-xs text-gray-700 space-y-1">
         <p>
@@ -205,7 +205,29 @@ endblock %} {% block content %}
         }),
       });
 
-      const imageData = await imageResponse.json();
+      // Robust response handling: check status and parse safely
+      if (!imageResponse.ok) {
+        const errorText = await imageResponse.text();
+        throw new Error(
+          `HTTP ${imageResponse.status} ${imageResponse.statusText}: ${
+            errorText || "빈 응답"
+          }`
+        );
+      }
+
+      const rawText = await imageResponse.text();
+      let imageData;
+      try {
+        imageData = rawText ? JSON.parse(rawText) : null;
+      } catch (parseErr) {
+        throw new Error(
+          `서버 응답이 JSON이 아닙니다: ${rawText?.slice(0, 200) || "빈 응답"}`
+        );
+      }
+
+      if (!imageData) {
+        throw new Error("서버로부터 유효한 응답을 받지 못했습니다.");
+      }
 
       // Calculate generation time
       generationTime = ((Date.now() - startTime) / 1000).toFixed(2);

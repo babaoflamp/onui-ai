@@ -105,7 +105,7 @@
         top: 100%;
         left: 0;
         background-color: white;
-        min-width: 200px;
+        min-width: 220px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         z-index: 1000;
@@ -164,11 +164,40 @@
         right: 0;
         left: auto;
       }
+
+      /* AI 학습 & 관리자 드롭다운: 더 좁은 너비 */
+      #learning-dropdown .dropdown-content,
+      #admin-dropdown .dropdown-content {
+        min-width: 200px;
+      }
+    </style>
+
+    <style>
+      /* Embedded mode: hide global chrome when inside iframe or embed=1 */
+      .embedded nav,
+      .embedded footer,
+      .embedded #chatbot-widget {
+        display: none !important;
+      }
+      .embedded main {
+        padding-top: 0 !important;
+      }
     </style>
 
     {% block extra_css %}{% endblock %}
   </head>
   <body class="bg-gray-100">
+    <script>
+      // Mark document as embedded if loaded in iframe or with embed=1
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search || "");
+          var isEmbed =
+            params.get("embed") === "1" || window.self !== window.top;
+          if (isEmbed) document.documentElement.classList.add("embedded");
+        } catch (e) {}
+      })();
+    </script>
     <!-- Navigation Header -->
     <nav class="sticky top-0 z-40 bg-white shadow-md">
       <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
@@ -178,9 +207,15 @@
             <div class="flex-shrink-0 flex items-center">
               <a
                 href="/"
-                class="text-lg sm:text-2xl font-bold text-orange-500 whitespace-nowrap"
+                class="flex items-center text-orange-500 whitespace-nowrap"
               >
-                🌸 오누이 한국어
+                <img
+                  src="/static/img/onui-logo.svg"
+                  alt="오누리 한국어"
+                  class="h-5 w-auto"
+                  loading="lazy"
+                />
+                <span class="sr-only">오누리 한국어</span>
               </a>
             </div>
 
@@ -189,32 +224,31 @@
               id="learner-nav"
               class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
             >
-              <!-- 발음학습 -->
+              <!-- AI 발음 교정 -->
               <div class="dropdown inline-flex items-center">
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  🎤 발음학습 ▾
+                  AI 발음 교정 ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/pronunciation-stages">📚 학습 커리큘럼</a>
-                  <a href="/speechpro-practice">🤖 AI 발음 분석</a>
-                  <a href="/pronunciation-rules">📖 발음 규칙</a>
+                  <a href="/speechpro-practice">🎤 AI 발음 종합 평가 테스트</a>
+                  <a href="/word-pronunciation">📝 AI 단어 발음 교정</a>
                 </div>
               </div>
 
               <!-- AI 학습 -->
-              <div class="dropdown inline-flex items-center">
+              <div
+                class="dropdown inline-flex items-center"
+                id="learning-dropdown"
+              >
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  💡 AI 학습 ▾
+                  AI 학습 ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/learning">🧠 AI 학습 도구</a>
-                  <a href="/content-generation">📘 맞춤형 교재</a>
-                  <a href="/fluency-test">✍️ 작문 테스트</a>
-                  <a href="/media-generation">🎬 상황별 콘텐츠</a>
+                  <a href="/fluency-test">✍️ AI 한국어 작문 평가</a>
                 </div>
               </div>
 
@@ -223,7 +257,7 @@
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  🎲 활동하기 ▾
+                  활동하기 ▾
                 </button>
                 <div class="dropdown-content">
                   <div
@@ -231,13 +265,7 @@
                   >
                     재미있는 놀이
                   </div>
-                  <a href="/word-puzzle">🧩 문장 순서 맞추기</a>
-                  <a href="/vocab-garden">🌸 어휘 정원</a>
-                  <a href="/daily-expression">💬 오늘의 표현</a>
-                  <a href="/typing-game">⌨️ 타이핑 게임</a>
-                  <a href="/listening-dictation">🎧 듣고 받아쓰기</a>
-                  <a href="/speed-quiz">⚡ 스피드 퀴즈</a>
-                  <div class="border-t border-gray-100 my-1"></div>
+                  <div class="border-t border-gray-200 my-2"></div>
                   <div
                     class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
                   >
@@ -245,6 +273,19 @@
                   </div>
                   <a href="/folktales">📖 전래동화 읽기</a>
                   <a href="/cultural-expressions">🎨 문화 표현 학습</a>
+                </div>
+              </div>
+
+              <!-- 기초 학습 드롭다운 -->
+              <div class="dropdown inline-flex items-center">
+                <button
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+                >
+                  기초 학습 ▾
+                </button>
+                <div class="dropdown-content">
+                  <a href="/pronunciation-stages">🔤 자음모음 배우기</a>
+                  <a href="/pronunciation-rules">📖 발음규칙 학습</a>
                 </div>
               </div>
 
@@ -257,12 +298,12 @@
               </a>
               -->
 
-              <!-- 도움말 -->
+              <!-- 사이트맵 -->
               <a
                 href="/sitemap"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
-                ❓ 도움말
+                사이트맵
               </a>
 
               <!-- 내정보 -->
@@ -270,7 +311,7 @@
                 href="/mypage"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
-                👤 내정보
+                내정보
               </a>
             </div>
           </div>
@@ -283,64 +324,32 @@
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
-              📊 학습 진도
+              학습 진도
             </a>
             <!-- Admin Dropdown (Desktop) -->
-            <div
-              class="relative group"
-              id="admin-dropdown"
-              style="display: none"
-            >
+            <div class="dropdown inline-flex items-center" id="admin-dropdown">
               <button
-                class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+                style="display: none"
               >
-                🛠️ 관리자 ▼
+                관리자 ▾
               </button>
-              <div
-                class="absolute right-0 mt-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50"
-              >
-                <a
-                  href="/admin/dashboard"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >📊 대시보드</a
-                >
-                <a
-                  href="/admin/users"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >👥 사용자 관리</a
-                >
-                <a
-                  href="/admin/words"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >📚 단어 관리</a
-                >
-                <a
-                  href="/admin/recordings"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >🎙️ 녹음 관리</a
-                >
-                <a
-                  href="/admin/analytics"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >📈 통계 분석</a
-                >
-                <a
-                  href="/admin/content"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >🤖 AI 콘텐츠 관리</a
-                >
-                <a
-                  href="/admin/api"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >⚙️ API 설정</a
-                >
-                <a
-                  href="/admin/system"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >🔧 시스템 설정</a
-                >
+              <div class="dropdown-content">
+                <a href="/admin">🖥️ 관리자 콘솔</a>
+                <a href="/content-generation">📝 AI 맞춤형 콘텐츠 생성</a>
+                <a href="/media-generation">🎬 AI 상황별 이미지 생성</a>
               </div>
             </div>
+
+            <!-- Admin Link (Desktop) -->
+            <a
+              href="/admin"
+              id="admin-link"
+              class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
+              style="display: none"
+            >
+              관리자
+            </a>
             <a
               href="/mypage"
               id="user-display"
@@ -360,6 +369,13 @@
               class="px-2 sm:px-4 py-2 rounded-lg bg-orange-500 text-white text-xs sm:text-sm font-medium hover:bg-orange-600 whitespace-nowrap"
             >
               로그인
+            </a>
+            <a
+              href="/signup"
+              id="signup-link"
+              class="ml-2 px-2 sm:px-4 py-2 rounded-lg border-2 border-[#FF8C1A] text-[#FF8C1A] bg-white text-xs sm:text-sm font-medium hover:bg-orange-50 whitespace-nowrap"
+            >
+              회원가입
             </a>
 
             <!-- 도움말: 우측 햄버거 버튼 -->
@@ -401,11 +417,9 @@
       <!-- Mobile menu (hidden by default) -->
       <div class="sm:hidden" id="mobile-menu" style="display: none">
         <div class="pt-2 pb-3 space-y-2">
-          <!-- 발음학습 -->
+          <!-- 발음교정 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1">
-              🎤 발음학습
-            </div>
+            <div class="text-sm font-semibold text-gray-900 mb-1">발음교정</div>
             <a
               href="/pronunciation-stages"
               class="block pl-4 py-1 text-sm text-gray-700"
@@ -414,7 +428,7 @@
             <a
               href="/speechpro-practice"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >🤖 AI 발음 분석</a
+              >🎤 AI 발음 분석</a
             >
             <a
               href="/pronunciation-rules"
@@ -425,18 +439,18 @@
 
           <!-- AI 학습 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1">
-              💡 AI 학습
-            </div>
+            <div class="text-sm font-semibold text-gray-900 mb-1">AI 학습</div>
             <a href="/learning" class="block pl-4 py-1 text-sm text-gray-700"
               >🧠 AI 학습 도구</a
             >
             <a
               href="/content-generation"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >📘 맞춤형 교재</a
+              >📝 맞춤형 교재</a
             >
-            <a href="/fluency-test" class="block pl-4 py-1 text-sm text-gray-700"
+            <a
+              href="/fluency-test"
+              class="block pl-4 py-1 text-sm text-gray-700"
               >✍️ 작문 테스트</a
             >
             <a
@@ -448,43 +462,11 @@
 
           <!-- 활동하기 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1">
-              🎲 활동하기
-            </div>
+            <div class="text-sm font-semibold text-gray-900 mb-1">활동하기</div>
             <div class="pl-2 py-1">
               <div class="text-xs font-semibold text-gray-700 mb-1">
                 재미있는 놀이
               </div>
-              <a
-                href="/word-puzzle"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >🧩 문장 순서 맞추기</a
-              >
-              <a
-                href="/vocab-garden"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >🌸 어휘 정원</a
-              >
-              <a
-                href="/daily-expression"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >💬 오늘의 표현</a
-              >
-              <a
-                href="/typing-game"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >⌨️ 타이핑 게임</a
-              >
-              <a
-                href="/listening-dictation"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >🎧 듣고 받아쓰기</a
-              >
-              <a
-                href="/speed-quiz"
-                class="block pl-4 py-1 text-sm text-gray-600"
-                >⚡ 스피드 퀴즈</a
-              >
             </div>
             <div class="pl-2 py-1 mt-2">
               <div class="text-xs font-semibold text-gray-700 mb-1">
@@ -501,18 +483,35 @@
             </div>
           </div>
 
-          <!-- 도움말 -->
+          <!-- 기초 학습 -->
+          <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
+            <div class="text-sm font-semibold text-gray-900 mb-1">
+              기초 학습
+            </div>
+            <a
+              href="/pronunciation-stages"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >🔤 자음모음 배우기</a
+            >
+            <a
+              href="/pronunciation-rules"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >📖 발음규칙 학습</a
+            >
+          </div>
+
+          <!-- 사이트맵 -->
           <a
             href="/sitemap"
             class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
-            >❓ 도움말</a
+            >사이트맵</a
           >
 
           <!-- 내정보 -->
           <a
             href="/mypage"
             class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
-            >👤 내정보</a
+            >내정보</a
           >
 
           <!-- User Menu Mobile -->
@@ -525,50 +524,16 @@
               href="/learning-progress"
               class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
             >
-              📊 학습 진도
+              학습 진도
             </a>
-            <!-- Admin Menu Mobile -->
+            <!-- Admin Link Mobile -->
             <div id="mobile-admin-menu" style="display: none">
               <a
-                href="/admin/dashboard"
+                href="/admin"
                 class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >📊 대시보드</a
               >
-              <a
-                href="/admin/users"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >👥 사용자 관리</a
-              >
-              <a
-                href="/admin/words"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >📚 단어 관리</a
-              >
-              <a
-                href="/admin/recordings"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >🎙️ 녹음 관리</a
-              >
-              <a
-                href="/admin/analytics"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >📈 통계 분석</a
-              >
-              <a
-                href="/admin/content"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >🤖 AI 콘텐츠 관리</a
-              >
-              <a
-                href="/admin/api"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >⚙️ API 설정</a
-              >
-              <a
-                href="/admin/system"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-                >🔧 시스템 설정</a
-              >
+                관리자 콘솔
+              </a>
             </div>
             <a
               href="/mypage"
@@ -630,8 +595,29 @@
         id="mail-dropdown"
         class="hidden absolute bottom-24 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50"
       >
-        <div class="p-4 border-b border-gray-200">
+        <div
+          class="p-4 border-b border-gray-200 flex items-center justify-between"
+        >
           <h3 class="font-bold text-gray-900">📬 메일함</h3>
+          <button
+            onclick="toggleMailNotification()"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            title="닫기"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
         </div>
         <div id="mail-list" class="max-h-80 overflow-y-auto">
           <div class="p-4 text-center text-gray-500 text-sm">
@@ -787,8 +773,9 @@
         </div>
 
         <!-- Input -->
-        <div class="border-t border-gray-200 p-3 bg-white">
-          <div class="flex space-x-2">
+        <div class="border-t border-gray-200 bg-white">
+          <!-- Input Field -->
+          <div class="flex space-x-2 p-3">
             <input
               type="text"
               id="chatbot-input"
@@ -870,6 +857,24 @@
       const chatbotMessages = document.getElementById("chatbot-messages");
       const chatbotInput = document.getElementById("chatbot-input");
       const chatbotSend = document.getElementById("chatbot-send");
+      const chatbotModelSelect = document.getElementById(
+        "chatbot-model-select"
+      );
+
+      // Load model preference from localStorage
+      function loadChatbotModelPreference() {
+        const saved = localStorage.getItem("chatbot-model");
+        if (saved && chatbotModelSelect) {
+          chatbotModelSelect.value = saved;
+        }
+      }
+
+      // Save model preference to localStorage
+      function saveChatbotModelPreference() {
+        if (chatbotModelSelect) {
+          localStorage.setItem("chatbot-model", chatbotModelSelect.value);
+        }
+      }
 
       // Toggle chat window
       chatbotToggle.addEventListener("click", () => {
@@ -882,6 +887,13 @@
       chatbotClose.addEventListener("click", () => {
         chatbotWindow.classList.add("hidden");
       });
+
+      // Save model preference on change
+      if (chatbotModelSelect) {
+        chatbotModelSelect.addEventListener("change", () => {
+          saveChatbotModelPreference();
+        });
+      }
 
       // Add user message
       function addChatbotUserMessage(text) {
@@ -958,6 +970,9 @@
         addChatbotUserMessage(message);
         chatbotInput.value = "";
         chatbotSend.disabled = true;
+        if (chatbotModelSelect) {
+          chatbotModelSelect.disabled = true;
+        }
 
         addChatbotTyping();
 
@@ -981,7 +996,10 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ message: message }),
+            body: JSON.stringify({
+              message: message,
+              model: chatbotModelSelect ? chatbotModelSelect.value : "ollama",
+            }),
           });
 
           const data = await response.json();
@@ -998,6 +1016,9 @@
           addChatbotAIMessage("네트워크 오류가 발생했습니다.");
         } finally {
           chatbotSend.disabled = false;
+          if (chatbotModelSelect) {
+            chatbotModelSelect.disabled = false;
+          }
           chatbotInput.focus();
         }
       }
@@ -1012,14 +1033,40 @@
           sendChatbotMessage(chatbotInput.value);
         }
       });
+
+      // Load model preference on page load
+      loadChatbotModelPreference();
     </script>
 
     <!-- Footer -->
-    <footer class="bg-white mt-12 py-6 border-t border-gray-200">
+    <footer class="bg-white mt-12 py-8 border-t border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center text-sm text-gray-500">
-          <span>© 2025 Mediazen - 오누이 한국어 학습 플랫폼</span>
-          <span>Powered by FastAPI + AI</span>
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start text-sm text-gray-600"
+        >
+          <div class="flex items-center space-x-3">
+            <img
+              src="/static/img/onui-logo.svg"
+              alt="오누이 로고"
+              class="h-8"
+            />
+            <span class="font-semibold text-gray-900">미디어젠(주)</span>
+          </div>
+          <div class="md:col-span-2 space-y-1">
+            <p>
+              본사 : 경기도 성남시 분당구 판교역로 230 (삼평동), 삼환하이펙스
+              B동 906호
+            </p>
+            <p>R&amp;D센터 : 서울시 강서구 마곡중앙 12로 31(마곡동)</p>
+            <p>대표번호 : 02-6429-7100</p>
+            <p>FAX : 02-6429-7188</p>
+            <p>영업(AUTO 관련) : 02-6429-7109</p>
+            <p>영업(AI 관련) : 02-6429-7156</p>
+            <p>주식 : 02-6429-7121</p>
+          </div>
+        </div>
+        <div class="mt-4 text-xs text-gray-500">
+          <span>copyright ⓒ mediazen all rights reserved.</span>
         </div>
       </div>
     </footer>
@@ -1078,14 +1125,17 @@
         const logoutBtn = document.getElementById("logout-btn");
         const mobileUserMenu = document.getElementById("mobile-user-menu");
         const mobileLinkoutBtn = document.getElementById("mobile-logout-btn");
+        const chatbotWidget = document.getElementById("chatbot-widget");
 
         if (token && nickname) {
           if (loginLink) loginLink.style.display = "none";
           if (progressLink)
             progressLink.style.display = isAdmin ? "none" : "inline-block";
           if (learnerNav) learnerNav.style.display = isAdmin ? "none" : "flex";
+          const adminLink = document.getElementById("admin-link");
+          if (adminLink) adminLink.style.display = isAdmin ? "none" : "none";
           if (adminDropdown)
-            adminDropdown.style.display = isAdmin ? "block" : "none";
+            adminDropdown.style.display = isAdmin ? "flex" : "none";
           if (mobileAdminMenu)
             mobileAdminMenu.style.display = isAdmin ? "block" : "none";
           if (userDisplay) {
@@ -1104,6 +1154,9 @@
             mobileLinkoutBtn.style.display = "block";
             mobileLinkoutBtn.addEventListener("click", handleLogout);
           }
+          if (chatbotWidget) {
+            chatbotWidget.style.display = isAdmin ? "none" : "";
+          }
         } else {
           if (loginLink) loginLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
@@ -1114,6 +1167,7 @@
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";
           if (mobileLinkoutBtn) mobileLinkoutBtn.style.display = "none";
+          if (chatbotWidget) chatbotWidget.style.display = "";
         }
       }
 

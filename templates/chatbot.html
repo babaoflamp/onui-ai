@@ -1,11 +1,35 @@
 {% extends "base.html" %} {% block title %}AI 챗봇 | 오누이 한국어{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <div class="text-center mb-8">
-    <h1 class="text-4xl font-bold text-gray-900 mb-2">
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+    >
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      ONUI · AI 학습 도구
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
       🤖 AI 한국어 호랭이 튜터
     </h1>
-    <p class="text-gray-600">한국어 학습에 대해 무엇이든 물어보세요!</p>
+    <p class="text-gray-600 text-sm">한국어 학습에 대해 무엇이든 물어보세요!</p>
+  </div>
+
+  <!-- Model Selection -->
+  <div
+    class="mb-4 flex items-center gap-3 bg-white rounded-xl p-4 shadow-sm border border-gray-200"
+  >
+    <label for="model-select" class="text-sm font-semibold text-gray-700">
+      모델 선택:
+    </label>
+    <select
+      id="model-select"
+      class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white text-gray-800 font-medium"
+    >
+      <option value="ollama">🦙 Ollama (EXAONE) - 로컬</option>
+      <option value="gemini">✨ Google Gemini - 클라우드</option>
+      <option value="openai">🚀 OpenAI GPT - 클라우드</option>
+    </select>
   </div>
 
   <!-- Chat Container -->
@@ -50,24 +74,24 @@
         />
         <button
           id="send-button"
-          class="px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium rounded-full hover:from-orange-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white font-semibold rounded-full hover:bg-[#e67a15] focus:outline-none focus:ring-2 focus:ring-[#FF8C1A] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           전송
         </button>
       </div>
       <div class="mt-2 flex flex-wrap gap-2">
         <button
-          class="suggestion-btn px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors"
+          class="suggestion-btn px-4 py-2 text-sm bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
         >
           발음 연습 방법 알려줘
         </button>
         <button
-          class="suggestion-btn px-3 py-1 text-sm bg-pink-100 text-pink-700 rounded-full hover:bg-pink-200 transition-colors"
+          class="suggestion-btn px-4 py-2 text-sm bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
         >
           받침 발음이 어려워요
         </button>
         <button
-          class="suggestion-btn px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors"
+          class="suggestion-btn px-4 py-2 text-sm bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
         >
           존댓말 사용법
         </button>
@@ -133,7 +157,21 @@
   const chatMessages = document.getElementById("chat-messages");
   const userInput = document.getElementById("user-input");
   const sendButton = document.getElementById("send-button");
+  const modelSelect = document.getElementById("model-select");
   const suggestionButtons = document.querySelectorAll(".suggestion-btn");
+
+  // Load model preference from localStorage
+  function loadModelPreference() {
+    const saved = localStorage.getItem("chatbot-model");
+    if (saved) {
+      modelSelect.value = saved;
+    }
+  }
+
+  // Save model preference to localStorage
+  function saveModelPreference() {
+    localStorage.setItem("chatbot-model", modelSelect.value);
+  }
 
   // Add user message to chat
   function addUserMessage(text) {
@@ -231,6 +269,7 @@
     addUserMessage(message);
     userInput.value = "";
     sendButton.disabled = true;
+    modelSelect.disabled = true;
 
     // Show typing indicator
     addTypingIndicator();
@@ -241,7 +280,10 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: message }),
+        body: JSON.stringify({
+          message: message,
+          model: modelSelect.value,
+        }),
       });
 
       const data = await response.json();
@@ -260,6 +302,7 @@
       addAIMessage("죄송합니다. 네트워크 오류가 발생했습니다.");
     } finally {
       sendButton.disabled = false;
+      modelSelect.disabled = false;
       userInput.focus();
     }
   }
@@ -275,6 +318,10 @@
     }
   });
 
+  modelSelect.addEventListener("change", () => {
+    saveModelPreference();
+  });
+
   suggestionButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       userInput.value = btn.textContent;
@@ -282,7 +329,8 @@
     });
   });
 
-  // Focus input on load
+  // Focus input on load and load model preference
   userInput.focus();
+  loadModelPreference();
 </script>
 {% endblock %}

@@ -563,6 +563,24 @@
     document.getElementById("evaluate-button").disabled = true;
   }
 
+  // 발음 평가 시 로딩 표시 (only during evaluation, not on page load)
+  function showEvaluationLoading() {
+    const btn = document.getElementById("evaluate-button");
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML =
+        '<div class="flex items-center justify-center gap-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>분석 중...</span></div>';
+    }
+  }
+
+  function hideEvaluationLoading() {
+    const btn = document.getElementById("evaluate-button");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = "🎤 발음 평가하기";
+    }
+  }
+
   // 녹음된 음성 재생
   function playRecording() {
     const audioPlayback = document.getElementById("audio-playback");
@@ -613,10 +631,8 @@
       formData.append("audio", audioBlob, "recording.wav");
       formData.append("text", targetText);
 
-      // 로딩 표시
-      document.getElementById("evaluate-button").disabled = true;
-      document.getElementById("evaluate-button").innerHTML =
-        '<div class="flex items-center justify-center gap-2"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>분석 중...</span></div>';
+      // 로딩 표시 (inline button state, no full-screen overlay)
+      showEvaluationLoading();
 
       const res = await fetch("/api/speechpro/evaluate", {
         method: "POST",
@@ -636,8 +652,7 @@
       alert(`평가 중 오류가 발생했습니다: ${error.message}`);
     } finally {
       // 버튼 복원
-      document.getElementById("evaluate-button").disabled = false;
-      document.getElementById("evaluate-button").innerHTML = "🎤 발음 평가하기";
+      hideEvaluationLoading();
     }
   }
 

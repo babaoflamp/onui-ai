@@ -1,0 +1,127 @@
+{% extends "base.html" %} {% block title %}관리자 콘솔{% endblock %} {% block
+content %}
+<div class="min-h-[70vh] bg-gray-50 text-gray-900">
+  <div
+    class="max-w-7xl mx-auto px-4 lg:px-6 py-6 grid grid-cols-1 lg:grid-cols-5 gap-6"
+  >
+    <!-- Sidebar -->
+    <aside
+      class="lg:col-span-1 rounded-2xl shadow-sm bg-white border border-gray-100 p-4 sticky top-20 h-fit"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm font-semibold text-gray-900">관리자 패널</p>
+        <a href="/admin/login" class="text-xs text-gray-500 hover:text-gray-700"
+          >계정</a
+        >
+      </div>
+      <nav class="space-y-1 text-sm">
+        <p class="px-3 text-[11px] uppercase tracking-[0.08em] text-gray-400">
+          메뉴
+        </p>
+        <a
+          href="/admin/dashboard?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >대시보드</a
+        >
+        <a
+          href="/admin/users?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >사용자 관리</a
+        >
+        <a
+          href="/admin/words?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >단어 관리</a
+        >
+        <a
+          href="/admin/recordings?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >녹음 관리</a
+        >
+        <a
+          href="/admin/analytics?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >통계 분석</a
+        >
+        <a
+          href="/admin/content?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >AI 콘텐츠 관리</a
+        >
+        <a
+          href="/admin/api?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >API 설정</a
+        >
+        <a
+          href="/admin/system?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >시스템 설정</a
+        >
+        <a
+          href="/admin/logs?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >로그 모니터링</a
+        >
+        <a
+          href="/admin/settings?embed=1"
+          target="adminFrame"
+          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+          >관리자 설정</a
+        >
+      </nav>
+      <div class="mt-4">
+        <button
+          id="adminShellLogout"
+          class="w-full px-3 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold shadow hover:opacity-90"
+        >
+          로그아웃
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content panel -->
+    <section
+      class="lg:col-span-4 rounded-2xl shadow-sm bg-white border border-gray-100 overflow-hidden"
+    >
+      <iframe
+        id="adminFrame"
+        name="adminFrame"
+        src="/admin/dashboard?embed=1"
+        class="w-full h-[70vh]"
+      ></iframe>
+    </section>
+  </div>
+</div>
+
+<script>
+  // Client-side admin check: redirect to admin login if not admin
+  (function ensureAdmin() {
+    const token = localStorage.getItem("auth_token");
+    const isAdmin = localStorage.getItem("is_admin") === "true";
+    if (!token || !isAdmin) {
+      window.location.href = "/admin/login";
+    }
+  })();
+
+  // Logout handler (reuses base.js logic style)
+  document
+    .getElementById("adminShellLogout")
+    ?.addEventListener("click", function () {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_nickname");
+      localStorage.removeItem("is_guest");
+      localStorage.removeItem("is_admin");
+      window.location.href = "/admin/login";
+    });
+</script>
+{% endblock %}

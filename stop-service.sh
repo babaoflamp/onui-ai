@@ -30,6 +30,24 @@ else
     echo -e "${YELLOW}• ngrok 프로세스 없음${NC}"
 fi
 
+# cloudflared 프로세스 종료
+echo -e "${YELLOW}cloudflared 프로세스 종료 중...${NC}"
+if pgrep -f "cloudflared" > /dev/null; then
+    pkill -f "cloudflared"
+    echo -e "${GREEN}✓ cloudflared 프로세스 종료됨${NC}"
+else
+    echo -e "${YELLOW}• cloudflared 프로세스 없음${NC}"
+fi
+
+# serveo 프로세스 종료
+echo -e "${YELLOW}serveo 프로세스 종료 중...${NC}"
+if pgrep -f "ssh.*serveo" > /dev/null; then
+    pkill -f "ssh.*serveo"
+    echo -e "${GREEN}✓ serveo 프로세스 종료됨${NC}"
+else
+    echo -e "${YELLOW}• serveo 프로세스 없음${NC}"
+fi
+
 echo ""
 echo -e "${GREEN}✓ 모든 서비스가 종료되었습니다.${NC}"
 echo ""

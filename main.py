@@ -27,6 +27,13 @@ import wave
 import base64
 import tempfile
 
+try:
+    from google import genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+    genai = None
+
 # SpeechPro 서비스 임포트
 from backend.services.speechpro_service import (
     call_speechpro_gtp,
@@ -126,9 +133,15 @@ client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 # Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
 MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash-exp")
+
+# Initialize Gemini client if available
+gemini_client = None
+if GEMINI_API_KEY and GENAI_AVAILABLE:
+    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -442,8 +455,8 @@ def _ensure_is_admin_column(conn):
 
 def _seed_admin_user(conn):
     """Seed a default admin account if none exists."""
-    admin_email = os.getenv("ADMIN_EMAIL", "admin@urimalzen.com").lower().strip()
-    admin_password = os.getenv("ADMIN_PASSWORD", "admin123!@#")
+    admin_email = os.getenv("ADMIN_EMAIL", "admin@mediazen.co.kr").lower().strip()
+    admin_password = os.getenv("ADMIN_PASSWORD", "mz1234!@")
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE is_admin = 1")
     row = cursor.fetchone()
@@ -576,6 +589,22 @@ def _get_user_by_email(email: str) -> dict:
         cursor.execute(
             "SELECT id, email, nickname, password_hash, is_admin FROM users WHERE email = ?",
             ((email or "").strip().lower(),)
+        )
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def _get_user_by_nickname(nickname: str) -> dict:
+    """Fetch user by nickname, return dict with id/email/nickname/password_hash or None."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, email, nickname, password_hash, is_admin FROM users WHERE nickname = ?",
+            ((nickname or "").strip(),)
         )
         row = cursor.fetchone()
         return dict(row) if row else None
@@ -907,7 +936,7 @@ async def _generate_pronunciation_feedback(text: str, score_result) -> str:
     Returns:
         AI-generated feedback string in Korean
     """
-    if MODEL_BACKEND not in ("ollama", "gemini"):
+    if MODEL_BACKEND not in ("ollama", "gemini", "openai"):
         return None
     
     try:
@@ -994,6 +1023,21 @@ FluencyPro 분석:
             result = resp.json()
             feedback = result.get("response", "").strip()
             
+        elif MODEL_BACKEND == "openai":
+            if not client or not OPENAI_API_KEY:
+                return None
+            
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[
+                    {"role": "system", "content": "당신은 한국어 발음 교육 전문가입니다."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=500
+            )
+            feedback = response.choices[0].message.content.strip()
+            
         elif MODEL_BACKEND == "gemini":
             if not GEMINI_API_KEY:
                 return None
@@ -1023,8 +1067,28 @@ FluencyPro 분석:
 # 페이지 라우트 (Routes)
 # ==========================================
 @app.get("/")
+def landing_page(request: Request):
+    """기본 랜딩 페이지 (Landing 2)"""
+    return templates.TemplateResponse("landing-2.html", {"request": request})
+
+@app.get("/landing")
+def landing_page_1(request: Request):
+    """랜딩 페이지 1"""
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+@app.get("/landing-2")
+def landing_page_2(request: Request):
+    """랜딩 페이지 2"""
+    return templates.TemplateResponse("landing-2.html", {"request": request})
+
+@app.get("/lobby")
+def lobby_page(request: Request):
+    """학습 로비 페이지"""
+    return templates.TemplateResponse("lobby.html", {"request": request})
+
+@app.get("/home")
 def home_dashboard(request: Request):
-    """대시보드 홈페이지"""
+    """기존 대시보드 홈페이지 (백업 경로)"""
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/learning")
@@ -1100,7 +1164,7 @@ def pronunciation_practice_page(request: Request):
 @app.get("/pronunciation-stages")
 def pronunciation_stages_page(request: Request):
     """단계별 발음 학습"""
-    return templates.TemplateResponse("pronunciation-learning.html", {"request": request})
+    return templates.TemplateResponse("pronunciation-stages.html", {"request": request})
 
 @app.get("/pronunciation-rules")
 def pronunciation_rules_page(request: Request):
@@ -1110,7 +1174,17 @@ def pronunciation_rules_page(request: Request):
 @app.get("/pronunciation-learning")
 def pronunciation_learning_page(request: Request):
     """발음 학습 허브 페이지"""
-    return templates.TemplateResponse("pronunciation-learning.html", {"request": request})
+    return templates.TemplateResponse("word-pronunciation.html", {"request": request})
+
+@app.get("/word-pronunciation")
+def word_pronunciation_page(request: Request):
+    """단어 발음 학습"""
+    return templates.TemplateResponse("word-pronunciation.html", {"request": request})
+
+@app.get("/signup")
+def signup_page(request: Request):
+    """회원가입 페이지"""
+    return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
@@ -1187,8 +1261,12 @@ def admin_words_page(request: Request):
 def admin_recordings_page(request: Request):
     """관리자 녹음 관리 페이지"""
     return templates.TemplateResponse("admin-recordings.html", {"request": request})
+    return templates.TemplateResponse("admin-dashboard.html", {"request": request})
 
-
+@app.get("/admin")
+def admin_shell_page(request: Request):
+    """관리자 셸: 좌측 사이드 패널 + 우측 콘텐츠 프레임"""
+    return templates.TemplateResponse("admin.html", {"request": request})
 @app.get("/admin/analytics")
 def admin_analytics_page(request: Request):
     """관리자 통계 분석 페이지"""
@@ -1232,32 +1310,34 @@ def admin_settings_page(request: Request):
 # 회원가입 (실제 계정 생성)
 # ------------------------------------------
 @app.post("/api/signup")
-async def signup(payload: dict):
+async def signup(request: Request):
+    payload = await request.json()
     user = _store_user_signup(payload)
     return {"success": True, "email": user["email"], "nickname": user["nickname"]}
 
 
 @app.post("/api/landing-intake")
-async def landing_intake(payload: dict):
+async def landing_intake(request: Request):
     """Backward compatibility: reuse signup handler."""
-    return await signup(payload)
+    return await signup(request)
 
 
 # ------------------------------------------
 # 로그인 (계정 인증)
 # ------------------------------------------
 @app.post("/api/login")
-async def login(request: Request, payload: dict):
-    """사용자 로그인: 이메일과 비밀번호로 인증."""
-    email = (payload.get("email") or "").strip().lower()
+async def login(request: Request):
+    """사용자 로그인: 닉네임과 비밀번호로 인증."""
+    payload = await request.json()
+    nickname = (payload.get("nickname") or "").strip()
     password = payload.get("password") or ""
 
-    if not email or not password:
-        raise HTTPException(status_code=400, detail="이메일과 비밀번호를 입력하세요.")
+    if not nickname or not password:
+        raise HTTPException(status_code=400, detail="닉네임과 비밀번호를 입력하세요.")
 
-    user = _get_user_by_email(email)
+    user = _get_user_by_nickname(nickname)
     if not user or not _verify_password(user["password_hash"], password):
-        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
+        raise HTTPException(status_code=401, detail="닉네임 또는 비밀번호가 올바르지 않습니다.")
 
     # Create session token
     token = _create_session_token(user["id"], user["email"], bool(user.get("is_admin")))
@@ -1276,8 +1356,9 @@ async def login(request: Request, payload: dict):
 
 
 @app.post("/api/log/guest-login")
-async def log_guest_login(request: Request, payload: dict):
+async def log_guest_login(request: Request):
     """게스트 로그인 로그 기록"""
+    payload = await request.json()
     nickname = payload.get("nickname", "Unknown")
     timestamp = payload.get("timestamp", "")
     user_agent = payload.get("userAgent", "")
@@ -1291,8 +1372,9 @@ async def log_guest_login(request: Request, payload: dict):
 
 
 @app.post("/api/log/activity")
-async def log_user_activity(request: Request, payload: dict):
+async def log_user_activity(request: Request):
     """사용자 활동 로그 기록"""
+    payload = await request.json()
     nickname = payload.get("nickname", "Unknown")
     action = payload.get("action", "")
     page = payload.get("page", "")
@@ -1328,9 +1410,10 @@ async def get_user_profile(request: Request):
 
 
 @app.post("/api/user/profile/update")
-async def update_user_profile(request: Request, payload: dict):
+async def update_user_profile(request: Request):
     """사용자 프로필 업데이트 (비밀번호 제외)."""
     user = _require_authenticated_user(request)
+    payload = await request.json()
     user_id = user["id"]
     
     # Update allowed fields
@@ -1495,9 +1578,10 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
 
 
 @app.post("/api/admin/users/{user_id}/toggle-admin")
-async def admin_toggle_user_admin(request: Request, user_id: int, payload: dict):
+async def admin_toggle_user_admin(request: Request, user_id: int):
     """사용자 관리자 권한 토글."""
     admin = _require_admin(request)
+    payload = await request.json()
     
     if admin["id"] == user_id:
         raise HTTPException(status_code=400, detail="자신의 관리자 권한은 수정할 수 없습니다.")
@@ -1522,9 +1606,10 @@ async def admin_toggle_user_admin(request: Request, user_id: int, payload: dict)
 
 
 @app.post("/api/admin/users/{user_id}/reset-password")
-async def admin_reset_user_password(request: Request, user_id: int, payload: dict):
+async def admin_reset_user_password(request: Request, user_id: int):
     """사용자 비밀번호 초기화."""
     admin = _require_admin(request)
+    payload = await request.json()
     
     if admin["id"] == user_id:
         raise HTTPException(status_code=400, detail="자신의 비밀번호는 이 방법으로 초기화할 수 없습니다.")
@@ -1586,8 +1671,9 @@ async def admin_get_settings(request: Request):
 
 
 @app.post("/api/user/password/change")
-async def change_password(request: Request, payload: dict):
+async def change_password(request: Request):
     """사용자 비밀번호 변경."""
+    payload = await request.json()
     # Get token
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
     if not token:
@@ -1897,8 +1983,72 @@ async def generate_content(
         except Exception as e:
             return JSONResponse(status_code=500, content={"error": "generate-content (ollama) failed", "details": str(e)})
 
-    # Fallback / default: OpenAI (disabled)
-    return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
+    # Use OpenAI backend if configured
+    elif selected_backend == "openai":
+        if not OPENAI_API_KEY or not client:
+            return JSONResponse(status_code=500, content={"error": "OpenAI API key not configured"})
+        
+        try:
+            use_model = model or OPENAI_MODEL
+            response = client.chat.completions.create(
+                model=use_model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=2000
+            )
+            
+            out = response.choices[0].message.content.strip()
+            parsed = _parse_model_output(out)
+            
+            if parsed is None:
+                try:
+                    m = re.search(r"(\{[\s\S]*\"dialogue\"[\s\S]*\})", out)
+                    if m:
+                        candidate = m.group(1)
+                        parsed = json.loads(candidate)
+                except Exception:
+                    parsed = None
+            
+            if parsed is not None:
+                try:
+                    dlg = parsed.get("dialogue")
+                    if isinstance(dlg, list):
+                        for item in dlg:
+                            if not isinstance(item, dict):
+                                continue
+                            item_text = item.get("text", "") or ""
+                            pron = item.get("pronunciation")
+                            try:
+                                mode = ROMANIZE_MODE
+                                if mode == "force":
+                                    pron = romanize_korean(item_text)
+                                else:
+                                    if pron and isinstance(pron, str):
+                                        if re.search(r"[\uac00-\ud7a3]", pron) or not re.search(r"[A-Za-z]", pron):
+                                            pron = romanize_korean(item_text)
+                                    else:
+                                        pron = romanize_korean(item_text)
+                            except Exception:
+                                pron = pron or romanize_korean(item_text)
+                            
+                            try:
+                                if isinstance(pron, str):
+                                    pron = re.sub(r"\s+", " ", pron.replace("\n", " ").replace("\t", " ")).strip()
+                                else:
+                                    pron = str(pron)
+                            except Exception:
+                                pron = pron if pron is not None else ""
+                            
+                            item["pronunciation"] = pron
+                except Exception:
+                    pass
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "generate-content (openai) failed", "details": str(e)})
+    
+    # Fallback / default
+    return JSONResponse(status_code=501, content={"error": "Unknown backend selected"})
 
 
 # ==========================================
@@ -2110,9 +2260,30 @@ async def fluency_check(user_text: str = Form(...)):
             return JSONResponse(content={"text": out})
         except Exception as e:
             return JSONResponse(status_code=500, content={"error": "fluency-check (gemini) failed", "details": str(e)})
+    
+    # Use OpenAI backend if configured
+    elif MODEL_BACKEND == "openai":
+        try:
+            if not OPENAI_API_KEY or not client:
+                return JSONResponse(status_code=500, content={"error": "OpenAI API key not configured"})
+            
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=500
+            )
+            
+            out = response.choices[0].message.content.strip()
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            return JSONResponse(content={"text": out})
+        except Exception as e:
+            return JSONResponse(status_code=500, content={"error": "fluency-check (openai) failed", "details": str(e)})
 
-    # Fallback / default: OpenAI (disabled)
-    return JSONResponse(status_code=501, content={"error": "OpenAI integration is disabled in this deployment"})
+    # Fallback / default
+    return JSONResponse(status_code=501, content={"error": "Unknown backend selected"})
 
 # ==========================================
 # 3-2. 상황별 컨텐츠 생성 API
@@ -2766,6 +2937,9 @@ async def speechpro_evaluate(
         "overall_score": 85.5
     }
     """
+    import time
+    start_time = time.time()
+    
     try:
         # 오디오 파일 읽기
         audio_content_raw = await audio.read()
@@ -2838,6 +3012,7 @@ async def speechpro_evaluate(
             }
 
             print(f"[Evaluate] Calling score API...")
+            speechpro_start = time.time()
             score_result = call_speechpro_score(
                 text=text,
                 syll_ltrs=preset.get("syll_ltrs", ""),
@@ -2846,6 +3021,7 @@ async def speechpro_evaluate(
                 audio_data=audio_content,
                 request_id=request_id,
             )
+            speechpro_time = time.time() - speechpro_start
 
             print(f"[Evaluate] Score result: score={score_result.score}, error_code={score_result.error_code}")
 
@@ -2855,21 +3031,29 @@ async def speechpro_evaluate(
 
             # AI 피드백 생성
             ai_feedback = None
-            if MODEL_BACKEND == "ollama":
+            ai_feedback_start = time.time()
+            if MODEL_BACKEND in ("ollama", "openai", "gemini"):
                 try:
                     ai_feedback = await _generate_pronunciation_feedback(text, score_result)
                     print(f"[Evaluate] AI feedback generated: {ai_feedback[:100] if ai_feedback else 'None'}")
                 except Exception as fb_err:
                     print(f"[Evaluate] AI feedback failed: {fb_err}")
+            ai_feedback_time = time.time() - ai_feedback_start
 
             print(f"[Evaluate] Success - returning response")
+            elapsed_time = time.time() - start_time
+            
             response_data = {
                 "gtp": gtp_dict,
                 "model": model_dict,
                 "score": score_result.to_dict(),
                 "overall_score": score_result.score,
                 "success": True,
-                "source": preset.get("source", "precomputed")
+                "source": preset.get("source", "precomputed"),
+                "evaluation_time": round(elapsed_time, 2),
+                "speechpro_time": round(speechpro_time, 2),
+                "ai_model": f"{MODEL_BACKEND}/{OLLAMA_MODEL if MODEL_BACKEND == 'ollama' else GEMINI_MODEL if MODEL_BACKEND == 'gemini' else OPENAI_MODEL}",
+                "ai_feedback_time": round(ai_feedback_time, 2) if ai_feedback else None
             }
             if ai_feedback:
                 response_data["ai_feedback"] = ai_feedback
@@ -2918,10 +3102,11 @@ def sentence_evaluation_page(request: Request):
 
 @app.post("/api/chatbot")
 async def chatbot_api(request: Request):
-    """EXAONE 기반 챗봇 API"""
+    """AI 챗봇 API - 사용자가 선택한 모델로 응답"""
     try:
         data = await request.json()
         user_message = data.get("message", "").strip()
+        selected_model = data.get("model", "ollama").strip().lower()
         
         if not user_message:
             return JSONResponse(
@@ -2929,61 +3114,129 @@ async def chatbot_api(request: Request):
                 content={"error": "메시지를 입력해주세요."}
             )
         
-        # Call Ollama API (EXAONE)
-        system_prompt = """당신은 한국어 교육 AI 튜터입니다. 간결하고 명확하게 답변해주세요."""
+        system_prompt = """당신은 한국어 교육 AI 튜터입니다. 간결하고 명확하게 답변해주세요.
+중요: 당신의 모델명이나 기술적 세부사항(EXAONE, Ollama 등)을 언급하지 마세요. 단지 "한국어 학습을 돕는 AI 튜터"라고만 소개하세요."""
         
         prompt = f"{system_prompt}\n\n질문: {user_message}"
         
-        payload = {
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False,
-            "temperature": 0.7
-        }
+        # Use Ollama backend
+        if selected_model == "ollama":
+            try:
+                payload = {
+                    "model": OLLAMA_MODEL,
+                    "prompt": prompt,
+                    "stream": False,
+                    "temperature": 0.7
+                }
+                
+                print(f"[Chatbot] Sending request to Ollama API: {OLLAMA_URL}/api/generate")
+                print(f"[Chatbot] User message: {user_message}")
+                
+                response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
+                
+                print(f"[Chatbot] Response status: {response.status_code}")
+                
+                if response.status_code != 200:
+                    print(f"[Chatbot] Error response: {response.text[:200]}")
+                    return JSONResponse(
+                        status_code=500,
+                        content={"error": "Ollama 서버 연결 오류"}
+                    )
+                
+                result = response.json()
+                
+                if "response" in result:
+                    ai_response = result["response"].strip()
+                    print(f"[Chatbot] Ollama response: {ai_response[:100]}...")
+                    return JSONResponse(content={
+                        "response": ai_response,
+                        "success": True
+                    })
+                
+                print(f"[Chatbot] Failed to extract text from response: {result}")
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "AI 응답을 처리할 수 없습니다."}
+                )
+            except requests.exceptions.Timeout:
+                print("[Chatbot] Timeout error")
+                return JSONResponse(
+                    status_code=504,
+                    content={"error": "Ollama 서버 응답 시간이 초과되었습니다."}
+                )
+            except requests.exceptions.RequestException as e:
+                print(f"[Chatbot] Request error: {str(e)}")
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": f"Ollama 연결 오류: {str(e)}"}
+                )
         
-        print(f"[Chatbot] Sending request to Ollama API: {OLLAMA_URL}/api/generate")
-        print(f"[Chatbot] User message: {user_message}")
+        # Use OpenAI backend
+        elif selected_model == "openai":
+            try:
+                if not OPENAI_API_KEY or not client:
+                    return JSONResponse(
+                        status_code=500,
+                        content={"error": "OpenAI API 키가 설정되지 않았습니다."}
+                    )
+                
+                response = client.chat.completions.create(
+                    model=OPENAI_MODEL,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_message}
+                    ],
+                    temperature=0.7,
+                    max_tokens=1000
+                )
+                
+                ai_response = response.choices[0].message.content.strip()
+                print(f"[Chatbot] OpenAI response: {ai_response[:100]}...")
+                return JSONResponse(content={
+                    "response": ai_response,
+                    "success": True
+                })
+            except Exception as e:
+                print(f"[Chatbot] OpenAI error: {str(e)}")
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": f"OpenAI 오류: {str(e)}"}
+                )
         
-        response = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
+        # Use Gemini backend
+        elif selected_model == "gemini":
+            try:
+                if not GEMINI_API_KEY or not gemini_client:
+                    return JSONResponse(
+                        status_code=500,
+                        content={"error": "Gemini API 키가 설정되지 않았거나 google-genai 패키지가 설치되지 않았습니다."}
+                    )
+                
+                response = gemini_client.models.generate_content(
+                    model=GEMINI_MODEL,
+                    contents=prompt
+                )
+                ai_response = response.text.strip()
+                print(f"[Chatbot] Gemini response: {ai_response[:100]}...")
+                return JSONResponse(content={
+                    "response": ai_response,
+                    "success": True
+                })
+            except Exception as e:
+                print(f"[Chatbot] Gemini error: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": f"Gemini 오류: {str(e)}"}
+                )
         
-        print(f"[Chatbot] Response status: {response.status_code}")
-        
-        if response.status_code != 200:
-            print(f"[Chatbot] Error response: {response.text[:200]}")
+        else:
             return JSONResponse(
-                status_code=500,
-                content={"error": "AI 서버 연결 오류"}
+                status_code=400,
+                content={"error": f"지원하지 않는 모델: {selected_model}"}
             )
         
-        result = response.json()
-        
-        # Extract text from Ollama response
-        if "response" in result:
-            ai_response = result["response"].strip()
-            print(f"[Chatbot] AI response: {ai_response[:100]}...")
-            return JSONResponse(content={
-                "response": ai_response,
-                "success": True
-            })
-        
-        print(f"[Chatbot] Failed to extract text from response: {result}")
-        return JSONResponse(
-            status_code=500,
-            content={"error": "AI 응답을 처리할 수 없습니다."}
-        )
-        
-    except requests.exceptions.Timeout:
-        print("[Chatbot] Timeout error")
-        return JSONResponse(
-            status_code=504,
-            content={"error": "AI 서버 응답 시간이 초과되었습니다."}
-        )
-    except requests.exceptions.RequestException as e:
-        print(f"[Chatbot] Request error: {str(e)}")
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"AI 서버 연결 오류: {str(e)}"}
-        )
     except Exception as e:
         print(f"[Chatbot] Unexpected error: {str(e)}")
         import traceback

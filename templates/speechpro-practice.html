@@ -1,21 +1,25 @@
-{% extends "base.html" %} {% block title %}AI 발음 분석 - 오누이 AI{% endblock
+{% extends "base.html" %} {% block title %}AI 발음 종합 평가 테스트 - 오누이 AI{% endblock
 %} {% block content %}
-<div
-  class="min-h-screen bg-gradient-to-br from-orange-50 via-orange-100 to-yellow-50 py-10"
->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- 헤더 -->
-    <div class="text-center mb-10">
-      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-        🤖 AI 발음 분석
-      </h1>
-      <p class="text-sm text-gray-600">
-        한국어 발음의 정확도를 평가받고 개별 음소별 피드백을 얻어보세요
-      </p>
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+    >
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      ONUI · AI 학습 도구
     </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      <span class="text-2xl">🎤</span>
+      AI 발음 종합 평가 테스트
+    </h1>
+    <p class="text-sm text-gray-600">
+      한국어 발음의 정확도를 평가받고 개별 음소별 피드백을 얻어보세요
+    </p>
+  </div>
 
-    <!-- 콘텐츠 영역 -->
-    <div class="bg-white rounded-2xl p-6 shadow-lg">
+  <!-- 콘텐츠 영역 -->
+  <div class="bg-white rounded-2xl p-6 shadow-lg">
       <!-- SpeechPro 장점 모달 -->
       <div
         id="speechpro-advantages-modal"
@@ -215,7 +219,7 @@
               <button
                 id="start-recording"
                 onclick="startRecording()"
-                class="px-6 py-3 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-semibold hover:bg-[#e67a15] transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled
               >
                 🎙️ 녹음 시작
@@ -223,14 +227,14 @@
               <button
                 id="stop-recording"
                 onclick="stopRecording()"
-                class="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition flex-1 sm:flex-none hidden"
+                class="px-6 py-3 bg-white border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FFE6BF] transition flex-1 sm:flex-none hidden"
               >
                 ⏹️ 녹음 중지
               </button>
               <button
                 id="play-recording"
                 onclick="playRecording()"
-                class="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
+                class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FF8C1A] hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
                 disabled
               >
                 ▶️ 재생
@@ -262,7 +266,7 @@
           <button
             id="evaluate-button"
             onclick="evaluatePronunciation()"
-            class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 px-6 py-4 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             🎤 발음 정확도 평가하기
           </button>
@@ -298,8 +302,11 @@
           <div id="score-card" class="bg-white rounded-2xl shadow p-6 mb-6">
             <!-- 전체 점수 -->
             <div class="mb-6">
-              <div class="text-center">
-                <div class="text-6xl font-bold text-[var(--accent)] mb-2">
+              <div class="text-center relative">
+                <!-- 폭죽 캔버스 -->
+                <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none" style="z-index: 10;"></canvas>
+                
+                <div class="text-6xl font-bold text-[var(--accent)] mb-2 relative z-20">
                   <span id="overall-score">0</span>/100
                 </div>
                 <p
@@ -365,6 +372,8 @@
                     class="text-lg text-gray-800 font-medium"
                   ></p>
                 </div>
+
+                <!-- 평가 정보는 표시되지 않음 -->
 
                 <div class="border-t border-blue-200 mb-4"></div>
 
@@ -467,7 +476,8 @@
             class="mx-auto mb-4 animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"
             aria-hidden="true"
           ></div>
-          <p class="text-[var(--text-sub)] font-semibold">평가 중입니다...</p>
+          <p id="loading-message" class="text-[var(--text-sub)] font-semibold">처리 중...</p>
+          <p id="loading-timer" class="text-xs text-gray-500 mt-2 font-mono">0초</p>
         </div>
       </div>
     </div>
@@ -604,51 +614,60 @@
         const countdownDisplay = document.getElementById("countdown-display");
         countdownDisplay.classList.remove("hidden");
 
+        // 먼저 "준비!" 표시
+        countdownDisplay.textContent = "준비!";
+
         let countdown = 3;
-        const countdownInterval = setInterval(() => {
-          countdownDisplay.textContent = countdown;
-          countdown--;
+        setTimeout(() => {
+          const countdownInterval = setInterval(() => {
+            if (countdown > 0) {
+              countdownDisplay.textContent = countdown;
+            } else {
+              countdownDisplay.textContent = "시작!";
+            }
+            countdown--;
 
-          if (countdown < 0) {
-            clearInterval(countdownInterval);
-            countdownDisplay.classList.add("hidden");
+            if (countdown < 0) {
+              clearInterval(countdownInterval);
+              countdownDisplay.classList.add("hidden");
 
-            // 실제 녹음 시작
-            mediaRecorder = new MediaRecorder(stream);
-            recordedChunks = [];
-            recordingStartTime = Date.now();
+              // 실제 녹음 시작
+              mediaRecorder = new MediaRecorder(stream);
+              recordedChunks = [];
+              recordingStartTime = Date.now();
 
-            mediaRecorder.ondataavailable = (event) => {
-              recordedChunks.push(event.data);
-            };
+              mediaRecorder.ondataavailable = (event) => {
+                recordedChunks.push(event.data);
+              };
 
-            mediaRecorder.onstop = () => {
-              const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
-              const audioUrl = URL.createObjectURL(audioBlob);
-              document.getElementById("audio-playback").src = audioUrl;
+              mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                document.getElementById("audio-playback").src = audioUrl;
+                document
+                  .getElementById("playback-section")
+                  .classList.remove("hidden");
+                document.getElementById("evaluate-button").disabled = false;
+              };
+
+              mediaRecorder.start();
+
+              // UI 업데이트
               document
-                .getElementById("playback-section")
+                .getElementById("stop-recording")
                 .classList.remove("hidden");
-              document.getElementById("evaluate-button").disabled = false;
-            };
+              document.getElementById("recording-status").innerHTML =
+                '🔴 <p class="text-red-600 font-semibold">녹음 중...</p>';
+              document
+                .getElementById("recording-timer")
+                .classList.remove("hidden");
 
-            mediaRecorder.start();
+              // 타이머 시작
+              startTimer();
 
-            // UI 업데이트
-            document
-              .getElementById("stop-recording")
-              .classList.remove("hidden");
-            document.getElementById("recording-status").innerHTML =
-              '🔴 <p class="text-red-600 font-semibold">녹음 중...</p>';
-            document
-              .getElementById("recording-timer")
-              .classList.remove("hidden");
-
-            // 타이머 시작
-            startTimer();
-
-            showMessage("녹음이 시작되었습니다", "info");
-          }
+              showMessage("녹음이 시작되었습니다", "info");
+            }
+          }, 1000);
         }, 1000);
       } catch (error) {
         // 카운트다운 표시 숨김
@@ -775,7 +794,7 @@
       }
 
       // 로딩 표시
-      showLoading();
+      showLoading("AI 분석 중입니다...");
       hideError();
 
       const controller = new AbortController();
@@ -811,24 +830,40 @@
           signal: controller.signal,
         });
 
+        // 강건한 에러 처리: 비-JSON/빈 응답 대응
         if (!response.ok) {
-          const error = await response.json();
-          const errorMsg = error.error || "평가 실패";
-
-          // 서버 에러 시 더 친절한 메시지
-          if (response.status >= 500) {
-            throw new Error(
-              errorMsg +
-                "\n\n" +
-                "💡 문장이 너무 길거나 복잡할 수 있습니다. " +
-                "더 짧은 문장으로 나누어 시도해보세요."
-            );
+          const errorText = await response.text();
+          let errorMsg = "평가 실패";
+          try {
+            const errJson = errorText ? JSON.parse(errorText) : null;
+            if (errJson && (errJson.error || errJson.message)) {
+              errorMsg = errJson.error || errJson.message;
+            } else if (errorText) {
+              errorMsg = errorText;
+            }
+          } catch (_) {
+            if (errorText) errorMsg = errorText;
           }
 
+          if (response.status >= 500) {
+            throw new Error(
+              `${errorMsg}\n\n💡 문장이 너무 길거나 복잡할 수 있습니다. 더 짧은 문장으로 나누어 시도해보세요.`
+            );
+          }
           throw new Error(errorMsg);
         }
 
-        const result = await response.json();
+        // 정상 응답도 안전하게 파싱
+        const okText = await response.text();
+        let result;
+        try {
+          result = okText ? JSON.parse(okText) : null;
+        } catch (parseErr) {
+          throw new Error(`서버 응답이 JSON이 아닙니다: ${okText?.slice(0, 200) || "빈 응답"}`);
+        }
+        if (!result) {
+          throw new Error("서버로부터 유효한 응답을 받지 못했습니다.");
+        }
 
         if (result.success) {
           displayResults(result);
@@ -1254,6 +1289,67 @@
 
       // 결과 모달 표시
       document.getElementById("results-modal").classList.remove("hidden");
+      
+      // 폭죽 효과 실행
+      launchConfetti(score);
+    }
+
+    // 폭죽 효과 함수
+    function launchConfetti(score) {
+      const canvas = document.getElementById("confetti-canvas");
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext("2d");
+      const parent = canvas.parentElement;
+      canvas.width = parent.offsetWidth;
+      canvas.height = parent.offsetHeight;
+      
+      const particles = [];
+      const particleCount = score >= 80 ? 100 : score >= 60 ? 60 : 40;
+      const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#FFD93D', '#6BCF7F'];
+      
+      // 파티클 생성
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 10 - 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 4 + 2,
+          life: 1,
+          decay: Math.random() * 0.015 + 0.01
+        });
+      }
+      
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let activeParticles = 0;
+        particles.forEach(p => {
+          if (p.life <= 0) return;
+          
+          activeParticles++;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.3; // 중력
+          p.life -= p.decay;
+          
+          ctx.globalAlpha = p.life;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        
+        if (activeParticles > 0) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      
+      animate();
     }
 
     // 평가 초기화
@@ -1292,18 +1388,45 @@
     }
 
     // 로딩 표시
-    function showLoading() {
-      document.getElementById("loading-section").classList.remove("hidden");
+    let loadingTimerInterval = null;
+    let loadingSeconds = 0;
+
+    function showLoading(message) {
+      const section = document.getElementById("loading-section");
+      if (section) section.classList.remove("hidden");
+      const msgEl = document.getElementById("loading-message");
+      if (msgEl && typeof message === "string") {
+        msgEl.textContent = message;
+      }
+
+      // 타이머 시작
+      loadingSeconds = 0;
+      const timerEl = document.getElementById("loading-timer");
+      if (timerEl) {
+        timerEl.textContent = "0초";
+        if (loadingTimerInterval) clearInterval(loadingTimerInterval);
+        loadingTimerInterval = setInterval(() => {
+          loadingSeconds++;
+          timerEl.textContent = loadingSeconds + "초";
+        }, 1000);
+      }
     }
 
     function hideLoading() {
       document.getElementById("loading-section").classList.add("hidden");
+      if (loadingTimerInterval) clearInterval(loadingTimerInterval);
+      loadingSeconds = 0;
     }
 
     // 문장 데이터 로드
     async function loadSentences() {
+      const select = document.getElementById("evaluation-text");
       try {
-        showLoading();
+        if (select) {
+          select.disabled = true;
+          select.innerHTML = '<option value="">문장 불러오는 중...</option>';
+        }
+
         const response = await fetch("/api/speechpro/sentences");
 
         if (!response.ok) {
@@ -1311,34 +1434,40 @@
         }
 
         const sentences = await response.json();
-        const select = document.getElementById("evaluation-text");
 
-        // 옵션 초기화
-        select.innerHTML = '<option value="">-- 문장 선택 --</option>';
+        if (select) {
+          // 옵션 초기화
+          select.innerHTML = '<option value="">-- 문장 선택 --</option>';
 
-        // 프리셋 문장 카운트
-        let presetCount = 0;
+          // 프리셋 문장 카운트
+          let presetCount = 0;
 
-        // 문장 옵션 추가
-        sentences.forEach((sentence) => {
-          const option = document.createElement("option");
-          option.value = JSON.stringify(sentence);
-          let sourceLabel = "";
+          // 문장 옵션 추가
+          sentences.forEach((sentence) => {
+            const option = document.createElement("option");
+            option.value = JSON.stringify(sentence);
+            let sourceLabel = "";
 
-          if (sentence.source === "precomputed") {
-            presetCount++;
-            sourceLabel = `#${presetCount} `;
-          }
+            if (sentence.source === "precomputed") {
+              presetCount++;
+              sourceLabel = `#${presetCount} `;
+            }
 
-          option.textContent = `${sourceLabel}[${sentence.level}] ${sentence.sentenceKr}`;
-          select.appendChild(option);
-        });
+            option.textContent = `${sourceLabel}[${sentence.level}] ${sentence.sentenceKr}`;
+            select.appendChild(option);
+          });
+        }
 
         hideError();
       } catch (error) {
         showError(`문장 로드 실패: ${error.message}`);
+        if (select) {
+          select.innerHTML = '<option value="">문장을 불러올 수 없습니다</option>';
+        }
       } finally {
-        hideLoading();
+        if (select) {
+          select.disabled = false;
+        }
       }
     }
 

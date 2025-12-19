@@ -1,6 +1,24 @@
-{% extends "base.html" %} {% block title %}학습 커리큘럼 - 오누이 한국어{%
+{% extends "base.html" %} {% block title %}단계별 발음 학습 - 오누이 한국어{%
 endblock %} {% block content %}
-<div class="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10">
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+    >
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      ONUI · 발음 학습
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      <span class="text-2xl">📚</span>
+      단계별 발음 학습
+    </h1>
+    <p class="text-sm text-gray-600">
+      한국어 발음을 기초부터 차근차근 배워보세요
+    </p>
+  </div>
+
+  <!-- Content -->
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <script>
       // 각 단계별 학습 페이지로 이동
@@ -11,6 +29,7 @@ endblock %} {% block content %}
           2: "/pronunciation-check",
           3: "/pronunciation-check",
           4: "/pronunciation-practice",
+          5: "/speechpro-practice",
         };
 
         if (stagePages[stageNum]) {
@@ -18,16 +37,71 @@ endblock %} {% block content %}
         }
       }
     </script>
-    <!-- Header -->
-    <header class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        <span class="text-2xl">📚</span>
-        학습 커리큘럼
-      </h1>
-      <p class="text-sm text-gray-600">
-        한글 발음을 기초부터 차근차근 배워보세요
-      </p>
-    </header>
+
+    <!-- Stage Progress Indicator -->
+    <div
+      class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+    >
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-3">
+        <!-- Stage 1 -->
+        <div class="w-full sm:w-auto sm:flex-1 max-w-[150px]">
+          <div
+            class="bg-white border-2 border-blue-400 rounded-lg p-3 text-center transition hover:shadow-md"
+          >
+            <div class="text-lg font-bold text-gray-800">1단계</div>
+            <div class="text-xs text-gray-600">자음</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:block text-gray-400">→</div>
+
+        <!-- Stage 2 -->
+        <div class="w-full sm:w-auto sm:flex-1 max-w-[150px]">
+          <div
+            class="bg-indigo-100 border-2 border-indigo-400 rounded-lg p-3 text-center transition hover:shadow-md"
+          >
+            <div class="text-lg font-bold text-gray-800">2단계</div>
+            <div class="text-xs text-gray-600">모음</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:block text-gray-400">→</div>
+
+        <!-- Stage 3 -->
+        <div class="w-full sm:w-auto sm:flex-1 max-w-[150px]">
+          <div
+            class="bg-purple-100 border-2 border-purple-400 rounded-lg p-3 text-center transition hover:shadow-md"
+          >
+            <div class="text-lg font-bold text-gray-800">3단계</div>
+            <div class="text-xs text-gray-600">음절</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:block text-gray-400">→</div>
+
+        <!-- Stage 4 -->
+        <div class="w-full sm:w-auto sm:flex-1 max-w-[150px]">
+          <div
+            class="bg-pink-100 border-2 border-pink-400 rounded-lg p-3 text-center transition hover:shadow-md"
+          >
+            <div class="text-lg font-bold text-gray-800">4단계</div>
+            <div class="text-xs text-gray-600">단어</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:block text-gray-400">→</div>
+
+        <!-- Stage 5 -->
+        <div class="w-full sm:w-auto sm:flex-1 max-w-[150px]">
+          <div
+            class="bg-[#FFE6BF] border-2 border-[#FF8C1A] rounded-lg p-3 text-center transition hover:shadow-md"
+          >
+            <div class="text-lg font-bold text-gray-800">5단계</div>
+            <div class="text-xs text-gray-600">문장</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Learning Stages -->
     <div class="space-y-4">
@@ -35,53 +109,61 @@ endblock %} {% block content %}
       <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
         <h2 class="text-lg font-bold text-gray-900 mb-2">1단계: 자음 배우기</h2>
         <p class="text-sm text-gray-600 mb-3">
-          한글의 14개 기본 자음을 배우고 발음하는 방법을 익힙니다
+          한국어의 14개 기본 자음을 배우고 발음하는 방법을 익힙니다
         </p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㄱ</div>
             <div class="text-xs text-gray-600">기역</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㄴ</div>
             <div class="text-xs text-gray-600">니은</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㄷ</div>
             <div class="text-xs text-gray-600">디귿</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㄹ</div>
             <div class="text-xs text-gray-600">리을</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅁ</div>
             <div class="text-xs text-gray-600">미음</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅂ</div>
             <div class="text-xs text-gray-600">비읍</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅅ</div>
             <div class="text-xs text-gray-600">시옷</div>
           </button>
           <button
-            class="bg-white border border-blue-300 rounded p-2 text-center hover:bg-blue-100 transition"
+            class="bg-white border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅇ</div>
             <div class="text-xs text-gray-600">응</div>
@@ -89,9 +171,9 @@ endblock %} {% block content %}
         </div>
         <button
           onclick="navigateToStage(1)"
-          class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="mt-4 w-full px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition"
         >
-          시작하기
+          🎯 시작하기
         </button>
       </div>
 
@@ -99,53 +181,61 @@ endblock %} {% block content %}
       <div class="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded-lg">
         <h2 class="text-lg font-bold text-gray-900 mb-2">2단계: 모음 배우기</h2>
         <p class="text-sm text-gray-600 mb-3">
-          한글의 10개 기본 모음을 배우고 올바른 발음을 익힙니다
+          한국어의 10개 기본 모음을 배우고 올바른 발음을 익힙니다
         </p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅏ</div>
             <div class="text-xs text-gray-600">아</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅑ</div>
             <div class="text-xs text-gray-600">야</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅓ</div>
             <div class="text-xs text-gray-600">어</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅕ</div>
             <div class="text-xs text-gray-600">여</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅗ</div>
             <div class="text-xs text-gray-600">오</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅜ</div>
             <div class="text-xs text-gray-600">우</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅡ</div>
             <div class="text-xs text-gray-600">은</div>
           </button>
           <button
-            class="bg-white border border-indigo-300 rounded p-2 text-center hover:bg-indigo-100 transition"
+            class="border-2 rounded p-2 text-center hover:shadow-md transition"
+            style="background-color: #ffe6bf; border-color: #ff8c1a"
           >
             <div class="text-sm font-semibold">ㅣ</div>
             <div class="text-xs text-gray-600">이</div>
@@ -153,9 +243,9 @@ endblock %} {% block content %}
         </div>
         <button
           onclick="navigateToStage(2)"
-          class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="mt-4 w-full px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition"
         >
-          시작하기
+          🎯 시작하기
         </button>
       </div>
 
@@ -181,9 +271,9 @@ endblock %} {% block content %}
         </div>
         <button
           onclick="navigateToStage(3)"
-          class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="mt-4 w-full px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition"
         >
-          시작하기
+          🎯 시작하기
         </button>
       </div>
 
@@ -211,9 +301,9 @@ endblock %} {% block content %}
         </div>
         <button
           onclick="navigateToStage(4)"
-          class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="mt-4 w-full px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition"
         >
-          시작하기
+          🎯 시작하기
         </button>
       </div>
 
@@ -241,20 +331,30 @@ endblock %} {% block content %}
         </div>
         <button
           onclick="navigateToStage(5)"
-          class="mt-4 w-full px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          class="mt-4 w-full px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition"
         >
-          시작하기
+          🎯 시작하기
         </button>
       </div>
     </div>
 
     <!-- Progress Bar -->
-    <div class="mt-8 p-4 bg-gray-50 rounded-lg">
-      <div class="text-sm font-semibold text-gray-700 mb-2">학습 진도</div>
-      <div class="w-full bg-gray-200 rounded-full h-2">
-        <div class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+    <div
+      class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 shadow-sm"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-base font-bold text-gray-800">학습 진도</div>
+        <div class="text-sm font-semibold text-[#FF8C1A]">0 / 5 단계 완료</div>
       </div>
-      <div class="text-xs text-gray-600 mt-2">0 / 5 단계 완료</div>
+      <div class="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+        <div
+          class="bg-gradient-to-r from-[#FF8C1A] to-[#ff7a00] h-3 rounded-full transition-all duration-500 ease-out"
+          style="width: 0%"
+        ></div>
+      </div>
+      <div class="mt-3 text-xs text-gray-600 text-center">
+        발음 학습을 시작해보세요! 🎯
+      </div>
     </div>
   </div>
 </div>

@@ -14,16 +14,16 @@ endblock %} {% block content %}
 
       <!-- Login Form -->
       <form id="loginForm" class="space-y-5">
-        <!-- Email Input -->
+        <!-- Nickname Input -->
         <div class="space-y-2">
-          <label class="text-sm font-semibold text-gray-800">이메일</label>
+          <label class="text-sm font-semibold text-gray-800">닉네임</label>
           <input
-            name="email"
-            type="email"
+            name="nickname"
+            type="text"
             required
-            autocomplete="email"
+            autocomplete="username"
             class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
-            placeholder="you@example.com"
+            placeholder="your_nickname"
           />
         </div>
 
@@ -112,7 +112,7 @@ endblock %} {% block content %}
       const fd = new FormData(form);
 
       const payload = {
-        email: fd.get("email") || "",
+        nickname: fd.get("nickname") || "",
         password: fd.get("password") || "",
       };
 
@@ -146,10 +146,11 @@ endblock %} {% block content %}
         localStorage.removeItem("welcome_mail_sent");
         setStatus(`✓ ${data.nickname}님 환영합니다!`);
 
-        // Redirect after 1.5 seconds
+        // Redirect after 1.2 seconds
         setTimeout(() => {
-          window.location.href = "/";
-        }, 1500);
+          const isAdmin = localStorage.getItem("is_admin") === "true";
+          window.location.href = isAdmin ? "/admin" : "/";
+        }, 1200);
       } catch (err) {
         console.error(err);
         setStatus(err.message || "로그인 중 오류가 발생했습니다.", false);
