@@ -1285,8 +1285,12 @@
               `${nickname}님, 오누이 한국어에 오신 것을 환영합니다! AI와 함께 발음·유창성 연습을 바로 시작해보세요.`,
               "👋"
             );
-            // Also show character popup (tiger) to greet the user
-            showWelcomeTigerWithProgress(nickname);
+            // Admin 사용자는 캐릭터 팝업을 표시하지 않습니다
+            const isAdmin = localStorage.getItem("is_admin") === "true";
+            if (!isAdmin) {
+              // Also show character popup (tiger) to greet the user
+              showWelcomeTigerWithProgress(nickname);
+            }
             localStorage.setItem(flagKey, "true");
           }
         }, 1200);
