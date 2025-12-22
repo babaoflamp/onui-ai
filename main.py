@@ -1068,8 +1068,8 @@ FluencyPro 분석:
 # ==========================================
 @app.get("/")
 def landing_page(request: Request):
-    """기본 랜딩 페이지 (Landing 2)"""
-    return templates.TemplateResponse("landing-2.html", {"request": request})
+    """기본 랜딩 페이지"""
+    return templates.TemplateResponse("landing.html", {"request": request})
 
 @app.get("/landing")
 def landing_page_1(request: Request):
@@ -1120,6 +1120,16 @@ def pronunciation_correction_page(request: Request):
 def word_puzzle_page(request: Request):
     """단어 순서 맞추기 게임"""
     return templates.TemplateResponse("word-puzzle.html", {"request": request})
+
+@app.get("/word-matching-game")
+def word_matching_game_page(request: Request):
+    """단어맞추기 게임 페이지"""
+    return templates.TemplateResponse("word-matching-game.html", {"request": request})
+
+@app.get("/synonym-antonym-game")
+def synonym_antonym_game_page(request: Request):
+    """동의어/반의어 찾기 게임 페이지"""
+    return templates.TemplateResponse("synonym-antonym-game.html", {"request": request})
 
 @app.get("/daily-expression")
 def daily_expression_page(request: Request):

@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동의어/반의어 퀴즈 2.0 (완성형)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F0F9FF;
+            overflow-x: hidden; /* 가로 스크롤 방지 */
+        }
+        
+        .font-jua {
+            font-family: 'Jua', sans-serif;
+        }
+
+        /* 버튼 효과 */
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background-color: #F8FAFC;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        /* 정답/오답 스타일 */
+        .correct-anim {
+            animation: bounce 0.5s;
+            background-color: #DCFCE7 !important;
+            border-color: #16A34A !important;
+            color: #14532D !important;
+            font-weight: 700;
+        }
+        .wrong-anim {
+            animation: shake 0.4s;
+            background-color: #FEE2E2 !important;
+            border-color: #DC2626 !important;
+            color: #7F1D1D !important;
+            opacity: 0.7;
+        }
+
+        /* 애니메이션 */
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen text-slate-800 select-none bg-gradient-to-br from-indigo-50 to-blue-100">
+
+    <section id="landing-page" class="w-full h-screen fixed inset-0 z-50 bg-white flex flex-col items-center justify-center p-6 text-center">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute -top-10 -left-10 w-64 h-64 bg-indigo-100 rounded-full blur-3xl opacity-60"></div>
+            <div class="absolute top-1/2 -right-10 w-72 h-72 bg-yellow-100 rounded-full blur-3xl opacity-60"></div>
+            <div class="absolute bottom-0 left-1/3 w-80 h-80 bg-pink-100 rounded-full blur-3xl opacity-60"></div>
+        </div>
+
+        <div class="relative z-10 max-w-md w-full fade-in">
+            <div class="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden shadow-2xl border-4 border-white ring-4 ring-indigo-50">
+                <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=400&h=400" alt="Study" class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700">
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl font-jua text-slate-800 mb-3 leading-tight">
+                단어 퀴즈<br>
+                <span class="text-indigo-600">마스터하기</span>
+            </h1>
+            <p class="text-slate-500 mb-10 text-lg">
+                동의어와 반의어를 재미있게 배워보세요.<br>
+                당신의 어휘력이 쑥쑥 자라납니다!
+            </p>
+
+            <button onclick="enterGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xl font-bold py-5 rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                <i data-lucide="play-circle" class="w-7 h-7 fill-current"></i>
+                게임 시작하기
+            </button>
+
+            <p class="mt-6 text-xs text-slate-400">총 5단계 50문제 도전!</p>
+        </div>
+    </section>
+
+    <main id="game-container" class="w-full max-w-lg relative hidden opacity-0 transition-opacity duration-500 p-4">
+        
+        <div class="absolute -top-12 right-0 flex gap-2">
+            <button onclick="togglePause()" id="pause-btn" class="bg-white p-2 rounded-full shadow-md hover:bg-slate-50 text-slate-600 transition-colors" title="일시 정지">
+                <i data-lucide="pause" class="w-5 h-5"></i>
+            </button>
+            <button onclick="quitGame()" class="bg-white p-2 rounded-full shadow-md hover:bg-red-50 text-red-500 transition-colors" title="게임 종료">
+                <i data-lucide="square" class="w-5 h-5 fill-current"></i>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 relative">
+            
+            <div class="bg-indigo-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-indigo-200 uppercase tracking-wider">Current Stage</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-jua text-2xl" id="stage-display">STAGE 1</span>
+                        <span class="bg-indigo-500 px-2 py-0.5 rounded text-xs font-bold text-indigo-100">/ 5</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 bg-indigo-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-indigo-500/30">
+                    <span class="text-xs text-indigo-200">문제</span>
+                    <div class="flex items-baseline gap-1">
+                        <span id="current-q" class="text-xl font-black text-yellow-300">1</span>
+                        <span class="text-sm text-indigo-300">/ 10</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-1.5 bg-slate-100 w-full">
+                <div id="progress-bar" class="h-full bg-yellow-400 transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <div id="quiz-area" class="p-6 md:p-8">
+                <div class="flex justify-center mb-6">
+                    <span id="q-type-badge" class="px-5 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-sm transition-colors">
+                        TYPE
+                    </span>
+                </div>
+                <div class="text-center mb-8 relative">
+                    <h2 id="q-word" class="text-5xl md:text-6xl font-jua text-slate-800 mb-2 drop-shadow-sm transition-all">
+                        단어
+                    </h2>
+                    <p class="text-slate-400 text-sm font-medium">위 단어와 짝이 되는 말을 고르세요</p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 gap-3 mb-6">
+                    <button class="option-btn">...</button>
+                    <button class="option-btn">...</button>
+                    <button class="option-btn">...</button>
+                    <button class="option-btn">...</button>
+                </div>
+            </div>
+
+            <div id="correct-modal" class="hidden absolute inset-0 bg-black/20 backdrop-blur-[2px] z-30 flex items-end justify-center sm:items-center p-4">
+                <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 pop-in text-center border-4 border-green-100">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-green-600">
+                        <i data-lucide="check" class="w-10 h-10 stroke-[4]"></i>
+                    </div>
+                    <h3 class="text-2xl font-jua text-slate-800 mb-1">정답입니다!</h3>
+                    
+                    <div class="bg-green-50 rounded-xl p-3 my-4 text-left border border-green-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">단어 뜻</span>
+                            <span id="correct-word-text" class="text-sm font-bold text-green-800"></span>
+                        </div>
+                        <p id="correct-word-def" class="text-slate-600 text-xs leading-relaxed">
+                            뜻 설명
+                        </p>
+                    </div>
+
+                    <div class="flex justify-center items-center gap-3 text-sm font-medium text-slate-500 mb-4">
+                        <span class="text-xs bg-slate-100 px-2 py-1 rounded-lg">남은 문제: <b id="stat-remain">0</b></span>
+                    </div>
+
+                    <button onclick="goToNextQuestion()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-200 transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        다음 문제 <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="wrong-modal" class="hidden absolute inset-0 bg-black/20 backdrop-blur-[2px] z-30 flex items-end justify-center sm:items-center p-4">
+                <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 pop-in text-center border-4 border-red-100">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 text-red-500">
+                        <i data-lucide="book-open" class="w-9 h-9"></i>
+                    </div>
+                    <h3 class="text-xl font-jua text-slate-800 mb-2">잠깐! 단어 뜻을 배워봐요</h3>
+                    
+                    <div class="bg-slate-50 rounded-xl p-4 mb-5 text-left border border-slate-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded">선택한 단어</span>
+                            <span id="wrong-word-text" class="text-lg font-bold text-slate-700"></span>
+                        </div>
+                        <p id="wrong-word-def" class="text-slate-600 text-sm leading-relaxed">
+                            여기에 단어 뜻이 나옵니다.
+                        </p>
+                    </div>
+
+                    <button onclick="closeWrongModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg shadow-slate-300 transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        다시 풀어보기 <i data-lucide="refresh-ccw" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="pause-overlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+                <div class="bg-white p-8 rounded-3xl shadow-2xl text-center border border-slate-100">
+                    <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="pause" class="w-8 h-8 fill-current"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">일시 정지</h2>
+                    <button onclick="togglePause()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 mt-4 rounded-xl">계속하기</button>
+                </div>
+            </div>
+
+            <div id="result-area" class="hidden absolute inset-0 bg-white z-40 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+                <div class="mb-6">
+                    <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                        <i data-lucide="trophy" class="w-12 h-12 text-yellow-600"></i>
+                    </div>
+                    <h2 id="result-title" class="text-3xl font-jua text-slate-800 mb-2">스테이지 클리어!</h2>
+                    <p class="text-slate-500" id="result-subtitle">수고하셨습니다!</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100 w-full max-w-xs">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase">이번 점수</p>
+                            <p id="stage-score-val" class="text-2xl font-black text-indigo-600">0</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-bold uppercase">총 점수</p>
+                            <p id="total-score-val" class="text-2xl font-black text-slate-700">0</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="next-stage-btn" onclick="nextStage()" class="w-full max-w-xs py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200">
+                    다음 스테이지로
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // 데이터 (Stage 1 예시 데이터)
+        // definitions: 보기 순서대로 4개의 뜻풀이가 들어있음
+        // ----------------------------------------------------
+        const rawData = [
+            // Stage 1 (기초)
+            { 
+                word: "크다", type: "antonym", options: ["작다", "높다", "길다", "넓다"], answer: 0,
+                definitions: ["길이, 넓이, 부피 등이 보통보다 못하다.", "아래에서 위까지의 길이가 길다.", "물체의 끝에서 끝까지의 길이가 길다.", "면적이 크다."] 
+            },
+            { 
+                word: "기쁨", type: "antonym", options: ["행복", "사랑", "슬픔", "우정"], answer: 2,
+                definitions: ["생활에서 충분한 만족과 기쁨을 느끼는 상태.", "어떤 상대를 몹시 아끼고 귀중히 여기는 마음.", "슬퍼하고 괴로워하는 마음.", "친구 사이의 정."]
+            },
+            { 
+                word: "친구", type: "synonym", options: ["선생님", "벗", "가족", "이웃"], answer: 1,
+                definitions: ["학생을 가르치는 사람.", "비슷한 또래로 서로 친하게 지내는 사람 (친구).", "부부와 같이 혼인이나 혈연으로 맺어진 집단.", "이웃하여 사는 사람."]
+            },
+            { 
+                word: "차갑다", type: "antonym", options: ["시원하다", "맛있다", "뜨겁다", "맵다"], answer: 2,
+                definitions: ["덥지도 춥지도 않고 적당하다.", "음식 맛이 좋다.", "온도가 매우 높다.", "맛이 알알하고 독하다."]
+            },
+            { 
+                word: "빠르다", type: "antonym", options: ["급하다", "느리다", "조용하다", "바쁘다"], answer: 1,
+                definitions: ["사정이나 형편이 대단히 딱하고 절박하다.", "움직임이 빠르지 못하다.", "아무런 소리도 들리지 않는다.", "일이 많아 겨를이 없다."]
+            },
+            { 
+                word: "시작", type: "antonym", options: ["출발", "처음", "중간", "끝"], answer: 3,
+                definitions: ["목적지를 향하여 나아감.", "시간적으로나 순서상으로 맨 앞.", "두 사물의 사이.", "시간, 공간, 사물 따위의 마지막 한계."]
+            },
+            { 
+                word: "가르치다", type: "synonym", options: ["배우다", "교육하다", "공부하다", "질문하다"], answer: 1,
+                definitions: ["새로운 지식이나 교양을 얻다.", "지식과 기술 따위를 가르치며 인격을 길러 주다.", "학문이나 기술을 배우고 익히다.", "모르는 것을 묻다."]
+            },
+            { 
+                word: "어두운", type: "antonym", options: ["밝은", "검은", "무서운", "깊은"], answer: 0,
+                definitions: ["빛이 넉넉하여 환한.", "빛이 없이 깜깜한 색.", "두려운 느낌이 있는.", "겉에서 속까지의 거리가 먼."]
+            },
+            { 
+                word: "걱정", type: "synonym", options: ["기대", "희망", "염려", "자신감"], answer: 2,
+                definitions: ["어떤 일이 이루어지기를 바라고 기다림.", "앞일에 대하여 어떤 기대를 가지고 바람.", "앞일에 대하여 여러 가지로 마음을 씀.", "자신이 있다는 느낌."]
+            },
+            { 
+                word: "승리", type: "antonym", options: ["성공", "패배", "도전", "경기"], answer: 1,
+                definitions: ["목적하는 바를 이룸.", "싸움이나 경기에서 짐.", "정면으로 맞서 싸움을 걺.", "승부를 겨룸."]
+            },
+            
+            // ... (나머지 스테이지 데이터는 이전 코드와 동일하다고 가정하거나 추가 필요) ...
+            // 테스트를 위해 Stage 2 더미 하나 추가
+            { word: "간단하다", type: "synonym", options: ["단순하다", "복잡하다", "어렵다", "길다"], answer: 0, definitions: ["복잡하지 않고 간단하다.", "일이 얽혀 있어 풀기 어렵다.", "하기 까다롭다.", "길이가 길다."] },
+        ];
+
+        // ----------------------------------------------------
+        // 게임 상태 및 DOM
+        // ----------------------------------------------------
+        let currentStage = 1;
+        let stageData = [];
+        let currentQIndex = 0;
+        let stageScore = 0;
+        let totalScore = 0;
+        let isPaused = false;
+        
+        let stats = { attempted: 0, correct: 0, wrong: 0 };
+
+        const dom = {
+            landingPage: document.getElementById('landing-page'), // [New]
+            gameContainer: document.getElementById('game-container'), // [New]
+            
+            stageDisplay: document.getElementById('stage-display'),
+            currentQ: document.getElementById('current-q'),
+            progressBar: document.getElementById('progress-bar'),
+            qTypeBadge: document.getElementById('q-type-badge'),
+            qWord: document.getElementById('q-word'),
+            optionsContainer: document.getElementById('options-container'),
+            
+            // 정답 팝업
+            correctModal: document.getElementById('correct-modal'),
+            correctWordText: document.getElementById('correct-word-text'), // [New]
+            correctWordDef: document.getElementById('correct-word-def'), // [New]
+            statRemain: document.getElementById('stat-remain'), // [New]
+
+            // 오답 팝업
+            wrongModal: document.getElementById('wrong-modal'),
+            wrongWordText: document.getElementById('wrong-word-text'),
+            wrongWordDef: document.getElementById('wrong-word-def'),
+
+            // 기타
+            pauseOverlay: document.getElementById('pause-overlay'),
+            resultArea: document.getElementById('result-area'),
+            resultTitle: document.getElementById('result-title'),
+            resultSubtitle: document.getElementById('result-subtitle'),
+            stageScoreVal: document.getElementById('stage-score-val'),
+            totalScoreVal: document.getElementById('total-score-val'),
+            nextStageBtn: document.getElementById('next-stage-btn')
+        };
+
+        // ----------------------------------------------------
+        // 화면 전환 로직
+        // ----------------------------------------------------
+        function enterGame() {
+            // 랜딩 페이지 숨기고 게임 컨테이너 표시
+            dom.landingPage.style.display = 'none';
+            dom.gameContainer.classList.remove('hidden');
+            
+            // 페이드인 효과
+            setTimeout(() => {
+                dom.gameContainer.classList.remove('opacity-0');
+            }, 50);
+
+            // 게임 초기화 및 시작
+            initGame();
+        }
+
+        function initGame() {
+            currentStage = 1;
+            totalScore = 0;
+            stats = { attempted: 0, correct: 0, wrong: 0 };
+            startStage(1);
+        }
+
+        function startStage(stageNum) {
+            currentStage = stageNum;
+            stageScore = 0;
+            currentQIndex = 0;
+            
+            // 데이터 슬라이싱 (10문제씩) - 데이터가 부족하면 있는 만큼만
+            const startIndex = (stageNum - 1) * 10;
+            let endIndex = startIndex + 10;
+            if(endIndex > rawData.length) endIndex = rawData.length;
+            
+            stageData = rawData.slice(startIndex, endIndex);
+            
+            // UI 초기화
+            dom.stageDisplay.innerText = `STAGE ${stageNum}`;
+            dom.resultArea.classList.add('hidden');
+            dom.pauseOverlay.classList.add('hidden');
+            dom.correctModal.classList.add('hidden');
+            dom.wrongModal.classList.add('hidden');
+            isPaused = false;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            dom.correctModal.classList.add('hidden');
+            dom.wrongModal.classList.add('hidden');
+            
+            const qData = stageData[currentQIndex];
+            
+            // 상단 정보
+            dom.currentQ.innerText = currentQIndex + 1;
+            const progressPercent = ((currentQIndex) / 10) * 100;
+            dom.progressBar.style.width = `${progressPercent}%`;
+
+            // 문제 유형 디자인
+            if (qData.type === 'antonym') {
+                dom.qTypeBadge.innerText = "반대말 찾기";
+                dom.qTypeBadge.className = "px-5 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-sm bg-rose-100 text-rose-600 ring-2 ring-rose-200";
+                dom.qWord.className = "text-5xl md:text-6xl font-jua text-rose-500 mb-2 drop-shadow-sm transition-all";
+            } else {
+                dom.qTypeBadge.innerText = "비슷한 말 찾기";
+                dom.qTypeBadge.className = "px-5 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-sm bg-blue-100 text-blue-600 ring-2 ring-blue-200";
+                dom.qWord.className = "text-5xl md:text-6xl font-jua text-blue-500 mb-2 drop-shadow-sm transition-all";
+            }
+
+            dom.qWord.innerText = qData.word;
+
+            // 보기 버튼 생성
+            dom.optionsContainer.innerHTML = ''; // 기존 버튼 삭제
+            
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 text-lg font-bold text-slate-600 bg-white border-2 border-slate-100 rounded-xl text-left flex justify-between items-center group cursor-pointer mb-3";
+                btn.onclick = () => checkAnswer(idx);
+                
+                btn.innerHTML = `
+                    <span class="opt-text group-hover:text-indigo-600 transition-colors">${opt}</span>
+                    <div class="w-6 h-6 rounded-full border-2 border-slate-200 flex items-center justify-center check-circle group-hover:border-indigo-300"></div>
+                `;
+                dom.optionsContainer.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        function checkAnswer(selectedIdx) {
+            if (isPaused) return;
+            if (!dom.correctModal.classList.contains('hidden')) return;
+            if (!dom.wrongModal.classList.contains('hidden')) return;
+
+            stats.attempted++;
+            const qData = stageData[currentQIndex];
+            const isCorrect = selectedIdx === qData.answer;
+            const btns = dom.optionsContainer.querySelectorAll('button');
+            const selectedBtn = btns[selectedIdx];
+
+            // 데이터가 없으면 기본 메시지
+            const defText = (qData.definitions && qData.definitions[selectedIdx]) 
+                            ? qData.definitions[selectedIdx] 
+                            : "뜻풀이 데이터가 없습니다.";
+
+            if (isCorrect) {
+                // [정답]
+                stats.correct++;
+                stageScore += 10;
+                totalScore += 10;
+                
+                // 버튼 스타일
+                selectedBtn.classList.add('correct-anim');
+                const circle = selectedBtn.querySelector('.check-circle');
+                circle.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-700"></i>';
+                circle.classList.add('border-green-600', 'bg-green-200');
+
+                // 모든 버튼 비활성화
+                btns.forEach(btn => btn.disabled = true);
+
+                // 이펙트
+                fireConfetti();
+                playCorrectSound();
+                
+                // [New] 정답 팝업에 설명 채우기
+                dom.correctWordText.innerText = qData.options[selectedIdx];
+                dom.correctWordDef.innerText = defText;
+                dom.statRemain.innerText = (stageData.length - (currentQIndex + 1));
+
+                // 팝업 노출
+                setTimeout(() => {
+                    dom.correctModal.classList.remove('hidden');
+                }, 400);
+
+            } else {
+                // [오답]
+                stats.wrong++;
+                
+                selectedBtn.classList.add('wrong-anim');
+                selectedBtn.disabled = true;
+                const wCircle = selectedBtn.querySelector('.check-circle');
+                wCircle.innerHTML = '<i data-lucide="x" class="w-4 h-4 text-red-700"></i>';
+                wCircle.classList.add('border-red-600', 'bg-red-200');
+
+                playWrongSound();
+
+                // 오답 팝업에 설명 채우기
+                dom.wrongWordText.innerText = qData.options[selectedIdx];
+                dom.wrongWordDef.innerText = defText;
+
+                setTimeout(() => {
+                    dom.wrongModal.classList.remove('hidden');
+                }, 400);
+            }
+            lucide.createIcons();
+        }
+
+        function closeWrongModal() {
+            dom.wrongModal.classList.add('hidden');
+        }
+
+        function goToNextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < stageData.length) {
+                loadQuestion();
+            } else {
+                finishStage();
+            }
+        }
+
+        function finishStage() {
+            dom.correctModal.classList.add('hidden');
+            dom.wrongModal.classList.add('hidden');
+            dom.resultArea.classList.remove('hidden');
+            dom.progressBar.style.width = '100%';
+
+            dom.stageScoreVal.innerText = stageScore;
+            dom.totalScoreVal.innerText = totalScore;
+
+            if (currentStage < 5) {
+                dom.resultTitle.innerText = `STAGE ${currentStage} 클리어!`;
+                dom.resultSubtitle.innerText = "다음 단계로 가볼까요?";
+                dom.nextStageBtn.innerHTML = `<span>다음 스테이지로</span> <i data-lucide="arrow-right" class="w-5 h-5"></i>`;
+                dom.nextStageBtn.onclick = nextStage;
+            } else {
+                dom.resultTitle.innerText = "모든 스테이지 완료! 🏆";
+                dom.resultSubtitle.innerText = "당신의 어휘력은 최고예요!";
+                dom.nextStageBtn.innerHTML = `<span>처음부터 다시하기</span> <i data-lucide="rotate-ccw" class="w-5 h-5"></i>`;
+                dom.nextStageBtn.onclick = () => {
+                     // 처음 화면으로 돌아가기
+                     location.reload(); 
+                };
+                fireConfetti();
+            }
+            lucide.createIcons();
+        }
+
+        function nextStage() {
+            startStage(currentStage + 1);
+        }
+
+        function togglePause() {
+            if (dom.resultArea.classList.contains('hidden') === false) return;
+            isPaused = !isPaused;
+            if (isPaused) {
+                dom.pauseOverlay.classList.remove('hidden');
+            } else {
+                dom.pauseOverlay.classList.add('hidden');
+            }
+        }
+
+        function quitGame() {
+            if(confirm("정말 게임을 종료하고 결과를 보시겠습니까?")) {
+                finishStage();
+                dom.resultTitle.innerText = "게임 종료";
+                dom.pauseOverlay.classList.add('hidden');
+            }
+        }
+
+        // 효과음 (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, startTime = 0) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startTime);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + startTime);
+            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + startTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + startTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(audioCtx.currentTime + startTime);
+            osc.stop(audioCtx.currentTime + startTime + duration);
+        }
+        function playCorrectSound() {
+            playTone(523.25, 'sine', 0.6, 0);    
+            playTone(659.25, 'sine', 0.6, 0.1);  
+            playTone(783.99, 'sine', 0.6, 0.2);  
+            playTone(1046.50, 'sine', 0.8, 0.3); 
+        }
+        function playWrongSound() {
+            playTone(196.00, 'triangle', 0.4, 0); 
+            playTone(146.83, 'triangle', 0.6, 0.1); 
+        }
+
+        function fireConfetti() {
+            const count = 200;
+            const defaults = { origin: { y: 0.7 } };
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+    </script>
+</body>
+</html>

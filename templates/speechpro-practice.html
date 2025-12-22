@@ -476,8 +476,9 @@
             class="mx-auto mb-4 animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"
             aria-hidden="true"
           ></div>
-          <p id="loading-message" class="text-[var(--text-sub)] font-semibold">처리 중...</p>
-          <p id="loading-timer" class="text-xs text-gray-500 mt-2 font-mono">0초</p>
+          <p id="loading-message" class="text-[var(--text-sub)] font-semibold">
+            처리 중...
+          </p>
         </div>
       </div>
     </div>
@@ -591,6 +592,178 @@
       return [header, scoreLine, "", ...normalized].filter(Boolean).join("\n");
     }
 
+    function extractFeedbackSections(text) {
+      if (!text) return null;
+      const lines = text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (!lines.length) return null;
+
+      const sections = {
+        summary: [],
+        strengths: [],
+        improvements: [],
+        tips: [],
+        general: [],
+      };
+
+      const stripEmoji = (line) =>
+        line.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]+\s*/u, "").trim();
+      const baseCleaner = (line) =>
+        stripEmoji(line.replace(/^[-*+>\d.\s]+/, "")).trim();
+
+      const strengthKeywords = [
+        "강점",
+        "잘",
+        "좋",
+        "탁월",
+        "완벽",
+        "우수",
+        "높은",
+        "안정",
+      ];
+      const improvementKeywords = [
+        "개선",
+        "보완",
+        "부족",
+        "주의",
+        "문제",
+        "어려움",
+        "교정",
+        "낮은",
+      ];
+      const tipKeywords = [
+        "팁",
+        "추천",
+        "연습",
+        "시도",
+        "방법",
+        "tip",
+        "도움",
+      ];
+
+      lines.forEach((line) => {
+        if (/^>?[\s]*AI\s*피드백/i.test(line)) return;
+        if (line.startsWith(">")) {
+          const summaryText = line.replace(/^>\s*/, "").trim();
+          if (summaryText) sections.summary.push(summaryText);
+          return;
+        }
+
+        const cleaned = baseCleaner(line);
+        if (!cleaned) return;
+        const normalized = cleaned.toLowerCase();
+
+        if (
+          strengthKeywords.some(
+            (kw) => cleaned.includes(kw) || normalized.includes(kw)
+          )
+        ) {
+          sections.strengths.push(cleaned);
+        } else if (
+          improvementKeywords.some(
+            (kw) => cleaned.includes(kw) || normalized.includes(kw)
+          )
+        ) {
+          sections.improvements.push(cleaned);
+        } else if (
+          tipKeywords.some(
+            (kw) => cleaned.includes(kw) || normalized.includes(kw)
+          )
+        ) {
+          sections.tips.push(cleaned);
+        } else {
+          sections.general.push(cleaned);
+        }
+      });
+
+      const hasContent = Object.values(sections).some(
+        (arr) => Array.isArray(arr) && arr.length > 0
+      );
+
+      return hasContent ? sections : null;
+    }
+
+    function buildFeedbackSectionMarkup(sections) {
+      if (!sections) return "";
+      const parts = [];
+
+      if (sections.summary.length) {
+        parts.push(`
+          <div class="mb-4 rounded-xl bg-blue-50/80 border border-blue-200 p-4 text-sm text-blue-800">
+            <div class="font-semibold text-blue-900 mb-1 flex items-center gap-2">
+              <span>📌</span>핵심 요약
+            </div>
+            <p>${sections.summary.join("<br>")}</p>
+          </div>
+        `);
+      }
+
+      const sectionOrder = [
+        {
+          key: "strengths",
+          title: "강점 포인트",
+          icon: "💪",
+          border: "border-green-200",
+          bg: "bg-green-50/60",
+        },
+        {
+          key: "improvements",
+          title: "개선이 필요한 부분",
+          icon: "🛠️",
+          border: "border-orange-200",
+          bg: "bg-orange-50/60",
+        },
+        {
+          key: "tips",
+          title: "연습 팁",
+          icon: "💡",
+          border: "border-sky-200",
+          bg: "bg-sky-50/60",
+        },
+        {
+          key: "general",
+          title: "추가 코멘트",
+          icon: "📝",
+          border: "border-slate-200",
+          bg: "bg-slate-50/60",
+        },
+      ];
+
+      sectionOrder.forEach((section, idx) => {
+        const items = sections[section.key];
+        if (!items || !items.length) return;
+
+        if (parts.length) {
+          parts.push('<div class="border-t border-blue-100 my-4"></div>');
+        }
+
+        const listItems = items
+          .map(
+            (item) =>
+              `<li class="flex items-start gap-3 text-gray-800">
+                <span class="text-base leading-6 text-gray-500">•</span>
+                <span>${item}</span>
+              </li>`
+          )
+          .join("");
+
+        parts.push(`
+          <section class="rounded-xl ${section.bg} border ${section.border} p-4 shadow-sm">
+            <header class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+              <span>${section.icon}</span>
+              <span>${section.title}</span>
+            </header>
+            <ul class="space-y-2">${listItems}</ul>
+          </section>
+        `);
+      });
+
+      return parts.join("\n");
+    }
+
     // 전역 변수
     let mediaRecorder = null;
     let recordedChunks = [];
@@ -614,60 +787,52 @@
         const countdownDisplay = document.getElementById("countdown-display");
         countdownDisplay.classList.remove("hidden");
 
-        // 먼저 "준비!" 표시
-        countdownDisplay.textContent = "준비!";
-
         let countdown = 3;
-        setTimeout(() => {
-          const countdownInterval = setInterval(() => {
-            if (countdown > 0) {
-              countdownDisplay.textContent = countdown;
-            } else {
-              countdownDisplay.textContent = "시작!";
-            }
-            countdown--;
+        countdownDisplay.textContent = countdown;
 
-            if (countdown < 0) {
-              clearInterval(countdownInterval);
-              countdownDisplay.classList.add("hidden");
+        const countdownInterval = setInterval(() => {
+          countdown--;
 
-              // 실제 녹음 시작
-              mediaRecorder = new MediaRecorder(stream);
-              recordedChunks = [];
-              recordingStartTime = Date.now();
+          if (countdown > 0) {
+            countdownDisplay.textContent = countdown;
+          } else {
+            clearInterval(countdownInterval);
+            countdownDisplay.classList.add("hidden");
 
-              mediaRecorder.ondataavailable = (event) => {
-                recordedChunks.push(event.data);
-              };
+            // 실제 녹음 시작
+            mediaRecorder = new MediaRecorder(stream);
+            recordedChunks = [];
+            recordingStartTime = Date.now();
 
-              mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                document.getElementById("audio-playback").src = audioUrl;
-                document
-                  .getElementById("playback-section")
-                  .classList.remove("hidden");
-                document.getElementById("evaluate-button").disabled = false;
-              };
+            mediaRecorder.ondataavailable = (event) => {
+              recordedChunks.push(event.data);
+            };
 
-              mediaRecorder.start();
-
-              // UI 업데이트
+            mediaRecorder.onstop = () => {
+              const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
+              const audioUrl = URL.createObjectURL(audioBlob);
+              document.getElementById("audio-playback").src = audioUrl;
               document
-                .getElementById("stop-recording")
+                .getElementById("playback-section")
                 .classList.remove("hidden");
-              document.getElementById("recording-status").innerHTML =
-                '🔴 <p class="text-red-600 font-semibold">녹음 중...</p>';
-              document
-                .getElementById("recording-timer")
-                .classList.remove("hidden");
+              document.getElementById("evaluate-button").disabled = false;
+            };
 
-              // 타이머 시작
-              startTimer();
+            mediaRecorder.start();
 
-              showMessage("녹음이 시작되었습니다", "info");
-            }
-          }, 1000);
+            // UI 업데이트
+            document.getElementById("stop-recording").classList.remove("hidden");
+            document.getElementById("recording-status").innerHTML =
+              '🔴 <p class="text-red-600 font-semibold">녹음 중...</p>';
+            document
+              .getElementById("recording-timer")
+              .classList.remove("hidden");
+
+            // 타이머 시작
+            startTimer();
+
+            showMessage("녹음이 시작되었습니다", "info");
+          }
         }, 1000);
       } catch (error) {
         // 카운트다운 표시 숨김
@@ -1266,22 +1431,27 @@
 
       if (feedbackContent) {
         const decorated = formatAiFeedback(aiFeedbackText, score);
-        // 마지막 안전망: 이모지가 전혀 없으면 기본 강조 이모지 추가
         const finalText = decorated || aiFeedbackText;
-        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(
-          finalText
-        );
-        renderMarkdownSafe(
-          feedbackContent,
-          hasEmoji ? finalText : `✨ ${finalText}`
-        );
+        const sections = extractFeedbackSections(finalText);
 
-        // 구분선 추가: 렌더된 각 블록 사이에 상단 보더를 넣어 가독성 향상
-        const blocks = Array.from(feedbackContent.children || []);
-        blocks.forEach((el, idx) => {
-          if (idx === 0) return;
-          el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
-        });
+        if (sections) {
+          feedbackContent.innerHTML = buildFeedbackSectionMarkup(sections);
+        } else {
+          // 마지막 안전망: 이모지가 전혀 없으면 기본 강조 이모지 추가
+          const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(
+            finalText
+          );
+          renderMarkdownSafe(
+            feedbackContent,
+            hasEmoji ? finalText : `✨ ${finalText}`
+          );
+
+          const blocks = Array.from(feedbackContent.children || []);
+          blocks.forEach((el, idx) => {
+            if (idx === 0) return;
+            el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
+          });
+        }
       }
 
       // 학습 진도 기록 및 Pop-Up 표시
@@ -1388,9 +1558,6 @@
     }
 
     // 로딩 표시
-    let loadingTimerInterval = null;
-    let loadingSeconds = 0;
-
     function showLoading(message) {
       const section = document.getElementById("loading-section");
       if (section) section.classList.remove("hidden");
@@ -1398,24 +1565,10 @@
       if (msgEl && typeof message === "string") {
         msgEl.textContent = message;
       }
-
-      // 타이머 시작
-      loadingSeconds = 0;
-      const timerEl = document.getElementById("loading-timer");
-      if (timerEl) {
-        timerEl.textContent = "0초";
-        if (loadingTimerInterval) clearInterval(loadingTimerInterval);
-        loadingTimerInterval = setInterval(() => {
-          loadingSeconds++;
-          timerEl.textContent = loadingSeconds + "초";
-        }, 1000);
-      }
     }
 
     function hideLoading() {
       document.getElementById("loading-section").classList.add("hidden");
-      if (loadingTimerInterval) clearInterval(loadingTimerInterval);
-      loadingSeconds = 0;
     }
 
     // 문장 데이터 로드
