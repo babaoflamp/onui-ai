@@ -1,0 +1,793 @@
+{% extends "base.html" %} {% block title %}입문 기본 | 오누이 한국어{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <div class="mb-6">
+    <h1 id="introLevelTitle" class="text-2xl font-bold text-gray-900">입문 기본</h1>
+    <p class="text-sm text-gray-600 mt-1">
+      자음 발음을 단계별로 익혀보세요.
+    </p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-6">
+    <aside class="lg:w-64 space-y-4">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <button
+            type="button"
+            data-level="입문"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-orange-100 text-orange-700 text-center font-semibold"
+          >
+            입문
+          </button>
+          <button
+            type="button"
+            data-level="초급1"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-gray-50 text-gray-500 text-center"
+          >
+            초급 1
+          </button>
+          <button
+            type="button"
+            data-level="초급2"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-gray-50 text-gray-500 text-center"
+          >
+            초급 2
+          </button>
+          <button
+            type="button"
+            data-level="중급1"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-gray-50 text-gray-500 text-center"
+          >
+            중급 1
+          </button>
+          <button
+            type="button"
+            data-level="중급2"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-gray-50 text-gray-500 text-center"
+          >
+            중급 2
+          </button>
+          <button
+            type="button"
+            data-level="고급"
+            class="intro-level-btn px-3 py-2 rounded-lg bg-gray-50 text-gray-500 text-center"
+          >
+            고급
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-semibold text-gray-800">학습 단어 목록</h2>
+          <span id="introListLevelLabel" class="text-xs text-gray-400">입문</span>
+        </div>
+        <div
+          id="introWordList"
+          class="h-80 overflow-y-auto space-y-2 pr-1 text-sm text-gray-500"
+        >
+          데이터를 불러오는 중입니다.
+        </div>
+      </div>
+    </aside>
+
+    <section class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+        <span id="introLevelBreadcrumb">입문</span>
+        <span>›</span>
+        <span id="introCategory">자음</span>
+        <span>›</span>
+        <span id="introSelectionLabel" class="text-gray-700 font-semibold">ㄱ</span>
+      </div>
+
+      <div class="flex items-center justify-between bg-orange-50 rounded-2xl p-5 mb-6">
+        <div id="introCurrentWord" class="text-5xl font-bold text-gray-900">ㄱ</div>
+        <div class="flex flex-col gap-2">
+          <button
+            id="introPlayButton"
+            class="px-4 py-2 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-400 transition"
+          >
+            🔊 발음 듣기
+          </button>
+          <button
+            id="introRecordButton"
+            class="px-4 py-2 rounded-full bg-blue-900 text-white text-sm font-semibold hover:bg-blue-800 transition hidden"
+          >
+            🎙️ 발음 녹음
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div
+          class="lg:col-span-2 h-44 rounded-xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center text-xs text-gray-400"
+        >
+          이미지 영역
+        </div>
+        <div class="lg:col-span-3 space-y-3">
+          <p id="introDescription" class="text-sm text-gray-700 leading-relaxed">
+            ㄱ은 영어 g와 k 사이의 소리로, 입을 조금 벌리고 혀 뒷부분을
+            들어 맞았다가 가볍게 터뜨리는 소리입니다.
+          </p>
+          <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 space-y-1">
+            <div id="introInfoLabel" class="font-semibold text-gray-700">
+              TTS 출력 음성
+            </div>
+            <div id="introTtsPrimary">초성: "ㄱ", "가", "고", "기"</div>
+            <div id="introTtsSecondary">종성: "악", "국", "책"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <div id="introActionSet" class="flex flex-wrap gap-3">
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            제작 원리
+          </button>
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            그림 연상법
+          </button>
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            간단 퀴즈
+          </button>
+        </div>
+        <div id="levelActionSet" class="flex flex-wrap gap-3 hidden">
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            유의어
+          </button>
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            예문
+          </button>
+          <button
+            class="px-4 py-2 rounded-lg border border-orange-200 text-orange-600 text-sm font-semibold"
+          >
+            간단 퀴즈
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="mt-8 flex items-center justify-between">
+    <button
+      id="prevStudyButton"
+      class="px-4 py-2 rounded-lg bg-gray-100 text-gray-500 text-sm font-semibold"
+    >
+      ← 이전학습
+    </button>
+    <button
+      id="nextStudyButton"
+      class="px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-semibold"
+    >
+      다음학습 →
+    </button>
+  </div>
+</div>
+
+<div id="speechproResultModal" class="fixed inset-0 hidden items-center justify-center bg-black/40 z-50">
+  <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900">발음 평가 결과</h3>
+      <button id="speechproModalClose" class="text-gray-400 hover:text-gray-600">✕</button>
+    </div>
+    <div id="speechproModalContent" class="text-sm text-gray-700">
+      결과를 불러오는 중입니다...
+    </div>
+    <div class="mt-6 flex justify-end">
+      <button id="speechproModalOk" class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-400">
+        확인
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let introAllWords = [];
+  let introWords = [];
+  let introScores = {};
+  let introSelectedIndex = 0;
+  let introSelectionType = "initial";
+  let introSelectionValue = "ㄱ";
+  let introLevel = "";
+  let introTopic = "";
+  let introCategoryFilter = "";
+  let introTopikFilter = "";
+  let introPendingEvaluation = false;
+
+  const introListEl = document.getElementById("introWordList");
+  const introCurrentWordEl = document.getElementById("introCurrentWord");
+  const introCategoryEl = document.getElementById("introCategory");
+  const introSelectionLabelEl = document.getElementById("introSelectionLabel");
+  const introDescEl = document.getElementById("introDescription");
+  const introTtsPrimaryEl = document.getElementById("introTtsPrimary");
+  const introTtsSecondaryEl = document.getElementById("introTtsSecondary");
+  const introLevelTitleEl = document.getElementById("introLevelTitle");
+  const introListLevelLabelEl = document.getElementById("introListLevelLabel");
+  const introLevelBreadcrumbEl = document.getElementById("introLevelBreadcrumb");
+  const introRecordButtonEl = document.getElementById("introRecordButton");
+  const introInfoLabelEl = document.getElementById("introInfoLabel");
+  const introActionSetEl = document.getElementById("introActionSet");
+  const levelActionSetEl = document.getElementById("levelActionSet");
+  const levelButtons = document.querySelectorAll(".intro-level-btn");
+  const prevStudyButtonEl = document.getElementById("prevStudyButton");
+  const nextStudyButtonEl = document.getElementById("nextStudyButton");
+  const introPlayButtonEl = document.getElementById("introPlayButton");
+  const speechproModalEl = document.getElementById("speechproResultModal");
+  const speechproModalContentEl = document.getElementById("speechproModalContent");
+  const speechproModalCloseEl = document.getElementById("speechproModalClose");
+  const speechproModalOkEl = document.getElementById("speechproModalOk");
+  let introRecorder = null;
+  let introRecordedChunks = [];
+  let introRecordedAudioBlob = null;
+
+  const initialMap = [
+    "ㄱ",
+    "ㄲ",
+    "ㄴ",
+    "ㄷ",
+    "ㄸ",
+    "ㄹ",
+    "ㅁ",
+    "ㅂ",
+    "ㅃ",
+    "ㅅ",
+    "ㅆ",
+    "ㅇ",
+    "ㅈ",
+    "ㅉ",
+    "ㅊ",
+    "ㅋ",
+    "ㅌ",
+    "ㅍ",
+    "ㅎ",
+  ];
+  const vowelMap = [
+    "ㅏ",
+    "ㅐ",
+    "ㅑ",
+    "ㅒ",
+    "ㅓ",
+    "ㅔ",
+    "ㅕ",
+    "ㅖ",
+    "ㅗ",
+    "ㅘ",
+    "ㅙ",
+    "ㅚ",
+    "ㅛ",
+    "ㅜ",
+    "ㅝ",
+    "ㅞ",
+    "ㅟ",
+    "ㅠ",
+    "ㅡ",
+    "ㅢ",
+    "ㅣ",
+  ];
+  const finalMap = [
+    "",
+    "ㄱ",
+    "ㄲ",
+    "ㄳ",
+    "ㄴ",
+    "ㄵ",
+    "ㄶ",
+    "ㄷ",
+    "ㄹ",
+    "ㄺ",
+    "ㄻ",
+    "ㄼ",
+    "ㄽ",
+    "ㄾ",
+    "ㄿ",
+    "ㅀ",
+    "ㅁ",
+    "ㅂ",
+    "ㅄ",
+    "ㅅ",
+    "ㅆ",
+    "ㅇ",
+    "ㅈ",
+    "ㅊ",
+    "ㅋ",
+    "ㅌ",
+    "ㅍ",
+    "ㅎ",
+  ];
+
+  function getInitialConsonant(word) {
+    if (!word) return "";
+    const char = word[0];
+    const code = char.charCodeAt(0) - 0xac00;
+    if (code < 0 || code > 11171) return char;
+    const index = Math.floor(code / 588);
+    return initialMap[index] || char;
+  }
+
+  function getVowel(word) {
+    if (!word) return "";
+    const char = word[0];
+    const code = char.charCodeAt(0) - 0xac00;
+    if (code < 0 || code > 11171) return "";
+    const index = Math.floor((code % 588) / 28);
+    return vowelMap[index] || "";
+  }
+
+  function getFinalConsonant(word) {
+    if (!word) return "";
+    const char = word[0];
+    const code = char.charCodeAt(0) - 0xac00;
+    if (code < 0 || code > 11171) return "";
+    const index = code % 28;
+    return finalMap[index] || "";
+  }
+
+  function getSelectionValues() {
+    return introSelectionValue.split(",").map((v) => v.trim()).filter(Boolean);
+  }
+
+  function selectionMatches(word) {
+    if (introSelectionType === "all") return true;
+    if (introLevel === "입문") return true;
+    const values = getSelectionValues();
+    if (!values.length) return true;
+    if (introSelectionType === "vowel") {
+      return values.includes(getVowel(word));
+    }
+    if (introSelectionType === "final") {
+      return values.includes(getFinalConsonant(word));
+    }
+    if (introSelectionType === "initial" && introLevel === "입문") {
+      return true;
+    }
+    return values.includes(getInitialConsonant(word));
+  }
+
+  function getIntroHistory(wordId) {
+    return introScores[wordId] || [];
+  }
+
+  function getIntroLatestScore(wordId) {
+    const history = getIntroHistory(wordId);
+    return history.length ? history[0] : null;
+  }
+
+  function renderIntroList() {
+    if (!introWords.length) {
+      introListEl.innerHTML =
+        "<div class='text-sm text-gray-400'>조건에 맞는 단어가 없습니다.</div>";
+      return;
+    }
+
+    const selected = introWords[introSelectedIndex] || introWords[0];
+    introListEl.innerHTML = introWords
+      .map((item, idx) => {
+        const active = item.id === selected?.id;
+        const latest = getIntroLatestScore(item.id);
+        const scoreBadge =
+          latest === null
+            ? "<span class='text-xs text-gray-400'>-</span>"
+            : `<span class='text-xs font-bold px-2 py-1 rounded-full ${latest >= 80 ? "bg-green-500" : latest >= 60 ? "bg-yellow-400" : "bg-orange-500"} text-white'>${latest}</span>`;
+        return `
+          <button
+            type="button"
+            data-index="${idx}"
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg border ${
+              active ? "border-orange-300 bg-orange-50" : "border-gray-100 bg-white"
+            }"
+          >
+            <span class="font-semibold text-gray-800">${item.word}</span>
+            ${scoreBadge}
+          </button>
+        `;
+      })
+      .join("");
+
+    introListEl.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectIntroIndex(Number(btn.dataset.index));
+      });
+    });
+  }
+
+  function renderIntroDetail() {
+    const item = introWords[introSelectedIndex] || introWords[0];
+    if (!item) {
+      introCurrentWordEl.textContent = "-";
+      introDescEl.textContent = "설명이 없습니다.";
+      introTtsPrimaryEl.textContent = "단어: -";
+      introTtsSecondaryEl.textContent = "예문이 없습니다.";
+      return;
+    }
+    const label = item.word || "-";
+    introCurrentWordEl.textContent = label;
+    introDescEl.textContent = item.meaningKo || item.meaning || "설명이 없습니다.";
+    introTtsPrimaryEl.textContent = `단어: "${label}"`;
+    introTtsSecondaryEl.textContent = item.example
+      ? `예문: ${item.example}`
+      : "예문이 없습니다.";
+  }
+
+  async function playIntroTTS(text) {
+    if (!text) return;
+    try {
+      if (introPlayButtonEl) {
+        introPlayButtonEl.disabled = true;
+        introPlayButtonEl.classList.add("opacity-70");
+      }
+      const response = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!response.ok) {
+        throw new Error("TTS 생성 실패");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.play();
+      audio.addEventListener("ended", () => {
+        URL.revokeObjectURL(url);
+      });
+    } catch (err) {
+      console.error("TTS 오류:", err);
+    } finally {
+      if (introPlayButtonEl) {
+        introPlayButtonEl.disabled = false;
+        introPlayButtonEl.classList.remove("opacity-70");
+      }
+    }
+  }
+
+  async function toggleIntroRecording() {
+    if (!introRecordButtonEl) return;
+    if (introRecorder && introRecorder.state === "recording") {
+      introRecorder.stop();
+      introRecordButtonEl.textContent = "🎙️ 발음 녹음";
+      introPendingEvaluation = true;
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      introRecordedChunks = [];
+      introRecorder = new MediaRecorder(stream);
+      introRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) introRecordedChunks.push(event.data);
+      };
+      introRecorder.onstop = () => {
+        introRecordedAudioBlob = new Blob(introRecordedChunks, {
+          type: "audio/webm",
+        });
+        stream.getTracks().forEach((track) => track.stop());
+        if (introPendingEvaluation) {
+          introPendingEvaluation = false;
+          evaluateSpeechpro();
+        }
+      };
+      introRecorder.start();
+      introRecordButtonEl.textContent = "⏹️ 녹음 중지";
+    } catch (err) {
+      console.error("녹음 시작 오류:", err);
+      alert("마이크 권한을 확인해 주세요.");
+    }
+  }
+
+  function openSpeechproModal(contentHtml) {
+    if (speechproModalContentEl) {
+      speechproModalContentEl.innerHTML = contentHtml;
+    }
+    speechproModalEl?.classList.remove("hidden");
+    speechproModalEl?.classList.add("flex");
+  }
+
+  function closeSpeechproModal() {
+    speechproModalEl?.classList.add("hidden");
+    speechproModalEl?.classList.remove("flex");
+  }
+
+  async function evaluateSpeechpro() {
+    const item = introWords[introSelectedIndex] || introWords[0];
+    if (!item || !introRecordedAudioBlob) return;
+
+    openSpeechproModal("<div class='text-sm text-gray-600'>발음 평가 중...</div>");
+
+    const formData = new FormData();
+    formData.append("text", item.word || "");
+    formData.append("audio", introRecordedAudioBlob, "recording.webm");
+    formData.append("include_ai", "false");
+
+    try {
+      const response = await fetch("/api/speechpro/evaluate", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "평가 실패");
+      }
+      const score = Math.round(result.overall_score || 0);
+      openSpeechproModal(
+        `<div class="space-y-3">
+          <div class="text-sm text-gray-500">평가 단어</div>
+          <div class="text-xl font-semibold text-gray-900">${item.word || "-"}</div>
+          <div class="mt-3 text-sm text-gray-500">SpeechPro 점수</div>
+          <div class="text-3xl font-bold text-orange-600">${score}점</div>
+          <div class="mt-4 text-sm text-gray-500">AI 종합 피드백</div>
+          <div id="speechpro-ai-feedback" class="text-sm text-gray-700">AI 피드백 생성 중...</div>
+        </div>`
+      );
+      requestSpeechproAiFeedback(item.word || "", result.score, score);
+    } catch (err) {
+      openSpeechproModal(
+        `<div class="text-sm text-red-600">평가에 실패했습니다. 다시 시도해주세요.</div>`
+      );
+      console.error("SpeechPro 평가 오류:", err);
+    }
+  }
+
+  async function requestSpeechproAiFeedback(text, score, overallScore) {
+    if (!text || !score) return;
+    try {
+      const response = await fetch("/api/speechpro/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, score }),
+      });
+      const data = await response.json();
+      const target = document.getElementById("speechpro-ai-feedback");
+      if (!target) return;
+      if (!response.ok || !data.success) {
+        target.textContent = "AI 피드백을 불러오지 못했습니다.";
+        return;
+      }
+      const feedback = (data.ai_feedback || "").trim();
+      target.textContent = feedback || "AI 피드백을 불러오지 못했습니다.";
+    } catch (err) {
+      const target = document.getElementById("speechpro-ai-feedback");
+      if (target) {
+        target.textContent = "AI 피드백을 불러오지 못했습니다.";
+      }
+      console.error("AI 피드백 오류:", err);
+    }
+  }
+
+  function selectIntroIndex(nextIndex) {
+    if (!introWords.length) return;
+    const maxIndex = introWords.length - 1;
+    introSelectedIndex = Math.min(Math.max(nextIndex, 0), maxIndex);
+    renderIntroList();
+    renderIntroDetail();
+    updatePrevNextState();
+  }
+
+  function updatePrevNextState() {
+    if (!introWords.length) {
+      prevStudyButtonEl?.classList.add("opacity-50");
+      nextStudyButtonEl?.classList.add("opacity-50");
+      return;
+    }
+    if (prevStudyButtonEl) {
+      prevStudyButtonEl.disabled = introSelectedIndex <= 0;
+      prevStudyButtonEl.classList.toggle(
+        "opacity-50",
+        introSelectedIndex <= 0
+      );
+    }
+    if (nextStudyButtonEl) {
+      nextStudyButtonEl.disabled = introSelectedIndex >= introWords.length - 1;
+      nextStudyButtonEl.classList.toggle(
+        "opacity-50",
+        introSelectedIndex >= introWords.length - 1
+      );
+    }
+  }
+
+  async function loadIntroScores() {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return {};
+    try {
+      const res = await fetch("/api/learning/word-scores?limit=10", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return {};
+      const data = await res.json();
+      return data.scores || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  async function loadIntroWords() {
+    try {
+      const res = await fetch("/api/vocabulary");
+      if (!res.ok) throw new Error("단어 데이터를 불러오지 못했습니다.");
+      const data = await res.json();
+      const vocabulary = data.vocabulary || [];
+      introAllWords = vocabulary;
+      introScores = await loadIntroScores();
+      introSelectedIndex = 0;
+      setFiltersFromUrl();
+      updateSelectionLabels();
+      applyFilters();
+    } catch (err) {
+      introListEl.innerHTML =
+        "<div class='text-sm text-gray-400'>데이터를 불러오는 중 오류가 발생했습니다.</div>";
+    }
+  }
+
+  function setFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const levelParam = params.get("level") || "";
+    const topik = params.get("topik") || "";
+    const category = params.get("category") || "";
+    const topic = params.get("topic") || "";
+    if (levelParam && !topik) introTopikFilter = levelParam;
+    if (topik) introTopikFilter = topik;
+    if (category) introCategoryFilter = category;
+    if (topic) introTopic = topic;
+  }
+
+  function updateSelectionLabels() {
+    if (introSelectionType === "vowel") {
+      introCategoryEl.textContent = "모음";
+    } else if (introSelectionType === "final") {
+      introCategoryEl.textContent = "받침";
+    } else if (introSelectionType === "all" && introTopic) {
+      introCategoryEl.textContent = "주제";
+    } else {
+      introCategoryEl.textContent = "자음";
+    }
+    if (introSelectionType === "all" && introTopic) {
+      introSelectionLabelEl.textContent = introTopic;
+    } else {
+      introSelectionLabelEl.textContent = introSelectionValue.replace(/,/g, " / ");
+    }
+    if (introLevelTitleEl) {
+      const label = introLevel || "입문";
+      introLevelTitleEl.textContent = `${label} 기본`;
+    }
+    if (introListLevelLabelEl) {
+      introListLevelLabelEl.textContent = introLevel || "입문";
+    }
+    if (introLevelBreadcrumbEl) {
+      introLevelBreadcrumbEl.textContent = introLevel || "입문";
+    }
+    const isIntro = introLevel === "입문";
+    if (introRecordButtonEl) {
+      introRecordButtonEl.classList.toggle("hidden", isIntro);
+    }
+    if (introInfoLabelEl) {
+      introInfoLabelEl.textContent = isIntro ? "TTS 출력 음성" : "중요 표현";
+    }
+    if (introActionSetEl) {
+      introActionSetEl.classList.toggle("hidden", !isIntro);
+    }
+    if (levelActionSetEl) {
+      levelActionSetEl.classList.toggle("hidden", isIntro);
+    }
+  }
+
+  function updateLevelButtons() {
+    levelButtons.forEach((btn) => {
+      const active = btn.dataset.level === introLevel;
+      btn.classList.toggle("bg-orange-100", active);
+      btn.classList.toggle("text-orange-700", active);
+      btn.classList.toggle("font-semibold", active);
+      btn.classList.toggle("bg-gray-50", !active);
+      btn.classList.toggle("text-gray-500", !active);
+    });
+  }
+
+  function updateUrlParams() {
+    const params = new URLSearchParams();
+    if (introSelectionType === "vowel") {
+      params.set("vowel", introSelectionValue);
+    } else if (introSelectionType === "final") {
+      params.set("final", introSelectionValue);
+    } else if (introSelectionType === "initial") {
+      params.set("initial", introSelectionValue);
+    }
+    if (introTopic) params.set("topic", introTopic);
+    const levelValue = introTopikFilter || introLevel;
+    if (levelValue) params.set("level", levelValue);
+    if (introCategoryFilter) params.set("category", introCategoryFilter);
+    const query = params.toString();
+    const newUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState({}, "", newUrl);
+  }
+
+  function applyFilters() {
+    const topik = introTopikFilter;
+    const effectiveTopik =
+      topik || (introLevel && introLevel !== "입문" ? introLevel : "");
+    const introTopik = introLevel === "입문" && !topik ? "입문" : "";
+    const category = introCategoryFilter;
+    const topic = introTopic;
+    introWords = introAllWords.filter((item) => {
+      if (introTopik && item.topikLevel !== introTopik) return false;
+      if (effectiveTopik && item.topikLevel !== effectiveTopik) return false;
+      if (category && item.category !== category) return false;
+      if (topic && item.topic !== topic) return false;
+      return selectionMatches(item.word);
+    });
+    introSelectedIndex = 0;
+    renderIntroList();
+    renderIntroDetail();
+    updateUrlParams();
+    updatePrevNextState();
+  }
+
+  function loadSelectionParam() {
+    const params = new URLSearchParams(window.location.search);
+    const levelParam = params.get("level");
+    const initial = params.get("initial");
+    const vowel = params.get("vowel");
+    const final = params.get("final");
+    const topic = params.get("topic");
+    const category = params.get("category");
+    const topik = params.get("topik");
+    if (levelParam) introLevel = levelParam;
+    if (topik) introTopikFilter = topik;
+    if (category) introCategoryFilter = category;
+    if (topic) {
+      introTopic = topic;
+      introSelectionType = "all";
+      introSelectionValue = "";
+    } else if (vowel) {
+      introSelectionType = "vowel";
+      introSelectionValue = vowel;
+    } else if (final) {
+      introSelectionType = "final";
+      introSelectionValue = final;
+    } else if (initial) {
+      introSelectionType = "initial";
+      introSelectionValue = initial;
+    }
+  }
+
+  levelButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      introLevel = btn.dataset.level;
+      introTopikFilter = introLevel === "입문" ? "" : introLevel;
+      introTopic = "";
+      introCategoryFilter = "";
+      updateSelectionLabels();
+      updateLevelButtons();
+      applyFilters();
+      selectIntroIndex(0);
+    });
+  });
+
+  prevStudyButtonEl?.addEventListener("click", () => {
+    selectIntroIndex(introSelectedIndex - 1);
+  });
+  nextStudyButtonEl?.addEventListener("click", () => {
+    selectIntroIndex(introSelectedIndex + 1);
+  });
+  introPlayButtonEl?.addEventListener("click", () => {
+    const item = introWords[introSelectedIndex] || introWords[0];
+    playIntroTTS(item?.word || "");
+  });
+  introRecordButtonEl?.addEventListener("click", toggleIntroRecording);
+  speechproModalCloseEl?.addEventListener("click", closeSpeechproModal);
+  speechproModalOkEl?.addEventListener("click", closeSpeechproModal);
+
+  loadSelectionParam();
+  if (!introLevel) introLevel = "입문";
+  updateSelectionLabels();
+  updateLevelButtons();
+  loadIntroWords();
+</script>
+{% endblock %}

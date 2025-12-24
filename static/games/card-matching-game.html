@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한국어 단어 짝 맞추기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0fdf4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, .font-jua { font-family: 'Jua', sans-serif; }
+
+        .scene { perspective: 1000px; width: 100%; max-width: 500px; }
+        
+        .card {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped, .card.matched {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            z-index: 2;
+        }
+
+        .card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+            z-index: 1;
+            border: 3px solid #10b981;
+            overflow: hidden;
+        }
+
+        .card.matched .card-back {
+            border: 4px solid #fbbf24;
+            background-color: #fffbeb;
+        }
+
+        .pop-anim { animation: pop 0.4s ease-out; }
+        @keyframes pop {
+            0% { transform: scale(1) rotateY(180deg); }
+            50% { transform: scale(1.1) rotateY(180deg); }
+            100% { transform: scale(1) rotateY(180deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="landing-page" class="fixed inset-0 bg-emerald-900/95 z-[100] flex items-center justify-center p-6 text-center">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div class="inline-block p-4 bg-emerald-100 rounded-2xl mb-4">
+                <i data-lucide="trophy" class="w-12 h-12 text-emerald-600"></i>
+            </div>
+            <h1 class="text-4xl text-gray-800 mb-2 font-jua">단어 짝꿍 찾기</h1>
+            <p class="text-gray-600 mb-6 font-bold">5개 스테이지를 모두 클리어하고<br>최고 기록에 도전하세요!</p>
+            <button onclick="startGame()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xl font-bold py-4 rounded-2xl transition-transform hover:scale-105 shadow-lg">
+                게임 시작하기
+            </button>
+        </div>
+    </div>
+
+    <header class="w-full max-w-md flex items-center justify-between mb-6">
+        <div class="bg-emerald-600 text-white px-4 py-1 rounded-full font-jua text-lg shadow-sm">
+            Stage <span id="stage-num">1</span> / 5
+        </div>
+        <div class="flex gap-4 bg-white px-4 py-2 rounded-full shadow-md font-bold text-emerald-800 border border-emerald-100">
+            <span id="timer">00:00</span>
+            <span class="text-emerald-200">|</span>
+            <span><span id="moves">0</span>회</span>
+        </div>
+    </header>
+
+    <main class="scene">
+        <div id="game-board" class="grid grid-cols-4 gap-2 md:gap-3"></div>
+    </main>
+
+    <div id="modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl mx-4">
+            <h2 id="modal-title" class="text-3xl font-jua text-gray-800 mb-4">스테이지 완료!</h2>
+            
+            <div id="stage-result-area" class="bg-emerald-50 rounded-2xl p-4 mb-6">
+                <div class="grid grid-cols-2 gap-2">
+                    <div><p class="text-xs text-emerald-600 font-bold uppercase">시간</p><p id="final-time" class="text-lg font-bold">00:00</p></div>
+                    <div><p class="text-xs text-emerald-600 font-bold uppercase">시도</p><p id="final-moves" class="text-lg font-bold">0</p></div>
+                </div>
+            </div>
+
+            <div id="total-result-area" class="hidden mb-6 text-left border-t border-emerald-100 pt-4">
+                <h3 class="font-bold text-gray-700 mb-2 text-center">📊 스테이지별 기록</h3>
+                <div id="stage-history" class="space-y-1 text-sm text-gray-600 mb-4">
+                    </div>
+                <div class="bg-emerald-600 text-white p-3 rounded-xl text-center font-bold">
+                    총 소요 시간: <span id="total-sum-time">00:00</span>
+                </div>
+            </div>
+
+            <button id="next-btn" onclick="handleNextAction()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-md transition-all active:scale-95">
+                다음 단계로
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'match') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            }
+        }
+
+        const gameData = [
+            { id: 1, text: "사과", img: "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=200" },
+            { id: 2, text: "강아지", img: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=200" },
+            { id: 3, text: "자전거", img: "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=200" },
+            { id: 4, text: "피자", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200" },
+            { id: 5, text: "우산", img: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=200" },
+            { id: 6, text: "꽃", img: "https://images.unsplash.com/photo-1460039230329-eb070fc6c77c?w=200" },
+            { id: 7, text: "시계", img: "https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=200" },
+            { id: 8, text: "축구공", img: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=200" }
+        ];
+
+        let currentStage = 1;
+        let firstCard = null, secondCard = null;
+        let lockBoard = false;
+        let matchedCount = 0;
+        let moves = 0, seconds = 0, timer = null;
+        let stageRecords = []; // 각 스테이지별 시간 저장
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60).toString().padStart(2, '0');
+            const sec = (s % 60).toString().padStart(2, '0');
+            return `${m}:${sec}`;
+        }
+
+        function startGame() {
+            document.getElementById('landing-page').classList.add('hidden');
+            stageRecords = [];
+            initGame(1);
+        }
+
+        function initGame(stage) {
+            currentStage = stage;
+            document.getElementById('stage-num').innerText = stage;
+            matchedCount = 0; moves = 0; seconds = 0;
+            firstCard = null; secondCard = null; lockBoard = false;
+            clearInterval(timer); timer = null;
+            document.getElementById('timer').innerText = "00:00";
+            document.getElementById('moves').innerText = "0";
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('total-result-area').classList.add('hidden');
+            renderCards();
+        }
+
+        function renderCards() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            let items = [];
+            gameData.forEach(data => {
+                items.push({ id: data.id, type: 'text', content: data.text });
+                items.push({ id: data.id, type: 'img', content: data.img });
+            });
+            items.sort(() => Math.random() - 0.5);
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.id = item.id;
+                card.innerHTML = `
+                    <div class="card-face card-front"><i data-lucide="help-circle" class="text-white/40 w-10 h-10"></i></div>
+                    <div class="card-face card-back">
+                        ${item.type === 'text' 
+                            ? `<span class="text-xl font-bold font-jua text-emerald-800">${item.content}</span>` 
+                            : `<img src="${item.content}" class="w-full h-full object-cover">`}
+                    </div>
+                `;
+                card.onclick = () => flip(card);
+                board.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function flip(card) {
+            if (lockBoard || card.classList.contains('matched') || card.classList.contains('flipped')) return;
+            playSound('click');
+            if (!timer) {
+                timer = setInterval(() => {
+                    seconds++;
+                    document.getElementById('timer').innerText = formatTime(seconds);
+                }, 1000);
+            }
+            card.classList.add('flipped');
+            if (!firstCard) { firstCard = card; return; }
+            secondCard = card;
+            moves++;
+            document.getElementById('moves').innerText = moves;
+            checkMatch();
+        }
+
+        function checkMatch() {
+            const match = firstCard.dataset.id === secondCard.dataset.id;
+            if (match) {
+                playSound('match');
+                const rect = secondCard.getBoundingClientRect();
+                confetti({
+                    particleCount: 25, spread: 40,
+                    origin: { x: (rect.left + rect.width/2) / window.innerWidth, y: (rect.top + rect.height/2) / window.innerHeight }
+                });
+                firstCard.classList.replace('flipped', 'matched');
+                secondCard.classList.replace('flipped', 'matched');
+                firstCard.classList.add('pop-anim');
+                secondCard.classList.add('pop-anim');
+                matchedCount++;
+                firstCard = null; secondCard = null;
+                if (matchedCount === 8) setTimeout(finishStage, 600);
+            } else {
+                lockBoard = true;
+                playSound('wrong');
+                setTimeout(() => {
+                    firstCard.classList.remove('flipped');
+                    secondCard.classList.remove('flipped');
+                    firstCard = null; secondCard = null;
+                    lockBoard = false;
+                }, 800);
+            }
+        }
+
+        function finishStage() {
+            clearInterval(timer);
+            stageRecords.push(seconds); // 현재 스테이지 시간 저장
+            
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            document.getElementById('final-time').innerText = formatTime(seconds);
+            document.getElementById('final-moves').innerText = moves + "회";
+            
+            const btn = document.getElementById('next-btn');
+            
+            if (currentStage < 5) {
+                document.getElementById('modal-title').innerText = `Stage ${currentStage} 완료!`;
+                btn.innerText = "다음 단계 도전";
+            } else {
+                showTotalResult();
+            }
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function showTotalResult() {
+            document.getElementById('modal-title').innerText = "🏆 전 스테이지 클리어! 🏆";
+            document.getElementById('total-result-area').classList.remove('hidden');
+            
+            const historyList = document.getElementById('stage-history');
+            historyList.innerHTML = '';
+            
+            let totalSum = 0;
+            stageRecords.forEach((time, idx) => {
+                totalSum += time;
+                const item = document.createElement('div');
+                item.className = "flex justify-between border-b border-emerald-50 pb-1";
+                item.innerHTML = `<span>스테이지 ${idx+1}</span> <span class="font-bold">${formatTime(time)}</span>`;
+                historyList.appendChild(item);
+            });
+            
+            document.getElementById('total-sum-time').innerText = formatTime(totalSum);
+            document.getElementById('next-btn').innerText = "메인 화면으로";
+        }
+
+        function handleNextAction() {
+            if (currentStage < 5) {
+                initGame(currentStage + 1);
+            } else {
+                // 게임 완전 종료 후 랜딩 페이지로
+                document.getElementById('modal').classList.add('hidden');
+                document.getElementById('landing-page').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

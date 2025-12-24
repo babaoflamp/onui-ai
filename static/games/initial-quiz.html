@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초성 퀴즈 마스터</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; margin: 0; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        #quiz-initials { min-height: 1.2em; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <div id="landing-page" class="fixed inset-0 bg-emerald-600 z-[100] flex flex-col items-center justify-center p-6 text-center text-white">
+        <div class="bg-white/20 p-8 rounded-3xl backdrop-blur-md shadow-2xl max-w-lg w-full">
+            <h1 class="text-5xl md:text-6xl font-jua mb-4 text-white text-center">초성 퀴즈 마스터</h1>
+            <p class="text-lg md:text-xl mb-8 opacity-90 leading-relaxed text-center">
+                제시된 초성을 보고 단어를 맞히세요!<br>
+                틀린 단어의 뜻과 예문도 함께 배울 수 있습니다.
+            </p>
+            <div class="flex justify-center">
+                <button onclick="startGame()" class="bg-white text-emerald-600 text-2xl font-jua px-12 py-4 rounded-full hover:bg-emerald-50 transition-all shadow-lg active:scale-95">
+                    학습 시작하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <header class="w-full max-w-2xl flex items-center justify-between mb-6 mt-4">
+        <div class="flex items-center gap-3">
+            <button onclick="location.reload()" class="bg-white px-4 py-2 rounded-xl text-emerald-600 font-bold hover:bg-emerald-50 transition-colors shadow-sm border border-emerald-100 flex items-center gap-2">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                처음으로
+            </button>
+            <div class="bg-emerald-600 text-white px-4 py-2 rounded-2xl font-jua text-xl shadow-md">
+                Stage <span id="current-stage-display">1</span>
+            </div>
+        </div>
+        <div class="flex gap-4 bg-white px-6 py-2 rounded-2xl shadow-sm border border-emerald-100 font-bold text-emerald-700">
+            <span id="timer-display">00:00</span>
+            <span id="progress-display">0/7</span>
+        </div>
+    </header>
+
+    <main id="quiz-container" class="w-full max-w-2xl bg-white rounded-3xl p-8 shadow-xl border border-emerald-50">
+        <div class="text-center mb-8">
+            <p class="text-gray-400 text-sm mb-2 uppercase tracking-widest text-center">글자 수와 초성이 일치하는 단어는?</p>
+            <h2 id="quiz-initials" class="text-6xl md:text-7xl font-jua text-emerald-600 tracking-widest mb-4 text-center"></h2>
+        </div>
+        <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </main>
+
+    <div id="feedback-popup" class="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div id="feedback-icon-container" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"></div>
+            <h3 id="feedback-title" class="text-3xl font-jua text-center mb-4">정답입니다!</h3>
+            
+            <div class="bg-gray-50 p-6 rounded-2xl mb-6 text-center border border-gray-100">
+                <p class="font-bold text-emerald-700 text-2xl mb-2" id="info-word">단어</p>
+                <p class="text-gray-600 text-base mb-4 leading-relaxed" id="info-meaning">뜻</p>
+                <div class="border-t border-gray-200 pt-4">
+                    <p class="text-gray-700 italic text-sm leading-relaxed" id="info-example">"예문"</p>
+                </div>
+            </div>
+
+            <button id="feedback-close-btn" class="w-full bg-emerald-600 text-white font-jua py-4 rounded-xl text-xl hover:bg-emerald-700 transition-colors">확인</button>
+        </div>
+    </div>
+
+    <div id="stage-clear-popup" class="fixed inset-0 bg-emerald-600/90 z-[115] flex items-center justify-center p-4 hidden backdrop-blur-md">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i data-lucide="award" class="w-12 h-12 text-white"></i>
+            </div>
+            <h2 class="text-3xl font-jua text-gray-800 mb-2 text-center">Stage Clear!</h2>
+            <p id="stage-clear-msg" class="text-gray-600 mb-6 text-center">스테이지를 완료했습니다.</p>
+            <button onclick="startNextStage()" class="w-full bg-emerald-600 text-white font-jua py-4 rounded-xl text-xl">다음 단계 시작</button>
+        </div>
+    </div>
+
+    <div id="result-page" class="fixed inset-0 bg-white z-[120] flex flex-col items-center justify-center p-6 hidden overflow-y-auto">
+        <h2 class="text-4xl md:text-5xl font-jua text-emerald-600 mb-8 text-center">🎉 학습 완료! 🎉</h2>
+        <div id="stage-reports-container" class="w-full max-w-md space-y-3 mb-8"></div>
+        <button onclick="location.reload()" class="bg-emerald-600 text-white font-jua px-12 py-4 rounded-full text-xl shadow-lg">바탕화면으로 이동</button>
+    </div>
+
+    <script>
+        const dictionary = {
+            "사과": { m: "사과나무의 열매. 단맛과 신맛이 난다.", e: "아침에 먹는 사과는 건강에 좋다." },
+            "바다": { m: "지구 위에서 짠물이 고여 있는 넓은 곳.", e: "여름 휴가에 푸른 바다에 갔다." },
+            "하늘": { m: "지상에서 위를 올려다보았을 때 보이는 무한한 공간.", e: "가을 하늘은 유난히 높고 푸르다." },
+            "나무": { m: "줄기와 가지가 단단한 다년생 식물.", e: "공원에 커다란 나무가 그늘을 만든다." },
+            "거울": { m: "빛의 반사를 이용해 사물을 비추는 물건.", e: "외출 전 거울을 보며 매무새를 정리했다." },
+            "구름": { m: "공기 중 수증기가 엉겨 공중에 떠 있는 것.", e: "하늘에 솜사탕 같은 구름이 떠 있다." },
+            "우유": { m: "암소의 젖으로 만든 영양이 풍부한 흰색 음료.", e: "매일 아침 우유 한 잔을 마신다." },
+            "학교": { m: "학생들을 가르치는 배움터.", e: "학교 종소리가 들리자 아이들이 뛰어갔다." },
+            "기차": { m: "철도 위를 달리는 차량.", e: "기차를 타고 고향으로 내려갔다." },
+            "버스": { m: "많은 사람을 실어 나르는 자동차.", e: "정류장에서 버스를 기다렸다." },
+            "자전거": { m: "페달을 밟아 움직이는 바퀴가 두 개인 차.", e: "강변에서 자전거를 탄다." },
+            "나비": { m: "날개가 화려하고 가느다란 몸을 가진 곤충.", e: "꽃밭에 노란 나비가 앉아 있다." },
+            "안경": { m: "시력을 조절하거나 눈을 보호하는 기구.", e: "글씨가 안 보여서 안경을 썼다." },
+            "당근": { m: "주황색을 띠는 뿌리 채소.", e: "토끼가 당근을 맛있게 먹는다." },
+            "양말": { m: "발에 신는 의류 제품.", e: "운동하기 전 깨끗한 양말을 신었다." },
+            "피자": { m: "밀가루 반죽 위에 치즈를 얹어 구운 요리.", e: "친구들과 치즈 피자를 먹었다." },
+            "시계": { m: "시간을 나타내거나 알려 주는 기계.", e: "벽에 걸린 시계가 정각을 알렸다." },
+            "소금": { m: "짠맛을 내는 결정체. 조미료로 쓰인다.", e: "음식이 싱거워 소금을 넣었다." },
+            "호수": { m: "땅으로 둘러싸인 크고 깊은 물웅덩이.", e: "호수 위에 배 한 척이 떠 있다." },
+            "포도": { m: "덩굴 식물의 열매. 보라색 알갱이가 맺힌다.", e: "여름 제철 과일인 포도는 당도가 높다." },
+            "커피": { m: "커피나무 열매를 볶아 만든 음료.", e: "졸음을 쫓으려 커피를 마셨다." },
+            "모자": { m: "머리에 쓰는 물건.", e: "햇볕을 피하려 모자를 썼다." },
+            "친구": { m: "가깝게 지내는 사이.", e: "친구와 사이좋게 지내야 한다." },
+            "창고": { m: "물건을 보관하는 건물.", e: "오래된 물건을 창고에 넣었다." },
+            "내복": { m: "겉옷 안에 입는 옷.", e: "겨울에는 내복을 입어야 따뜻하다." },
+            "냄비": { m: "음식을 끓이는 그릇.", e: "냄비에 라면을 보글보글 끓였다." },
+            "우산": { m: "비나 눈을 가리는 도구.", e: "비가 와서 가방에서 우산을 꺼냈다." },
+            "경찰": { m: "사회의 질서를 유지하는 사람.", e: "경찰이 교통 정리를 하고 있다." },
+            "고추": { m: "매운 맛이 나는 채소.", e: "고추를 한 입 베어 물자 입안이 매웠다." },
+            "휴대폰": { m: "들고 다니는 무선 전화기.", e: "휴대폰으로 사진을 찍었다." },
+            "비행기": { m: "하늘을 나는 기계.", e: "비행기를 타고 여행을 갔다." },
+            "코끼리": { m: "코가 길고 몸집이 큰 동물.", e: "코끼리가 코로 물을 뿜는다." },
+            "카메라": { m: "사진을 찍는 기구.", e: "카메라로 풍경 사진을 찍었다." },
+            "도서관": { m: "책을 빌려 읽는 곳.", e: "도서관은 조용히 이용해야 한다." },
+            "무지개": { m: "비 온 뒤 하늘의 빛의 띠.", e: "하늘에 일곱 빛깔 무지개가 떴다." },
+            "다람쥐": { m: "도토리를 좋아하는 작은 동물.", e: "산길에서 다람쥐를 만났다." },
+            "오렌지": { m: "주황색 과일.", e: "상큼한 오렌지 주스를 마셨다." },
+            "피아노": { m: "건반 악기.", e: "피아노 연주 소리가 아름답다." },
+            "에어컨": { m: "실내 온도를 낮추는 장치.", e: "더워서 에어컨을 켰다." },
+            "축구공": { m: "축구용 공.", e: "운동장에서 축구공을 찼다." },
+            "사람들": { m: "여러 명의 사람.", e: "광장에 사람들이 가득하다." },
+            "비빔밥": { m: "비벼 먹는 한국 음식.", e: "점심으로 비빔밥을 먹었다." },
+            "호랑이": { m: "줄무늬가 있는 맹수.", e: "호랑이가 어흥 하고 울었다." },
+            "건강": { m: "튼튼한 몸 상태.", e: "건강을 위해 운동을 한다." }
+        };
+
+        const quizData = [
+            { initials: "ㅅㄱ", answer: "사과", options: ["사과", "바다", "하늘", "나무"] },
+            { initials: "ㅎㄴ", answer: "하늘", options: ["거울", "하늘", "우유", "학교"] },
+            { initials: "ㄴㅁ", answer: "나무", options: ["나무", "포도", "기차", "버스"] },
+            { initials: "ㅂㄷ", answer: "바다", options: ["나비", "커피", "바다", "모자"] },
+            { initials: "ㅎㄱ", answer: "학교", options: ["안경", "피자", "학교", "사탕"] },
+            { initials: "ㄱㅇ", answer: "거울", options: ["거울", "구름", "당근", "양말"] },
+            { initials: "ㅇㅇ", answer: "우유", options: ["나무", "우유", "기차", "포도"] },
+            { initials: "ㅈㅈㄱ", answer: "자전거", options: ["자전거", "비행기", "도서관", "휴대폰"] },
+            { initials: "ㅋㅍ", answer: "커피", options: ["우산", "커피", "나비", "거울"] },
+            { initials: "ㅎㄷㅍ", answer: "휴대폰", options: ["카메라", "휴대폰", "안경", "무지개"] },
+            { initials: "ㄱㄹ", answer: "구름", options: ["바다", "사과", "구름", "모자"] },
+            { initials: "ㅁㅈ", answer: "모자", options: ["모자", "포도", "시계", "나무"] },
+            { initials: "ㅂㅎㄱ", answer: "비행기", options: ["도서관", "비행기", "코끼리", "자전거"] },
+            { initials: "ㅅㅌ", answer: "사탕", options: ["기차", "사탕", "버스", "구름"] },
+            { initials: "ㅇㄱ", answer: "안경", options: ["안경", "양말", "하늘", "당근"] },
+            { initials: "ㅊㄱ", answer: "친구", options: ["사과", "나무", "친구", "바다"] },
+            { initials: "ㄴㅂ", answer: "나비", options: ["나비", "기차", "우유", "모자"] },
+            { initials: "ㅇㅅ", answer: "우산", options: ["거울", "우산", "친구", "사탕"] },
+            { initials: "ㄱㅊ", answer: "기차", options: ["버스", "기차", "안경", "구름"] },
+            { initials: "ㅂㅅ", answer: "버스", options: ["자전거", "버스", "나비", "학교"] },
+            { initials: "ㅋㄲㄹ", answer: "코끼리", options: ["코끼리", "비행기", "카메라", "호랑이"] },
+            { initials: "ㅇㄹㅈ", answer: "오렌지", options: ["오렌지", "코끼리", "무지개", "휴대폰"] },
+            { initials: "ㄷㄱ", answer: "당근", options: ["당근", "사과", "하늘", "바다"] },
+            { initials: "ㅍㅇㄴ", answer: "피아노", options: ["피아노", "안경", "기차", "버스"] },
+            { initials: "ㅇㅇㅋ", answer: "에어컨", options: ["자전거", "에어컨", "휴대폰", "비행기"] },
+            { initials: "ㅊㄱㄱ", answer: "축구공", options: ["축구공", "사탕", "우산", "학교"] },
+            { initials: "ㅁㅈㄱ", answer: "무지개", options: ["무지개", "나비", "구름", "커피"] },
+            { initials: "ㄷㄹㅈ", answer: "다람쥐", options: ["다람쥐", "호랑이", "코끼리", "비행기"] },
+            { initials: "ㅋㅁㄹ", answer: "카메라", options: ["카메라", "피아노", "에어컨", "무지개"] },
+            { initials: "ㄷㅅㄱ", answer: "도서관", options: ["도서관", "축구공", "다람쥐", "오렌지"] },
+            { initials: "ㅇㅁ", answer: "양말", options: ["양말", "안경", "우유", "바다"] },
+            { initials: "ㅅㄹㄷ", answer: "사람들", options: ["무지개", "사람들", "호랑이", "도서관"] },
+            { initials: "ㅂㅂㅂ", answer: "비빔밥", options: ["자전거", "비빔밥", "비행기", "에어컨"] },
+            { initials: "ㅎㄹㅇ", answer: "호랑이", options: ["호랑이", "다람쥐", "코끼리", "나비"] },
+            { initials: "ㄱㄱ", answer: "건강", options: ["하늘", "사과", "건강", "거울"] }
+        ];
+
+        let stage = 1, qIdx = 0, totalQIdx = 0, totalStartTime = 0, stageStartTime = 0;
+        let stageReports = [], stageAttempts = 0, timerInterval;
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSfx(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                if (type === 'correct') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch(e) {}
+        }
+
+        function startGame() {
+            document.getElementById('landing-page').style.display = 'none';
+            totalStartTime = Date.now();
+            stageStartTime = Date.now();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimeText, 1000);
+            renderQuiz();
+        }
+
+        function updateTimeText() {
+            const diff = Math.floor((Date.now() - totalStartTime) / 1000);
+            const m = String(Math.floor(diff / 60)).padStart(2, '0');
+            const s = String(diff % 60).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
+        }
+
+        function renderQuiz() {
+            if (totalQIdx >= quizData.length) return;
+            const data = quizData[totalQIdx];
+
+            document.getElementById('current-stage-display').innerText = stage;
+            document.getElementById('progress-display').innerText = `${qIdx}/7`;
+            document.getElementById('quiz-initials').innerText = data.initials;
+
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            const shuffled = [...data.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white border-2 border-emerald-100 p-5 rounded-2xl text-xl font-bold text-gray-700 shadow-sm transition-all hover:border-emerald-500 hover:bg-emerald-50 active:scale-95";
+                btn.innerText = opt;
+                btn.onclick = () => onOptionClick(opt, btn);
+                grid.appendChild(btn);
+            });
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function onOptionClick(selected, btn) {
+            const data = quizData[totalQIdx];
+            stageAttempts++;
+            const isCorrect = selected === data.answer;
+
+            if (isCorrect) {
+                playSfx('correct');
+                showFeedbackPopup(true, selected);
+            } else {
+                playSfx('wrong');
+                btn.classList.add('bg-red-500', 'text-white', 'border-red-500', 'shake');
+                btn.disabled = true;
+                showFeedbackPopup(false, selected);
+            }
+        }
+
+        function showFeedbackPopup(isCorrect, word) {
+            const popup = document.getElementById('feedback-popup');
+            const icon = document.getElementById('feedback-icon-container');
+            const title = document.getElementById('feedback-title');
+            const btn = document.getElementById('feedback-close-btn');
+            const wordData = dictionary[word] || { m: "정보가 없습니다.", e: "" };
+
+            popup.classList.remove('hidden');
+            document.getElementById('info-word').innerText = word;
+            document.getElementById('info-meaning').innerText = wordData.m;
+            document.getElementById('info-example').innerText = wordData.e ? `"${wordData.e}"` : "";
+
+            if (isCorrect) {
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-500";
+                icon.innerHTML = '<i data-lucide="check" class="text-white w-12 h-12"></i>';
+                title.innerText = "정답입니다!";
+                title.className = "text-3xl font-jua text-center mb-2 text-emerald-600";
+                if (window.confetti) confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+                btn.onclick = () => { popup.classList.add('hidden'); goToNext(); };
+            } else {
+                icon.className = "w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-500";
+                icon.innerHTML = '<i data-lucide="x" class="text-white w-12 h-12"></i>';
+                title.innerText = "틀렸습니다!";
+                title.className = "text-3xl font-jua text-center mb-2 text-red-600";
+                btn.onclick = () => { popup.classList.add('hidden'); };
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function goToNext() {
+            qIdx++;
+            totalQIdx++;
+            if (qIdx >= 7) {
+                const timeTaken = Math.floor((Date.now() - stageStartTime) / 1000);
+                stageReports.push({ stage, time: timeTaken, acc: Math.round((7 / stageAttempts) * 100) });
+                if (stage >= 5) {
+                    clearInterval(timerInterval);
+                    showFinalResult();
+                } else {
+                    showStageClearPopup();
+                }
+            } else {
+                renderQuiz();
+            }
+        }
+
+        function showStageClearPopup() {
+            document.getElementById('stage-clear-msg').innerText = `스테이지 ${stage} 완료!`;
+            document.getElementById('stage-clear-popup').classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function startNextStage() {
+            document.getElementById('stage-clear-popup').classList.add('hidden');
+            stage++;
+            qIdx = 0;
+            stageAttempts = 0;
+            stageStartTime = Date.now();
+            renderQuiz();
+        }
+
+        function showFinalResult() {
+            document.getElementById('result-page').classList.remove('hidden');
+            const container = document.getElementById('stage-reports-container');
+            container.innerHTML = '';
+            stageReports.forEach(r => {
+                const div = document.createElement('div');
+                div.className = "bg-emerald-50 p-5 rounded-2xl flex justify-between items-center shadow-sm border border-emerald-100";
+                div.innerHTML = `<div class="font-jua text-2xl text-emerald-800">Stage ${r.stage}</div>
+                    <div class="text-right">
+                        <p class="text-gray-500 text-sm">시간: ${r.time}초</p>
+                        <p class="text-gray-500 text-sm">정답률: ${r.acc}%</p>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        window.onload = () => {
+            if (window.lucide) lucide.createIcons();
+        };
+    </script>
+</body>
+</html>

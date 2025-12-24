@@ -104,18 +104,25 @@ endblock %} {% block content %}
         }
 
         const data = await res.json();
-        if (!data.is_admin) {
-          throw new Error("관리자 계정이 아닙니다.");
+        const role = data.role || "";
+        const allowed = ["instructor", "system_admin"];
+        if (!allowed.includes(role)) {
+          throw new Error("접근 권한이 없습니다.");
         }
 
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_nickname", data.nickname);
-        localStorage.setItem("is_admin", "true");
+        localStorage.setItem("user_role", role);
+        if (role === "system_admin") {
+          localStorage.setItem("is_admin", "true");
+        } else {
+          localStorage.removeItem("is_admin");
+        }
         localStorage.removeItem("is_guest");
-        setStatus(`✓ ${data.nickname} 관리자님 환영합니다!`);
+        setStatus(`✓ ${data.nickname}님 환영합니다!`);
 
         setTimeout(() => {
-          window.location.href = "/admin/dashboard";
+          window.location.href = "/admin";
         }, 1000);
       } catch (err) {
         console.error(err);

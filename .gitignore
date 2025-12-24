@@ -8,6 +8,19 @@
 venv/
 env/
 
+# Large binary files and libraries
+.venv_python38_backup/
+*.so
+*.pack
+*.idx
+# Deep learning libraries
+*.pt
+*.pth
+*.onnx
+# Git pack files (should not be committed, but for safety)
+.git/objects/pack/*.pack
+.git/objects/pack/*.idx
+
 # Python cache
 __pycache__/
 *.pyc

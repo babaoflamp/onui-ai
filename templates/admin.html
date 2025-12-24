@@ -14,70 +14,89 @@ content %}
           >계정</a
         >
       </div>
-      <nav class="space-y-1 text-sm">
-        <p class="px-3 text-[11px] uppercase tracking-[0.08em] text-gray-400">
-          메뉴
-        </p>
-        <a
-          href="/admin/dashboard?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >대시보드</a
-        >
-        <a
-          href="/admin/users?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >사용자 관리</a
-        >
-        <a
-          href="/admin/words?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >단어 관리</a
-        >
-        <a
-          href="/admin/recordings?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >녹음 관리</a
-        >
-        <a
-          href="/admin/analytics?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >통계 분석</a
-        >
-        <a
-          href="/admin/content?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >AI 콘텐츠 관리</a
-        >
-        <a
-          href="/admin/api?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >API 설정</a
-        >
-        <a
-          href="/admin/system?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >시스템 설정</a
-        >
-        <a
-          href="/admin/logs?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >로그 모니터링</a
-        >
-        <a
-          href="/admin/settings?embed=1"
-          target="adminFrame"
-          class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-          >관리자 설정</a
-        >
+      <nav class="space-y-4 text-sm">
+        <div class="space-y-1" data-roles="instructor">
+          <p class="px-3 text-[11px] uppercase tracking-[0.08em] text-gray-400">
+            교수
+          </p>
+          <a
+            href="/admin/users?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >사용자 관리</a
+          >
+          <a
+            href="/admin/words?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >단어 관리</a
+          >
+          <a
+            href="/admin/recordings?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >녹음 관리</a
+          >
+          <a
+            href="/learning"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >AI 학습</a
+          >
+          <a
+            href="/admin/content?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >AI 콘텐츠 관리</a
+          >
+          <a
+            href="/admin/analytics?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >통계 분석</a
+          >
+        </div>
+        <div class="space-y-1" data-roles="system_admin">
+          <p class="px-3 text-[11px] uppercase tracking-[0.08em] text-gray-400">
+            시스템
+          </p>
+          <a
+            href="/admin/dashboard?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >대시보드</a
+          >
+          <a
+            href="/admin/api?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >API 설정</a
+          >
+          <a
+            href="/stt-api-test"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >STT API 테스트</a
+          >
+          <a
+            href="/admin/system?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >시스템 설정</a
+          >
+          <a
+            href="/admin/logs?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >로그 모니터링</a
+          >
+          <a
+            href="/admin/settings?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >관리자 설정</a
+          >
+        </div>
       </nav>
       <div class="mt-4">
         <button
@@ -104,12 +123,33 @@ content %}
 </div>
 
 <script>
-  // Client-side admin check: redirect to admin login if not admin
+  // Client-side role check: redirect to admin login if missing role
   (function ensureAdmin() {
     const token = localStorage.getItem("auth_token");
+    const storedRole = localStorage.getItem("user_role");
     const isAdmin = localStorage.getItem("is_admin") === "true";
-    if (!token || !isAdmin) {
+    const role = storedRole || (isAdmin ? "system_admin" : "");
+    const allowed = ["instructor", "system_admin"];
+    if (!token || !allowed.includes(role)) {
       window.location.href = "/admin/login";
+      return;
+    }
+
+    document.querySelectorAll("[data-roles]").forEach((section) => {
+      const roles = section.getAttribute("data-roles") || "";
+      const roleList = roles.split(",").map((r) => r.trim());
+      if (!roleList.includes(role)) {
+        section.classList.add("hidden");
+      }
+    });
+
+    const frame = document.getElementById("adminFrame");
+    const defaultSrcMap = {
+      instructor: "/learning",
+      system_admin: "/admin/dashboard?embed=1",
+    };
+    if (frame && defaultSrcMap[role]) {
+      frame.src = defaultSrcMap[role];
     }
   })();
 
@@ -121,6 +161,7 @@ content %}
       localStorage.removeItem("user_nickname");
       localStorage.removeItem("is_guest");
       localStorage.removeItem("is_admin");
+      localStorage.removeItem("user_role");
       window.location.href = "/admin/login";
     });
 </script>

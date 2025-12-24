@@ -80,8 +80,10 @@ endblock %} {% block content %}
     // Start timer when page loads
     document.addEventListener("DOMContentLoaded", () => {
       // Admin 사용자는 캐릭터 팝업 타이머를 사용하지 않습니다
-      const isAdmin = localStorage.getItem("is_admin") === "true";
-      if (!isAdmin) {
+      const role =
+        localStorage.getItem("user_role") ||
+        (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+      if (role === "learner" || !role) {
         startCharacterPopupTimer();
       }
       startLearningSession();

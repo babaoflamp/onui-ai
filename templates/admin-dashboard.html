@@ -140,8 +140,11 @@ endblock %} {% block content %}
 
     function ensureAdmin() {
       const token = localStorage.getItem("auth_token");
-      const isAdmin = localStorage.getItem("is_admin") === "true";
-      if (!token || !isAdmin) {
+      const role =
+        localStorage.getItem("user_role") ||
+        (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+      const allowed = ["instructor", "system_admin"];
+      if (!token || !allowed.includes(role)) {
         window.location.href = "/admin/login";
         return null;
       }
@@ -163,6 +166,7 @@ endblock %} {% block content %}
           localStorage.removeItem("auth_token");
           localStorage.removeItem("user_nickname");
           localStorage.removeItem("is_admin");
+          localStorage.removeItem("user_role");
           setTimeout(() => (window.location.href = "/admin/login"), 800);
           return;
         }
@@ -208,6 +212,7 @@ endblock %} {% block content %}
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user_nickname");
       localStorage.removeItem("is_admin");
+      localStorage.removeItem("user_role");
       localStorage.removeItem("is_guest");
       window.location.href = "/admin/login";
     }

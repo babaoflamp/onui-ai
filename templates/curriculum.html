@@ -1,0 +1,445 @@
+{% extends "base.html" %} {% block title %}학습 단계 선택하기 | 오누이 한국어{%
+endblock %} {% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">학습 단계 선택하기</h1>
+    <p class="text-sm text-gray-600 mt-2">
+      단계별 학습 항목을 선택하고 다음 단계로 이동하세요.
+    </p>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+      <button
+        type="button"
+        data-level="입문"
+        class="curriculum-level px-4 py-2 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold"
+      >
+        입문
+      </button>
+      <button
+        type="button"
+        data-level="초급1"
+        class="curriculum-level px-4 py-2 rounded-full bg-gray-50 text-gray-600 text-sm"
+      >
+        초급 1
+      </button>
+      <button
+        type="button"
+        data-level="초급2"
+        class="curriculum-level px-4 py-2 rounded-full bg-gray-50 text-gray-600 text-sm"
+      >
+        초급 2
+      </button>
+      <button
+        type="button"
+        data-level="중급1"
+        class="curriculum-level px-4 py-2 rounded-full bg-gray-50 text-gray-600 text-sm"
+      >
+        중급 1
+      </button>
+      <button
+        type="button"
+        data-level="중급2"
+        class="curriculum-level px-4 py-2 rounded-full bg-gray-50 text-gray-600 text-sm"
+      >
+        중급 2
+      </button>
+      <button
+        type="button"
+        data-level="고급"
+        class="curriculum-level px-4 py-2 rounded-full bg-gray-50 text-gray-600 text-sm"
+      >
+        고급
+      </button>
+    </div>
+
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-gray-800">단어 목록</h2>
+        <span id="curriculumListLevel" class="text-xs text-gray-400">입문</span>
+      </div>
+      <div
+        id="curriculumWordList"
+        class="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-600"
+      >
+        데이터를 불러오는 중입니다.
+      </div>
+    </div>
+
+    <div id="curriculumIntroSections" class="space-y-6">
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">자음 - 1</h2>
+          <span class="text-xs text-gray-400">(3)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?initial=ㄱ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㄱ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㄴ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㄴ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㄷ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㄷ 소리
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">자음 - 2</h2>
+          <span class="text-xs text-gray-400">(4)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?initial=ㄹ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㄹ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅁ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㅁ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅂ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㅂ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅅ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㅅ 소리
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">자음 - 3</h2>
+          <span class="text-xs text-gray-400">(4)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?initial=ㅇ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㅇ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅈ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㅈ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅊ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㅊ 소리
+          </a>
+          <a
+            href="/curriculum/intro-basic?initial=ㅋ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 font-semibold text-center"
+          >
+            ㅋ/ㅌ/ㅍ/ㅎ
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">모음 - 1</h2>
+          <span class="text-xs text-gray-400">(4)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?vowel=ㅏ,ㅓ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅏ / ㅓ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅗ,ㅜ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅗ / ㅜ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅣ,ㅐ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-100 text-orange-700 text-center"
+          >
+            ㅣ / ㅐ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅑ,ㅒ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅑ / ㅒ
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">모음 - 2</h2>
+          <span class="text-xs text-gray-400">(4)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?vowel=ㅘ,ㅝ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅘ / ㅝ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅙ,ㅞ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅙ / ㅞ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅚ,ㅟ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅚ / ㅟ
+          </a>
+          <a
+            href="/curriculum/intro-basic?vowel=ㅢ,ㅖ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅢ / ㅖ
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-2 mb-3">
+          <h2 class="text-lg font-bold text-gray-900">발음 기초</h2>
+          <span class="text-xs text-gray-400">(5)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a
+            href="/curriculum/intro-basic?final=ㄱ"
+            class="curriculum-link px-4 py-2 rounded-xl bg-orange-500 text-white font-semibold text-center"
+          >
+            ㄱ 받침
+          </a>
+          <a
+            href="/curriculum/intro-basic?final=ㄴ,ㄹ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㄴ/ㄹ 받침
+          </a>
+          <a
+            href="/curriculum/intro-basic?final=ㅁ,ㅂ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㅁ/ㅂ 받침
+          </a>
+          <a
+            href="/curriculum/intro-basic?final=ㄷ,ㅅ"
+            class="curriculum-link px-4 py-2 rounded-xl border border-orange-300 text-orange-700 text-center"
+          >
+            ㄷ/ㅅ 받침
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<script>
+  const levelButtons = document.querySelectorAll(".curriculum-level");
+  const curriculumLinks = document.querySelectorAll(".curriculum-link");
+  const curriculumListEl = document.getElementById("curriculumWordList");
+  const curriculumListLevelEl = document.getElementById("curriculumListLevel");
+  let currentLevel = "입문";
+  let curriculumAllWords = [];
+  let selectedTopic = "";
+
+  function applyLevel(level) {
+    currentLevel = level;
+    selectedTopic = "";
+    levelButtons.forEach((btn) => {
+      const active = btn.dataset.level === level;
+      btn.classList.toggle("bg-orange-100", active);
+      btn.classList.toggle("text-orange-700", active);
+      btn.classList.toggle("font-semibold", active);
+      btn.classList.toggle("bg-gray-50", !active);
+      btn.classList.toggle("text-gray-600", !active);
+    });
+
+    curriculumLinks.forEach((link) => {
+      const url = new URL(link.getAttribute("href"), window.location.origin);
+      url.searchParams.set("level", level);
+      link.setAttribute("href", `${url.pathname}?${url.searchParams.toString()}`);
+    });
+
+    const showIntroSections = false;
+    const introSectionsEl = document.getElementById("curriculumIntroSections");
+    if (introSectionsEl) {
+      introSectionsEl.classList.toggle("hidden", !showIntroSections);
+    }
+    renderCurriculumList();
+    if (curriculumListLevelEl) curriculumListLevelEl.textContent = level;
+  }
+
+  levelButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      applyLevel(btn.dataset.level);
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const paramLevel = params.get("level");
+  const paramTopic = params.get("topic");
+  if (paramLevel) currentLevel = paramLevel;
+  if (paramTopic) selectedTopic = paramTopic;
+
+  async function loadCurriculumWords() {
+    try {
+      const res = await fetch("/api/vocabulary");
+      if (!res.ok) throw new Error("단어 데이터를 불러오지 못했습니다.");
+      const data = await res.json();
+      curriculumAllWords = data.vocabulary || [];
+    } catch (_) {
+      curriculumAllWords = [];
+    }
+  }
+
+  function renderCurriculumList() {
+    if (currentLevel === "입문") {
+      const introSectionsEl = document.getElementById("curriculumIntroSections");
+      if (!introSectionsEl) {
+        curriculumListEl.textContent = "표시할 항목이 없습니다.";
+        return;
+      }
+      const groups = Array.from(introSectionsEl.querySelectorAll("section")).map(
+        (section) => {
+          const title = section.querySelector("h2")?.textContent?.trim() || "기타";
+          const items = Array.from(section.querySelectorAll("a, button"))
+            .map((el) => el.textContent.trim())
+            .filter(Boolean);
+          return { title, items };
+        }
+      );
+      curriculumListEl.innerHTML = groups
+        .map((group) => {
+          const buttons = group.items
+            .map((label) => {
+              const href = getIntroLinkHref(label);
+              return `
+                <a
+                  href="${href}"
+                  class="px-4 py-2 rounded-xl text-sm font-semibold border border-orange-300 text-orange-700 hover:bg-orange-500 hover:text-white transition"
+                >
+                  ${label}
+                </a>
+              `;
+            })
+            .join("");
+          return `
+            <div class="mb-4">
+              <div class="text-sm font-semibold text-gray-800 mb-2">${group.title}</div>
+              <div class="flex flex-wrap gap-2">${buttons}</div>
+            </div>
+          `;
+        })
+        .join("");
+      return;
+    }
+
+    if (!curriculumAllWords.length) {
+      curriculumListEl.textContent = "표시할 단어가 없습니다.";
+      return;
+    }
+    const filtered = curriculumAllWords.filter(
+      (item) => item.topikLevel === currentLevel
+    );
+    if (!filtered.length) {
+      curriculumListEl.textContent = "조건에 맞는 단어가 없습니다.";
+      return;
+    }
+    const grouped = new Map();
+    filtered.forEach((item) => {
+      const category = item.category || "기타";
+      const topic = item.topic || "기타";
+      if (!grouped.has(category)) grouped.set(category, new Set());
+      grouped.get(category).add(topic);
+    });
+    const orderedCategories = Array.from(grouped.keys());
+    curriculumListEl.innerHTML = orderedCategories
+      .map((category) => {
+        const topics = Array.from(grouped.get(category));
+        const topicButtons = topics
+          .map((topic) => {
+            const active = selectedTopic === topic;
+            const href = `/curriculum/intro-basic?level=${encodeURIComponent(
+              currentLevel
+            )}&topic=${encodeURIComponent(topic)}`;
+            return `
+              <a
+                href="${href}"
+                data-topic="${topic}"
+                class="curriculum-topic px-4 py-2 rounded-xl text-sm font-semibold transition ${
+                  active
+                    ? "bg-orange-500 text-white hover:bg-orange-500"
+                    : "border border-orange-300 text-orange-700 hover:bg-orange-500 hover:text-white"
+                }"
+              >
+                ${topic}
+              </a>
+            `;
+          })
+          .join("");
+        return `
+          <div class="mb-4">
+            <div class="text-sm font-semibold text-gray-800 mb-2">${category}</div>
+            <div class="flex flex-wrap gap-2">${topicButtons}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    curriculumListEl.querySelectorAll(".curriculum-topic").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        selectedTopic = btn.dataset.topic;
+      });
+    });
+  }
+
+  function getIntroLinkHref(label) {
+    if (label.includes("받침")) {
+      const value = label.replace("받침", "").trim().replace(/\s/g, "");
+      return `/curriculum/intro-basic?final=${encodeURIComponent(value)}`;
+    }
+    if (label.includes("/")) {
+      const value = label.replace(/\s/g, "");
+      return `/curriculum/intro-basic?vowel=${encodeURIComponent(value)}`;
+    }
+    if (label.includes("소리")) {
+      const value = label.replace("소리", "").trim();
+      return `/curriculum/intro-basic?initial=${encodeURIComponent(value)}`;
+    }
+    return "/curriculum/intro-basic";
+  }
+
+  loadCurriculumWords().then(() => {
+    applyLevel(currentLevel);
+  });
+</script>
+{% endblock %}

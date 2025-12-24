@@ -40,6 +40,7 @@ from backend.services.speechpro_service import (
     call_speechpro_model,
     call_speechpro_score,
     speechpro_full_workflow,
+    ScoreResult,
     get_speechpro_url,
     set_speechpro_url,
     normalize_spaces,
@@ -151,6 +152,21 @@ GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
 
 # MzTTS Configuration
 MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
+
+# Role definitions
+ROLE_LEARNER = "learner"
+ROLE_INSTRUCTOR = "instructor"
+ROLE_SYSTEM_ADMIN = "system_admin"
+ROLE_CHOICES = {ROLE_LEARNER, ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN}
+
+
+def _normalize_role(role: str, is_admin: bool = False) -> str:
+    """Return a valid role, prioritizing system admin when is_admin is true."""
+    if is_admin:
+        return ROLE_SYSTEM_ADMIN
+    if role in ROLE_CHOICES:
+        return role
+    return ROLE_LEARNER
 
 
 def _list_ollama_models():
@@ -432,12 +448,16 @@ def _init_user_db():
                 reason TEXT,
                 style TEXT,
                 created_at TEXT NOT NULL,
-                is_admin INTEGER DEFAULT 0
+                is_admin INTEGER DEFAULT 0,
+                role TEXT DEFAULT 'learner'
             )
             """
         )
         conn.commit()
         _ensure_is_admin_column(conn)
+        _ensure_role_column(conn)
+        _ensure_word_score_table(conn)
+        _ensure_sentence_score_table(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
@@ -451,6 +471,64 @@ def _ensure_is_admin_column(conn):
     if "is_admin" not in cols:
         cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
         conn.commit()
+
+
+def _ensure_role_column(conn):
+    """Add role column if missing and backfill values."""
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(users)")
+    cols = [row[1] for row in cursor.fetchall()]
+    if "role" not in cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'learner'")
+        conn.commit()
+
+    cursor.execute(
+        "UPDATE users SET role = ? WHERE role IS NULL OR TRIM(role) = ''",
+        (ROLE_LEARNER,),
+    )
+    cursor.execute(
+        "UPDATE users SET role = ? WHERE is_admin = 1",
+        (ROLE_SYSTEM_ADMIN,),
+    )
+    conn.commit()
+
+
+def _ensure_word_score_table(conn):
+    """Create word score history table if missing."""
+    cursor = conn.cursor()
+    cursor.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS word_score_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            word_id TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_word_score_user_word
+            ON word_score_history(user_id, word_id, created_at);
+        """
+    )
+    conn.commit()
+
+
+def _ensure_sentence_score_table(conn):
+    """Create sentence score history table if missing."""
+    cursor = conn.cursor()
+    cursor.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS sentence_score_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            sentence_id INTEGER NOT NULL,
+            score INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_sentence_score_user_sentence
+            ON sentence_score_history(user_id, sentence_id, created_at);
+        """
+    )
+    conn.commit()
 
 
 def _seed_admin_user(conn):
@@ -469,14 +547,15 @@ def _seed_admin_user(conn):
         """
         INSERT OR IGNORE INTO users (
             email, nickname, password_hash, native_lang, affiliation, time_pref,
-            interests, goal, exam_level, reason, style, created_at, is_admin
-        ) VALUES (?, ?, ?, '', '', '', '[]', '', '', '', '', ?, 1)
+            interests, goal, exam_level, reason, style, created_at, is_admin, role
+        ) VALUES (?, ?, ?, '', '', '', '[]', '', '', '', '', ?, 1, ?)
         """,
         (
             admin_email,
             "Admin",
             password_hash,
             created_at,
+            ROLE_SYSTEM_ADMIN,
         ),
     )
     conn.commit()
@@ -536,8 +615,8 @@ def _store_user_signup(payload: dict) -> dict:
             """
             INSERT INTO users (
                 email, nickname, password_hash, native_lang, affiliation,
-                time_pref, interests, goal, exam_level, reason, style, created_at, is_admin
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+                time_pref, interests, goal, exam_level, reason, style, created_at, is_admin, role
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
             """,
             (
                 email,
@@ -552,6 +631,7 @@ def _store_user_signup(payload: dict) -> dict:
                 reason,
                 style,
                 created_at,
+                ROLE_LEARNER,
             ),
         )
         conn.commit()
@@ -587,7 +667,10 @@ def _get_user_by_email(email: str) -> dict:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, email, nickname, password_hash, is_admin FROM users WHERE email = ?",
+            """
+            SELECT id, email, nickname, password_hash, is_admin, role
+            FROM users WHERE email = ?
+            """,
             ((email or "").strip().lower(),)
         )
         row = cursor.fetchone()
@@ -603,7 +686,10 @@ def _get_user_by_nickname(nickname: str) -> dict:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, email, nickname, password_hash, is_admin FROM users WHERE nickname = ?",
+            """
+            SELECT id, email, nickname, password_hash, is_admin, role
+            FROM users WHERE nickname = ?
+            """,
             ((nickname or "").strip(),)
         )
         row = cursor.fetchone()
@@ -660,7 +746,7 @@ def _get_user_by_id(user_id: int) -> dict:
         cursor.execute(
             """
             SELECT id, email, nickname, native_lang, affiliation, time_pref,
-                   interests, goal, exam_level, reason, style, created_at, is_admin
+                   interests, goal, exam_level, reason, style, created_at, is_admin, role
             FROM users WHERE id = ?
             """,
             (user_id,)
@@ -674,6 +760,7 @@ def _get_user_by_id(user_id: int) -> dict:
                     data["interests"] = json.loads(data["interests"])
                 except Exception:
                     data["interests"] = []
+            data["role"] = _normalize_role(data.get("role"), data.get("is_admin"))
             return data
         return None
     finally:
@@ -696,8 +783,18 @@ def _require_authenticated_user(request: Request) -> dict:
 def _require_admin(request: Request) -> dict:
     """Return admin user or raise HTTP 403."""
     user = _require_authenticated_user(request)
-    if not user.get("is_admin"):
+    role = _normalize_role(user.get("role"), user.get("is_admin"))
+    if role != ROLE_SYSTEM_ADMIN:
         raise HTTPException(status_code=403, detail="관리자 권한이 필요합니다.")
+    return user
+
+
+def _require_role(request: Request, allowed_roles) -> dict:
+    """Return user if role is allowed, otherwise raise HTTP 403."""
+    user = _require_authenticated_user(request)
+    role = _normalize_role(user.get("role"), user.get("is_admin"))
+    if role not in allowed_roles:
+        raise HTTPException(status_code=403, detail="권한이 없습니다.")
     return user
 
 
@@ -719,6 +816,74 @@ def _get_user_stats() -> dict:
         }
     finally:
         conn.close()
+
+
+def _get_word_score_history(user_id: int, limit: int = 3) -> dict:
+    """Return per-word score history for a user."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT word_id, score, created_at
+            FROM word_score_history
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            """,
+            (user_id,),
+        )
+        rows = cursor.fetchall()
+    finally:
+        conn.close()
+
+    history = {}
+    for row in rows:
+        word_id = row["word_id"]
+        history.setdefault(word_id, [])
+        if len(history[word_id]) < limit:
+            history[word_id].append(row["score"])
+    return history
+
+
+def _get_sentence_score_history(user_id: int, limit: int = 3) -> dict:
+    """Return per-sentence score history for a user."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT sentence_id, score, created_at
+            FROM sentence_score_history
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            """,
+            (user_id,),
+        )
+        rows = cursor.fetchall()
+    finally:
+        conn.close()
+
+    history = {}
+    for row in rows:
+        sentence_id = str(row["sentence_id"])
+        history.setdefault(sentence_id, [])
+        if len(history[sentence_id]) < limit:
+            history[sentence_id].append(row["score"])
+    return history
+
+
+def _find_vocab_id_by_word(word_text: str) -> str:
+    """Find vocabulary id by exact Korean word match."""
+    if not word_text:
+        return ""
+    normalized = normalize_spaces(word_text)
+    vocabulary = load_json_data("vocabulary.json") or []
+    for item in vocabulary:
+        if normalize_spaces(item.get("word", "")) == normalized:
+            return item.get("id") or ""
+    return ""
 
 
 # ==========================================
@@ -1121,10 +1286,28 @@ def word_puzzle_page(request: Request):
     """단어 순서 맞추기 게임"""
     return templates.TemplateResponse("word-puzzle.html", {"request": request})
 
+@app.get("/initial-quiz")
+def initial_quiz_page(request: Request):
+    """초성 퀴즈 페이지"""
+    return templates.TemplateResponse("initial-quiz.html", {"request": request})
+
+@app.get("/card-matching-game")
+def card_matching_game_page(request: Request):
+    """카드 짝 맞추기 페이지"""
+    return templates.TemplateResponse(
+        "card-matching-game.html",
+        {"request": request},
+    )
+
 @app.get("/word-matching-game")
 def word_matching_game_page(request: Request):
     """단어맞추기 게임 페이지"""
     return templates.TemplateResponse("word-matching-game.html", {"request": request})
+
+@app.get("/word-list")
+def word_list_page(request: Request):
+    """학습 단어 목록 페이지"""
+    return templates.TemplateResponse("word-list.html", {"request": request})
 
 @app.get("/synonym-antonym-game")
 def synonym_antonym_game_page(request: Request):
@@ -1181,6 +1364,16 @@ def pronunciation_rules_page(request: Request):
     """발음 규칙 학습"""
     return templates.TemplateResponse("pronunciation-rules.html", {"request": request})
 
+@app.get("/curriculum")
+def curriculum_page(request: Request):
+    """학습 단계 선택하기 페이지"""
+    return templates.TemplateResponse("curriculum.html", {"request": request})
+
+@app.get("/curriculum/intro-basic")
+def curriculum_intro_basic_page(request: Request):
+    """입문-기본 학습 상세 페이지"""
+    return templates.TemplateResponse("curriculum-intro-basic.html", {"request": request})
+
 @app.get("/pronunciation-learning")
 def pronunciation_learning_page(request: Request):
     """발음 학습 허브 페이지"""
@@ -1200,6 +1393,12 @@ def signup_page(request: Request):
 def speechpro_practice_page(request: Request):
     """SpeechPro 발음 정확도 평가"""
     return templates.TemplateResponse("speechpro-practice.html", {"request": request})
+
+
+@app.get("/stt-api-test")
+def stt_api_test_page(request: Request):
+    """STT API 테스트 페이지"""
+    return templates.TemplateResponse("stt-api-test.html", {"request": request})
 
 @app.get("/api-test")
 def api_test_page(request: Request):
@@ -1356,12 +1555,15 @@ async def login(request: Request):
     client_host = request.client.host if request.client else "Unknown"
     logger.info(f"[USER_LOGIN] {user['nickname']} ({user['email']}) logged in from {client_host}")
     
+    role = _normalize_role(user.get("role"), user.get("is_admin"))
+
     return {
         "success": True,
         "token": token,
         "email": user["email"],
         "nickname": user["nickname"],
-        "is_admin": bool(user.get("is_admin")),
+        "is_admin": role == ROLE_SYSTEM_ADMIN,
+        "role": role,
     }
 
 
@@ -1495,7 +1697,7 @@ async def update_user_profile(request: Request):
 @app.get("/api/admin/summary")
 async def admin_summary(request: Request):
     """관리자 대시보드를 위한 간단한 요약 정보."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     stats = _get_user_stats()
     logger.info(f"[ADMIN_SUMMARY] {admin['email']} accessed summary")
     return {
@@ -1511,7 +1713,7 @@ async def admin_summary(request: Request):
 @app.get("/api/admin/logs-tail")
 async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", search: str = ""):
     """관리자용 최근 로그 조회 (필터링 포함)."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
     
     log_file = Path("logs/detailed.log")
     if not log_file.exists():
@@ -1551,7 +1753,7 @@ async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", s
 @app.get("/api/admin/users")
 async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
     """관리자용 사용자 목록 조회."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     
     conn = sqlite3.connect(DB_PATH)
     try:
@@ -1565,7 +1767,7 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
         # Get paginated users
         cursor.execute(
             """
-            SELECT id, email, nickname, is_admin, created_at
+            SELECT id, email, nickname, is_admin, role, created_at
             FROM users
             ORDER BY created_at DESC
             LIMIT ? OFFSET ?
@@ -1573,6 +1775,8 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
             (limit, skip)
         )
         users = [dict(row) for row in cursor.fetchall()]
+        for user in users:
+            user["role"] = _normalize_role(user.get("role"), user.get("is_admin"))
         
         logger.info(f"[ADMIN_USERS] {admin['email']} retrieved {len(users)} users")
         
@@ -1590,27 +1794,72 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
 @app.post("/api/admin/users/{user_id}/toggle-admin")
 async def admin_toggle_user_admin(request: Request, user_id: int):
     """사용자 관리자 권한 토글."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
     payload = await request.json()
     
     if admin["id"] == user_id:
         raise HTTPException(status_code=400, detail="자신의 관리자 권한은 수정할 수 없습니다.")
     
     is_admin = payload.get("is_admin", False)
+    new_role = ROLE_SYSTEM_ADMIN if is_admin else ROLE_LEARNER
     
     conn = sqlite3.connect(DB_PATH)
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE users SET is_admin = ? WHERE id = ?",
-            (int(bool(is_admin)), user_id)
+            "UPDATE users SET is_admin = ?, role = ? WHERE id = ?",
+            (int(bool(is_admin)), new_role, user_id)
         )
         conn.commit()
         
         user = _get_user_by_id(user_id)
         logger.info(f"[ADMIN_TOGGLE] {admin['email']} set is_admin={is_admin} for user {user['email']}")
         
-        return {"success": True, "user": {"id": user_id, "is_admin": bool(is_admin)}}
+        return {
+            "success": True,
+            "user": {"id": user_id, "is_admin": bool(is_admin), "role": new_role},
+        }
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/users/{user_id}/role")
+async def admin_update_user_role(request: Request, user_id: int):
+    """사용자 역할 변경."""
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    payload = await request.json()
+
+    if admin["id"] == user_id:
+        raise HTTPException(status_code=400, detail="자신의 역할은 변경할 수 없습니다.")
+
+    role = (payload.get("role") or "").strip().lower()
+    if role not in ROLE_CHOICES:
+        raise HTTPException(status_code=400, detail="유효하지 않은 역할입니다.")
+
+    is_admin = role == ROLE_SYSTEM_ADMIN
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE users SET role = ?, is_admin = ? WHERE id = ?",
+            (role, int(is_admin), user_id),
+        )
+        conn.commit()
+
+        user = _get_user_by_id(user_id)
+        logger.info(
+            f"[ADMIN_ROLE] {admin['email']} set role={role} for user {user['email']}"
+        )
+
+        return {
+            "success": True,
+            "user": {
+                "id": user_id,
+                "role": role,
+                "is_admin": bool(is_admin),
+            },
+        }
     finally:
         conn.close()
 
@@ -1618,7 +1867,7 @@ async def admin_toggle_user_admin(request: Request, user_id: int):
 @app.post("/api/admin/users/{user_id}/reset-password")
 async def admin_reset_user_password(request: Request, user_id: int):
     """사용자 비밀번호 초기화."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
     payload = await request.json()
     
     if admin["id"] == user_id:
@@ -1650,7 +1899,7 @@ async def admin_reset_user_password(request: Request, user_id: int):
 @app.get("/api/admin/users/{user_id}")
 async def admin_get_user_detail(request: Request, user_id: int):
     """사용자 상세 조회."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     
     user = _get_user_by_id(user_id)
     if not user:
@@ -1665,7 +1914,7 @@ async def admin_get_user_detail(request: Request, user_id: int):
 @app.get("/api/admin/settings")
 async def admin_get_settings(request: Request):
     """관리자 설정 조회."""
-    admin = _require_admin(request)
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
     
     settings = {
         "model_backend": MODEL_BACKEND,
@@ -2716,6 +2965,17 @@ class TTSRequest(BaseModel):
     pitch: float = 1.0
     gain: float = 1.0
 
+
+class SpeechProFeedbackRequest(BaseModel):
+    text: str
+    score: dict
+
+
+class STTProxyRequest(BaseModel):
+    base_url: str
+    endpoint: str
+    payload: dict
+
 @app.post("/api/tts/generate")
 async def generate_tts(request: TTSRequest):
     """
@@ -2930,7 +3190,8 @@ async def speechpro_evaluate(
     audio: UploadFile = File(...),
     syll_ltrs: str = Form(None),
     syll_phns: str = Form(None),
-    fst: str = Form(None)
+    fst: str = Form(None),
+    include_ai: str = Form("true"),
 ):
     """
     통합 발음 평가 API
@@ -2949,6 +3210,15 @@ async def speechpro_evaluate(
     """
     import time
     start_time = time.time()
+
+    def _parse_bool(value: str, default: bool = True) -> bool:
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() in ("1", "true", "yes", "y", "on")
+
+    include_ai_feedback = _parse_bool(include_ai, True)
     
     try:
         # 오디오 파일 읽기
@@ -3042,7 +3312,7 @@ async def speechpro_evaluate(
             # AI 피드백 생성
             ai_feedback = None
             ai_feedback_start = time.time()
-            if MODEL_BACKEND in ("ollama", "openai", "gemini"):
+            if include_ai_feedback and MODEL_BACKEND in ("ollama", "openai", "gemini"):
                 try:
                     ai_feedback = await _generate_pronunciation_feedback(text, score_result)
                     print(f"[Evaluate] AI feedback generated: {ai_feedback[:100] if ai_feedback else 'None'}")
@@ -3073,6 +3343,19 @@ async def speechpro_evaluate(
         # 2) 프리셋이 없으면 기존 전체 워크플로우 수행
         print(f"[Evaluate] No preset found, using full workflow")
         result = speechpro_full_workflow(text, audio_content)
+        if include_ai_feedback and result.get("success"):
+            try:
+                score_dict = result.get("score") or {}
+                score_result = ScoreResult(
+                    score=float(score_dict.get("score", 0) or 0),
+                    details=score_dict.get("details", {}),
+                    error_code=int(score_dict.get("error_code", 0) or 0),
+                )
+                ai_feedback = await _generate_pronunciation_feedback(text, score_result)
+                if ai_feedback:
+                    result["ai_feedback"] = ai_feedback
+            except Exception as fb_err:
+                print(f"[Evaluate] AI feedback failed (full workflow): {fb_err}")
         return JSONResponse(content=result)
     
     except ValueError as e:
@@ -3092,6 +3375,97 @@ async def speechpro_evaluate(
         )
 
 
+@app.post("/api/speechpro/feedback")
+async def speechpro_feedback(request: SpeechProFeedbackRequest):
+    """Generate AI feedback based on SpeechPro score result."""
+    text = (request.text or "").strip()
+    score_dict = request.score or {}
+
+    if not text:
+        return JSONResponse(status_code=400, content={"error": "text is required"})
+    if not score_dict:
+        return JSONResponse(status_code=400, content={"error": "score is required"})
+
+    try:
+        score_result = ScoreResult(
+            score=float(score_dict.get("score", 0) or 0),
+            details=score_dict.get("details", {}),
+            error_code=int(score_dict.get("error_code", 0) or 0),
+        )
+        ai_feedback = None
+        if MODEL_BACKEND in ("ollama", "openai", "gemini"):
+            ai_feedback = await _generate_pronunciation_feedback(text, score_result)
+        return JSONResponse(content={"success": True, "ai_feedback": ai_feedback})
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"AI feedback failed: {str(e)}", "success": False},
+        )
+
+
+@app.post("/api/stt/proxy")
+async def stt_proxy(request: STTProxyRequest):
+    """Proxy STT JSON requests to avoid browser CORS."""
+    base_url = (request.base_url or "").strip().rstrip("/")
+    endpoint = (request.endpoint or "").strip()
+    if not base_url or not endpoint:
+        return JSONResponse(status_code=400, content={"error": "base_url and endpoint are required"})
+
+    url = f"{base_url}{endpoint}"
+    try:
+        resp = requests.post(url, json=request.payload, timeout=30)
+        if resp.status_code >= 400:
+            return JSONResponse(
+                status_code=resp.status_code,
+                content={
+                    "error": "Upstream error",
+                    "status": resp.status_code,
+                    "body": resp.text,
+                },
+            )
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"raw": resp.text}
+        return JSONResponse(status_code=resp.status_code, content=data)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Proxy failed: {str(e)}"})
+
+
+@app.post("/api/stt/scorefile")
+async def stt_scorefile(
+    base_url: str = Form(...),
+    endpoint: str = Form(...),
+    config: str = Form(...),
+    wav_usr: UploadFile = File(...),
+):
+    """Proxy STT scorefile multipart request to avoid browser CORS."""
+    url = f"{base_url.strip().rstrip('/')}{endpoint.strip()}"
+    try:
+        audio_content = await wav_usr.read()
+        files = {
+            "wav_usr": (wav_usr.filename or "audio.wav", audio_content, wav_usr.content_type or "audio/wav")
+        }
+        data = {"config": config}
+        resp = requests.post(url, files=files, data=data, timeout=60)
+        if resp.status_code >= 400:
+            return JSONResponse(
+                status_code=resp.status_code,
+                content={
+                    "error": "Upstream error",
+                    "status": resp.status_code,
+                    "body": resp.text,
+                },
+            )
+        try:
+            resp_json = resp.json()
+        except Exception:
+            resp_json = {"raw": resp.text}
+        return JSONResponse(status_code=resp.status_code, content=resp_json)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": f"Proxy failed: {str(e)}"})
+
+
 @app.get("/chatbot")
 def chatbot_page(request: Request):
     """AI 챗봇 페이지"""
@@ -3106,8 +3480,8 @@ def pricing_page(request: Request):
 
 @app.get("/sentence-evaluation")
 def sentence_evaluation_page(request: Request):
-    """문장 평가 페이지"""
-    return templates.TemplateResponse("sentence-evaluation.html", {"request": request})
+    """문장 학습 페이지"""
+    return templates.TemplateResponse("sentence-learning.html", {"request": request})
 
 
 @app.post("/api/chatbot")
@@ -3636,12 +4010,10 @@ async def check_popup_trigger(request: Request):
     """Pop-Up 트리거 확인 (인증 필요)"""
     try:
         # 사용자 인증 확인
-        user = await get_current_user(request)
-        if not user:
-            return JSONResponse(
-                status_code=401,
-                content={"error": "Unauthorized"}
-            )
+        user = _require_authenticated_user(request)
+        role = _normalize_role(user.get("role"), user.get("is_admin"))
+        if role in (ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN):
+            return JSONResponse({"popup": None})
 
         user_id = user['id']
         popup = learning_service.check_popup_trigger(user_id)
@@ -3662,6 +4034,97 @@ async def check_popup_trigger(request: Request):
             status_code=500,
             content={"error": str(e)}
         )
+
+
+@app.get("/api/learning/word-scores")
+async def get_word_scores(request: Request, limit: int = 3):
+    """Get per-word score history for the current user."""
+    user = _require_authenticated_user(request)
+    limit = max(1, min(limit, 10))
+    history = _get_word_score_history(user["id"], limit=limit)
+    return JSONResponse({"scores": history})
+
+
+@app.post("/api/learning/word-scores")
+async def add_word_score(request: Request):
+    """Add a word score entry for the current user."""
+    user = _require_authenticated_user(request)
+    payload = await request.json()
+    word_id = (payload.get("word_id") or "").strip()
+    word_text = (payload.get("word_text") or "").strip()
+    if not word_id and word_text:
+        word_id = _find_vocab_id_by_word(word_text)
+    score = payload.get("score")
+    if not word_id:
+        return JSONResponse({"success": False, "skipped": True})
+    try:
+        score = int(score)
+    except Exception:
+        raise HTTPException(status_code=400, detail="score must be an integer")
+    if score < 0 or score > 100:
+        raise HTTPException(status_code=400, detail="score must be 0-100")
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO word_score_history (user_id, word_id, score)
+            VALUES (?, ?, ?)
+            """,
+            (user["id"], word_id, score),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return JSONResponse({"success": True})
+
+
+@app.get("/api/learning/sentence-scores")
+async def get_sentence_scores(request: Request, limit: int = 3):
+    """Get per-sentence score history for the current user."""
+    user = _require_authenticated_user(request)
+    limit = max(1, min(limit, 10))
+    history = _get_sentence_score_history(user["id"], limit=limit)
+    return JSONResponse({"scores": history})
+
+
+@app.post("/api/learning/sentence-scores")
+async def add_sentence_score(request: Request):
+    """Add a sentence score entry for the current user."""
+    user = _require_authenticated_user(request)
+    payload = await request.json()
+    sentence_id = payload.get("sentence_id")
+    score = payload.get("score")
+    if sentence_id is None:
+        raise HTTPException(status_code=400, detail="sentence_id is required")
+    try:
+        sentence_id = int(sentence_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="sentence_id must be an integer")
+    try:
+        score = int(score)
+    except Exception:
+        raise HTTPException(status_code=400, detail="score must be an integer")
+    if score < 0 or score > 100:
+        raise HTTPException(status_code=400, detail="score must be 0-100")
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO sentence_score_history (user_id, sentence_id, score)
+            VALUES (?, ?, ?)
+            """,
+            (user["id"], sentence_id, score),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return JSONResponse({"success": True})
 
 # ====================
 # Media Generation APIs

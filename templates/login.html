@@ -136,7 +136,13 @@ endblock %} {% block content %}
         // Store token and nickname in localStorage
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_nickname", data.nickname);
-        if (data.is_admin) {
+        const role = data.role || "";
+        if (role) {
+          localStorage.setItem("user_role", role);
+        } else {
+          localStorage.removeItem("user_role");
+        }
+        if (role === "system_admin") {
           localStorage.setItem("is_admin", "true");
         } else {
           localStorage.removeItem("is_admin");
@@ -148,8 +154,9 @@ endblock %} {% block content %}
 
         // Redirect after 1.2 seconds
         setTimeout(() => {
-          const isAdmin = localStorage.getItem("is_admin") === "true";
-          window.location.href = isAdmin ? "/admin" : "/";
+          const role = localStorage.getItem("user_role");
+          const shouldGoAdmin = role === "instructor" || role === "system_admin";
+          window.location.href = shouldGoAdmin ? "/admin" : "/";
         }, 1200);
       } catch (err) {
         console.error(err);

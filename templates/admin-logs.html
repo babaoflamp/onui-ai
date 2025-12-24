@@ -107,9 +107,11 @@
 
     function ensureAdmin() {
       const token = localStorage.getItem("auth_token");
-      const isAdmin = localStorage.getItem("is_admin") === "true";
-      if (!token || !isAdmin) {
-        alert("관리자 권한이 필요합니다.");
+      const role =
+        localStorage.getItem("user_role") ||
+        (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+      if (!token || role !== "system_admin") {
+        alert("접근 권한이 없습니다.");
         window.location.href = "/admin/login";
         return null;
       }

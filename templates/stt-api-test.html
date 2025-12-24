@@ -1,0 +1,409 @@
+{% extends "base.html" %} {% block title %}STT API 테스트 - 오누이 AI{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">STT API 테스트</h1>
+    <p class="text-sm text-gray-500 mt-2">
+      STT API 인터페이스 문서에 맞춰 간단하게 요청을 보낼 수 있습니다.
+    </p>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-semibold text-gray-600">서버 Base URL</span>
+        <input
+          id="sttBaseUrl"
+          class="border border-gray-200 rounded-lg px-3 py-2 text-sm"
+          value="http://112.220.79.218:33085"
+        />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-semibold text-gray-600">Endpoint</span>
+        <select
+          id="sttEndpoint"
+          class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
+        >
+          <option value="/speechpro/normalize">/speechpro/normalize</option>
+          <option value="/speechpro/arpa">/speechpro/arpa</option>
+          <option value="/speechpro/sentence">/speechpro/sentence</option>
+          <option value="/speechpro/gtp">/speechpro/gtp</option>
+          <option value="/speechpro/model">/speechpro/model</option>
+          <option value="/speechpro/score">/speechpro/score</option>
+          <option value="/speechpro/scorefile">/speechpro/scorefile (multipart)</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="text-xs font-semibold text-gray-600">오디오 파일</span>
+        <input id="sttAudioFile" type="file" accept="audio/*" class="text-sm" />
+        <div class="flex items-center gap-2">
+          <button
+            id="sttRecordStart"
+            type="button"
+            class="px-3 py-2 rounded-lg bg-orange-500 text-white text-xs font-semibold hover:bg-orange-400"
+          >
+            🎙️ 녹음 시작
+          </button>
+          <button
+            id="sttRecordStop"
+            type="button"
+            class="px-3 py-2 rounded-lg bg-orange-100 text-orange-700 text-xs font-semibold hover:bg-orange-200"
+            disabled
+          >
+            ⏹️ 녹음 중지
+          </button>
+        </div>
+        <audio id="sttRecordedAudio" class="hidden w-full" controls></audio>
+      </label>
+    </div>
+    <label class="flex items-center gap-2 text-xs text-gray-600">
+      <input id="sttUseProxy" type="checkbox" class="rounded" checked />
+      로컬 프록시 사용 (CORS 회피)
+    </label>
+
+    <label class="flex flex-col gap-2">
+      <span class="text-xs font-semibold text-gray-600">요청 JSON</span>
+      <textarea
+        id="sttPayload"
+        rows="10"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
+      >{
+  "id": "1000",
+  "text": "안녕하세요"
+}</textarea>
+    </label>
+
+    <div class="flex items-center gap-3">
+      <button
+        id="sttSend"
+        class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-400"
+      >
+        요청 보내기
+      </button>
+      <span id="sttStatus" class="text-xs text-gray-500"></span>
+    </div>
+  </div>
+
+  <div class="mt-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4">
+    <h2 class="text-sm font-semibold text-gray-800">WebSocket 테스트</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="text-xs font-semibold text-gray-600">WS URL</span>
+        <input
+          id="sttWsUrl"
+          class="border border-gray-200 rounded-lg px-3 py-2 text-sm"
+          value="ws://112.220.79.218:33085/ws"
+        />
+      </label>
+      <div class="flex items-end gap-2">
+        <button
+          id="sttWsConnect"
+          class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500"
+        >
+          연결
+        </button>
+        <button
+          id="sttWsDisconnect"
+          class="px-3 py-2 rounded-lg bg-gray-100 text-gray-600 text-xs font-semibold hover:bg-gray-200"
+          disabled
+        >
+          종료
+        </button>
+      </div>
+    </div>
+    <label class="flex flex-col gap-2">
+      <span class="text-xs font-semibold text-gray-600">WS 메시지(JSON)</span>
+      <textarea
+        id="sttWsMessage"
+        rows="6"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
+      >{"id":"1000","text":"안녕하세요"}</textarea>
+    </label>
+    <div class="flex items-center gap-2">
+      <button
+        id="sttWsSend"
+        class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500"
+        disabled
+      >
+        메시지 전송
+      </button>
+      <button
+        id="sttWsSendAudio"
+        class="px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100"
+        disabled
+      >
+        오디오 전송
+      </button>
+      <span id="sttWsStatus" class="text-xs text-gray-500"></span>
+    </div>
+    <pre
+      id="sttWsLog"
+      class="text-xs text-gray-700 bg-gray-50 border border-gray-100 rounded-lg p-4 overflow-auto"
+    >-</pre>
+  </div>
+
+  <div class="mt-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+    <h2 class="text-sm font-semibold text-gray-800 mb-3">응답</h2>
+    <pre
+      id="sttResponse"
+      class="text-xs text-gray-700 bg-gray-50 border border-gray-100 rounded-lg p-4 overflow-auto"
+    >-</pre>
+  </div>
+</div>
+
+<script>
+  const baseUrlEl = document.getElementById("sttBaseUrl");
+  const endpointEl = document.getElementById("sttEndpoint");
+  const payloadEl = document.getElementById("sttPayload");
+  const responseEl = document.getElementById("sttResponse");
+  const sendBtn = document.getElementById("sttSend");
+  const statusEl = document.getElementById("sttStatus");
+  const audioFileEl = document.getElementById("sttAudioFile");
+  const recordStartEl = document.getElementById("sttRecordStart");
+  const recordStopEl = document.getElementById("sttRecordStop");
+  const recordedAudioEl = document.getElementById("sttRecordedAudio");
+  const useProxyEl = document.getElementById("sttUseProxy");
+  let recorder = null;
+  let recordedChunks = [];
+  const wsUrlEl = document.getElementById("sttWsUrl");
+  const wsMessageEl = document.getElementById("sttWsMessage");
+  const wsConnectEl = document.getElementById("sttWsConnect");
+  const wsDisconnectEl = document.getElementById("sttWsDisconnect");
+  const wsSendEl = document.getElementById("sttWsSend");
+  const wsSendAudioEl = document.getElementById("sttWsSendAudio");
+  const wsStatusEl = document.getElementById("sttWsStatus");
+  const wsLogEl = document.getElementById("sttWsLog");
+  let ws = null;
+
+  function setStatus(text, isError) {
+    statusEl.textContent = text;
+    statusEl.classList.toggle("text-red-500", !!isError);
+    statusEl.classList.toggle("text-gray-500", !isError);
+  }
+
+  async function sendRequest() {
+    const baseUrl = (baseUrlEl.value || "").trim().replace(/\/$/, "");
+    const endpoint = endpointEl.value;
+    const url = `${baseUrl}${endpoint}`;
+
+    let payload = null;
+    try {
+      payload = JSON.parse(payloadEl.value || "{}");
+    } catch (err) {
+      setStatus("JSON 형식을 확인해주세요.", true);
+      return;
+    }
+
+    setStatus("요청 중...", false);
+    responseEl.textContent = "";
+
+    try {
+      let response;
+      const useProxy = useProxyEl.checked;
+      if (endpoint === "/speechpro/scorefile") {
+        const audioFile = audioFileEl.files[0];
+        if (!audioFile) {
+          setStatus("오디오 파일을 선택해주세요.", true);
+          return;
+        }
+        const formData = new FormData();
+        formData.append("wav_usr", audioFile);
+        formData.append("config", JSON.stringify(payload));
+        if (useProxy) {
+          formData.append("base_url", baseUrl);
+          formData.append("endpoint", endpoint);
+          response = await fetch("/api/stt/scorefile", {
+            method: "POST",
+            body: formData,
+          });
+        } else {
+          response = await fetch(url, { method: "POST", body: formData });
+        }
+      } else {
+        if (useProxy) {
+          response = await fetch("/api/stt/proxy", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ base_url: baseUrl, endpoint, payload }),
+          });
+        } else {
+          response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        }
+      }
+
+      const text = await response.text();
+      let json;
+      try {
+        json = text ? JSON.parse(text) : {};
+      } catch (_) {
+        json = { raw: text };
+      }
+      responseEl.textContent = JSON.stringify(json, null, 2);
+      if (!response.ok) {
+        setStatus(`오류 응답 (${response.status})`, true);
+        return;
+      }
+      setStatus("완료", false);
+    } catch (err) {
+      responseEl.textContent = err.message || "요청 실패";
+      setStatus("요청 실패", true);
+    }
+  }
+
+  async function startRecording() {
+    if (recorder && recorder.state === "recording") return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordedChunks = [];
+      recorder = new MediaRecorder(stream);
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordedChunks.push(event.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: "audio/webm" });
+        convertToWav(blob)
+          .then((wavBlob) => {
+            const file = new File([wavBlob], "recording.wav", {
+              type: "audio/wav",
+            });
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            audioFileEl.files = dt.files;
+            recordedAudioEl.src = URL.createObjectURL(wavBlob);
+            recordedAudioEl.classList.remove("hidden");
+          })
+          .catch((err) => {
+            console.error("WAV 변환 오류:", err);
+            setStatus("WAV 변환에 실패했습니다.", true);
+          });
+        stream.getTracks().forEach((track) => track.stop());
+      };
+      recorder.start();
+      recordStartEl.disabled = true;
+      recordStopEl.disabled = false;
+      setStatus("녹음 중...", false);
+    } catch (err) {
+      setStatus("마이크 권한을 확인해주세요.", true);
+      console.error("녹음 시작 오류:", err);
+    }
+  }
+
+  function stopRecording() {
+    if (!recorder || recorder.state !== "recording") return;
+    recorder.stop();
+    recordStartEl.disabled = false;
+    recordStopEl.disabled = true;
+    setStatus("녹음 완료", false);
+  }
+
+  async function convertToWav(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    const channelData = audioBuffer.getChannelData(0);
+    const wavBuffer = encodeWav(channelData, audioBuffer.sampleRate);
+    return new Blob([wavBuffer], { type: "audio/wav" });
+  }
+
+  function encodeWav(samples, sampleRate) {
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+      }
+    }
+
+    writeString(view, 0, "RIFF");
+    view.setUint32(4, 36 + samples.length * 2, true);
+    writeString(view, 8, "WAVE");
+    writeString(view, 12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(view, 36, "data");
+    view.setUint32(40, samples.length * 2, true);
+
+    let offset = 44;
+    for (let i = 0; i < samples.length; i++) {
+      let s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += 2;
+    }
+    return buffer;
+  }
+
+  sendBtn.addEventListener("click", sendRequest);
+  recordStartEl.addEventListener("click", startRecording);
+  recordStopEl.addEventListener("click", stopRecording);
+
+  function appendWsLog(message) {
+    if (wsLogEl.textContent === "-") wsLogEl.textContent = "";
+    wsLogEl.textContent += message + "\n";
+    wsLogEl.scrollTop = wsLogEl.scrollHeight;
+  }
+
+  function updateWsButtons(connected) {
+    wsConnectEl.disabled = connected;
+    wsDisconnectEl.disabled = !connected;
+    wsSendEl.disabled = !connected;
+    wsSendAudioEl.disabled = !connected;
+  }
+
+  wsConnectEl.addEventListener("click", () => {
+    const url = (wsUrlEl.value || "").trim();
+    if (!url) return;
+    ws = new WebSocket(url);
+    wsStatusEl.textContent = "연결 중...";
+    ws.onopen = () => {
+      wsStatusEl.textContent = "연결됨";
+      updateWsButtons(true);
+      appendWsLog("[open] connected");
+    };
+    ws.onmessage = (event) => {
+      appendWsLog(`[message] ${event.data}`);
+    };
+    ws.onerror = () => {
+      wsStatusEl.textContent = "오류";
+      appendWsLog("[error] connection error");
+    };
+    ws.onclose = () => {
+      wsStatusEl.textContent = "연결 종료";
+      updateWsButtons(false);
+      appendWsLog("[close] disconnected");
+    };
+  });
+
+  wsDisconnectEl.addEventListener("click", () => {
+    if (ws) ws.close();
+  });
+
+  wsSendEl.addEventListener("click", () => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const msg = wsMessageEl.value || "";
+    ws.send(msg);
+    appendWsLog(`[send] ${msg}`);
+  });
+
+  wsSendAudioEl.addEventListener("click", async () => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const file = audioFileEl.files[0];
+    if (!file) {
+      wsStatusEl.textContent = "오디오 파일 필요";
+      return;
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    ws.send(arrayBuffer);
+    appendWsLog(`[send] audio ${file.name} (${file.size} bytes)`);
+  });
+</script>
+{% endblock %}

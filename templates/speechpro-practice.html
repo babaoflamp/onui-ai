@@ -959,7 +959,7 @@
       }
 
       // 로딩 표시
-      showLoading("AI 분석 중입니다...");
+      showLoading("발음 정확도 분석 중입니다...");
       hideError();
 
       const controller = new AbortController();
@@ -975,6 +975,8 @@
         const formData = new FormData();
         formData.append("text", text);
         formData.append("audio", audioBlob, "recording.wav");
+
+        formData.append("include_ai", "false");
 
         // 프리셋 문장인 경우 사전 계산 정보 전송
         if (
@@ -1032,6 +1034,9 @@
 
         if (result.success) {
           displayResults(result);
+          if (result.score) {
+            requestAiFeedback(text, result.score);
+          }
         } else {
           showError(result.error || "평가에 실패했습니다");
         }
@@ -1044,6 +1049,70 @@
       } finally {
         clearTimeout(timeoutId);
         hideLoading();
+      }
+    }
+
+    function showAiFeedbackLoading() {
+      const target = document.getElementById("feedback-content");
+      if (!target) return;
+      target.innerHTML =
+        "<div class='text-sm text-blue-700'>AI 종합 평가를 생성 중입니다...</div>";
+    }
+
+    function updateAiFeedbackUI(text, score) {
+      const feedbackContent = document.getElementById("feedback-content");
+      if (!feedbackContent) return;
+      const decorated = formatAiFeedback(text, score);
+      const finalText = decorated || text;
+      const sections = extractFeedbackSections(finalText);
+
+      if (sections) {
+        feedbackContent.innerHTML = buildFeedbackSectionMarkup(sections);
+      } else {
+        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(
+          finalText
+        );
+        renderMarkdownSafe(
+          feedbackContent,
+          hasEmoji ? finalText : `✨ ${finalText}`
+        );
+
+        const blocks = Array.from(feedbackContent.children || []);
+        blocks.forEach((el, idx) => {
+          if (idx === 0) return;
+          el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
+        });
+      }
+    }
+
+    async function requestAiFeedback(text, score) {
+      if (!text || !score) return;
+      showAiFeedbackLoading();
+      try {
+        const response = await fetch("/api/speechpro/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, score }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || "AI 종합 평가 실패");
+        }
+        const aiFeedbackText = (data.ai_feedback || "").trim();
+        if (aiFeedbackText) {
+          updateAiFeedbackUI(aiFeedbackText, Math.round(score.score || 0));
+        } else {
+          updateAiFeedbackUI(
+            "AI 피드백을 생성하지 못했습니다.",
+            Math.round(score.score || 0)
+          );
+        }
+      } catch (err) {
+        updateAiFeedbackUI(
+          "AI 종합 평가를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+          Math.round(score.score || 0)
+        );
+        console.error("AI 피드백 오류:", err);
       }
     }
 
@@ -1109,6 +1178,21 @@
             "🌟"
           );
         }
+      }
+
+      // Store word score history if this is a single-word evaluation
+      const token = localStorage.getItem("auth_token");
+      const candidate =
+        selectedSentence?.sentenceKr || selectedSentence?.korean || testedSentence;
+      if (token && candidate && !/\s/.test(candidate)) {
+        fetch("/api/learning/word-scores", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ word_text: candidate, score }),
+        }).catch(() => {});
       }
 
       // 상세 정보 표시
@@ -1399,59 +1483,15 @@
       }
 
       // AI 피드백 표시
-      const feedbackContent = document.getElementById("feedback-content");
-
-      // AI 종합 피드백: 다양한 필드명 대응 + 점수 기반 기본 코멘트
       const rawAiFeedback =
         (result &&
           (result.ai_feedback || result.feedback || result.feedback_text)) ||
         "";
 
-      let aiFeedbackText = "";
       if (typeof rawAiFeedback === "string" && rawAiFeedback.trim()) {
-        aiFeedbackText = rawAiFeedback.trim();
+        updateAiFeedbackUI(rawAiFeedback.trim(), score);
       } else {
-        if (score >= 90) {
-          aiFeedbackText =
-            "🌟 완벽에 가깝습니다! 리듬과 억양을 유지한 채 더 긴 문장에도 도전해 보세요.";
-        } else if (score >= 80) {
-          aiFeedbackText =
-            "✅ 매우 좋습니다. 미묘한 억양·강세를 한 번씩 점검하면 더 자연스러워집니다.";
-        } else if (score >= 70) {
-          aiFeedbackText =
-            "💡 좋은 편이에요. 어려운 자음·모음 조합을 느리게 반복하며 정확도를 먼저 끌어올려 보세요.";
-        } else if (score >= 60) {
-          aiFeedbackText =
-            "🎯 기본은 갖추고 있습니다. 문장을 짧게 끊어 읽으며 발화 속도를 낮추고 정확도에 집중해 보세요.";
-        } else {
-          aiFeedbackText =
-            "🚀 조금 더 연습이 필요합니다. 짧은 문장을 반복 녹음하면서 리듬과 강세를 익히면 빠르게 올라갑니다.";
-        }
-      }
-
-      if (feedbackContent) {
-        const decorated = formatAiFeedback(aiFeedbackText, score);
-        const finalText = decorated || aiFeedbackText;
-        const sections = extractFeedbackSections(finalText);
-
-        if (sections) {
-          feedbackContent.innerHTML = buildFeedbackSectionMarkup(sections);
-        } else {
-          // 마지막 안전망: 이모지가 전혀 없으면 기본 강조 이모지 추가
-          const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(
-            finalText
-          );
-          renderMarkdownSafe(
-            feedbackContent,
-            hasEmoji ? finalText : `✨ ${finalText}`
-          );
-
-          const blocks = Array.from(feedbackContent.children || []);
-          blocks.forEach((el, idx) => {
-            if (idx === 0) return;
-            el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
-          });
-        }
+        showAiFeedbackLoading();
       }
 
       // 학습 진도 기록 및 Pop-Up 표시
