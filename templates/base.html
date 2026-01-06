@@ -68,9 +68,11 @@
 
       html,
       body {
-        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, "Helvetica Neue", "Noto Sans KR", "Noto Sans", Arial,
-          sans-serif;
+        font-family: "Pretendard", "Noto Sans KR", "Noto Sans JP",
+          "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+          "PingFang SC", "Microsoft YaHei", "Noto Sans", Arial, sans-serif,
+          "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
       }
 
       body {
@@ -114,6 +116,15 @@
       }
 
       .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      /* Language dropdown uses click-to-toggle on mobile; don't rely on hover */
+      #lang-menu.hidden {
+        display: none;
+      }
+
+      #lang-menu:not(.hidden) {
         display: block;
       }
 
@@ -165,28 +176,35 @@
         left: auto;
       }
 
-      /* AI 학습 & 관리자 드롭다운: 더 좁은 너비 */
+	      /* AI 학습 & 관리자 드롭다운: 더 좁은 너비 */
       #learning-dropdown .dropdown-content,
+      #system-learning-dropdown .dropdown-content,
       #admin-dropdown .dropdown-content {
         min-width: 200px;
       }
+
+      #lang-dropdown .dropdown-content {
+        min-width: 110px;
+      }
     </style>
 
-    <style>
-      /* Embedded mode: hide global chrome when inside iframe or embed=1 */
-      .embedded nav,
-      .embedded footer,
-      .embedded #chatbot-widget {
-        display: none !important;
-      }
-      .embedded main {
-        padding-top: 0 !important;
-      }
-    </style>
+	    <style>
+	      /* Embedded mode: hide global chrome when inside iframe or embed=1 */
+	      .embedded nav,
+	      .embedded footer,
+	      .embedded #chatbot-widget {
+	        display: none !important;
+	      }
+	      .embedded main {
+	        padding-top: 0 !important;
+	      }
+	    </style>
+	
+    <style></style>
 
     {% block extra_css %}{% endblock %}
   </head>
-  <body class="bg-gray-100">
+	  <body class="bg-gray-100">
     <script>
       // Mark document as embedded if loaded in iframe or with embed=1
       (function () {
@@ -220,23 +238,27 @@
             </div>
 
             <!-- Desktop Navigation -->
-            <div
-              id="learner-nav"
-              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
-            >
+	            <div
+	              id="learner-nav"
+	              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
+	            >
               <!-- AI 발음 교정 -->
               <div class="dropdown inline-flex items-center">
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  AI 발음 교정 ▾
+                  <span data-i18n="nav.pron_ai">AI 발음 교정</span> ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/speechpro-practice">🎤 AI 발음 종합 평가 테스트</a>
+                  <a href="/speechpro-practice"
+                    >🎤 <span data-i18n="nav.pron_test"
+                      >AI 발음 종합 평가 테스트</span
+                    ></a
+                  >
                 </div>
               </div>
 
-              <!-- AI 학습 -->
+	              <!-- AI 학습 -->
               <div
                 class="dropdown inline-flex items-center"
                 id="learning-dropdown"
@@ -244,14 +266,22 @@
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  AI 학습 ▾
+                  <span data-i18n="nav.ai_learning">AI 학습</span> ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/fluency-test">✍️ AI 한국어 작문 평가</a>
-                  <a href="/word-list">📚 학습 단어 목록</a>
-                  <a href="/sentence-evaluation">🧾 문장 학습</a>
-                  <a href="/curriculum">🎯 발음 교정</a>
-                </div>
+                  <a href="/word-list"
+                    >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
+                  >
+                  <a href="/krdict"
+                    >📖 <span data-i18n="nav.krdict">사전 검색</span></a
+                  >
+                  <a href="/sentence-evaluation"
+                    >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
+                  >
+                  <a href="/curriculum"
+                    >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
+                  >
+	              </div>
               </div>
 
               <!-- 활동하기 드롭다운 -->
@@ -259,26 +289,41 @@
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  활동하기 ▾
+                  <span data-i18n="nav.activities">활동하기</span> ▾
                 </button>
                 <div class="dropdown-content">
                   <div
                     class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
                   >
-                    재미있는 놀이
+                    <span data-i18n="nav.fun_games">재미있는 놀이</span>
                   </div>
-                  <a href="/word-matching-game">🧩 단어맞추기 게임</a>
-                  <a href="/synonym-antonym-game">📝 동의어/반의어 찾기 게임</a>
-                  <a href="/initial-quiz">🧠 초성 퀴즈</a>
-                  <a href="/card-matching-game">🃏 카드 짝 맞추기</a>
+                  <a href="/word-matching-game"
+                    >🧩 <span data-i18n="nav.game_wordmatch">단어맞추기 게임</span></a
+                  >
+                  <a href="/synonym-antonym-game"
+                    >📝
+                    <span data-i18n="nav.game_syn_ant"
+                      >동의어/반의어 찾기 게임</span
+                    ></a
+                  >
+                  <a href="/initial-quiz"
+                    >🧠 <span data-i18n="nav.game_initial">초성 퀴즈</span></a
+                  >
+                  <a href="/card-matching-game"
+                    >🃏 <span data-i18n="nav.game_card">카드 짝 맞추기</span></a
+                  >
                   <div class="border-t border-gray-200 my-2"></div>
                   <div
                     class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
                   >
-                    재미있는 이야기
+                    <span data-i18n="nav.fun_stories">재미있는 이야기</span>
                   </div>
-                  <a href="/folktales">📖 전래동화 읽기</a>
-                  <a href="/cultural-expressions">🎨 문화 표현 학습</a>
+                  <a href="/folktales"
+                    >📖 <span data-i18n="nav.story_folktales">전래동화 읽기</span></a
+                  >
+                  <a href="/cultural-expressions"
+                    >🎨 <span data-i18n="nav.story_culture">문화 표현 학습</span></a
+                  >
                 </div>
               </div>
 
@@ -287,11 +332,15 @@
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
-                  기초 학습 ▾
+                  <span data-i18n="nav.basic">기초 학습</span> ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/pronunciation-stages">🔤 자음모음 배우기</a>
-                  <a href="/pronunciation-rules">📖 발음규칙 학습</a>
+                  <a href="/pronunciation-stages"
+                    >🔤 <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
+                  >
+                  <a href="/pronunciation-rules"
+                    >📖 <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
+                  >
                 </div>
               </div>
 
@@ -309,16 +358,9 @@
                 href="/sitemap"
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
               >
-                사이트맵
+                <span data-i18n="nav.sitemap">사이트맵</span>
               </a>
 
-              <!-- 내정보 -->
-              <a
-                href="/mypage"
-                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
-              >
-                내정보
-              </a>
             </div>
           </div>
 
@@ -330,7 +372,7 @@
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
-              학습 진도
+              <span data-i18n="nav.progress">학습 진도</span>
             </a>
             <!-- Admin Dropdown (Desktop) -->
             <div class="dropdown inline-flex items-center" id="admin-dropdown">
@@ -338,12 +380,24 @@
                 class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 style="display: none"
               >
-                관리자 ▾
+                <span data-i18n="nav.admin">관리자</span> ▾
               </button>
               <div class="dropdown-content">
-                <a href="/admin">🖥️ 관리자 콘솔</a>
-                <a href="/content-generation">📝 AI 맞춤형 콘텐츠 생성</a>
-                <a href="/media-generation">🎬 AI 상황별 이미지 생성</a>
+                <a href="/admin"
+                  >🖥️ <span data-i18n="nav.admin_console">관리자 콘솔</span></a
+                >
+	                <a
+	                  href="/content-generation"
+	                  id="admin-content-link"
+	                  style="display: none"
+	                  >📝 <span data-i18n="nav.admin_content">AI 맞춤형 콘텐츠 생성</span></a
+	                >
+	                <a
+	                  href="/media-generation"
+	                  id="admin-media-link"
+	                  style="display: none"
+	                  >🎬 <span data-i18n="nav.admin_media">AI 상황별 이미지 생성</span></a
+	                >
               </div>
             </div>
 
@@ -354,7 +408,7 @@
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap"
               style="display: none"
             >
-              관리자
+              <span data-i18n="nav.admin">관리자</span>
             </a>
             <a
               href="/mypage"
@@ -367,33 +421,80 @@
               class="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900"
               style="display: none"
             >
-              로그아웃
+              <span data-i18n="auth.logout">로그아웃</span>
             </button>
             <a
               href="/login"
               id="login-link"
               class="px-2 sm:px-4 py-2 rounded-lg bg-orange-500 text-white text-xs sm:text-sm font-medium hover:bg-orange-600 whitespace-nowrap"
             >
-              로그인
+              <span data-i18n="auth.login">로그인</span>
             </a>
             <a
               href="/signup"
               id="signup-link"
               class="ml-2 px-2 sm:px-4 py-2 rounded-lg border-2 border-[#FF8C1A] text-[#FF8C1A] bg-white text-xs sm:text-sm font-medium hover:bg-orange-50 whitespace-nowrap"
             >
-              회원가입
+              <span data-i18n="auth.signup">회원가입</span>
             </a>
 
-            <!-- 도움말: 우측 햄버거 버튼 -->
+            <!-- Language Dropdown -->
             <div
               class="dropdown dropdown-right inline-flex items-center relative"
+              id="lang-dropdown"
             >
+              <button
+                id="lang-toggle"
+                class="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                aria-label="언어 선택"
+                type="button"
+                onclick="toggleLangMenu(event)"
+              >
+                <img
+                  id="lang-flag-img"
+                  src="/static/img/flags/ko.svg"
+                  alt="한국어"
+                  class="w-5 h-5 rounded-sm"
+                />
+                <span id="lang-label" class="hidden sm:inline">한국어</span>
+                <span class="hidden sm:inline">▾</span>
+              </button>
+              <div class="dropdown-content hidden" id="lang-menu">
+                <a href="#" onclick="setAppLang('ko'); return false;"
+                  ><img
+                    src="/static/img/flags/ko.svg"
+                    alt="한국어"
+                    class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
+                  />한국어</a
+                >
+                <a href="#" onclick="setAppLang('ja'); return false;"
+                  ><img
+                    src="/static/img/flags/ja.svg"
+                    alt="日本語"
+                    class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
+                  />日本語</a
+                >
+                <a href="#" onclick="setAppLang('zh'); return false;"
+                  ><img
+                    src="/static/img/flags/zh.svg"
+                    alt="中文"
+                    class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
+                  />中文</a
+                >
+              </div>
+            </div>
+
+            <!-- 도움말: 우측 햄버거 버튼 -->
+	            <div
+	              class="dropdown dropdown-right inline-flex items-center relative"
+	              id="help-dropdown"
+	            >
               <button
                 class="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 aria-label="도움말 메뉴"
               >
                 <span class="text-lg">☰</span>
-                <span class="hidden sm:inline">도움말</span>
+                <span class="hidden sm:inline" data-i18n="nav.help">도움말</span>
               </button>
               <div class="dropdown-content">
                 <span class="menu-disabled block px-4 py-3 text-xs"
@@ -403,7 +504,7 @@
                 <div
                   class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase"
                 >
-                  1:1문의 채널
+                  <span data-i18n="nav.help_channel">1:1문의 채널</span>
                 </div>
                 <span class="menu-disabled block px-4 py-3 text-xs"
                   >💬 게시판 문의 (준비중)</span
@@ -443,83 +544,83 @@
             >
           </div>
 
-          <!-- AI 학습 -->
-          <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1">AI 학습</div>
+	          <!-- AI 학습 -->
+	          <div
+	            class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg"
+	            id="mobile-ai-learning"
+	            style="display: none"
+	          >
+            <div class="text-sm font-semibold text-gray-900 mb-1" data-i18n="nav.ai_learning">AI 학습</div>
             <a href="/learning" class="block pl-4 py-1 text-sm text-gray-700"
-              >🧠 AI 학습 도구</a
+              >🧠 <span data-i18n="nav.ai_tools">AI 학습 도구</span></a
             >
             <a
               href="/content-generation"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >📝 맞춤형 교재</a
-            >
-            <a
-              href="/fluency-test"
-              class="block pl-4 py-1 text-sm text-gray-700"
-              >✍️ 작문 테스트</a
+              >📝 <span data-i18n="nav.content_generation">맞춤형 교재</span></a
             >
             <a
               href="/word-list"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >📚 학습 단어 목록</a
+              >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
+            >
+            <a
+              href="/krdict"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >📖 <span data-i18n="nav.krdict">사전 검색</span></a
             >
             <a
               href="/sentence-evaluation"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >🧾 문장 학습</a
+              >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
             >
             <a
               href="/curriculum"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >🎯 발음 교정</a
+              >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
             >
-            <a
-              href="/media-generation"
-              class="block pl-4 py-1 text-sm text-gray-700"
-              >🎬 상황별 콘텐츠</a
-            >
-          </div>
+
+	          </div>
 
           <!-- 활동하기 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1">활동하기</div>
+            <div class="text-sm font-semibold text-gray-900 mb-1" data-i18n="nav.activities">활동하기</div>
             <div class="pl-2 py-1">
               <div class="text-xs font-semibold text-gray-700 mb-1">
-                재미있는 놀이
+                <span data-i18n="nav.fun_games">재미있는 놀이</span>
               </div>
               <a
                 href="/word-matching-game"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🧩 단어맞추기 게임</a
+                >🧩 <span data-i18n="nav.game_wordmatch">단어맞추기 게임</span></a
               >
               <a
                 href="/synonym-antonym-game"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >📝 동의어/반의어 찾기 게임</a
+                >📝 <span data-i18n="nav.game_syn_ant">동의어/반의어 찾기 게임</span></a
               >
               <a
                 href="/initial-quiz"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🧠 초성 퀴즈</a
+                >🧠 <span data-i18n="nav.game_initial">초성 퀴즈</span></a
               >
               <a
                 href="/card-matching-game"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🃏 카드 짝 맞추기</a
+                >🃏 <span data-i18n="nav.game_card">카드 짝 맞추기</span></a
               >
             </div>
             <div class="pl-2 py-1 mt-2">
               <div class="text-xs font-semibold text-gray-700 mb-1">
-                재미있는 이야기
+                <span data-i18n="nav.fun_stories">재미있는 이야기</span>
               </div>
               <a href="/folktales" class="block pl-4 py-1 text-sm text-gray-600"
-                >📖 전래동화 읽기</a
+                >📖 <span data-i18n="nav.story_folktales">전래동화 읽기</span></a
               >
               <a
                 href="/cultural-expressions"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🎨 문화 표현 학습</a
+                >🎨 <span data-i18n="nav.story_culture">문화 표현 학습</span></a
               >
             </div>
           </div>
@@ -527,17 +628,17 @@
           <!-- 기초 학습 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
             <div class="text-sm font-semibold text-gray-900 mb-1">
-              기초 학습
+              <span data-i18n="nav.basic">기초 학습</span>
             </div>
             <a
               href="/pronunciation-stages"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >🔤 자음모음 배우기</a
+              >🔤 <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
             >
             <a
               href="/pronunciation-rules"
               class="block pl-4 py-1 text-sm text-gray-700"
-              >📖 발음규칙 학습</a
+              >📖 <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
             >
           </div>
 
@@ -546,13 +647,6 @@
             href="/sitemap"
             class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
             >사이트맵</a
-          >
-
-          <!-- 내정보 -->
-          <a
-            href="/mypage"
-            class="block pl-4 pr-4 py-2 text-sm font-semibold text-gray-900"
-            >내정보</a
           >
 
           <!-- User Menu Mobile -->
@@ -568,14 +662,63 @@
               학습 진도
             </a>
             <!-- Admin Link Mobile -->
-            <div id="mobile-admin-menu" style="display: none">
-              <a
-                href="/admin"
-                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-              >
-                관리자 콘솔
-              </a>
-            </div>
+	            <div id="mobile-admin-menu" style="display: none">
+	              <a
+	                href="/admin"
+	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+	              >
+	                관리자 콘솔
+	              </a>
+	              <a
+	                href="/content-generation"
+	                id="mobile-admin-content-link"
+	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+	                style="display: none"
+	              >
+	                📝 <span data-i18n="nav.admin_content">AI 맞춤형 콘텐츠 생성</span>
+	              </a>
+	              <a
+	                href="/media-generation"
+	                id="mobile-admin-media-link"
+	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+	                style="display: none"
+	              >
+	                🎬 <span data-i18n="nav.admin_media">AI 상황별 이미지 생성</span>
+	              </a>
+	            </div>
+	
+	            <!-- System Admin Navigation (Desktop) -->
+	            <div
+	              id="system-nav"
+	              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
+	              style="display: none"
+	            >
+	              <!-- AI 학습 (System Admin only) -->
+	              <div
+	                class="dropdown inline-flex items-center"
+	                id="system-learning-dropdown"
+	              >
+	                <button
+	                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+	                >
+	                  <span data-i18n="nav.ai_learning">AI 학습</span> ▾
+	                </button>
+	                <div class="dropdown-content">
+	                  <a href="/word-list"
+	                    >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
+	                  >
+	                  <a href="/krdict"
+	                    >📖 <span data-i18n="nav.krdict">사전 검색</span></a
+	                  >
+	                  <a href="/sentence-evaluation"
+	                    >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
+	                  >
+	                  <a href="/curriculum"
+	                    >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
+	                  >
+	                </div>
+	              </div>
+	            </div>
             <a
               href="/mypage"
               id="mobile-user-display"
@@ -1082,60 +1225,62 @@
     </script>
 
     <!-- Footer -->
-    <footer class="bg-white mt-12 py-8 border-t border-gray-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start text-sm text-gray-600"
-        >
-          <div class="flex items-center space-x-3">
+    <footer class="bg-white mt-12 border-t border-gray-200">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
+        <div class="text-sm text-gray-600">
+          <a
+            href="http://www.mediazen.co.kr"
+            class="inline-flex items-center"
+            target="_blank"
+            rel="noopener"
+          >
             <img
               src="/static/img/onui-logo.svg"
               alt="오누이 로고"
               class="h-8"
             />
-            <span class="font-semibold text-gray-900">미디어젠(주)</span>
-          </div>
-          <div class="md:col-span-2 space-y-1">
+          </a>
+          <div class="mt-3 space-y-1 leading-relaxed">
+            <p class="font-semibold text-gray-900">미디어젠(주)</p>
             <p>
-              본사 : 경기도 성남시 분당구 판교역로 230 (삼평동), 삼환하이펙스
-              B동 906호
+              본사 : 경기도 성남시 분당구 판교역로 230 (삼평동) · R&amp;D센터 :
+              서울시 강서구 마곡중앙 12로 31(마곡동)
             </p>
-            <p>R&amp;D센터 : 서울시 강서구 마곡중앙 12로 31(마곡동)</p>
-            <p>대표번호 : 02-6429-7100</p>
-            <p>FAX : 02-6429-7188</p>
-            <p>영업(AUTO 관련) : 02-6429-7109</p>
-            <p>영업(AI 관련) : 02-6429-7156</p>
-            <p>주식 : 02-6429-7121</p>
+            <p>
+              대표번호 : 02-6429-7100 · FAX : 02-6429-7188 · 영업(AUTO) :
+              02-6429-7109 · 영업(AI) : 02-6429-7156 · 주식 :
+              02-6429-7121
+            </p>
           </div>
         </div>
-        <div class="mt-4 text-xs text-gray-500">
+        <div class="mt-1 border-t border-gray-200 pt-2 text-xs text-gray-500 font-semibold">
           <span>copyright ⓒ mediazen all rights reserved.</span>
         </div>
       </div>
     </footer>
 
-    <script>
-      // Mobile menu toggle
-      const mobileMenuButton = document.createElement("button");
-      mobileMenuButton.className =
-        "sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100";
-      mobileMenuButton.innerHTML = `
-      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    `;
+	    <script>
+	      // Mobile menu toggle
+	      const mobileMenuButton = document.createElement("button");
+	      mobileMenuButton.className =
+	        "sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100";
+	      mobileMenuButton.innerHTML = `
+	      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+	        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+	      </svg>
+	    `;
 
-      // Add menu button to nav (this would need proper positioning in production)
-      mobileMenuButton.addEventListener("click", () => {
-        const menu = document.getElementById("mobile-menu");
-        menu.style.display = menu.style.display === "none" ? "block" : "none";
-      });
+	      // Add menu button to nav (this would need proper positioning in production)
+	      mobileMenuButton.addEventListener("click", () => {
+	        const menu = document.getElementById("mobile-menu");
+	        menu.style.display = menu.style.display === "none" ? "block" : "none";
+	      });
 
-      // Prepend the mobile menu button into the header for small screens
-      const headerFlex = document.querySelector("nav .flex");
-      if (headerFlex) {
-        headerFlex.prepend(mobileMenuButton);
-      }
+	      // Prepend the mobile menu button into the header for small screens
+	      const headerFlex = document.querySelector("nav .flex");
+	      if (headerFlex) {
+	        headerFlex.prepend(mobileMenuButton);
+	      }
 
       // Set active state on navigation links by matching current path
       function setActiveNav() {
@@ -1157,16 +1302,28 @@
         const nickname = localStorage.getItem("user_nickname");
         const storedRole = localStorage.getItem("user_role");
         const isAdmin = localStorage.getItem("is_admin") === "true";
-        const role = storedRole || (isAdmin ? "system_admin" : "");
+        const role = storedRole || (isAdmin ? "system_admin" : "learner");
         const adminRoles = ["instructor", "system_admin"];
         const hasAdminAccess = adminRoles.includes(role);
         const isLearner = role === "learner";
+        const isSystemAdmin = role === "system_admin";
         const loginLink = document.getElementById("login-link");
+        const signupLink = document.getElementById("signup-link");
         const progressLink = document.getElementById("progress-link");
-        const learnerNav = document.getElementById("learner-nav");
-        const adminDropdown = document.getElementById("admin-dropdown");
-        const mobileAdminMenu = document.getElementById("mobile-admin-menu");
-        const userDisplay = document.getElementById("user-display");
+		        const learnerNav = document.getElementById("learner-nav");
+		        const systemNav = document.getElementById("system-nav");
+		        const mobileAiLearning = document.getElementById("mobile-ai-learning");
+	        const adminDropdown = document.getElementById("admin-dropdown");
+	        const mobileAdminMenu = document.getElementById("mobile-admin-menu");
+	        const adminContentLink = document.getElementById("admin-content-link");
+	        const adminMediaLink = document.getElementById("admin-media-link");
+	        const mobileAdminContentLink = document.getElementById(
+	          "mobile-admin-content-link"
+	        );
+	        const mobileAdminMediaLink = document.getElementById(
+	          "mobile-admin-media-link"
+	        );
+	        const userDisplay = document.getElementById("user-display");
         const mobileUserDisplay = document.getElementById(
           "mobile-user-display"
         );
@@ -1175,23 +1332,42 @@
         const mobileLinkoutBtn = document.getElementById("mobile-logout-btn");
         const chatbotWidget = document.getElementById("chatbot-widget");
 
-        if (token && nickname) {
+        if (token) {
           if (loginLink) loginLink.style.display = "none";
+          if (signupLink) signupLink.style.display = "none";
           if (progressLink)
             progressLink.style.display = isLearner ? "inline-block" : "none";
-          if (learnerNav) learnerNav.style.display = isLearner ? "flex" : "none";
-          const adminLink = document.getElementById("admin-link");
-          if (adminLink) adminLink.style.display = isAdmin ? "none" : "none";
-          if (adminDropdown)
-            adminDropdown.style.display = hasAdminAccess ? "flex" : "none";
-          if (mobileAdminMenu)
-            mobileAdminMenu.style.display = hasAdminAccess ? "block" : "none";
+	          if (learnerNav) learnerNav.style.display = isLearner ? "flex" : "none";
+	          if (systemNav) systemNav.style.display = isSystemAdmin ? "flex" : "none";
+	          const adminLink = document.getElementById("admin-link");
+	          if (adminLink) adminLink.style.display = isAdmin ? "none" : "none";
+	          if (adminDropdown)
+	            adminDropdown.style.display = hasAdminAccess ? "flex" : "none";
+	          const canSeeSystemAdminItems = isSystemAdmin;
+	          if (adminContentLink)
+	            adminContentLink.style.display = canSeeSystemAdminItems
+	              ? "block"
+	              : "none";
+	          if (adminMediaLink)
+	            adminMediaLink.style.display = canSeeSystemAdminItems ? "block" : "none";
+	          if (mobileAdminMenu)
+	            mobileAdminMenu.style.display = hasAdminAccess ? "block" : "none";
+	          if (mobileAiLearning)
+	            mobileAiLearning.style.display = isSystemAdmin ? "block" : "none";
+	          if (mobileAdminContentLink)
+	            mobileAdminContentLink.style.display = canSeeSystemAdminItems
+	              ? "block"
+	              : "none";
+	          if (mobileAdminMediaLink)
+	            mobileAdminMediaLink.style.display = canSeeSystemAdminItems
+	              ? "block"
+	              : "none";
           if (userDisplay) {
-            userDisplay.textContent = `👤 ${nickname}`;
+            userDisplay.textContent = `👤 ${nickname || "사용자"}`;
             userDisplay.style.display = "inline-block";
           }
           if (mobileUserDisplay) {
-            mobileUserDisplay.textContent = `👤 ${nickname}`;
+            mobileUserDisplay.textContent = `👤 ${nickname || "사용자"}`;
           }
           if (logoutBtn) {
             logoutBtn.style.display = "inline-block";
@@ -1205,18 +1381,237 @@
           if (chatbotWidget) {
             chatbotWidget.style.display = role === "system_admin" ? "none" : "";
           }
-        } else {
+	        } else {
           if (loginLink) loginLink.style.display = "inline-block";
+          if (signupLink) signupLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
-          if (learnerNav) learnerNav.style.display = "flex";
-          if (adminDropdown) adminDropdown.style.display = "none";
-          if (mobileAdminMenu) mobileAdminMenu.style.display = "none";
-          if (userDisplay) userDisplay.style.display = "none";
+	          if (learnerNav) learnerNav.style.display = "flex";
+	          if (systemNav) systemNav.style.display = "none";
+	          if (mobileAiLearning) mobileAiLearning.style.display = "none";
+	          if (adminDropdown) adminDropdown.style.display = "none";
+	          if (adminContentLink) adminContentLink.style.display = "none";
+	          if (adminMediaLink) adminMediaLink.style.display = "none";
+	          if (mobileAdminMenu) mobileAdminMenu.style.display = "none";
+	          if (mobileAdminContentLink) mobileAdminContentLink.style.display = "none";
+	          if (mobileAdminMediaLink) mobileAdminMediaLink.style.display = "none";
+	          if (userDisplay) userDisplay.style.display = "none";
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";
           if (mobileLinkoutBtn) mobileLinkoutBtn.style.display = "none";
           if (chatbotWidget) chatbotWidget.style.display = "";
         }
+      }
+
+      // Language/i18n helpers (landing + dashboard)
+      const LANG_LABELS = { ko: "한국어", ja: "日本語", zh: "中文" };
+      const LANG_FLAG_IMAGES = {
+        ko: "/static/img/flags/ko.svg",
+        ja: "/static/img/flags/ja.svg",
+        zh: "/static/img/flags/zh.svg",
+      };
+      window.GLOBAL_I18N = {
+        ko: {
+          "nav.pron_ai": "AI 발음 교정",
+          "nav.pron_test": "AI 발음 종합 평가 테스트",
+          "nav.ai_learning": "AI 학습",
+          "nav.word_list": "학습 단어 목록",
+          "nav.krdict": "사전 검색",
+          "nav.sentence_learning": "문장 학습",
+          "nav.curriculum": "발음 교정",
+          "nav.activities": "활동하기",
+          "nav.fun_games": "재미있는 놀이",
+          "nav.game_wordmatch": "단어맞추기 게임",
+          "nav.game_syn_ant": "동의어/반의어 찾기 게임",
+          "nav.game_initial": "초성 퀴즈",
+          "nav.game_card": "카드 짝 맞추기",
+          "nav.fun_stories": "재미있는 이야기",
+          "nav.story_folktales": "전래동화 읽기",
+          "nav.story_culture": "문화 표현 학습",
+          "nav.basic": "기초 학습",
+          "nav.basic_jamo": "자음모음 배우기",
+          "nav.basic_rules": "발음규칙 학습",
+          "nav.sitemap": "사이트맵",
+          "nav.mypage": "내정보",
+          "nav.progress": "학습 진도",
+          "nav.admin": "관리자",
+          "nav.admin_console": "관리자 콘솔",
+          "nav.admin_content": "AI 맞춤형 콘텐츠 생성",
+          "nav.admin_media": "AI 상황별 이미지 생성",
+          "nav.help": "도움말",
+          "nav.help_channel": "1:1문의 채널",
+          "nav.ai_tools": "AI 학습 도구",
+          "nav.content_generation": "맞춤형 교재",
+          "auth.login": "로그인",
+          "auth.signup": "회원가입",
+          "auth.logout": "로그아웃",
+        },
+        ja: {
+          "nav.pron_ai": "AI 発音矯正",
+          "nav.pron_test": "AI 発音総合評価テスト",
+          "nav.ai_learning": "AI 学習",
+          "nav.word_list": "学習単語リスト",
+          "nav.krdict": "辞書検索",
+          "nav.sentence_learning": "文章学習",
+          "nav.curriculum": "発音矯正",
+          "nav.activities": "アクティビティ",
+          "nav.fun_games": "楽しいゲーム",
+          "nav.game_wordmatch": "単語当てゲーム",
+          "nav.game_syn_ant": "類義語/反義語ゲーム",
+          "nav.game_initial": "初声クイズ",
+          "nav.game_card": "カードマッチング",
+          "nav.fun_stories": "楽しい物語",
+          "nav.story_folktales": "昔話を読む",
+          "nav.story_culture": "文化表現学習",
+          "nav.basic": "基礎学習",
+          "nav.basic_jamo": "子音・母音を学ぶ",
+          "nav.basic_rules": "発音ルール学習",
+          "nav.sitemap": "サイトマップ",
+          "nav.mypage": "マイページ",
+          "nav.progress": "学習進捗",
+          "nav.admin": "管理者",
+          "nav.admin_console": "管理者コンソール",
+          "nav.admin_content": "AI教材生成",
+          "nav.admin_media": "AI画像生成",
+          "nav.help": "ヘルプ",
+          "nav.help_channel": "1:1 お問い合わせ",
+          "nav.ai_tools": "AI 学習ツール",
+          "nav.content_generation": "カスタム教材",
+          "auth.login": "ログイン",
+          "auth.signup": "新規登録",
+          "auth.logout": "ログアウト",
+        },
+        zh: {
+          "nav.pron_ai": "AI 发音矫正",
+          "nav.pron_test": "AI 发音综合评测",
+          "nav.ai_learning": "AI 学习",
+          "nav.word_list": "学习词汇列表",
+          "nav.krdict": "词典检索",
+          "nav.sentence_learning": "句子学习",
+          "nav.curriculum": "发音矫正",
+          "nav.activities": "活动",
+          "nav.fun_games": "趣味游戏",
+          "nav.game_wordmatch": "单词匹配游戏",
+          "nav.game_syn_ant": "同义/反义词游戏",
+          "nav.game_initial": "首音测验",
+          "nav.game_card": "卡片配对",
+          "nav.fun_stories": "趣味故事",
+          "nav.story_folktales": "民间故事阅读",
+          "nav.story_culture": "文化表达学习",
+          "nav.basic": "基础学习",
+          "nav.basic_jamo": "学习子音母音",
+          "nav.basic_rules": "发音规则学习",
+          "nav.sitemap": "网站地图",
+          "nav.mypage": "我的信息",
+          "nav.progress": "学习进度",
+          "nav.admin": "管理员",
+          "nav.admin_console": "管理控制台",
+          "nav.admin_content": "AI 内容生成",
+          "nav.admin_media": "AI 图片生成",
+          "nav.help": "帮助",
+          "nav.help_channel": "1对1 咨询渠道",
+          "nav.ai_tools": "AI 学习工具",
+          "nav.content_generation": "定制教材",
+          "auth.login": "登录",
+          "auth.signup": "注册",
+          "auth.logout": "退出登录",
+        },
+      };
+
+      function getAppLang() {
+        try {
+          const qs = new URLSearchParams(window.location.search || "");
+          const fromQuery = (qs.get("lang") || "").trim().toLowerCase();
+          if (fromQuery && ["ko", "ja", "zh"].includes(fromQuery)) {
+            localStorage.setItem("app_lang", fromQuery);
+            return fromQuery;
+          }
+        } catch (_) {}
+        const stored = (localStorage.getItem("app_lang") || "").toLowerCase();
+        if (["ko", "ja", "zh"].includes(stored)) return stored;
+        return "ko";
+      }
+
+      window.setAppLang = function setAppLang(lang) {
+        const next = (lang || "").toLowerCase();
+        if (!["ko", "ja", "zh"].includes(next)) return;
+        localStorage.setItem("app_lang", next);
+        // Apply immediately without full reload.
+        try {
+          document.documentElement.lang = next;
+        } catch (_) {}
+        try {
+          applyPageI18n();
+        } catch (_) {}
+        try {
+          closeLangMenu();
+        } catch (_) {}
+        // remove lang query to avoid sticky URLs
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("lang");
+          window.history.replaceState({}, "", url.toString());
+        } catch (_) {
+          window.location.reload();
+        }
+      };
+
+      window.t = function t(key, fallback = "") {
+        const lang = getAppLang();
+        const table = Object.assign(
+          {},
+          (window.GLOBAL_I18N && window.GLOBAL_I18N[lang]) || {},
+          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {}
+        );
+        return table[key] ?? fallback;
+      };
+
+      function applyPageI18n() {
+        const lang = getAppLang();
+        const flagImg = document.getElementById("lang-flag-img");
+        if (flagImg) {
+          flagImg.src = LANG_FLAG_IMAGES[lang] || LANG_FLAG_IMAGES.ko;
+          flagImg.alt = LANG_LABELS[lang] || "한국어";
+        }
+        const labelEl = document.getElementById("lang-label");
+        if (labelEl) labelEl.textContent = LANG_LABELS[lang] || "한국어";
+        const table = Object.assign(
+          {},
+          (window.GLOBAL_I18N && window.GLOBAL_I18N[lang]) || {},
+          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {}
+        );
+        if (!Object.keys(table).length) return;
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          if (!key) return;
+          if (table[key] !== undefined) el.textContent = table[key];
+        });
+        document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+          const key = el.getAttribute("data-i18n-html");
+          if (!key) return;
+          if (table[key] !== undefined) el.innerHTML = table[key];
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+          const key = el.getAttribute("data-i18n-placeholder");
+          if (!key) return;
+          if (table[key] !== undefined) el.setAttribute("placeholder", table[key]);
+        });
+        if (table["__title__"]) document.title = table["__title__"];
+      }
+
+      window.applyPageI18n = applyPageI18n;
+
+      // Language dropdown (click-to-toggle; works on mobile)
+      window.toggleLangMenu = function toggleLangMenu(e) {
+        if (e && typeof e.stopPropagation === "function") e.stopPropagation();
+        const menu = document.getElementById("lang-menu");
+        if (!menu) return;
+        menu.classList.toggle("hidden");
+      };
+
+      function closeLangMenu() {
+        const menu = document.getElementById("lang-menu");
+        if (!menu) return;
+        menu.classList.add("hidden");
       }
 
       // Ensure nickname is stored after login (fallback if localStorage missing)
@@ -1299,7 +1694,13 @@
           openCharacterModal("tiger");
           const msgEl = document.getElementById("character-message");
           if (msgEl) {
-            msgEl.textContent = `어흥! ${nickname}님, 환영해요! 오누이 한국어에서 발음·유창성 연습을 시작해보세요.`;
+            const lang = (getAppLang && getAppLang()) || "ko";
+            const messages = {
+              ko: `어흥! ${nickname}님, 환영해요! 오누이 한국어에서 발음·유창성 연습을 시작해보세요.`,
+              ja: `ガオー！${nickname}さん、ようこそ！ONUIで発音・流暢さの練習を始めましょう。`,
+              zh: `嗷呜！${nickname}，欢迎你！在 ONUI 里开始发音与流利度练习吧。`,
+            };
+            msgEl.textContent = messages[lang] || messages.ko;
           }
         }
       }
@@ -1318,6 +1719,19 @@
       // Also listen for custom events from other tabs/iframes
       document.addEventListener("authStateChanged", () => {
         updateAuthDisplay();
+      });
+
+      // Apply page translations (if PAGE_I18N exists)
+      document.addEventListener("DOMContentLoaded", () => {
+        try {
+          applyPageI18n();
+        } catch (_) {}
+      });
+
+      document.addEventListener("click", (e) => {
+        const dropdown = document.getElementById("lang-dropdown");
+        if (!dropdown) return;
+        if (!dropdown.contains(e.target)) closeLangMenu();
       });
 
       // Welcome mail on first visit per user (no auth dependency)
@@ -1426,6 +1840,7 @@
       const characterData = {
         brother: {
           name: "오빠",
+          name_i18n: { ja: "兄", zh: "哥哥" },
           emoji: "👨‍🔧",
           color: "#A0D2EB",
           messages: [
@@ -1433,9 +1848,22 @@
             "좋은 진도입니다! 계속 이 속도로 나가면 정말 멋있을 거예요!",
             "오늘도 열심히 공부하셨네요. 이 정도면 충분해요!",
           ],
+          messages_i18n: {
+            ja: [
+              "エリザベスさん、学習時間が1時間になりました。これまで23文を学習しています。",
+              "良いペースです！このまま続ければ素晴らしい結果になりますよ。",
+              "今日も頑張りましたね。十分に学習できています。",
+            ],
+            zh: [
+              "Elizabeth，你的学习时间已达到1小时。已经学习了23个句子。",
+              "进度很不错！照这个速度继续下去一定很棒。",
+              "今天也很努力了，这样就足够了。",
+            ],
+          },
         },
         sister: {
           name: "여동생",
+          name_i18n: { ja: "妹", zh: "妹妹" },
           emoji: "👩",
           color: "#FFB7B2",
           messages: [
@@ -1443,9 +1871,22 @@
             "오빠, 정말 잘하고 있어요! 저도 응원할게요!",
             "이 정도면 한국어 마스터가 거의 다 온 거 아니야?",
           ],
+          messages_i18n: {
+            ja: [
+              "今日の〈ツツジ〉は95点で世界2位に入りました！すごいですね！",
+              "お兄ちゃん、本当に上手だよ！私も応援するね！",
+              "この調子なら韓国語マスターまであと少しじゃない？",
+            ],
+            zh: [
+              "今天《杜鹃花》的分数达到95分，位列全球第2！太厉害了！",
+              "哥哥，你做得真棒！我也会为你加油！",
+              "照这样下去，韩语大师不是快要实现了吗？",
+            ],
+          },
         },
         tiger: {
           name: "호랑이",
+          name_i18n: { ja: "トラ", zh: "老虎" },
           emoji: "🐯",
           color: "#FF8A65",
           messages: [
@@ -1453,13 +1894,26 @@
             "어흥! 조금 더 빨리 하지 않을래?",
             "혼자만 쉬지 말고 열심히 해! 어흥! 🐯",
           ],
+          messages_i18n: {
+            ja: [
+              "30分で覚えた単語が5つだけだよ。こんなに遅いと捕まえちゃうぞ!!",
+              "ガオー！もう少し早くしない？",
+              "一人で休んでないで頑張れ！ガオー！🐯",
+            ],
+            zh: [
+              "30分钟只学了5个单词。再这么慢我可要把你抓走了！！",
+              "嗷呜！再快一点好吗？",
+              "别偷懒，继续努力！嗷呜！🐯",
+            ],
+          },
         },
       };
 
       // Open character popup
       function openCharacterModal(character) {
         const data = characterData[character];
-        const messages = data.messages;
+        const lang = (getAppLang && getAppLang()) || "ko";
+        const messages = (data.messages_i18n && data.messages_i18n[lang]) || data.messages;
         const randomMessage =
           messages[Math.floor(Math.random() * messages.length)];
 
@@ -1468,7 +1922,8 @@
           data.color;
         document.getElementById("character-avatar").style.backgroundColor =
           data.color + "20";
-        document.getElementById("character-name").textContent = data.name;
+        document.getElementById("character-name").textContent =
+          (data.name_i18n && data.name_i18n[lang]) || data.name;
         document.getElementById("character-message").textContent =
           randomMessage;
 
@@ -1515,6 +1970,7 @@
         mailData.unshift(mailItem);
 
         renderMailList();
+        return mailItem.id;
       }
 
       function renderMailList() {

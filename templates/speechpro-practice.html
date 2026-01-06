@@ -7,13 +7,13 @@
       class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
     >
       <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-      ONUI · AI 학습 도구
+      <span data-i18n="speechpro.badge">ONUI · AI 학습 도구</span>
     </div>
     <h1 class="text-3xl font-bold text-gray-900 mb-2">
       <span class="text-2xl">🎤</span>
-      AI 발음 종합 평가 테스트
+      <span data-i18n="speechpro.title">AI 발음 종합 평가 테스트</span>
     </h1>
-    <p class="text-sm text-gray-600">
+    <p class="text-sm text-gray-600" data-i18n="speechpro.subtitle">
       한국어 발음의 정확도를 평가받고 개별 음소별 피드백을 얻어보세요
     </p>
   </div>
@@ -40,107 +40,86 @@
             ×
           </button>
 
-          <h3 class="text-2xl font-bold text-blue-900 mb-4">
-            🎤 SpeechPro 발음 정확도 평가의 장점
-          </h3>
+            <h3 class="text-2xl font-bold text-blue-900 mb-4" data-i18n="speechpro.modal_title">
+              🎤 SpeechPro 발음 정확도 평가의 장점
+            </h3>
 
           <div class="space-y-4">
-            <div
-              class="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg shadow-md border-2 border-amber-400"
-            >
-              <div class="flex items-start gap-2">
-                <span class="text-3xl">🤖</span>
-                <div class="flex-1">
-                  <h4 class="font-bold text-amber-900 text-lg">
-                    AI 복합 피드백 (차별화 기능)
-                  </h4>
-                  <p class="text-sm text-amber-800 font-medium mb-2">
-                    SpeechPro와 FluencyPro 평가를 AI가 종합하여 개인맞춤형
-                    피드백을 생성합니다!
-                  </p>
-                  <ul class="text-sm text-amber-800 space-y-1">
-                    <li>
-                      ✨ 정확도 분석: 각 음소의 발음 정확도를 구체적으로 평가
-                    </li>
-                    <li>🎯 강점 인정: 잘 발음한 음소를 구체적으로 칭찬</li>
-                    <li>📈 개선 전략: 틀린 발음을 교정하는 단계별 방법 제시</li>
-                    <li>
-                      💪 격려와 방향제시: AI의 맞춤형 응원과 다음 학습 목표
-                    </li>
-                  </ul>
-                </div>
-              </div>
+            <div class="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+              <p class="text-sm font-semibold text-blue-900" data-i18n="speechpro.modal_overview_title">한눈에 비교</p>
+              <p class="text-xs text-blue-800 mt-1" data-i18n="speechpro.modal_overview_desc">
+                SpeechPro는 발음 모델 기반의 정밀 분석과 AI 종합 피드백을 제공합니다.
+              </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div
-                class="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-              >
-                <div class="flex items-start gap-2">
-                  <span class="text-2xl">✓</span>
-                  <div>
-                    <div class="h-6 md:h-8"></div>
-                    <p class="text-sm text-gray-600">
-                      각 음소별 정확성을 상세히 분석하여 어떤 발음이 틀렸는지
-                      정확히 파악할 수 있습니다.
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div class="overflow-hidden rounded-xl border border-gray-200">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-700">
+                  <tr>
+                    <th class="px-4 py-3 text-left w-1/3" data-i18n="speechpro.table.header">구분</th>
+                    <th class="px-4 py-3 text-left" data-i18n="speechpro.table.general">일반 평가</th>
+                    <th class="px-4 py-3 text-left text-blue-900" data-i18n="speechpro.table.speechpro">SpeechPro</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr>
+                    <td class="px-4 py-3 font-semibold text-gray-800" data-i18n="speechpro.table.row1.label">분석 단위</td>
+                    <td class="px-4 py-3 text-gray-600" data-i18n="speechpro.table.row1.general">문장 전체 중심</td>
+                    <td class="px-4 py-3 text-gray-800" data-i18n="speechpro.table.row1.pro">음소/발음 단위 정밀 분석</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3 font-semibold text-gray-800" data-i18n="speechpro.table.row2.label">정확도</td>
+                    <td class="px-4 py-3 text-gray-600" data-i18n="speechpro.table.row2.general">대략적 점수</td>
+                    <td class="px-4 py-3 text-gray-800" data-i18n="speechpro.table.row2.pro">FST 발음 모델 기반 정밀 평가</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3 font-semibold text-gray-800" data-i18n="speechpro.table.row3.label">피드백</td>
+                    <td class="px-4 py-3 text-gray-600" data-i18n="speechpro.table.row3.general">요약 안내</td>
+                    <td class="px-4 py-3 text-gray-800" data-i18n="speechpro.table.row3.pro">AI 종합 피드백 + 개선 전략</td>
+                  </tr>
+                  <tr>
+                    <td class="px-4 py-3 font-semibold text-gray-800" data-i18n="speechpro.table.row4.label">학습 활용</td>
+                    <td class="px-4 py-3 text-gray-600" data-i18n="speechpro.table.row4.general">반복 연습 위주</td>
+                    <td class="px-4 py-3 text-gray-800" data-i18n="speechpro.table.row4.pro">강점/개선 포인트 기반 집중 학습</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-              <div
-                class="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-              >
-                <div class="flex items-start gap-2">
-                  <span class="text-2xl">✓</span>
-                  <div>
-                    <h4 class="font-semibold text-gray-800">AI 기반 피드백</h4>
-                    <p class="text-sm text-gray-600">
-                      AI가 발음의 특정 문제점을 분석하고 개선 방법을
-                      제시해줍니다.
-                    </p>
-                  </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="rounded-lg border border-gray-100 bg-white p-4">
+                <p class="text-xs text-gray-500" data-i18n="speechpro.modal_strength_label">핵심 강점</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">
+                  <span data-i18n="speechpro.modal_strength_title">음소별 정확도 시각화</span>
+                </p>
+                <p class="text-xs text-gray-600 mt-1" data-i18n="speechpro.modal_strength_desc">
+                  어떤 발음이 틀렸는지 바로 확인
+                </p>
               </div>
-
-              <div
-                class="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-              >
-                <div class="flex items-start gap-2">
-                  <span class="text-2xl">✓</span>
-                  <div>
-                    <h4 class="font-semibold text-gray-800">음향 특성 분석</h4>
-                    <p class="text-sm text-gray-600">
-                      기본주파수(F0)와 에너지 같은 음향 특성을 분석하여 음질을
-                      평가합니다.
-                    </p>
-                  </div>
-                </div>
+              <div class="rounded-lg border border-gray-100 bg-white p-4">
+                <p class="text-xs text-gray-500" data-i18n="speechpro.modal_ai_label">AI 종합 피드백</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">
+                  <span data-i18n="speechpro.modal_ai_title">SpeechPro + FluencyPro 통합</span>
+                </p>
+                <p class="text-xs text-gray-600 mt-1" data-i18n="speechpro.modal_ai_desc">
+                  강점/개선/다음 학습 방향 제시
+                </p>
               </div>
-
-              <div
-                class="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-              >
-                <div class="flex items-start gap-2">
-                  <span class="text-2xl">✓</span>
-                  <div>
-                    <h4 class="font-semibold text-gray-800">
-                      발음 모델 기반 평가
-                    </h4>
-                    <p class="text-sm text-gray-600">
-                      FST(Finite State Transducer) 발음 모델을 사용하여 과학적인
-                      평가를 제공합니다.
-                    </p>
-                  </div>
-                </div>
+              <div class="rounded-lg border border-gray-100 bg-white p-4">
+                <p class="text-xs text-gray-500" data-i18n="speechpro.modal_eff_label">학습 효율</p>
+                <p class="text-sm font-semibold text-gray-900 mt-1">
+                  <span data-i18n="speechpro.modal_eff_title">빠른 개선 포인트 집중</span>
+                </p>
+                <p class="text-xs text-gray-600 mt-1" data-i18n="speechpro.modal_eff_desc">
+                  시간 대비 학습 효과를 극대화
+                </p>
               </div>
             </div>
 
             <div class="bg-white p-4 rounded-lg border-t-2 border-blue-200">
-              <p class="text-sm text-gray-700">
-                <strong>💡 TIP:</strong> 정확한 발음 기초를 다지려면 SpeechPro로
-                음소별 정확도를 먼저 확인하고, 그 후 FluencyPro로 자연스러운
-                발화를 연습하는 것이 효과적입니다.
+              <p class="text-sm text-gray-700" data-i18n-html="speechpro.modal_tip">
+                <strong>TIP:</strong> SpeechPro로 음소별 정확도를 확인한 뒤,
+                FluencyPro로 자연스러운 발화를 연습하면 효과적입니다.
               </p>
             </div>
           </div>
@@ -152,10 +131,10 @@
         class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border-l-4 border-blue-500 flex items-center justify-between gap-4"
       >
         <div>
-          <h3 class="text-lg font-bold text-blue-900 mb-1">
+          <h3 class="text-lg font-bold text-blue-900 mb-1" data-i18n="speechpro.trigger_title">
             🎤 SpeechPro 발음 정확도 평가의 장점
           </h3>
-          <p class="text-sm text-blue-800">
+          <p class="text-sm text-blue-800" data-i18n="speechpro.trigger_desc">
             핵심 포인트를 모달로 정리했습니다. 버튼을 눌러 확인하세요.
           </p>
         </div>
@@ -163,6 +142,7 @@
           id="open-speechpro-advantages"
           type="button"
           class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          data-i18n="speechpro.trigger_button"
         >
           장점 보기
         </button>
@@ -174,6 +154,7 @@
         <div class="mb-6">
           <label
             class="block text-lg font-semibold text-[var(--text-main)] mb-3"
+            data-i18n="speechpro.select_label"
           >
             📚 평가할 문장 선택
           </label>
@@ -183,7 +164,7 @@
               onchange="selectEvaluationSentence()"
               class="flex-1 px-4 py-3 border-2 border-[var(--accent)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition"
             >
-              <option value="">-- 문장 선택 --</option>
+              <option value="" data-i18n="speechpro.select_placeholder">-- 문장 선택 --</option>
             </select>
           </div>
 
@@ -194,6 +175,7 @@
         <div class="mb-8">
           <label
             class="block text-lg font-semibold text-[var(--text-main)] mb-4"
+            data-i18n="speechpro.record_label"
           >
             🎙️ 음성 녹음
           </label>
@@ -202,7 +184,7 @@
             class="border-2 border-dashed border-[var(--accent)] rounded-lg p-8 text-center bg-gray-50"
           >
             <div id="recording-status" class="mb-4">
-              <p class="text-gray-600 text-sm">
+              <p class="text-gray-600 text-sm" data-i18n="speechpro.record_prompt">
                 마이크를 통해 문장을 읽어주세요
               </p>
             </div>
@@ -221,6 +203,7 @@
                 onclick="startRecording()"
                 class="px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-semibold hover:bg-[#e67a15] transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled
+                data-i18n="speechpro.btn_start_record"
               >
                 🎙️ 녹음 시작
               </button>
@@ -228,6 +211,7 @@
                 id="stop-recording"
                 onclick="stopRecording()"
                 class="px-6 py-3 bg-white border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FFE6BF] transition flex-1 sm:flex-none hidden"
+                data-i18n="speechpro.btn_stop_record"
               >
                 ⏹️ 녹음 중지
               </button>
@@ -236,6 +220,7 @@
                 onclick="playRecording()"
                 class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FF8C1A] hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
                 disabled
+                data-i18n="speechpro.btn_play"
               >
                 ▶️ 재생
               </button>
@@ -251,7 +236,7 @@
 
             <!-- 재생 섹션 -->
             <div id="playback-section" class="mt-6 hidden">
-              <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
+              <p class="text-sm text-gray-600 mb-3" data-i18n="speechpro.playback_label">녹음된 음성:</p>
               <audio
                 id="audio-playback"
                 controls
@@ -261,19 +246,20 @@
           </div>
         </div>
 
-        <!-- 평가 버튼 -->
-        <div class="flex flex-col sm:flex-row gap-4 mb-8">
-          <button
-            id="evaluate-button"
-            onclick="evaluatePronunciation()"
-            class="flex-1 px-6 py-4 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            🎤 발음 정확도 평가하기
-          </button>
-        </div>
+      <!-- 평가 버튼 -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-8">
+        <button
+          id="evaluate-button"
+          onclick="evaluatePronunciation()"
+          class="flex-1 px-6 py-4 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          data-i18n="speechpro.btn_evaluate"
+        >
+          🎤 발음 정확도 평가하기
+        </button>
       </div>
+    </div>
 
-      <!-- 결과 모달 -->
+    <!-- 결과 모달 -->
       <div
         id="results-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
@@ -285,7 +271,7 @@
             class="sticky top-0 z-10 -mx-8 -mt-8 px-8 pt-2 pb-2 bg-white/95 backdrop-blur border-b border-gray-100"
           >
             <div class="flex items-center justify-between">
-              <h2 class="text-2xl font-bold text-[var(--text-main)] m-0">
+              <h2 class="text-2xl font-bold text-[var(--text-main)] m-0" data-i18n="speechpro.results_title">
                 📊 평가 결과
               </h2>
               <button
@@ -295,8 +281,78 @@
               >
                 ✕
               </button>
-            </div>
+      </div>
+    </div>
+
+    <!-- AI 종합 평가 모달 -->
+    <div
+      id="ai-feedback-modal"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+    >
+      <div
+        class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-[var(--text-main)]" data-i18n="speechpro.ai_modal_title">
+            🤖 AI 종합 평가 결과
+          </h2>
+          <button
+            class="text-gray-500 hover:text-gray-800 text-2xl"
+            onclick="closeAiFeedbackModal()"
+            aria-label="닫기"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="mb-3 text-xs font-semibold text-blue-600 uppercase tracking-wide">
+          AI 코칭 단계
+        </div>
+        <h3 id="ai-feedback-step-title" class="text-xl font-bold text-blue-900 mb-3">
+          -
+        </h3>
+
+        <div
+          id="ai-feedback-modal-content"
+          class="relative text-blue-900 leading-loose text-base bg-white/70 border border-blue-100 rounded-xl p-6 shadow-inner"
+          style="line-height: 1.8"
+        >
+          <div class="text-sm text-blue-700" data-i18n="speechpro.ai_feedback_loading">
+            AI 종합 평가를 생성 중입니다...
           </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <button
+            id="ai-feedback-prev"
+            class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            onclick="prevAiFeedbackStep()"
+            disabled
+          >
+            이전
+          </button>
+          <div id="ai-feedback-step-indicator" class="text-xs text-gray-500">
+            0 / 0
+          </div>
+          <button
+            id="ai-feedback-next"
+            class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            onclick="nextAiFeedbackStep()"
+            disabled
+          >
+            다음
+          </button>
+        </div>
+
+        <div id="ai-feedback-detail-storage" class="hidden">
+          <div id="details-content" class="space-y-3 text-[var(--text-sub)]"></div>
+          <div
+            id="speechpro-content"
+            class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800"
+          ></div>
+        </div>
+      </div>
+    </div>
 
           <!-- 점수 카드 -->
           <div id="score-card" class="bg-white rounded-2xl shadow p-6 mb-6">
@@ -327,6 +383,7 @@
                   ></div>
                 </div>
               </div>
+
             </div>
 
             <!-- AI 종합 피드백 섹션 (점수 직후) -->
@@ -351,6 +408,7 @@
                     </p>
                     <h3
                       class="text-2xl sm:text-3xl font-extrabold text-blue-900"
+                      data-i18n="speechpro.ai_feedback_title"
                     >
                       AI 종합 피드백
                     </h3>
@@ -364,6 +422,7 @@
                 >
                   <p
                     class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2"
+                    data-i18n="speechpro.tested_sentence_label"
                   >
                     📝 평가한 문장
                   </p>
@@ -379,59 +438,45 @@
 
                 <div
                   id="feedback-content"
-                  class="relative text-blue-900 leading-loose text-base bg-white/70 border border-blue-100 rounded-xl p-6 shadow-inner"
+                  class="hidden relative text-blue-900 leading-loose text-base bg-white/70 border border-blue-100 rounded-xl p-6 shadow-inner"
                   style="line-height: 1.8"
-                >
-                  <!-- 동적으로 생성됨 -->
-                </div>
+                ></div>
 
-                <!-- 구분선: AI 피드백과 태그 사이 분리 -->
-                <div class="border-t border-blue-200 mt-4 mb-4"></div>
+                <div class="mt-4 text-sm text-blue-800">
+                  AI 코칭은 아래 버튼을 눌러 단계별로 확인할 수 있습니다.
+                </div>
 
                 <div
                   class="mt-4 flex flex-wrap gap-2 text-xs font-medium text-blue-700"
                 >
                   <span
                     class="px-3 py-1 rounded-full bg-blue-100 border border-blue-200"
+                    data-i18n="speechpro.tag_accuracy"
                     >발음 정확도</span
                   >
                   <span
                     class="px-3 py-1 rounded-full bg-indigo-100 border border-indigo-200"
+                    data-i18n="speechpro.tag_rhythm"
                     >리듬 · 억양</span
                   >
                   <span
                     class="px-3 py-1 rounded-full bg-sky-100 border border-sky-200"
+                    data-i18n="speechpro.tag_improve"
                     >개선 방향</span
                   >
                 </div>
-              </div>
-            </div>
 
-            <!-- 상세 정보 -->
-            <div id="details-section" class="border-t pt-6 mt-6">
-              <h3 class="text-lg font-semibold text-[var(--text-main)] mb-4">
-                상세 분석
-              </h3>
-              <div
-                id="details-content"
-                class="space-y-3 text-[var(--text-sub)]"
-              >
-                <!-- 동적으로 생성됨 -->
-              </div>
-            </div>
-
-            <!-- SpeechPro 분석 -->
-            <div class="border-t pt-6 mt-6">
-              <h3
-                class="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2"
-              >
-                <span class="text-2xl">🎯</span> SpeechPro 정확도 분석
-              </h3>
-              <div
-                id="speechpro-content"
-                class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800"
-              >
-                <!-- 동적으로 생성됨 -->
+                <div class="mt-6 flex justify-center">
+                  <button
+                    id="ai-feedback-button"
+                    onclick="openAiFeedbackModal()"
+                    class="px-8 py-3 rounded-full bg-blue-600 text-white text-sm sm:text-base font-semibold shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    data-i18n="speechpro.btn_ai_result"
+                    disabled
+                  >
+                    🤖 AI 종합 평가 결과 보기
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -442,12 +487,14 @@
             <button
               onclick="closeResults()"
               class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+              data-i18n="speechpro.btn_close"
             >
               닫기
             </button>
             <button
               onclick="resetEvaluation()"
               class="px-6 py-2 bg-gray-500 text-white rounded-lg font-semibold hover:opacity-90 transition"
+              data-i18n="speechpro.btn_reset"
             >
               🔄 다시 평가하기
             </button>
@@ -460,7 +507,7 @@
         id="error-section"
         class="hidden bg-red-50 border-l-4 border-red-500 rounded-lg p-6"
       >
-        <h3 class="text-lg font-semibold text-red-900 mb-2">❌ 오류</h3>
+        <h3 class="text-lg font-semibold text-red-900 mb-2" data-i18n="speechpro.error_title">❌ 오류</h3>
         <p id="error-message" class="text-red-800"></p>
       </div>
 
@@ -476,13 +523,260 @@
             class="mx-auto mb-4 animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent)] border-t-transparent"
             aria-hidden="true"
           ></div>
-          <p id="loading-message" class="text-[var(--text-sub)] font-semibold">
+          <p id="loading-message" class="text-[var(--text-sub)] font-semibold" data-i18n="speechpro.loading">
             처리 중...
           </p>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    window.PAGE_I18N = {
+      ko: {
+        "__title__": "AI 발음 종합 평가 테스트 - 오누이 AI",
+        "speechpro.badge": "ONUI · AI 학습 도구",
+        "speechpro.title": "AI 발음 종합 평가 테스트",
+        "speechpro.subtitle":
+          "한국어 발음의 정확도를 평가받고 개별 음소별 피드백을 얻어보세요",
+        "speechpro.modal_title": "🎤 SpeechPro 발음 정확도 평가의 장점",
+        "speechpro.modal_overview_title": "한눈에 비교",
+        "speechpro.modal_overview_desc":
+          "SpeechPro는 발음 모델 기반의 정밀 분석과 AI 종합 피드백을 제공합니다.",
+        "speechpro.table.header": "구분",
+        "speechpro.table.general": "일반 평가",
+        "speechpro.table.speechpro": "SpeechPro",
+        "speechpro.table.row1.label": "분석 단위",
+        "speechpro.table.row1.general": "문장 전체 중심",
+        "speechpro.table.row1.pro": "음소/발음 단위 정밀 분석",
+        "speechpro.table.row2.label": "정확도",
+        "speechpro.table.row2.general": "대략적 점수",
+        "speechpro.table.row2.pro": "FST 발음 모델 기반 정밀 평가",
+        "speechpro.table.row3.label": "피드백",
+        "speechpro.table.row3.general": "요약 안내",
+        "speechpro.table.row3.pro": "AI 종합 피드백 + 개선 전략",
+        "speechpro.table.row4.label": "학습 활용",
+        "speechpro.table.row4.general": "반복 연습 위주",
+        "speechpro.table.row4.pro": "강점/개선 포인트 기반 집중 학습",
+        "speechpro.modal_strength_label": "핵심 강점",
+        "speechpro.modal_strength_title": "음소별 정확도 시각화",
+        "speechpro.modal_strength_desc": "어떤 발음이 틀렸는지 바로 확인",
+        "speechpro.modal_ai_label": "AI 종합 피드백",
+        "speechpro.modal_ai_title": "SpeechPro + FluencyPro 통합",
+        "speechpro.modal_ai_desc": "강점/개선/다음 학습 방향 제시",
+        "speechpro.modal_eff_label": "학습 효율",
+        "speechpro.modal_eff_title": "빠른 개선 포인트 집중",
+        "speechpro.modal_eff_desc": "시간 대비 학습 효과를 극대화",
+        "speechpro.modal_tip":
+          "<strong>TIP:</strong> SpeechPro로 음소별 정확도를 확인한 뒤, FluencyPro로 자연스러운 발화를 연습하면 효과적입니다.",
+        "speechpro.trigger_title": "🎤 SpeechPro 발음 정확도 평가의 장점",
+        "speechpro.trigger_desc":
+          "핵심 포인트를 모달로 정리했습니다. 버튼을 눌러 확인하세요.",
+        "speechpro.trigger_button": "장점 보기",
+        "speechpro.select_label": "📚 평가할 문장 선택",
+        "speechpro.select_placeholder": "-- 문장 선택 --",
+        "speechpro.record_label": "🎙️ 음성 녹음",
+        "speechpro.record_prompt": "마이크를 통해 문장을 읽어주세요",
+        "speechpro.btn_start_record": "🎙️ 녹음 시작",
+        "speechpro.btn_stop_record": "⏹️ 녹음 중지",
+        "speechpro.btn_play": "▶️ 재생",
+        "speechpro.btn_play_label": "재생",
+        "speechpro.btn_pause": "정지",
+        "speechpro.playback_label": "녹음된 음성:",
+        "speechpro.btn_evaluate": "🎤 발음 정확도 평가하기",
+        "speechpro.btn_ai_result": "🤖 AI 종합 평가 결과 보기",
+        "speechpro.results_title": "📊 평가 결과",
+        "speechpro.ai_modal_title": "🤖 AI 종합 평가 결과",
+        "speechpro.ai_feedback_loading": "AI 종합 평가를 생성 중입니다...",
+        "speechpro.ai_feedback_title": "AI 종합 피드백",
+        "speechpro.tested_sentence_label": "📝 평가한 문장",
+        "speechpro.tag_accuracy": "발음 정확도",
+        "speechpro.tag_rhythm": "리듬 · 억양",
+        "speechpro.tag_improve": "개선 방향",
+        "speechpro.details_title": "상세 분석",
+        "speechpro.analysis_title": "🎯 SpeechPro 정확도 분석",
+        "speechpro.btn_close": "닫기",
+        "speechpro.btn_reset": "🔄 다시 평가하기",
+        "speechpro.error_title": "❌ 오류",
+        "speechpro.loading": "처리 중...",
+        "speechpro.msg.record_start": "녹음이 시작되었습니다",
+        "speechpro.msg.record_done": "녹음이 완료되었습니다",
+        "speechpro.msg.mic_fail_prefix": "마이크 접근 실패: ",
+        "speechpro.msg.recording_in_progress": "녹음 중...",
+        "speechpro.msg.recording_complete": "✅ 녹음 완료",
+        "speechpro.msg.select_sentence": "평가할 문장을 선택해주세요",
+        "speechpro.msg.loading_eval": "발음 정확도 분석 중입니다...",
+        "speechpro.msg.eval_failed": "평가에 실패했습니다",
+        "speechpro.msg.eval_timeout": "요청이 지연되고 있습니다. 다시 시도해주세요.",
+        "speechpro.msg.eval_error_prefix": "평가 중 오류: ",
+        "speechpro.msg.loading_sentences": "문장 불러오는 중...",
+        "speechpro.msg.loading_sentences_failed": "문장 데이터를 불러올 수 없습니다",
+        "speechpro.msg.sentence_load_error_prefix": "문장 로드 실패: ",
+        "speechpro.msg.sentence_select_error": "문장 선택 중 오류가 발생했습니다",
+      },
+      ja: {
+        "__title__": "AI 発音総合評価テスト - ONUI AI",
+        "speechpro.badge": "ONUI · AI 学習ツール",
+        "speechpro.title": "AI 発音総合評価テスト",
+        "speechpro.subtitle":
+          "韓国語の発音精度を評価し、音素ごとのフィードバックを受けましょう。",
+        "speechpro.modal_title": "🎤 SpeechPro 発音精度評価の強み",
+        "speechpro.modal_overview_title": "一目で比較",
+        "speechpro.modal_overview_desc":
+          "SpeechProは発音モデルに基づく精密分析とAI総合フィードバックを提供します。",
+        "speechpro.table.header": "区分",
+        "speechpro.table.general": "一般評価",
+        "speechpro.table.speechpro": "SpeechPro",
+        "speechpro.table.row1.label": "分析単位",
+        "speechpro.table.row1.general": "文全体中心",
+        "speechpro.table.row1.pro": "音素/発音単位の精密分析",
+        "speechpro.table.row2.label": "精度",
+        "speechpro.table.row2.general": "概算スコア",
+        "speechpro.table.row2.pro": "FST発音モデルによる精密評価",
+        "speechpro.table.row3.label": "フィードバック",
+        "speechpro.table.row3.general": "要約案内",
+        "speechpro.table.row3.pro": "AI総合フィードバック＋改善戦略",
+        "speechpro.table.row4.label": "学習活用",
+        "speechpro.table.row4.general": "反復練習中心",
+        "speechpro.table.row4.pro": "強み/改善ポイントに基づく集中学習",
+        "speechpro.modal_strength_label": "主な強み",
+        "speechpro.modal_strength_title": "音素別精度の可視化",
+        "speechpro.modal_strength_desc": "どの発音が誤っているかをすぐ確認",
+        "speechpro.modal_ai_label": "AI総合フィードバック",
+        "speechpro.modal_ai_title": "SpeechPro + FluencyPro 統合",
+        "speechpro.modal_ai_desc": "強み/改善/次の学習方向を提示",
+        "speechpro.modal_eff_label": "学習効率",
+        "speechpro.modal_eff_title": "改善ポイントに素早く集中",
+        "speechpro.modal_eff_desc": "時間当たりの学習効果を最大化",
+        "speechpro.modal_tip":
+          "<strong>TIP:</strong> SpeechProで音素別の精度を確認した後、FluencyProで自然な発話を練習すると効果的です。",
+        "speechpro.trigger_title": "🎤 SpeechPro 発音精度評価の強み",
+        "speechpro.trigger_desc":
+          "要点をモーダルにまとめました。ボタンを押して確認してください。",
+        "speechpro.trigger_button": "強みを見る",
+        "speechpro.select_label": "📚 評価する文を選択",
+        "speechpro.select_placeholder": "— 文を選択 —",
+        "speechpro.record_label": "🎙️ 音声録音",
+        "speechpro.record_prompt": "マイクで文を読んでください",
+        "speechpro.btn_start_record": "🎙️ 録音開始",
+        "speechpro.btn_stop_record": "⏹️ 録音停止",
+        "speechpro.btn_play": "▶️ 再生",
+        "speechpro.btn_play_label": "再生",
+        "speechpro.btn_pause": "停止",
+        "speechpro.playback_label": "録音された音声:",
+        "speechpro.btn_evaluate": "🎤 発音精度を評価",
+        "speechpro.btn_ai_result": "🤖 AI 総合評価を見る",
+        "speechpro.results_title": "📊 評価結果",
+        "speechpro.ai_modal_title": "🤖 AI 総合評価",
+        "speechpro.ai_feedback_loading": "AI 総合評価を作成中...",
+        "speechpro.ai_feedback_title": "AI総合フィードバック",
+        "speechpro.tested_sentence_label": "📝 評価した文",
+        "speechpro.tag_accuracy": "発音精度",
+        "speechpro.tag_rhythm": "リズム・抑揚",
+        "speechpro.tag_improve": "改善方向",
+        "speechpro.details_title": "詳細分析",
+        "speechpro.analysis_title": "🎯 SpeechPro 精度分析",
+        "speechpro.btn_close": "閉じる",
+        "speechpro.btn_reset": "🔄 もう一度評価",
+        "speechpro.error_title": "❌ エラー",
+        "speechpro.loading": "処理中...",
+        "speechpro.msg.record_start": "録音を開始しました",
+        "speechpro.msg.record_done": "録音が完了しました",
+        "speechpro.msg.mic_fail_prefix": "マイクへのアクセスに失敗しました: ",
+        "speechpro.msg.recording_in_progress": "録音中...",
+        "speechpro.msg.recording_complete": "✅ 録音完了",
+        "speechpro.msg.select_sentence": "評価する文を選択してください",
+        "speechpro.msg.loading_eval": "発音精度を分析中です...",
+        "speechpro.msg.eval_failed": "評価に失敗しました",
+        "speechpro.msg.eval_timeout": "リクエストが遅延しています。再試行してください。",
+        "speechpro.msg.eval_error_prefix": "評価中のエラー: ",
+        "speechpro.msg.loading_sentences": "文を読み込み中...",
+        "speechpro.msg.loading_sentences_failed": "文データを読み込めません",
+        "speechpro.msg.sentence_load_error_prefix": "文の読み込み失敗: ",
+        "speechpro.msg.sentence_select_error": "文の選択中にエラーが発生しました",
+      },
+      zh: {
+        "__title__": "AI 发音综合测评 - ONUI AI",
+        "speechpro.badge": "ONUI · AI 学习工具",
+        "speechpro.title": "AI 发音综合测评",
+        "speechpro.subtitle":
+          "评估韩语发音准确度，并获得音素级反馈。",
+        "speechpro.modal_title": "🎤 SpeechPro 发音准确度测评亮点",
+        "speechpro.modal_overview_title": "一目了然",
+        "speechpro.modal_overview_desc":
+          "SpeechPro 提供基于发音模型的精细分析与 AI 综合反馈。",
+        "speechpro.table.header": "项目",
+        "speechpro.table.general": "常规评测",
+        "speechpro.table.speechpro": "SpeechPro",
+        "speechpro.table.row1.label": "分析单位",
+        "speechpro.table.row1.general": "以整句为主",
+        "speechpro.table.row1.pro": "音素/发音单位精细分析",
+        "speechpro.table.row2.label": "准确度",
+        "speechpro.table.row2.general": "大致评分",
+        "speechpro.table.row2.pro": "基于 FST 发音模型的精细评估",
+        "speechpro.table.row3.label": "反馈",
+        "speechpro.table.row3.general": "简要提示",
+        "speechpro.table.row3.pro": "AI 综合反馈 + 改进策略",
+        "speechpro.table.row4.label": "学习应用",
+        "speechpro.table.row4.general": "以反复练习为主",
+        "speechpro.table.row4.pro": "围绕优势/改进点的集中训练",
+        "speechpro.modal_strength_label": "亮点",
+        "speechpro.modal_strength_title": "音素准确度可视化",
+        "speechpro.modal_strength_desc": "快速定位错误发音",
+        "speechpro.modal_ai_label": "AI 综合反馈",
+        "speechpro.modal_ai_title": "SpeechPro + FluencyPro 联动",
+        "speechpro.modal_ai_desc": "指出优势、改进点与下一步方向",
+        "speechpro.modal_eff_label": "学习效率",
+        "speechpro.modal_eff_title": "快速聚焦改进点",
+        "speechpro.modal_eff_desc": "最大化单位时间的学习效果",
+        "speechpro.modal_tip":
+          "<strong>TIP:</strong> 先用 SpeechPro 确认音素准确度，再用 FluencyPro 练习自然发音，更有效。",
+        "speechpro.trigger_title": "🎤 SpeechPro 发音准确度测评亮点",
+        "speechpro.trigger_desc": "要点已整理在弹窗中，点击按钮查看。",
+        "speechpro.trigger_button": "查看亮点",
+        "speechpro.select_label": "📚 选择要测评的句子",
+        "speechpro.select_placeholder": "— 请选择句子 —",
+        "speechpro.record_label": "🎙️ 语音录制",
+        "speechpro.record_prompt": "请通过麦克风朗读句子",
+        "speechpro.btn_start_record": "🎙️ 开始录音",
+        "speechpro.btn_stop_record": "⏹️ 停止录音",
+        "speechpro.btn_play": "▶️ 播放",
+        "speechpro.btn_play_label": "播放",
+        "speechpro.btn_pause": "暂停",
+        "speechpro.playback_label": "已录音频：",
+        "speechpro.btn_evaluate": "🎤 开始发音准确度测评",
+        "speechpro.btn_ai_result": "🤖 查看 AI 综合测评结果",
+        "speechpro.results_title": "📊 测评结果",
+        "speechpro.ai_modal_title": "🤖 AI 综合测评结果",
+        "speechpro.ai_feedback_loading": "正在生成 AI 综合测评...",
+        "speechpro.ai_feedback_title": "AI 综合反馈",
+        "speechpro.tested_sentence_label": "📝 已测评句子",
+        "speechpro.tag_accuracy": "发音准确度",
+        "speechpro.tag_rhythm": "节奏 · 语调",
+        "speechpro.tag_improve": "改进方向",
+        "speechpro.details_title": "详细分析",
+        "speechpro.analysis_title": "🎯 SpeechPro 准确度分析",
+        "speechpro.btn_close": "关闭",
+        "speechpro.btn_reset": "🔄 重新测评",
+        "speechpro.error_title": "❌ 错误",
+        "speechpro.loading": "处理中...",
+        "speechpro.msg.record_start": "已开始录音",
+        "speechpro.msg.record_done": "录音完成",
+        "speechpro.msg.mic_fail_prefix": "麦克风访问失败：",
+        "speechpro.msg.recording_in_progress": "录音中...",
+        "speechpro.msg.recording_complete": "✅ 录音完成",
+        "speechpro.msg.select_sentence": "请选择要测评的句子",
+        "speechpro.msg.loading_eval": "正在分析发音准确度...",
+        "speechpro.msg.eval_failed": "测评失败",
+        "speechpro.msg.eval_timeout": "请求超时，请重试。",
+        "speechpro.msg.eval_error_prefix": "测评出错：",
+        "speechpro.msg.loading_sentences": "正在加载句子...",
+        "speechpro.msg.loading_sentences_failed": "无法加载句子数据",
+        "speechpro.msg.sentence_load_error_prefix": "句子加载失败：",
+        "speechpro.msg.sentence_select_error": "选择句子时发生错误",
+      },
+    };
+  </script>
 
   <script>
     // Lightweight Markdown + sanitizer 로더
@@ -770,6 +1064,10 @@
     let recordingStartTime = null;
     let recordingTimer = null;
     let selectedSentence = null;
+    let aiFeedbackSteps = [];
+    let aiFeedbackStepIndex = 0;
+    let latestAiFeedbackText = "";
+    let latestAiFeedbackScore = 0;
 
     // 녹음 시작
     async function startRecording() {
@@ -822,8 +1120,7 @@
 
             // UI 업데이트
             document.getElementById("stop-recording").classList.remove("hidden");
-            document.getElementById("recording-status").innerHTML =
-              '🔴 <p class="text-red-600 font-semibold">녹음 중...</p>';
+            document.getElementById("recording-status").innerHTML = `🔴 <p class="text-red-600 font-semibold">${t("speechpro.msg.recording_in_progress", "녹음 중...")}</p>`;
             document
               .getElementById("recording-timer")
               .classList.remove("hidden");
@@ -831,7 +1128,7 @@
             // 타이머 시작
             startTimer();
 
-            showMessage("녹음이 시작되었습니다", "info");
+            showMessage(t("speechpro.msg.record_start", "녹음이 시작되었습니다"), "info");
           }
         }, 1000);
       } catch (error) {
@@ -840,7 +1137,9 @@
         // 버튼 표시
         document.getElementById("start-recording").classList.remove("hidden");
         document.getElementById("clear-recording").classList.remove("hidden");
-        showError(`마이크 접근 실패: ${error.message}`);
+        showError(
+          `${t("speechpro.msg.mic_fail_prefix", "마이크 접근 실패: ")}${error.message}`
+        );
       }
     }
 
@@ -855,14 +1154,13 @@
         document.getElementById("stop-recording").classList.add("hidden");
         document.getElementById("play-recording").disabled = false;
         document.getElementById("play-recording").classList.remove("hidden");
-        document.getElementById("recording-status").innerHTML =
-          '<p class="text-green-600 font-semibold">✅ 녹음 완료</p>';
+        document.getElementById("recording-status").innerHTML = `<p class="text-green-600 font-semibold">${t("speechpro.msg.recording_complete", "✅ 녹음 완료")}</p>`;
         document.getElementById("recording-timer").classList.add("hidden");
 
         // 타이머 중지
         stopTimer();
 
-        showMessage("녹음이 완료되었습니다", "success");
+        showMessage(t("speechpro.msg.record_done", "녹음이 완료되었습니다"), "success");
       }
     }
 
@@ -875,7 +1173,7 @@
       document.getElementById("audio-playback").src = "";
       document.getElementById("playback-section").classList.add("hidden");
       document.getElementById("recording-status").innerHTML =
-        '<p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>';
+        `<p class="text-gray-600 text-sm">${t("speechpro.record_prompt", "마이크를 통해 문장을 읽어주세요")}</p>`;
       document.getElementById("recording-timer").classList.add("hidden");
       document.getElementById("start-recording").classList.remove("hidden");
       document.getElementById("stop-recording").classList.add("hidden");
@@ -893,13 +1191,13 @@
         if (audioPlayback.paused) {
           // 재생 시작
           audioPlayback.play();
-          playButton.innerHTML = "⏸️ 정지";
+          playButton.innerHTML = `⏸️ ${t("speechpro.btn_pause", "정지")}`;
           playButton.classList.remove("bg-green-500", "hover:bg-green-600");
           playButton.classList.add("bg-yellow-500", "hover:bg-yellow-600");
         } else {
           // 재생 중지
           audioPlayback.pause();
-          playButton.innerHTML = "▶️ 재생";
+          playButton.innerHTML = `▶️ ${t("speechpro.btn_play_label", "재생")}`;
           playButton.classList.remove("bg-yellow-500", "hover:bg-yellow-600");
           playButton.classList.add("bg-green-500", "hover:bg-green-600");
         }
@@ -912,7 +1210,7 @@
       if (audioPlayback) {
         audioPlayback.addEventListener("ended", function () {
           const playButton = document.getElementById("play-recording");
-          playButton.innerHTML = "▶️ 재생";
+          playButton.innerHTML = `▶️ ${t("speechpro.btn_play_label", "재생")}`;
           playButton.classList.remove("bg-yellow-500", "hover:bg-yellow-600");
           playButton.classList.add("bg-green-500", "hover:bg-green-600");
         });
@@ -947,7 +1245,7 @@
       }
 
       if (!text) {
-        showError("평가할 문장을 선택해주세요");
+        showError(t("speechpro.msg.select_sentence", "평가할 문장을 선택해주세요"));
         return;
       }
 
@@ -959,7 +1257,7 @@
       }
 
       // 로딩 표시
-      showLoading("발음 정확도 분석 중입니다...");
+      showLoading(t("speechpro.msg.loading_eval", "발음 정확도 분석 중입니다..."));
       hideError();
 
       const controller = new AbortController();
@@ -967,6 +1265,8 @@
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
+        const aiButton = document.getElementById("ai-feedback-button");
+        if (aiButton) aiButton.disabled = true;
         // 오디오 데이터 수집
         const audio = new Audio(audioElement.src);
         const audioBlob = await fetch(audioElement.src).then((r) => r.blob());
@@ -1032,19 +1332,23 @@
           throw new Error("서버로부터 유효한 응답을 받지 못했습니다.");
         }
 
-        if (result.success) {
-          displayResults(result);
-          if (result.score) {
-            requestAiFeedback(text, result.score);
-          }
-        } else {
-          showError(result.error || "평가에 실패했습니다");
+      if (result.success) {
+        displayResults(result);
+        if (result.score) {
+          requestAiFeedback(text, result.score);
         }
+      } else {
+        showError(result.error || t("speechpro.msg.eval_failed", "평가에 실패했습니다"));
+      }
       } catch (error) {
         if (error.name === "AbortError") {
-          showError("요청이 지연되고 있습니다. 다시 시도해주세요.");
+          showError(
+            t("speechpro.msg.eval_timeout", "요청이 지연되고 있습니다. 다시 시도해주세요.")
+          );
         } else {
-          showError(`평가 중 오류: ${error.message}`);
+          showError(
+            `${t("speechpro.msg.eval_error_prefix", "평가 중 오류: ")}${error.message}`
+          );
         }
       } finally {
         clearTimeout(timeoutId);
@@ -1053,35 +1357,175 @@
     }
 
     function showAiFeedbackLoading() {
-      const target = document.getElementById("feedback-content");
-      if (!target) return;
-      target.innerHTML =
-        "<div class='text-sm text-blue-700'>AI 종합 평가를 생성 중입니다...</div>";
+      const modalTarget = document.getElementById("ai-feedback-modal-content");
+      if (modalTarget) {
+        modalTarget.innerHTML =
+          `<div class='text-sm text-blue-700'>${t("speechpro.ai_feedback_loading", "AI 종합 평가를 생성 중입니다...")}</div>`;
+      }
+      const titleEl = document.getElementById("ai-feedback-step-title");
+      if (titleEl) titleEl.textContent = "-";
+      aiFeedbackSteps = [];
+      aiFeedbackStepIndex = 0;
+      updateAiFeedbackStepControls();
     }
 
     function updateAiFeedbackUI(text, score) {
       const feedbackContent = document.getElementById("feedback-content");
-      if (!feedbackContent) return;
+      const modalContent = document.getElementById("ai-feedback-modal-content");
+      if (!feedbackContent && !modalContent) return;
       const decorated = formatAiFeedback(text, score);
       const finalText = decorated || text;
+      latestAiFeedbackText = finalText;
+      latestAiFeedbackScore = score || 0;
       const sections = extractFeedbackSections(finalText);
+      const aiButton = document.getElementById("ai-feedback-button");
 
       if (sections) {
-        feedbackContent.innerHTML = buildFeedbackSectionMarkup(sections);
+        const markup = buildFeedbackSectionMarkup(sections);
+        if (feedbackContent) feedbackContent.innerHTML = markup;
+        if (modalContent) modalContent.innerHTML = markup;
+        aiFeedbackSteps = buildAiFeedbackStepsFromSections(sections);
       } else {
         const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(
           finalText
         );
-        renderMarkdownSafe(
-          feedbackContent,
-          hasEmoji ? finalText : `✨ ${finalText}`
-        );
+        if (feedbackContent) {
+          renderMarkdownSafe(
+            feedbackContent,
+            hasEmoji ? finalText : `✨ ${finalText}`
+          );
+          const blocks = Array.from(feedbackContent.children || []);
+          blocks.forEach((el, idx) => {
+            if (idx === 0) return;
+            el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
+          });
+        }
+        if (modalContent) {
+          renderMarkdownSafe(
+            modalContent,
+            hasEmoji ? finalText : `✨ ${finalText}`
+          );
+          const blocks = Array.from(modalContent.children || []);
+          blocks.forEach((el, idx) => {
+            if (idx === 0) return;
+            el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
+          });
+        }
+        aiFeedbackSteps = [
+          {
+            title: "AI 코멘트",
+            markdown: hasEmoji ? finalText : `✨ ${finalText}`,
+          },
+        ];
+      }
+      aiFeedbackStepIndex = 0;
+      renderAiFeedbackStep();
+      if (aiButton) aiButton.disabled = false;
+    }
 
-        const blocks = Array.from(feedbackContent.children || []);
-        blocks.forEach((el, idx) => {
-          if (idx === 0) return;
-          el.classList.add("border-t", "border-blue-100", "pt-3", "mt-3");
-        });
+    function buildAiFeedbackStepsFromSections(sections) {
+      const emptyMessage =
+        "<p class='text-sm text-gray-500'>내용이 없습니다.</p>";
+      const summaryHtml =
+        sections.summary && sections.summary.length
+          ? `<p>${sections.summary.join("<br>")}</p>`
+          : emptyMessage;
+      const strengthsHtml =
+        sections.strengths && sections.strengths.length
+          ? buildAiFeedbackList(sections.strengths)
+          : emptyMessage;
+      const improvementsHtml =
+        sections.improvements && sections.improvements.length
+          ? buildAiFeedbackList(sections.improvements)
+          : emptyMessage;
+      const tipsHtml =
+        sections.tips && sections.tips.length
+          ? buildAiFeedbackList(sections.tips)
+          : emptyMessage;
+      const detailsHtml = getStoredSectionHtml(
+        "details-content",
+        "상세 분석 데이터가 없습니다."
+      );
+      const speechproHtml = getStoredSectionHtml(
+        "speechpro-content",
+        "SpeechPro 분석 데이터가 없습니다."
+      );
+      const generalHtml =
+        sections.general && sections.general.length
+          ? buildAiFeedbackList(sections.general)
+          : emptyMessage;
+
+      return [
+        { title: "핵심 요약", html: summaryHtml },
+        { title: "강점 포인트", html: strengthsHtml },
+        { title: "개선이 필요한 부분", html: improvementsHtml },
+        { title: "연습 팁", html: tipsHtml },
+        { title: "상세 분석", html: detailsHtml },
+      ];
+    }
+
+    function buildAiFeedbackList(items) {
+      const listItems = items
+        .map(
+          (item) =>
+            `<li class="flex items-start gap-3 text-gray-800">
+              <span class="text-base leading-6 text-gray-500">•</span>
+              <span>${item}</span>
+            </li>`
+        )
+        .join("");
+      return `<ul class="space-y-2">${listItems}</ul>`;
+    }
+
+    function getStoredSectionHtml(id, fallbackText) {
+      const target = document.getElementById(id);
+      if (!target) {
+        return `<p class='text-sm text-gray-500'>${fallbackText}</p>`;
+      }
+      const html = (target.innerHTML || "").trim();
+      if (html) return html;
+      return `<p class='text-sm text-gray-500'>${fallbackText}</p>`;
+    }
+
+    function renderAiFeedbackStep() {
+      const titleEl = document.getElementById("ai-feedback-step-title");
+      const contentEl = document.getElementById("ai-feedback-modal-content");
+      if (!contentEl) return;
+      if (!aiFeedbackSteps.length) {
+        showAiFeedbackLoading();
+        return;
+      }
+      const step = aiFeedbackSteps[aiFeedbackStepIndex];
+      if (titleEl) titleEl.textContent = step.title || "-";
+      if (step.html) {
+        contentEl.innerHTML = step.html;
+      } else if (step.markdown) {
+        renderMarkdownSafe(contentEl, step.markdown);
+      }
+      updateAiFeedbackStepControls();
+    }
+
+    function updateAiFeedbackStepControls() {
+      const prevBtn = document.getElementById("ai-feedback-prev");
+      const nextBtn = document.getElementById("ai-feedback-next");
+      const indicator = document.getElementById("ai-feedback-step-indicator");
+      const total = aiFeedbackSteps.length;
+      if (indicator) indicator.textContent = `${total ? aiFeedbackStepIndex + 1 : 0} / ${total}`;
+      if (prevBtn) prevBtn.disabled = aiFeedbackStepIndex <= 0;
+      if (nextBtn) nextBtn.disabled = aiFeedbackStepIndex >= total - 1 || total === 0;
+    }
+
+    function nextAiFeedbackStep() {
+      if (aiFeedbackStepIndex < aiFeedbackSteps.length - 1) {
+        aiFeedbackStepIndex += 1;
+        renderAiFeedbackStep();
+      }
+    }
+
+    function prevAiFeedbackStep() {
+      if (aiFeedbackStepIndex > 0) {
+        aiFeedbackStepIndex -= 1;
+        renderAiFeedbackStep();
       }
     }
 
@@ -1367,6 +1811,8 @@
 
       // SpeechPro 분석 표시
       let speechproHtml = "";
+      const recognizedText =
+        (result && (result.recognized_text || result.user_said)) || "";
       const quality = details.quality || {};
 
       // SpeechPro 데이터 추출 (여러 형식 지원)
@@ -1384,6 +1830,13 @@
       }
 
       console.log("SpeechPro Data:", speechproData);
+
+      if (recognizedText) {
+        speechproHtml += `<div class="text-sm text-gray-700">
+          <span class="font-semibold">인식된 텍스트:</span>
+          <span class="ml-1">${recognizedText}</span>
+        </div>`;
+      }
 
       if (speechproData) {
         speechproHtml += `<div class="text-sm space-y-2">`;
@@ -1565,9 +2018,12 @@
     // 평가 초기화
     function resetEvaluation() {
       closeResults();
+      closeAiFeedbackModal();
       document.getElementById("evaluation-text").value = "안녕하세요";
       document.getElementById("sentence-select").value = "";
       selectedSentence = null;
+      const aiButton = document.getElementById("ai-feedback-button");
+      if (aiButton) aiButton.disabled = true;
       document.getElementById("sentence-info-section").classList.add("hidden");
       document.getElementById("sentence-level").textContent = "";
       document.getElementById("sentence-difficulty").textContent = "";
@@ -1579,6 +2035,19 @@
 
     function closeResults() {
       document.getElementById("results-modal").classList.add("hidden");
+    }
+
+    function openAiFeedbackModal() {
+      document.getElementById("ai-feedback-modal").classList.remove("hidden");
+      if (latestAiFeedbackText) {
+        renderAiFeedbackStep();
+      } else {
+        showAiFeedbackLoading();
+      }
+    }
+
+    function closeAiFeedbackModal() {
+      document.getElementById("ai-feedback-modal").classList.add("hidden");
     }
 
     // 메시지 표시
@@ -1617,7 +2086,7 @@
       try {
         if (select) {
           select.disabled = true;
-          select.innerHTML = '<option value="">문장 불러오는 중...</option>';
+          select.innerHTML = `<option value="">${t("speechpro.msg.loading_sentences", "문장 불러오는 중...")}</option>`;
         }
 
         const response = await fetch("/api/speechpro/sentences");
@@ -1630,7 +2099,7 @@
 
         if (select) {
           // 옵션 초기화
-          select.innerHTML = '<option value="">-- 문장 선택 --</option>';
+          select.innerHTML = `<option value="">${t("speechpro.select_placeholder", "-- 문장 선택 --")}</option>`;
 
           // 프리셋 문장 카운트
           let presetCount = 0;
@@ -1653,9 +2122,11 @@
 
         hideError();
       } catch (error) {
-        showError(`문장 로드 실패: ${error.message}`);
+        showError(
+          `${t("speechpro.msg.sentence_load_error_prefix", "문장 로드 실패: ")}${error.message}`
+        );
         if (select) {
-          select.innerHTML = '<option value="">문장을 불러올 수 없습니다</option>';
+          select.innerHTML = `<option value="">${t("speechpro.msg.loading_sentences_failed", "문장 데이터를 불러올 수 없습니다")}</option>`;
         }
       } finally {
         if (select) {
@@ -1683,7 +2154,9 @@
 
         hideError();
       } catch (error) {
-        showError("문장 선택 중 오류가 발생했습니다");
+        showError(
+          t("speechpro.msg.sentence_select_error", "문장 선택 중 오류가 발생했습니다")
+        );
         startButton.disabled = true;
       }
     }

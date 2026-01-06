@@ -8,6 +8,8 @@ import logging
 import asyncio
 import aiohttp
 import aiofiles
+import requests
+import base64
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 # OpenAI 설정
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-DALLE_MODEL = os.getenv("DALLE_MODEL", "dall-e-3")
+DALLE_MODEL = os.getenv("DALLE_MODEL", "gpt-image-1.5")
 DALLE_SIZE = os.getenv("DALLE_IMAGE_SIZE", "1024x1024")
 DALLE_QUALITY = os.getenv("DALLE_QUALITY", "standard")
 DALLE_STYLE = os.getenv("DALLE_STYLE", "vivid")
@@ -34,7 +36,10 @@ DALLE_RETRY_ATTEMPTS = int(os.getenv("DALLE_RETRY_ATTEMPTS", "3"))
 
 # Gemini 설정 (옵션)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
+GEMINI_MODEL = os.getenv(
+    "GEMINI_IMAGE_MODEL",
+    os.getenv("GEMINI_MODEL", "gemini-2.0-flash-exp"),
+)
 
 # 이미지 저장 디렉토리
 UPLOAD_DIR = Path("uploads/images")
@@ -127,18 +132,27 @@ async def generate_image_dall_e(
             logger.info(f"Prompt: {prompt[:100]}...")
             logger.info(f"Settings: model={DALLE_MODEL}, size={size}, quality={quality}, style={style}")
 
-            # DALL-E API 호출 (동기 함수를 비동기로 실행)
+            # DALL-E / GPT image API 호출 (동기 함수를 비동기로 실행)
             loop = asyncio.get_event_loop()
+            use_quality = quality
+            if str(DALLE_MODEL).startswith("gpt-image-"):
+                # gpt-image-* supports low/medium/high/auto
+                if quality == "hd":
+                    use_quality = "high"
+                elif quality == "standard":
+                    use_quality = "medium"
+            kwargs = {
+                "model": DALLE_MODEL,
+                "prompt": prompt,
+                "size": size,
+                "quality": use_quality,
+                "n": 1,
+            }
+            if not str(DALLE_MODEL).startswith("gpt-image-"):
+                kwargs["style"] = style
             response = await loop.run_in_executor(
                 None,
-                lambda: client.images.generate(
-                    model=DALLE_MODEL,
-                    prompt=prompt,
-                    size=size,
-                    quality=quality,
-                    style=style,
-                    n=1
-                )
+                lambda: client.images.generate(**kwargs)
             )
 
             image_url = response.data[0].url
@@ -189,74 +203,173 @@ async def generate_image_dall_e(
     }
 
 
+def _extract_gemini_image_base64(resp):
+    """Return (base64, mime_type) if Gemini response contains inline image data."""
+    if not resp:
+        return None, None
+
+    candidates = getattr(resp, "candidates", None)
+    if candidates is None:
+        result = getattr(resp, "_result", None)
+        candidates = getattr(result, "candidates", None) if result else None
+
+    if not candidates:
+        return None, None
+
+    for cand in candidates:
+        content = getattr(cand, "content", None)
+        parts = None
+        if isinstance(content, dict):
+            parts = content.get("parts")
+        else:
+            parts = getattr(content, "parts", None)
+        if not parts:
+            continue
+        for part in parts:
+            inline_data = None
+            if isinstance(part, dict):
+                inline_data = part.get("inline_data")
+            else:
+                inline_data = getattr(part, "inline_data", None)
+            if not inline_data:
+                continue
+            mime_type = inline_data.get("mime_type") if isinstance(inline_data, dict) else getattr(inline_data, "mime_type", None)
+            data = inline_data.get("data") if isinstance(inline_data, dict) else getattr(inline_data, "data", None)
+            if not data:
+                continue
+            if isinstance(data, bytes):
+                data = base64.b64encode(data).decode("utf-8")
+            return data, (mime_type or "image/png")
+
+    return None, None
+
+
+def _extract_inline_image_from_dict(data: Dict[str, Any]):
+    candidates = data.get("candidates") or []
+    for cand in candidates:
+        content = cand.get("content") or {}
+        parts = content.get("parts") or []
+        for part in parts:
+            inline = part.get("inlineData") or part.get("inline_data") or {}
+            mime_type = inline.get("mime_type") or inline.get("mimeType") or "image/png"
+            img_data = inline.get("data")
+            if img_data:
+                return img_data, mime_type
+    return None, None
+
+
+def _generate_image_gemini_rest(prompt: str, model_name: str):
+    """Gemini REST API image generation (no SDK)."""
+    if not GEMINI_API_KEY:
+        return {"success": False, "error": "GEMINI_API_KEY not configured"}
+    if not model_name:
+        return {"success": False, "error": "Gemini model is not configured"}
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+    payload = {
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt}]}
+        ],
+    }
+    try:
+        resp = requests.post(
+            url,
+            params={"key": GEMINI_API_KEY},
+            json=payload,
+            timeout=60,
+        )
+        if resp.status_code != 200:
+            return {"success": False, "error": f"Gemini REST error: {resp.status_code} {resp.text[:200]}"}
+        data = resp.json()
+        image_base64, mime_type = _extract_inline_image_from_dict(data)
+        if not image_base64:
+            return {"success": False, "error": "Gemini REST did not return inline image data"}
+        return {
+            "success": True,
+            "image_base64": image_base64,
+            "mime_type": mime_type or "image/png",
+            "model": model_name,
+        }
+    except Exception as e:
+        return {"success": False, "error": f"Gemini REST failed: {e}"}
+
+
 async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[str, Any]:
     """Google Gemini 이미지 생성 (시범용 간단 래퍼)."""
     if not GEMINI_API_KEY:
         return {"success": False, "error": "GEMINI_API_KEY not configured"}
-    if genai is None:
-        return {"success": False, "error": "google-generativeai not installed"}
+    # SDK is optional; REST will be used if unavailable or incompatible.
+    sdk_available = bool(genai and hasattr(genai, "GenerativeModel"))
 
     try:
         genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel(GEMINI_MODEL)
-        resp = await asyncio.get_event_loop().run_in_executor(
-            None,
-            lambda: model.generate_content(
-                [
-                    {
-                        "role": "user",
-                        "parts": [
-                            {"text": prompt},
-                            {"inline_data": None},
-                        ],
-                    }
-                ],
-                generation_config={"response_mime_type": "image/png"},
-            ),
-        )
+        models_to_try = [GEMINI_MODEL, "gemini-2.0-flash-exp"]
+        seen = set()
+        last_error = None
 
-        if not resp or not getattr(resp, "_result", None):
-            return {"success": False, "error": "No response from Gemini"}
-
-        # Gemini 응답에서 base64 PNG 추출 (v1beta style)
-        image_base64 = None
-        try:
-            if resp._result.candidates:
-                for cand in resp._result.candidates:
-                    parts = getattr(cand, "content", {}).get("parts", []) if hasattr(cand, "content") else []
-                    for p in parts:
-                        if getattr(p, "inline_data", None):
-                            if p.inline_data.get("mime_type", "").startswith("image/"):
-                                image_base64 = p.inline_data.get("data")
-                                break
-                    if image_base64:
-                        break
-        except Exception:
-            pass
-
-        if not image_base64:
-            return {"success": False, "error": "Gemini did not return inline image data"}
-
-        result: Dict[str, Any] = {
-            "success": True,
-            "image_base64": image_base64,
-            "mime_type": "image/png",
-            "model": GEMINI_MODEL,
-        }
-
-        if save_locally:
+        for model_name in models_to_try:
+            if not model_name or model_name in seen:
+                continue
+            seen.add(model_name)
             try:
-                binary = base64.b64decode(image_base64)
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"gemini_{timestamp}.png"
-                filepath = UPLOAD_DIR / filename
-                async with aiofiles.open(filepath, "wb") as f:
-                    await f.write(binary)
-                result["local_path"] = f"/uploads/images/{filename}"
-            except Exception as e:
-                logger.warning(f"Failed to save Gemini image locally: {e}")
+                # Prefer SDK first; REST remains as fallback.
+                if sdk_available:
+                    model = genai.GenerativeModel(model_name)
+                    resp = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: model.generate_content(prompt),
+                    )
 
-        return result
+                    image_base64, mime_type = _extract_gemini_image_base64(resp)
+                    if not image_base64:
+                        last_error = "Gemini SDK did not return inline image data"
+                    else:
+                        result = {
+                            "success": True,
+                            "image_base64": image_base64,
+                            "mime_type": mime_type or "image/png",
+                            "model": model_name,
+                        }
+                        if save_locally:
+                            try:
+                                binary = base64.b64decode(image_base64)
+                                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                                filename = f"gemini_{timestamp}.png"
+                                filepath = UPLOAD_DIR / filename
+                                async with aiofiles.open(filepath, "wb") as f:
+                                    await f.write(binary)
+                                result["local_path"] = f"/uploads/images/{filename}"
+                            except Exception as e:
+                                logger.warning(f"Failed to save Gemini image locally: {e}")
+                        return result
+
+                rest_result = _generate_image_gemini_rest(prompt, model_name)
+                if rest_result.get("success"):
+                    result = rest_result
+                    image_base64 = result.get("image_base64")
+                    mime_type = result.get("mime_type")
+                else:
+                    last_error = rest_result.get("error") or "Gemini REST failed"
+                    continue
+
+                if save_locally:
+                    try:
+                        binary = base64.b64decode(image_base64)
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        filename = f"gemini_{timestamp}.png"
+                        filepath = UPLOAD_DIR / filename
+                        async with aiofiles.open(filepath, "wb") as f:
+                            await f.write(binary)
+                        result["local_path"] = f"/uploads/images/{filename}"
+                    except Exception as e:
+                        logger.warning(f"Failed to save Gemini image locally: {e}")
+
+                return result
+            except Exception as e:
+                last_error = str(e)
+                continue
+
+        return {"success": False, "error": f"Gemini image generation failed: {last_error or 'Unknown error'}"}
 
     except Exception as e:
         return {"success": False, "error": f"Gemini image generation failed: {e}"}

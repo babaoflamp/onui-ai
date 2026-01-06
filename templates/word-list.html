@@ -16,20 +16,30 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <section class="lg:col-span-3 bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-      <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center justify-between mb-3 gap-2">
         <h2 class="text-sm font-semibold text-gray-900">학습 단어 순위</h2>
-        <button
-          id="sortToggle"
-          class="text-xs text-gray-500 hover:text-gray-700"
-          type="button"
-        >
-          점수 높은 순 정렬
-        </button>
+        <div class="flex items-center gap-2">
+          <select
+            id="sortSelect"
+            class="text-xs border border-gray-200 rounded-lg px-2 py-1 text-gray-600 bg-white"
+          >
+            <option value="score">점수</option>
+            <option value="word">단어</option>
+            <option value="level">레벨</option>
+          </select>
+          <button
+            id="sortDirection"
+            class="text-xs text-gray-500 hover:text-gray-700"
+            type="button"
+          >
+            내림차순
+          </button>
+        </div>
       </div>
       <div class="grid grid-cols-3 gap-2 text-[11px] text-gray-400 px-2 pb-2">
         <span>단어</span>
         <span class="text-center">점수</span>
-        <span class="text-right">히스토리</span>
+        <span class="text-right">레벨</span>
       </div>
       <div id="wordRankList" class="space-y-2 max-h-[620px] overflow-y-auto pr-1"></div>
     </section>
@@ -48,102 +58,172 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
+      <div id="wordPracticeSection">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
+          <div class="md:col-span-3 flex flex-col items-center gap-3">
+            <div
+              class="w-full max-w-2xl bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-center"
+            >
+              <div class="w-full">
+                <div
+                  id="wordImage"
+                  class="h-[280px] w-full bg-white rounded-lg shadow-inner flex items-center justify-center text-5xl"
+                >
+                  📘
+                </div>
+                <p id="wordImageStatus" class="text-xs text-gray-500 mt-2 text-center hidden">
+                  이미지 생성 중...
+                </p>
+              </div>
+            </div>
+            <button
+              id="generateImageBtn"
+              class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ✨ 이미지 생성
+            </button>
+          </div>
+          <div class="md:col-span-2 space-y-3">
+            <div class="bg-gray-50 rounded-xl p-4">
+              <p class="text-sm text-gray-700 leading-relaxed" id="wordDesc"></p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+              <p class="text-xs text-gray-500 mb-1">예문</p>
+              <p class="text-sm text-gray-700" id="wordExample"></p>
+            </div>
+          </div>
+        </div>
+
         <div
-          class="md:col-span-2 bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-center"
+          class="mt-6 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-orange-50/40"
         >
+          <div id="wordRecordingStatus" class="mb-4">
+            <p class="text-gray-600 text-sm">마이크를 통해 단어를 읽어주세요</p>
+          </div>
+
           <div
-            id="wordImage"
-            class="h-40 w-full bg-white rounded-lg shadow-inner flex items-center justify-center text-5xl"
+            id="wordCountdown"
+            class="text-5xl font-bold text-red-500 text-center mb-4 hidden"
           >
-            📘
+            3
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <button
+              id="wordRecordStart"
+              class="px-6 py-3 bg-orange-500 border-2 border-orange-500 text-white rounded-lg font-semibold hover:bg-orange-400 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              🎙️ 녹음 시작
+            </button>
+            <button
+              id="wordRecordStop"
+              class="px-6 py-3 bg-white border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-100 transition flex-1 sm:flex-none hidden"
+            >
+              ⏹️ 녹음 중지
+            </button>
+            <button
+              id="wordRecordPlay"
+              class="px-6 py-3 bg-orange-100 border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-400 hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
+              disabled
+            >
+              ▶️ 재생
+            </button>
+          </div>
+
+          <div
+            id="wordRecordingTimer"
+            class="text-2xl font-mono text-orange-500 mb-4 hidden"
+          >
+            00:00
+          </div>
+
+          <div id="wordPlaybackSection" class="mt-6 hidden">
+            <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
+            <audio
+              id="wordAudioPlayback"
+              controls
+              class="w-full mb-3 rounded-lg"
+            ></audio>
           </div>
         </div>
-        <div class="md:col-span-3 space-y-3">
-          <div class="bg-gray-50 rounded-xl p-4">
-            <p class="text-sm text-gray-700 leading-relaxed" id="wordDesc"></p>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-4">
-            <p class="text-xs text-gray-500 mb-1">예문</p>
-            <p class="text-sm text-gray-700" id="wordExample"></p>
-          </div>
+
+
+        <div class="mt-6 flex items-center justify-between text-sm">
+          <button
+            class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
+          >
+            ← 이전 학습
+          </button>
+          <button
+            class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
+          >
+            처음 화면
+          </button>
+          <button
+            class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
+          >
+            다음 학습 →
+          </button>
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-2 gap-3">
-        <button
-          id="wordRecordStart"
-          class="px-4 py-3 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-400 transition"
-        >
-          녹음 시작
-        </button>
-        <button
-          id="wordRecordStop"
-          class="px-4 py-3 rounded-xl bg-orange-100 text-orange-700 font-semibold hover:bg-orange-200 transition"
-          disabled
-        >
-          녹음 종료
-        </button>
-      </div>
-
-      <div class="mt-6 flex items-center justify-between text-sm">
-        <button
-          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
-        >
-          ← 이전 학습
-        </button>
-        <button
-          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
-        >
-          처음 화면
-        </button>
-        <button
-          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50"
-        >
-          다음 학습 →
-        </button>
+      <div id="wordHistorySection" class="hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900" id="centerHistoryTitle"></h3>
+          <button
+            class="px-3 py-1.5 rounded-full border border-gray-200 text-xs text-gray-600 hover:bg-gray-50"
+            onclick="setCenterMode('practice')"
+          >
+            학습 화면 보기
+          </button>
+        </div>
+        <div
+          id="centerHistoryChart"
+          class="h-[260px] border border-gray-100 rounded-xl bg-gray-50"
+        ></div>
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <button class="px-3 py-3 rounded-xl bg-indigo-50 text-indigo-700 text-left">
+            <div class="text-[11px] text-indigo-400">전체 평균점수</div>
+            <div id="centerHistoryAvgAll" class="text-lg font-semibold">-</div>
+          </button>
+          <button class="px-3 py-3 rounded-xl bg-emerald-50 text-emerald-700 text-left">
+            <div class="text-[11px] text-emerald-400">최근 5회 평균점수</div>
+            <div id="centerHistoryAvgRecent" class="text-lg font-semibold">-</div>
+          </button>
+          <button class="px-3 py-3 rounded-xl bg-amber-50 text-amber-700 text-left">
+            <div class="text-[11px] text-amber-400">상승/하강 · 기술기값</div>
+            <div class="flex items-center gap-2">
+              <span id="centerHistoryTrendIcon" class="text-lg">-</span>
+              <span id="centerHistoryTrendValue" class="text-sm font-semibold">-</span>
+            </div>
+          </button>
+          <button class="px-3 py-3 rounded-xl bg-slate-50 text-slate-700 text-left">
+            <div class="text-[11px] text-slate-400">최저 · 최고 점수</div>
+            <div class="text-sm font-semibold">
+              <span id="centerHistoryMinScore">-</span>
+              <span class="text-slate-300">/</span>
+              <span id="centerHistoryMaxScore">-</span>
+            </div>
+          </button>
+        </div>
       </div>
     </section>
 
     <aside class="lg:col-span-3 space-y-4">
       <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-xs font-semibold text-indigo-600">CURRENT WORD</p>
-            <h3 id="currentWordLabel" class="text-xl font-bold text-gray-900 mt-1">-</h3>
-          </div>
-          <span id="currentScore" class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">-</span>
-        </div>
-        <div class="mt-4 flex flex-col gap-3">
-          <label>
-            <span class="text-xs text-gray-500">새 점수 (0~100)</span>
-            <input
-              id="scoreInput"
-              type="number"
-              min="0"
-              max="100"
-              placeholder="예: 85"
-              class="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-300"
-            />
-          </label>
-          <button
-            id="applyScore"
-            class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500"
-          >
-            입력 & 정렬
-          </button>
-        </div>
-        <p class="text-xs text-gray-500 mt-3">
-          점수를 입력하면 해당 단어의 점수가 업데이트되고 목록이 다시 정렬됩니다.
-        </p>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-semibold text-gray-900" id="historyTitle">점수 히스토리</h3>
-          <span class="text-[11px] text-gray-400">최근 10회</span>
+          <span class="text-xl text-gray-900 font-semibold">최근 10회</span>
         </div>
         <div id="historyChart" class="h-[220px] border border-gray-100 rounded-xl bg-gray-50"></div>
+        <div class="mt-4 flex justify-center">
+          <button
+            id="openPracticeModal"
+            class="px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition"
+          >
+            이 단어로 바로 연습하기
+          </button>
+        </div>
       </div>
 
       <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
@@ -171,11 +251,142 @@
   </div>
 </div>
 
+<div
+  id="word-practice-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+>
+  <div class="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 id="practiceTitle" class="text-2xl font-bold text-gray-900">단어 연습</h2>
+        <p id="practiceSubtitle" class="text-xs text-gray-500 mt-1"></p>
+      </div>
+      <button
+        class="text-gray-500 hover:text-gray-800 text-2xl"
+        onclick="closePracticeModal()"
+        aria-label="닫기"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
+      <div class="md:col-span-3 flex flex-col items-center gap-3">
+        <div
+          class="w-full max-w-2xl bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-center"
+        >
+          <div class="w-full">
+            <div
+              id="practiceImage"
+              class="h-[280px] w-full bg-white rounded-lg shadow-inner flex items-center justify-center text-5xl"
+            >
+              📘
+            </div>
+          </div>
+        </div>
+        <button
+          id="practicePlayTts"
+          class="px-4 py-2 rounded-lg bg-orange-500 text-white text-xs font-semibold hover:bg-orange-400 transition"
+        >
+          ▶ 발음 듣기
+        </button>
+      </div>
+      <div class="md:col-span-2 space-y-3">
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-sm text-gray-700 leading-relaxed" id="practiceDesc"></p>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-4">
+          <p class="text-xs text-gray-500 mb-1">예문</p>
+          <p class="text-sm text-gray-700" id="practiceExample"></p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mt-6 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-orange-50/40"
+    >
+      <div id="practiceRecordingStatus" class="mb-4">
+        <p class="text-gray-600 text-sm">마이크를 통해 단어를 읽어주세요</p>
+      </div>
+
+      <div
+        id="practiceCountdown"
+        class="text-5xl font-bold text-red-500 text-center mb-4 hidden"
+      >
+        3
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+        <button
+          id="practiceRecordStart"
+          class="px-6 py-3 bg-orange-500 border-2 border-orange-500 text-white rounded-lg font-semibold hover:bg-orange-400 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          🎙️ 녹음 시작
+        </button>
+        <button
+          id="practiceRecordStop"
+          class="px-6 py-3 bg-white border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-100 transition flex-1 sm:flex-none hidden"
+        >
+          ⏹️ 녹음 중지
+        </button>
+        <button
+          id="practiceRecordPlay"
+          class="px-6 py-3 bg-orange-100 border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-400 hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
+          disabled
+        >
+          ▶️ 재생
+        </button>
+      </div>
+
+      <div
+        id="practiceRecordingTimer"
+        class="text-2xl font-mono text-orange-500 mb-4 hidden"
+      >
+        00:00
+      </div>
+
+      <div id="practicePlaybackSection" class="mt-6 hidden">
+        <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
+        <audio
+          id="practiceAudioPlayback"
+          controls
+          class="w-full mb-3 rounded-lg"
+        ></audio>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  id="score-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+>
+  <div class="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-gray-900">발음 점수 결과</h2>
+      <button
+        class="text-gray-500 hover:text-gray-800 text-2xl"
+        onclick="closeScoreModal()"
+        aria-label="닫기"
+      >
+        ✕
+      </button>
+    </div>
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+      <div id="score-modal-value" class="text-4xl font-bold text-orange-500">-</div>
+      <p id="score-modal-message" class="text-sm text-gray-600 mt-2">
+        발음 점수를 계산 중입니다...
+      </p>
+    </div>
+  </div>
+</div>
+
 <script>
   let words = [];
   let scoreHistory = {};
   let selectedIndex = 0;
-  let sortByScore = true;
+  let sortField = "score";
+  let sortDirection = "desc";
 
   const listEl = document.getElementById("wordRankList");
   const titleEl = document.getElementById("wordTitle");
@@ -183,18 +394,69 @@
   const descEl = document.getElementById("wordDesc");
   const exampleEl = document.getElementById("wordExample");
   const imageEl = document.getElementById("wordImage");
-  const currentWordLabelEl = document.getElementById("currentWordLabel");
-  const currentScoreEl = document.getElementById("currentScore");
+  const wordImageStatusEl = document.getElementById("wordImageStatus");
   const historyTitleEl = document.getElementById("historyTitle");
   const historyChartEl = document.getElementById("historyChart");
-  const scoreInputEl = document.getElementById("scoreInput");
-  const sortToggleEl = document.getElementById("sortToggle");
+  const practiceSectionEl = document.getElementById("wordPracticeSection");
+  const historySectionEl = document.getElementById("wordHistorySection");
+  const centerHistoryTitleEl = document.getElementById("centerHistoryTitle");
+  const centerHistoryChartEl = document.getElementById("centerHistoryChart");
+  const centerHistoryAvgAllEl = document.getElementById("centerHistoryAvgAll");
+  const centerHistoryAvgRecentEl = document.getElementById("centerHistoryAvgRecent");
+  const centerHistoryTrendIconEl = document.getElementById("centerHistoryTrendIcon");
+  const centerHistoryTrendValueEl = document.getElementById("centerHistoryTrendValue");
+  const centerHistoryMinScoreEl = document.getElementById("centerHistoryMinScore");
+  const centerHistoryMaxScoreEl = document.getElementById("centerHistoryMaxScore");
+  const sortSelectEl = document.getElementById("sortSelect");
+  const sortDirectionEl = document.getElementById("sortDirection");
   const playButtonEl = document.getElementById("wordPlayButton");
   const recordStartEl = document.getElementById("wordRecordStart");
   const recordStopEl = document.getElementById("wordRecordStop");
+  const recordPlayEl = document.getElementById("wordRecordPlay");
+  const generateImageBtnEl = document.getElementById("generateImageBtn");
+  const recordingStatusEl = document.getElementById("wordRecordingStatus");
+  const countdownEl = document.getElementById("wordCountdown");
+  const recordingTimerEl = document.getElementById("wordRecordingTimer");
+  const playbackSectionEl = document.getElementById("wordPlaybackSection");
+  const audioPlaybackEl = document.getElementById("wordAudioPlayback");
+  const scoreModalEl = document.getElementById("score-modal");
+  const scoreModalValueEl = document.getElementById("score-modal-value");
+  const scoreModalMessageEl = document.getElementById("score-modal-message");
+  const practiceModalEl = document.getElementById("word-practice-modal");
+  const practiceTitleEl = document.getElementById("practiceTitle");
+  const practiceSubtitleEl = document.getElementById("practiceSubtitle");
+  const practiceDescEl = document.getElementById("practiceDesc");
+  const practiceExampleEl = document.getElementById("practiceExample");
+  const practiceImageEl = document.getElementById("practiceImage");
+  const practicePlayTtsEl = document.getElementById("practicePlayTts");
+  const practiceRecordStartEl = document.getElementById("practiceRecordStart");
+  const practiceRecordStopEl = document.getElementById("practiceRecordStop");
+  const practiceRecordPlayEl = document.getElementById("practiceRecordPlay");
+  const practiceRecordingStatusEl = document.getElementById("practiceRecordingStatus");
+  const practiceCountdownEl = document.getElementById("practiceCountdown");
+  const practiceRecordingTimerEl = document.getElementById("practiceRecordingTimer");
+  const practicePlaybackSectionEl = document.getElementById("practicePlaybackSection");
+  const practiceAudioPlaybackEl = document.getElementById("practiceAudioPlayback");
+  const openPracticeModalEl = document.getElementById("openPracticeModal");
   let recorder = null;
   let recordedChunks = [];
   let recordedAudioBlob = null;
+  let recordingStartTime = null;
+  let recordingTimer = null;
+  let centerMode = "practice";
+  let practiceRecorder = null;
+  let practiceRecordedChunks = [];
+  let practiceRecordedAudioBlob = null;
+  let practiceRecordingStartTime = null;
+  let practiceRecordingTimer = null;
+  let currentImageKey = null;
+  const imageRequestInFlight = new Set();
+  const imageCacheVersion = "v2";
+
+  if (localStorage.getItem("word_image_cache_version") !== imageCacheVersion) {
+    localStorage.removeItem("word_image_cache");
+    localStorage.setItem("word_image_cache_version", imageCacheVersion);
+  }
 
   function getHistory(wordId) {
     return scoreHistory[wordId] || [];
@@ -205,14 +467,252 @@
     return history.length ? history[0] : null;
   }
 
+  function getLevelRank(level) {
+    const order = ["A1", "A2", "B1", "B2", "C1", "C2"];
+    const idx = order.indexOf(String(level || "").toUpperCase());
+    return idx === -1 ? order.length : idx;
+  }
+
   function getSortedWords() {
     const list = [...words];
-    if (!sortByScore) return list;
     return list.sort((a, b) => {
-      const aScore = getLatestScore(a.id) ?? -1;
-      const bScore = getLatestScore(b.id) ?? -1;
-      return bScore - aScore;
+      let result = 0;
+      if (sortField === "word") {
+        const aWord = (a.word || "").toString();
+        const bWord = (b.word || "").toString();
+        result = aWord.localeCompare(bWord, "ko");
+      } else if (sortField === "level") {
+        result = getLevelRank(a.level) - getLevelRank(b.level);
+      } else {
+        const aScore = getLatestScore(a.id) ?? -1;
+        const bScore = getLatestScore(b.id) ?? -1;
+        result = aScore - bScore;
+      }
+      return sortDirection === "asc" ? result : -result;
     });
+  }
+
+  function getSelectedWord() {
+    const sorted = getSortedWords();
+    return sorted[selectedIndex] || sorted[0];
+  }
+
+  function formatScore(value) {
+    if (value === null || value === undefined || Number.isNaN(value)) return "-";
+    return `${Math.round(value)}점`;
+  }
+
+  function updateCenterHistoryStats(wordId) {
+    const history = getHistory(wordId);
+    if (!history.length) {
+      if (centerHistoryAvgAllEl) centerHistoryAvgAllEl.textContent = "-";
+      if (centerHistoryAvgRecentEl) centerHistoryAvgRecentEl.textContent = "-";
+      if (centerHistoryTrendIconEl) centerHistoryTrendIconEl.textContent = "-";
+      if (centerHistoryTrendValueEl) centerHistoryTrendValueEl.textContent = "-";
+      if (centerHistoryMinScoreEl) centerHistoryMinScoreEl.textContent = "-";
+      if (centerHistoryMaxScoreEl) centerHistoryMaxScoreEl.textContent = "-";
+      return;
+    }
+
+    const total = history.reduce((sum, score) => sum + score, 0);
+    const avgAll = total / history.length;
+    const recent = history.slice(0, 5);
+    const avgRecent =
+      recent.reduce((sum, score) => sum + score, 0) / recent.length;
+
+    const min = Math.min(...history);
+    const max = Math.max(...history);
+
+    const prevSlice = history.slice(5, 10);
+    const avgPrev = prevSlice.length
+      ? prevSlice.reduce((sum, score) => sum + score, 0) / prevSlice.length
+      : avgAll;
+    const trendDelta = avgRecent - avgPrev;
+    const trendIcon = trendDelta > 0 ? "▲" : trendDelta < 0 ? "▼" : "●";
+    const trendValue = `${trendDelta >= 0 ? "+" : ""}${Math.round(trendDelta)}점`;
+
+    if (centerHistoryAvgAllEl) centerHistoryAvgAllEl.textContent = formatScore(avgAll);
+    if (centerHistoryAvgRecentEl) centerHistoryAvgRecentEl.textContent = formatScore(avgRecent);
+    if (centerHistoryTrendIconEl) centerHistoryTrendIconEl.textContent = trendIcon;
+    if (centerHistoryTrendValueEl) centerHistoryTrendValueEl.textContent = trendValue;
+    if (centerHistoryMinScoreEl) centerHistoryMinScoreEl.textContent = formatScore(min);
+    if (centerHistoryMaxScoreEl) centerHistoryMaxScoreEl.textContent = formatScore(max);
+  }
+
+  function setCenterMode(mode) {
+    centerMode = mode === "history" ? "history" : "practice";
+    if (practiceSectionEl) {
+      practiceSectionEl.classList.toggle("hidden", centerMode === "history");
+    }
+    if (historySectionEl) {
+      historySectionEl.classList.toggle("hidden", centerMode !== "history");
+    }
+    const item = getSelectedWord();
+    if (centerMode === "history" && item) {
+      if (centerHistoryTitleEl) {
+        centerHistoryTitleEl.textContent = `'${item.word}' 점수 히스토리`;
+      }
+      renderHistoryChart(item.id);
+      updateCenterHistoryStats(item.id);
+    }
+  }
+
+  function getWordImageCache() {
+    try {
+      return JSON.parse(localStorage.getItem("word_image_cache") || "{}");
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function setWordImageCache(cache) {
+    try {
+      localStorage.setItem("word_image_cache", JSON.stringify(cache));
+    } catch (_) {}
+  }
+
+  function getWordImageKey(item) {
+    if (!item) return null;
+    return item.id ? `id:${item.id}` : `word:${item.word || ""}`;
+  }
+
+  function renderWordImage(item, imageUrl = null) {
+    if (!imageEl) return;
+    if (imageUrl) {
+      imageEl.innerHTML = `<img src="${imageUrl}" alt="${item.word || ""}" class="h-full w-full object-contain object-center rounded-lg" />`;
+      if (wordImageStatusEl) wordImageStatusEl.classList.add("hidden");
+      return;
+    }
+    imageEl.textContent = item.emoji || "📘";
+    if (wordImageStatusEl) wordImageStatusEl.classList.add("hidden");
+  }
+
+  function renderPracticeImage(item, imageUrl = null) {
+    if (!practiceImageEl) return;
+    if (imageUrl) {
+      practiceImageEl.innerHTML = `<img src="${imageUrl}" alt="${item.word || ""}" class="h-full w-full object-contain object-center rounded-lg" />`;
+      return;
+    }
+    practiceImageEl.textContent = item.emoji || "📘";
+  }
+
+  async function generateImageForWord(item) {
+    const key = getWordImageKey(item);
+    if (!key || imageRequestInFlight.has(key)) return;
+    imageRequestInFlight.add(key);
+    try {
+      if (wordImageStatusEl) wordImageStatusEl.classList.remove("hidden");
+      const cache = getWordImageCache();
+      if (cache[key]) {
+        delete cache[key];
+        setWordImageCache(cache);
+      }
+      const meaning = item.meaningKo || item.meaning || "";
+      const situation = meaning || "";
+      if (!situation) return;
+      const formData = new FormData();
+      formData.append(
+        "prompt",
+        `한국어 학습용 개념 일러스트: ${situation}. `
+        + "단어/뜻/라벨/말풍선 등 텍스트는 절대 포함하지 말 것. "
+        + "어떠한 언어의 글자도 금지(한글/영문/숫자 포함). "
+        + "실제 사진처럼 보이는 포토리얼리스틱 스타일, 자연광, 선명한 디테일, "
+        + "스튜디오 촬영 느낌, 얕은 심도, 필름 톤, 한국 문화 맥락, "
+        + "단순한 배경, 주제 객체를 화면 중앙에 크게, "
+        + "고해상도, 워터마크 없음."
+      );
+      formData.append("save_locally", "true");
+      const response = await fetch("/api/gemini/image", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("이미지 생성 요청에 실패했습니다.");
+      }
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "이미지 생성에 실패했습니다.");
+      }
+      const imageUrl =
+        data.local_path ||
+        (data.image_base64
+          ? `data:${data.mime_type || "image/png"};base64,${data.image_base64}`
+          : null);
+      if (!imageUrl) {
+        throw new Error("이미지 응답이 비어 있습니다.");
+      }
+      const nextCache = getWordImageCache();
+      nextCache[key] = {
+        url: imageUrl,
+        updatedAt: Date.now(),
+      };
+      setWordImageCache(nextCache);
+      if (currentImageKey === key) {
+        renderWordImage(item, imageUrl);
+      }
+    } catch (err) {
+      console.warn("이미지 생성 실패:", err);
+      alert("이미지 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      imageRequestInFlight.delete(key);
+      if (generateImageBtnEl && currentImageKey === key) {
+        const cache = getWordImageCache();
+        const cached = cache[key] ? cache[key].url : null;
+        generateImageBtnEl.disabled = Boolean(cached);
+      }
+      if (wordImageStatusEl) wordImageStatusEl.classList.add("hidden");
+    }
+  }
+
+  function openScoreModal() {
+    if (!scoreModalEl) return;
+    scoreModalValueEl.textContent = "-";
+    scoreModalMessageEl.textContent = "녹음 준비 중입니다...";
+    scoreModalEl.classList.remove("hidden");
+  }
+
+  function closeScoreModal() {
+    if (!scoreModalEl) return;
+    scoreModalEl.classList.add("hidden");
+  }
+
+  function openPracticeModal() {
+    if (!practiceModalEl) return;
+    const item = getSelectedWord();
+    if (!item) return;
+    practiceTitleEl.textContent = item.word || "단어 연습";
+    practiceSubtitleEl.textContent = `CEFR ${item.level || "-"}`;
+    practiceDescEl.textContent = item.meaningKo || item.meaning || "설명이 없습니다.";
+    practiceExampleEl.textContent = item.example || item.sentenceKr || "예문이 없습니다.";
+    const imageKey = getWordImageKey(item);
+    const cache = getWordImageCache();
+    const cached = imageKey && cache[imageKey] ? cache[imageKey].url : null;
+    renderPracticeImage(item, cached);
+    if (practiceRecordingStatusEl) {
+      practiceRecordingStatusEl.innerHTML =
+        '<p class="text-gray-600 text-sm">마이크를 통해 단어를 읽어주세요</p>';
+    }
+    if (practiceCountdownEl) practiceCountdownEl.classList.add("hidden");
+    if (practiceRecordingTimerEl) practiceRecordingTimerEl.classList.add("hidden");
+    if (practicePlaybackSectionEl) practicePlaybackSectionEl.classList.add("hidden");
+    if (practiceRecordStartEl) practiceRecordStartEl.classList.remove("hidden");
+    if (practiceRecordStopEl) practiceRecordStopEl.classList.add("hidden");
+    if (practiceRecordPlayEl) {
+      practiceRecordPlayEl.disabled = true;
+      practiceRecordPlayEl.textContent = "▶️ 재생";
+    }
+    practiceModalEl.classList.remove("hidden");
+  }
+
+  function closePracticeModal() {
+    if (!practiceModalEl) return;
+    practiceModalEl.classList.add("hidden");
+  }
+
+  function updateScoreModal(score, message, details = {}) {
+    if (!scoreModalEl) return;
+    scoreModalValueEl.textContent = typeof score === "number" ? `${score}점` : "-";
+    scoreModalMessageEl.textContent = message || "";
   }
 
   function renderList() {
@@ -230,11 +730,14 @@
         }">
           <button class="text-left flex-1" onclick="selectWord(${idx})">
             <div class="font-semibold text-gray-800">${item.word}</div>
-            <div class="text-[11px] text-gray-400">CEFR ${item.level || "-"}</div>
           </button>
-          <div class="text-sm font-semibold text-gray-700 min-w-[48px] text-center">
+          <button
+            class="text-sm font-semibold text-gray-700 min-w-[48px] text-center hover:text-orange-600"
+            onclick="selectWord(${idx}, true)"
+            title="점수 히스토리 보기"
+          >
             ${latestScore !== null ? latestScore + "점" : "-"}
-          </div>
+          </button>
           <button
             class="text-xs font-semibold px-2 py-1 rounded-full border ${
               active
@@ -244,7 +747,7 @@
             onclick="selectWord(${idx})"
             title="최근 점수: ${historyText}"
           >
-            속성
+            CEFR ${item.level || "-"}
           </button>
         </div>
       `;
@@ -252,7 +755,7 @@
       .join("");
   }
 
-  function selectWord(idx) {
+  function selectWord(idx, showHistory = false) {
     const sorted = getSortedWords();
     selectedIndex = Math.max(0, Math.min(idx, sorted.length - 1));
     const item = sorted[selectedIndex];
@@ -261,13 +764,49 @@
     subtitleEl.textContent = `CEFR ${item.level || "-"}`;
     descEl.textContent = item.meaningKo || item.meaning || "설명이 없습니다.";
     exampleEl.textContent = item.example || item.sentenceKr || "예문이 없습니다.";
-    imageEl.textContent = item.emoji || "📘";
-    currentWordLabelEl.textContent = item.word || "-";
-    const latestScore = getLatestScore(item.id);
-    currentScoreEl.textContent = latestScore !== null ? `${latestScore}점` : "-";
+    const imageKey = getWordImageKey(item);
+    currentImageKey = imageKey;
+    const cache = getWordImageCache();
+    const cached = imageKey && cache[imageKey] ? cache[imageKey].url : null;
+    renderWordImage(item, cached);
+    if (generateImageBtnEl) {
+      generateImageBtnEl.disabled = Boolean(cached);
+      generateImageBtnEl.textContent = "✨ 이미지 생성";
+    }
     historyTitleEl.textContent = `'${item.word}' 점수 히스토리`;
+    if (centerHistoryTitleEl) {
+      centerHistoryTitleEl.textContent = `'${item.word}' 점수 히스토리`;
+    }
     renderHistoryChart(item.id);
+    updateCenterHistoryStats(item.id);
     renderList();
+    setCenterMode(showHistory ? "history" : "practice");
+  }
+
+  function selectWordById(wordId) {
+    if (!wordId) return false;
+    const sorted = getSortedWords();
+    const idx = sorted.findIndex((w) => w.id === wordId);
+    if (idx >= 0) {
+      selectWord(idx);
+      return true;
+    }
+    return false;
+  }
+
+  async function loadRecentWordId() {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return null;
+    try {
+      const res = await fetch("/api/learning/word-scores/recent", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.word_id || null;
+    } catch (_) {
+      return null;
+    }
   }
 
   async function playTTS(text) {
@@ -302,43 +841,330 @@
 
   async function startRecording() {
     if (recorder && recorder.state === "recording") return;
+    if (practiceRecorder && practiceRecorder.state === "recording") return;
+    if (!getSelectedWord()) {
+      alert("학습 단어를 먼저 선택해주세요.");
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       recordedChunks = [];
-      recorder = new MediaRecorder(stream);
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) recordedChunks.push(event.data);
-      };
-      recorder.onstop = () => {
-        recordedAudioBlob = new Blob(recordedChunks, { type: "audio/webm" });
-        stream.getTracks().forEach((track) => track.stop());
-      };
-      recorder.start();
-      recordStartEl.disabled = true;
-      recordStopEl.disabled = false;
+      if (recordingStatusEl) {
+        recordingStatusEl.innerHTML =
+          '<p class="text-gray-600 text-sm">녹음 준비 중...</p>';
+      }
+      if (recordPlayEl) {
+        recordPlayEl.disabled = true;
+        recordPlayEl.classList.remove("bg-green-500", "hover:bg-green-600");
+        recordPlayEl.classList.add("bg-orange-100", "hover:bg-orange-400");
+        recordPlayEl.textContent = "▶️ 재생";
+      }
+      if (countdownEl) {
+        countdownEl.classList.remove("hidden");
+        countdownEl.textContent = "3";
+      }
+
+      let countdown = 3;
+      const countdownInterval = setInterval(() => {
+        countdown -= 1;
+        if (countdownEl) {
+          countdownEl.textContent = String(countdown);
+        }
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          if (countdownEl) countdownEl.classList.add("hidden");
+
+          recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = (event) => {
+            if (event.data.size > 0) recordedChunks.push(event.data);
+          };
+          recorder.onstop = () => {
+            recordedAudioBlob = new Blob(recordedChunks, { type: "audio/webm" });
+            stream.getTracks().forEach((track) => track.stop());
+            if (audioPlaybackEl) {
+              const url = URL.createObjectURL(recordedAudioBlob);
+              audioPlaybackEl.src = url;
+            }
+            if (playbackSectionEl) playbackSectionEl.classList.remove("hidden");
+            if (recordPlayEl) recordPlayEl.disabled = false;
+            if (scoreModalMessageEl) {
+              scoreModalMessageEl.textContent = "1초 후 평가를 시작합니다...";
+            }
+            setTimeout(() => {
+              evaluatePronunciation();
+            }, 1000);
+          };
+          recorder.start();
+
+          recordingStartTime = Date.now();
+          if (recordingTimerEl) {
+            recordingTimerEl.classList.remove("hidden");
+            startTimer();
+          }
+          if (recordingStatusEl) {
+            recordingStatusEl.innerHTML =
+              '<p class="text-red-600 font-semibold">🔴 녹음 중...</p>';
+          }
+          if (recordStartEl) recordStartEl.classList.add("hidden");
+          if (recordStopEl) recordStopEl.classList.remove("hidden");
+
+        }
+      }, 1000);
     } catch (err) {
       console.error("녹음 시작 오류:", err);
       alert("마이크 권한을 확인해 주세요.");
+      if (countdownEl) countdownEl.classList.add("hidden");
     }
   }
 
   function stopRecording() {
     if (!recorder || recorder.state !== "recording") return;
     recorder.stop();
-    recordStartEl.disabled = false;
-    recordStopEl.disabled = true;
+    if (recordStartEl) recordStartEl.classList.remove("hidden");
+    if (recordStopEl) recordStopEl.classList.add("hidden");
+    if (recordingStatusEl) {
+      recordingStatusEl.innerHTML =
+        '<p class="text-green-600 font-semibold">✅ 녹음 완료</p>';
+    }
+    if (recordingTimerEl) recordingTimerEl.classList.add("hidden");
+    stopTimer();
   }
 
-  function renderHistoryChart(wordId) {
+  function startTimer() {
+    if (!recordingTimerEl) return;
+    stopTimer();
+    recordingTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      recordingTimerEl.textContent = `${String(minutes).padStart(2, "0")}:${String(
+        seconds
+      ).padStart(2, "0")}`;
+    }, 100);
+  }
+
+  function stopTimer() {
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      recordingTimer = null;
+    }
+  }
+
+  function playRecording() {
+    if (!audioPlaybackEl || !audioPlaybackEl.src) return;
+    if (audioPlaybackEl.paused) {
+      audioPlaybackEl.play();
+      if (recordPlayEl) recordPlayEl.textContent = "⏸️ 정지";
+    } else {
+      audioPlaybackEl.pause();
+      if (recordPlayEl) recordPlayEl.textContent = "▶️ 재생";
+    }
+  }
+
+  async function evaluatePronunciationForAudio(item, audioBlob) {
+    if (!item || !audioBlob) {
+      updateScoreModal("-", "녹음 데이터가 없습니다.");
+      return;
+    }
+    try {
+      openScoreModal();
+      if (scoreModalMessageEl) {
+        scoreModalMessageEl.textContent = "발음 점수를 계산 중입니다...";
+      }
+      const formData = new FormData();
+      formData.append("text", item.word || "");
+      formData.append("audio", audioBlob, "recording.wav");
+      formData.append("include_ai", "false");
+
+      const response = await fetch("/api/speechpro/evaluate", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("발음 평가 요청에 실패했습니다.");
+      }
+
+      const result = await response.json();
+      if (!result || result.success === false) {
+        throw new Error(result?.error || "평가 결과를 불러오지 못했습니다.");
+      }
+
+      const score = Math.round(result.overall_score || 0);
+      const details =
+        (result.score && result.score.details) || result.details || {};
+      const message =
+        score >= 85
+          ? "아주 좋아요! 발음이 안정적입니다."
+          : score >= 60
+          ? "좋아요! 조금만 더 또박또박 말해보세요."
+          : "연습이 필요해요. 천천히 반복해서 읽어보세요.";
+      updateScoreModal(score, message, details);
+
+      if (item.id) {
+        scoreHistory[item.id] = [score, ...(scoreHistory[item.id] || [])].slice(
+          0,
+          10
+        );
+        renderList();
+        renderHistoryChart(item.id);
+        historyTitleEl.textContent = `'${item.word}' 점수 히스토리`;
+      }
+      const token = localStorage.getItem("auth_token");
+      if (token && item.id) {
+        try {
+          await fetch("/api/learning/word-scores", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ word_id: item.id, score }),
+          });
+        } catch (_) {}
+      }
+    } catch (err) {
+      console.error("발음 평가 오류:", err);
+      updateScoreModal("-", err.message || "발음 평가에 실패했습니다.");
+    } finally {
+    }
+  }
+
+  async function evaluatePronunciation() {
+    const item = getSelectedWord();
+    await evaluatePronunciationForAudio(item, recordedAudioBlob);
+  }
+
+  async function startPracticeRecording() {
+    if (practiceRecorder && practiceRecorder.state === "recording") return;
+    if (recorder && recorder.state === "recording") return;
+    const item = getSelectedWord();
+    if (!item) {
+      alert("학습 단어를 먼저 선택해주세요.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      practiceRecordedChunks = [];
+      if (practiceRecordingStatusEl) {
+        practiceRecordingStatusEl.innerHTML =
+          '<p class="text-gray-600 text-sm">녹음 준비 중...</p>';
+      }
+      if (practiceRecordPlayEl) {
+        practiceRecordPlayEl.disabled = true;
+        practiceRecordPlayEl.textContent = "▶️ 재생";
+      }
+      if (practiceCountdownEl) {
+        practiceCountdownEl.classList.remove("hidden");
+        practiceCountdownEl.textContent = "3";
+      }
+
+      let countdown = 3;
+      const countdownInterval = setInterval(() => {
+        countdown -= 1;
+        if (practiceCountdownEl) {
+          practiceCountdownEl.textContent = String(countdown);
+        }
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          if (practiceCountdownEl) practiceCountdownEl.classList.add("hidden");
+
+          practiceRecorder = new MediaRecorder(stream);
+          practiceRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) practiceRecordedChunks.push(event.data);
+          };
+          practiceRecorder.onstop = () => {
+            practiceRecordedAudioBlob = new Blob(practiceRecordedChunks, { type: "audio/webm" });
+            stream.getTracks().forEach((track) => track.stop());
+            if (practiceAudioPlaybackEl) {
+              const url = URL.createObjectURL(practiceRecordedAudioBlob);
+              practiceAudioPlaybackEl.src = url;
+            }
+            if (practicePlaybackSectionEl) practicePlaybackSectionEl.classList.remove("hidden");
+            if (practiceRecordPlayEl) practiceRecordPlayEl.disabled = false;
+            if (scoreModalMessageEl) {
+              scoreModalMessageEl.textContent = "1초 후 평가를 시작합니다...";
+            }
+            setTimeout(() => {
+              evaluatePronunciationForAudio(item, practiceRecordedAudioBlob);
+            }, 1000);
+          };
+          practiceRecorder.start();
+
+          practiceRecordingStartTime = Date.now();
+          if (practiceRecordingTimerEl) {
+            practiceRecordingTimerEl.classList.remove("hidden");
+            startPracticeTimer();
+          }
+          if (practiceRecordingStatusEl) {
+            practiceRecordingStatusEl.innerHTML =
+              '<p class="text-red-600 font-semibold">🔴 녹음 중...</p>';
+          }
+          if (practiceRecordStartEl) practiceRecordStartEl.classList.add("hidden");
+          if (practiceRecordStopEl) practiceRecordStopEl.classList.remove("hidden");
+        }
+      }, 1000);
+    } catch (err) {
+      console.error("녹음 시작 오류:", err);
+      alert("마이크 권한을 확인해 주세요.");
+      if (practiceCountdownEl) practiceCountdownEl.classList.add("hidden");
+    }
+  }
+
+  function stopPracticeRecording() {
+    if (!practiceRecorder || practiceRecorder.state !== "recording") return;
+    practiceRecorder.stop();
+    if (practiceRecordStartEl) practiceRecordStartEl.classList.remove("hidden");
+    if (practiceRecordStopEl) practiceRecordStopEl.classList.add("hidden");
+    if (practiceRecordingStatusEl) {
+      practiceRecordingStatusEl.innerHTML =
+        '<p class="text-green-600 font-semibold">✅ 녹음 완료</p>';
+    }
+    if (practiceRecordingTimerEl) practiceRecordingTimerEl.classList.add("hidden");
+    stopPracticeTimer();
+  }
+
+  function startPracticeTimer() {
+    if (!practiceRecordingTimerEl) return;
+    stopPracticeTimer();
+    practiceRecordingTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - practiceRecordingStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      practiceRecordingTimerEl.textContent = `${String(minutes).padStart(2, "0")}:${String(
+        seconds
+      ).padStart(2, "0")}`;
+    }, 100);
+  }
+
+  function stopPracticeTimer() {
+    if (practiceRecordingTimer) {
+      clearInterval(practiceRecordingTimer);
+      practiceRecordingTimer = null;
+    }
+  }
+
+  function playPracticeRecording() {
+    if (!practiceAudioPlaybackEl || !practiceAudioPlaybackEl.src) return;
+    if (practiceAudioPlaybackEl.paused) {
+      practiceAudioPlaybackEl.play();
+      if (practiceRecordPlayEl) practiceRecordPlayEl.textContent = "⏸️ 정지";
+    } else {
+      practiceAudioPlaybackEl.pause();
+      if (practiceRecordPlayEl) practiceRecordPlayEl.textContent = "▶️ 재생";
+    }
+  }
+
+  function renderHistoryChartInto(containerEl, wordId, height = 200) {
+    if (!containerEl) return;
     const history = getHistory(wordId).slice(0, 10).reverse();
     if (!history.length) {
-      historyChartEl.innerHTML =
+      containerEl.innerHTML =
         "<div class='h-full flex items-center justify-center text-sm text-gray-400'>히스토리 데이터가 없습니다.</div>";
       return;
     }
 
     const width = 480;
-    const height = 200;
     const padding = 32;
     const max = 100;
     const min = 0;
@@ -350,30 +1176,60 @@
       return { x, y, score };
     });
 
-    const polyline = points.map((p) => `${p.x},${p.y}`).join(" ");
-    const circles = points
+    const barWidth = stepX ? Math.max(18, Math.min(36, stepX * 0.7)) : 36;
+    const bars = points
+      .map((p) => {
+        const x = p.x - barWidth / 2;
+        const barHeight = height - padding - p.y;
+        return `<rect x="${x}" y="${p.y}" width="${barWidth}" height="${barHeight}" rx="6" fill="#6366f1"></rect>`;
+      })
+      .join("");
+    const xLabels = points
       .map(
-        (p) =>
-          `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="#6366f1"></circle>`
+        (p, idx) =>
+          `<text x="${p.x}" y="${height - padding + 32}" text-anchor="middle" font-size="24" font-weight="700" fill="#6b7280">${idx + 1}</text>`
       )
       .join("");
     const labels = points
       .map(
         (p) =>
-          `<text x="${p.x}" y="${p.y - 8}" text-anchor="middle" font-size="10" fill="#6b7280">${p.score}</text>`
+          `<text x="${p.x}" y="${p.y - 20}" text-anchor="middle" font-size="24" font-weight="800" fill="#111827">${p.score}</text>`
       )
       .join("");
 
-    historyChartEl.innerHTML = `
+    const xGuides = points
+      .map(
+        (p) =>
+          `<line x1="${p.x}" y1="${padding}" x2="${p.x}" y2="${height - padding}" stroke="#e5e7eb" stroke-dasharray="2 4" />`
+      )
+      .join("");
+
+    const average =
+      history.reduce((sum, score) => sum + score, 0) / history.length;
+    const avgY =
+      height - padding - ((average - min) / (max - min)) * (height - padding * 2);
+    const avgLine = `<line x1="${padding}" y1="${avgY}" x2="${width - padding}" y2="${avgY}" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 6" />`;
+    const avgLabel = `<text x="${width - padding}" y="${avgY - 10}" text-anchor="end" font-size="18" font-weight="700" fill="#b45309">평균 ${Math.round(average)}점</text>`;
+
+    containerEl.innerHTML = `
       <svg viewBox="0 0 ${width} ${height}" class="w-full h-full">
         <rect x="0" y="0" width="${width}" height="${height}" fill="#f9fafb" />
+        ${xGuides}
+        ${avgLine}
         <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#e5e7eb" />
         <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#e5e7eb" />
-        <polyline points="${polyline}" fill="none" stroke="#6366f1" stroke-width="2" />
-        ${circles}
+        ${bars}
         ${labels}
+        ${xLabels}
+        ${avgLabel}
       </svg>
     `;
+  }
+
+  function renderHistoryChart(wordId) {
+    renderHistoryChartInto(historyChartEl, wordId, 200);
+    renderHistoryChartInto(centerHistoryChartEl, wordId, 260);
+    updateCenterHistoryStats(wordId);
   }
 
   async function loadScores() {
@@ -399,46 +1255,13 @@
       words = data.vocabulary || [];
       scoreHistory = await loadScores();
       renderList();
-      selectWord(0);
+      const recentWordId = await loadRecentWordId();
+      if (!selectWordById(recentWordId)) {
+        selectWord(0);
+      }
     } catch (err) {
       listEl.innerHTML =
         "<div class='text-sm text-gray-500'>데이터를 불러오는 중 오류가 발생했습니다.</div>";
-    }
-  }
-
-  async function submitScore() {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      alert("로그인 후 점수를 입력할 수 있습니다.");
-      return;
-    }
-
-    const score = Number(scoreInputEl.value);
-    if (Number.isNaN(score) || score < 0 || score > 100) {
-      alert("0~100 사이 점수를 입력하세요.");
-      return;
-    }
-
-    const sorted = getSortedWords();
-    const item = sorted[selectedIndex];
-    if (!item) return;
-
-    try {
-      const res = await fetch("/api/learning/word-scores", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ word_id: item.id, score }),
-      });
-      if (!res.ok) throw new Error("점수 저장에 실패했습니다.");
-      scoreHistory = await loadScores();
-      scoreInputEl.value = "";
-      renderList();
-      selectWord(selectedIndex);
-    } catch (err) {
-      alert(err.message);
     }
   }
 
@@ -449,16 +1272,52 @@
   });
   recordStartEl?.addEventListener("click", startRecording);
   recordStopEl?.addEventListener("click", stopRecording);
+  recordPlayEl?.addEventListener("click", playRecording);
+  practicePlayTtsEl?.addEventListener("click", () => {
+    const item = getSelectedWord();
+    playTTS(item?.word || "");
+  });
+  practiceRecordStartEl?.addEventListener("click", startPracticeRecording);
+  practiceRecordStopEl?.addEventListener("click", stopPracticeRecording);
+  practiceRecordPlayEl?.addEventListener("click", playPracticeRecording);
+  openPracticeModalEl?.addEventListener("click", openPracticeModal);
 
-  sortToggleEl.addEventListener("click", () => {
-    sortByScore = !sortByScore;
-    sortToggleEl.textContent = sortByScore
-      ? "점수 높은 순 정렬"
-      : "기본 순서";
+  if (audioPlaybackEl) {
+    audioPlaybackEl.addEventListener("ended", () => {
+      if (recordPlayEl) recordPlayEl.textContent = "▶️ 재생";
+    });
+  }
+  if (practiceAudioPlaybackEl) {
+    practiceAudioPlaybackEl.addEventListener("ended", () => {
+      if (practiceRecordPlayEl) practiceRecordPlayEl.textContent = "▶️ 재생";
+    });
+  }
+
+  sortSelectEl?.addEventListener("change", () => {
+    sortField = sortSelectEl.value;
     renderList();
     selectWord(selectedIndex);
   });
-  document.getElementById("applyScore").addEventListener("click", submitScore);
+
+  sortDirectionEl?.addEventListener("click", () => {
+    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    sortDirectionEl.textContent = sortDirection === "asc" ? "오름차순" : "내림차순";
+    renderList();
+    selectWord(selectedIndex);
+  });
+
+  generateImageBtnEl?.addEventListener("click", async () => {
+    const item = getSelectedWord();
+    if (!item) return;
+    if (generateImageBtnEl) {
+      generateImageBtnEl.disabled = true;
+      generateImageBtnEl.textContent = "⏳ 생성 중...";
+    }
+    await generateImageForWord(item);
+    if (generateImageBtnEl) {
+      generateImageBtnEl.textContent = "✨ 이미지 생성";
+    }
+  });
 
   loadWords();
 </script>

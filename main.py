@@ -2,6 +2,7 @@ import os
 import shutil
 import csv
 import sqlite3
+from datetime import timedelta
 import hashlib
 import hmac
 import logging
@@ -26,6 +27,7 @@ import subprocess
 import wave
 import base64
 import tempfile
+import time
 
 try:
     from google import genai
@@ -54,6 +56,9 @@ from backend.services.fluencypro_service import (
     call_fluencypro_analyze,
     parse_fluency_output
 )
+
+# Dictionary API service import
+from backend.services.krdict_service import search_krdict
 
 # DALL-E 서비스 임포트
 from backend.services.dalle_service import (
@@ -131,6 +136,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
+# KRDIC API key (Korean Basic Dictionary)
+KRDICT_API_KEY = os.getenv("KRDICT_API_KEY")
+
 # Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
 MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
@@ -152,6 +160,13 @@ GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
 
 # MzTTS Configuration
 MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
+
+# STT/TTS Backend
+STT_BACKEND = os.getenv("STT_BACKEND", "openai" if OPENAI_API_KEY else "local")
+TTS_BACKEND = os.getenv("TTS_BACKEND", "mztts")
+OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
+OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
+OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "wav")
 
 # Role definitions
 ROLE_LEARNER = "learner"
@@ -458,6 +473,8 @@ def _init_user_db():
         _ensure_role_column(conn)
         _ensure_word_score_table(conn)
         _ensure_sentence_score_table(conn)
+        _ensure_attendance_table(conn)
+        _ensure_rag_tables(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
@@ -529,6 +546,173 @@ def _ensure_sentence_score_table(conn):
         """
     )
     conn.commit()
+
+
+def _ensure_attendance_table(conn):
+    """Create attendance table if missing."""
+    cursor = conn.cursor()
+    cursor.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS attendance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
+        );
+        CREATE INDEX IF NOT EXISTS idx_attendance_user_date
+            ON attendance(user_id, date);
+        """
+    )
+    conn.commit()
+
+def _ensure_rag_tables(conn):
+    """Create RAG tables (documents, chunks, FTS index, settings) if missing."""
+    cursor = conn.cursor()
+    cursor.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS rag_settings (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            enabled INTEGER NOT NULL DEFAULT 0,
+            top_k INTEGER NOT NULL DEFAULT 5,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT OR IGNORE INTO rag_settings (id, enabled, top_k) VALUES (1, 0, 5);
+
+        CREATE TABLE IF NOT EXISTS rag_documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            source TEXT NOT NULL,
+            mime_type TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS rag_chunks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            document_id INTEGER NOT NULL,
+            chunk_index INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_rag_chunks_doc_idx
+            ON rag_chunks(document_id, chunk_index);
+
+        CREATE VIRTUAL TABLE IF NOT EXISTS rag_chunks_fts
+        USING fts5(content, chunk_id UNINDEXED, tokenize='unicode61');
+        """
+    )
+    conn.commit()
+
+
+def _rag_chunk_text(text: str, max_chars: int = 700) -> list[str]:
+    cleaned = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not cleaned:
+        return []
+    parts = [p.strip() for p in re.split(r"\n{2,}", cleaned) if p.strip()]
+    chunks: list[str] = []
+    buf = ""
+    for part in parts:
+        if not buf:
+            buf = part
+            continue
+        if len(buf) + 2 + len(part) <= max_chars:
+            buf = f"{buf}\n\n{part}"
+        else:
+            chunks.append(buf)
+            buf = part
+    if buf:
+        chunks.append(buf)
+    # fallback for very long single blocks
+    final_chunks: list[str] = []
+    for c in chunks:
+        if len(c) <= max_chars:
+            final_chunks.append(c)
+        else:
+            for i in range(0, len(c), max_chars):
+                final_chunks.append(c[i : i + max_chars].strip())
+    return [c for c in final_chunks if c]
+
+
+def _rag_get_settings(conn) -> dict:
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT enabled, top_k, updated_at FROM rag_settings WHERE id = 1")
+    row = cursor.fetchone()
+    if not row:
+        return {"enabled": False, "top_k": 5, "updated_at": ""}
+    return {
+        "enabled": bool(row["enabled"]),
+        "top_k": int(row["top_k"] or 5),
+        "updated_at": row["updated_at"] or "",
+    }
+
+
+def _rag_search(conn, query: str, top_k: int = 5) -> list[dict]:
+    q = (query or "").strip()
+    if not q:
+        return []
+    top_k = max(1, min(int(top_k or 5), 10))
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT chunk_id, bm25(rag_chunks_fts) AS score
+        FROM rag_chunks_fts
+        WHERE rag_chunks_fts MATCH ?
+        ORDER BY score
+        LIMIT ?
+        """,
+        (q, top_k),
+    )
+    hits = cursor.fetchall()
+    if not hits:
+        return []
+    chunk_ids = [int(r["chunk_id"]) for r in hits if r and r["chunk_id"]]
+    if not chunk_ids:
+        return []
+    placeholders = ",".join(["?"] * len(chunk_ids))
+    cursor.execute(
+        f"""
+        SELECT c.id, c.content, c.document_id, d.title, d.source
+        FROM rag_chunks c
+        JOIN rag_documents d ON d.id = c.document_id
+        WHERE c.id IN ({placeholders})
+        """,
+        chunk_ids,
+    )
+    rows = cursor.fetchall()
+    by_id = {int(r["id"]): dict(r) for r in rows}
+    results: list[dict] = []
+    for cid in chunk_ids:
+        r = by_id.get(cid)
+        if not r:
+            continue
+        results.append(
+            {
+                "chunk_id": cid,
+                "title": r.get("title") or "",
+                "source": r.get("source") or "",
+                "content": r.get("content") or "",
+            }
+        )
+    return results
+
+
+def _compute_attendance_streak(conn, user_id: int) -> int:
+    cursor = conn.cursor()
+    cursor.execute("SELECT date FROM attendance WHERE user_id = ?", (user_id,))
+    rows = cursor.fetchall()
+    if not rows:
+        return 0
+    dates = {row[0] for row in rows if row and row[0]}
+    streak = 0
+    day = datetime.now().date()
+    while day.isoformat() in dates:
+        streak += 1
+        day = day - timedelta(days=1)
+    return streak
 
 
 def _seed_admin_user(conn):
@@ -915,6 +1099,9 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         
         # 세션 토큰에서 사용자 정보 추출
         user_info = "Guest"
+        user_label = "Guest"
+        user_email = ""
+        user_role = ""
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             token = auth_header[7:]
@@ -926,8 +1113,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 user = _get_user_by_id(user_id)
                 if user:
                     user_info = f"{user['nickname']} ({email})"
+                    user_label = user["nickname"]
+                    user_email = email or ""
+                    user_role = user.get("role") or ""
                 else:
                     user_info = f"User#{user_id} ({email})"
+                    user_label = f"User#{user_id}"
+                    user_email = email or ""
         
         # 쿠키에서도 확인
         if user_info == "Guest":
@@ -940,8 +1132,13 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                     user = _get_user_by_id(user_id)
                     if user:
                         user_info = f"{user['nickname']} ({email})"
+                        user_label = user["nickname"]
+                        user_email = email or ""
+                        user_role = user.get("role") or ""
                     else:
                         user_info = f"User#{user_id} ({email})"
+                        user_label = f"User#{user_id}"
+                        user_email = email or ""
         
         logger.info(f"[REQUEST] {method} {path} from {client_host} | User: {user_info}")
         if query_params:
@@ -965,6 +1162,21 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             # 응답 정보 기록
             logger.info(f"[RESPONSE] {method} {path} - Status: {response.status_code}")
+            if (
+                method == "GET"
+                and response.status_code < 400
+                and not path.startswith("/api")
+                and not path.startswith("/static")
+                and not path.startswith("/favicon")
+            ):
+                logger.info(
+                    "[PAGE_VIEW] user=%s email=%s role=%s page=%s ip=%s",
+                    user_label,
+                    user_email,
+                    user_role,
+                    path,
+                    client_host,
+                )
             return response
         except Exception as e:
             logger.error(f"[ERROR] {method} {path} - {str(e)}", exc_info=True)
@@ -1309,6 +1521,11 @@ def word_list_page(request: Request):
     """학습 단어 목록 페이지"""
     return templates.TemplateResponse("word-list.html", {"request": request})
 
+@app.get("/krdict")
+def krdict_page(request: Request):
+    """사전 검색 페이지"""
+    return templates.TemplateResponse("krdict-search.html", {"request": request})
+
 @app.get("/synonym-antonym-game")
 def synonym_antonym_game_page(request: Request):
     """동의어/반의어 찾기 게임 페이지"""
@@ -1432,6 +1649,12 @@ def learning_progress(request: Request):
     """학습 진도 대시보드"""
     return templates.TemplateResponse("learning-progress.html", {"request": request})
 
+
+@app.get("/dashboard")
+def learning_dashboard(request: Request):
+    """학습 대시보드 (alias)"""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
 @app.get("/change-password")
 def change_password_page(request: Request):
     """비밀번호 변경 페이지"""
@@ -1471,6 +1694,13 @@ def admin_recordings_page(request: Request):
     """관리자 녹음 관리 페이지"""
     return templates.TemplateResponse("admin-recordings.html", {"request": request})
     return templates.TemplateResponse("admin-dashboard.html", {"request": request})
+
+@app.get("/admin/learner-status")
+def admin_learner_status_page(request: Request):
+    """학습자 학습 상태 페이지 (클라이언트 측 인증 검사)"""
+    return templates.TemplateResponse(
+        "admin-learner-status.html", {"request": request}
+    )
 
 @app.get("/admin")
 def admin_shell_page(request: Request):
@@ -1515,6 +1745,12 @@ def admin_settings_page(request: Request):
     # API endpoints enforce _require_admin for actual operations
     return templates.TemplateResponse("admin-settings.html", {"request": request})
 
+
+@app.get("/admin/rag")
+def admin_rag_page(request: Request):
+    """RAG 설정 페이지 (클라이언트 측 인증 검사)"""
+    return templates.TemplateResponse("admin-rag.html", {"request": request})
+
 # ------------------------------------------
 # 회원가입 (실제 계정 생성)
 # ------------------------------------------
@@ -1553,7 +1789,13 @@ async def login(request: Request):
     
     # Log successful login
     client_host = request.client.host if request.client else "Unknown"
-    logger.info(f"[USER_LOGIN] {user['nickname']} ({user['email']}) logged in from {client_host}")
+    logger.info(
+        "[LOGIN] user=%s email=%s role=%s ip=%s",
+        user["nickname"],
+        user["email"],
+        _normalize_role(user.get("role"), user.get("is_admin")),
+        client_host,
+    )
     
     role = _normalize_role(user.get("role"), user.get("is_admin"))
 
@@ -1577,8 +1819,18 @@ async def log_guest_login(request: Request):
     language = payload.get("language", "")
     client_host = request.client.host if request.client else "Unknown"
     
-    logger.info(f"[GUEST_LOGIN] {nickname} logged in from {client_host}")
-    logger.info(f"[GUEST_INFO] UserAgent: {user_agent}, Language: {language}, Time: {timestamp}")
+    logger.info(
+        "[GUEST_LOGIN] user=%s ip=%s time=%s",
+        nickname,
+        client_host,
+        timestamp,
+    )
+    logger.info(
+        "[GUEST_INFO] user=%s userAgent=%s language=%s",
+        nickname,
+        user_agent,
+        language,
+    )
     
     return {"success": True, "message": "Guest login logged"}
 
@@ -1593,11 +1845,93 @@ async def log_user_activity(request: Request):
     details = payload.get("details", {})
     client_host = request.client.host if request.client else "Unknown"
     
-    logger.info(f"[USER_ACTIVITY] {nickname} - {action} on {page} from {client_host}")
+    logger.info(
+        "[ACTIVITY] user=%s action=%s page=%s ip=%s",
+        nickname,
+        action,
+        page,
+        client_host,
+    )
     if details:
-        logger.info(f"[ACTIVITY_DETAILS] {details}")
+        logger.info("[ACTIVITY_DETAILS] %s", json.dumps(details, ensure_ascii=False))
     
     return {"success": True, "message": "Activity logged"}
+
+
+@app.post("/api/attendance/check-in")
+async def attendance_check_in(request: Request):
+    """오늘 출석 체크."""
+    user = _require_authenticated_user(request)
+    today = datetime.now().date().isoformat()
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT OR IGNORE INTO attendance (user_id, date) VALUES (?, ?)",
+            (user["id"], today),
+        )
+        conn.commit()
+        checked_in = cursor.rowcount > 0
+        streak = _compute_attendance_streak(conn, user["id"])
+        logger.info(
+            "[ATTENDANCE] user=%s email=%s date=%s status=%s ip=%s",
+            user.get("nickname"),
+            user.get("email"),
+            today,
+            "checked_in" if checked_in else "already_checked",
+            request.client.host if request.client else "Unknown",
+        )
+        return {
+            "success": True,
+            "date": today,
+            "checked_in": checked_in,
+            "streak": streak,
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/api/attendance/month")
+async def attendance_month(request: Request, year: int, month: int):
+    """월별 출석 정보 조회."""
+    user = _require_authenticated_user(request)
+    if month < 1 or month > 12:
+        raise HTTPException(status_code=400, detail="유효한 월을 입력하세요.")
+    start_date = datetime(year, month, 1).date()
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1).date()
+    else:
+        end_date = datetime(year, month + 1, 1).date()
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT date FROM attendance
+            WHERE user_id = ? AND date >= ? AND date < ?
+            """,
+            (user["id"], start_date.isoformat(), end_date.isoformat()),
+        )
+        rows = cursor.fetchall()
+        days = []
+        for (date_str,) in rows:
+            try:
+                day = int(date_str.split("-")[2])
+                days.append(day)
+            except Exception:
+                continue
+        days.sort()
+        streak = _compute_attendance_streak(conn, user["id"])
+        return {
+            "success": True,
+            "year": year,
+            "month": month,
+            "days": days,
+            "streak": streak,
+        }
+    finally:
+        conn.close()
 
 
 @app.post("/api/logout")
@@ -1709,6 +2043,221 @@ async def admin_summary(request: Request):
         "stats": stats,
     }
 
+def _read_last_log_lines(path: Path, limit: int = 50000) -> list[str]:
+    if limit <= 0:
+        return []
+    if not path.exists():
+        return []
+    from collections import deque
+
+    lines = deque(maxlen=limit)
+    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        for line in f:
+            if line:
+                lines.append(line.rstrip("\n"))
+    return list(lines)
+
+
+_LOG_TS_FORMAT = "%Y-%m-%d %H:%M:%S,%f"
+_LOGIN_RE = re.compile(r"\[LOGIN\]\s+user=(?P<user>\S+)\s+email=(?P<email>\S+)\s+role=(?P<role>\S+)\s+ip=(?P<ip>\S+)")
+_PAGE_VIEW_RE = re.compile(r"\[PAGE_VIEW\]\s+user=(?P<user>\S+)\s+email=(?P<email>\S*)\s+role=(?P<role>\S*)\s+page=(?P<page>\S+)\s+ip=(?P<ip>\S+)")
+
+
+def _extract_log_timestamp(line: str) -> str:
+    if not line:
+        return ""
+    # logging.basicConfig format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # e.g., "2025-12-30 17:01:02,123 - __main__ - INFO - [LOGIN] ..."
+    try:
+        ts_str = line.split(" - ", 1)[0].strip()
+        dt = datetime.strptime(ts_str, _LOG_TS_FORMAT)
+        return dt.isoformat(sep=" ", timespec="seconds")
+    except Exception:
+        return ""
+
+
+def _last_activity_from_logs(nicknames: list[str], limit: int = 50000) -> dict[str, dict]:
+    log_file = Path("logs/detailed.log")
+    recent_lines = _read_last_log_lines(log_file, limit=limit)
+    wanted = {n for n in (nicknames or []) if n}
+    if not wanted or not recent_lines:
+        return {}
+
+    remaining_login = set(wanted)
+    remaining_page = set(wanted)
+    result: dict[str, dict] = {n: {} for n in wanted}
+
+    for line in reversed(recent_lines):
+        if remaining_login and "[LOGIN]" in line:
+            m = _LOGIN_RE.search(line)
+            if m:
+                user = m.group("user")
+                if user in remaining_login:
+                    result[user]["last_login_at"] = _extract_log_timestamp(line)
+                    remaining_login.remove(user)
+
+        if remaining_page and "[PAGE_VIEW]" in line:
+            m = _PAGE_VIEW_RE.search(line)
+            if m:
+                user = m.group("user")
+                if user in remaining_page:
+                    result[user]["last_page_view_at"] = _extract_log_timestamp(line)
+                    result[user]["last_page"] = m.group("page")
+                    remaining_page.remove(user)
+
+        if not remaining_login and not remaining_page:
+            break
+
+    return result
+
+
+@app.get("/api/admin/learner-status")
+async def admin_learner_status(request: Request, q: str = "", limit: int = 200):
+    """교수/시스템관리자: 학습자 상태 요약."""
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+
+    limit = max(1, min(int(limit or 200), 500))
+    q = (q or "").strip()
+    today = datetime.now().date().isoformat()
+    since_7d_dt = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+    since_7d_date = (datetime.now().date() - timedelta(days=6)).isoformat()
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        where = "WHERE role = ?"
+        params: list = [ROLE_LEARNER]
+        if q:
+            where += " AND (LOWER(nickname) LIKE ? OR LOWER(email) LIKE ?)"
+            like = f"%{q.lower()}%"
+            params.extend([like, like])
+
+        cursor.execute(
+            f"""
+            SELECT id, email, nickname, created_at
+            FROM users
+            {where}
+            ORDER BY created_at DESC
+            LIMIT ?
+            """,
+            (*params, limit),
+        )
+        users = [dict(row) for row in cursor.fetchall()]
+        if not users:
+            return {
+                "success": True,
+                "stats": {"learners": 0, "today_attendance": 0, "word_7d": 0, "sentence_7d": 0},
+                "users": [],
+            }
+
+        user_ids = [u["id"] for u in users]
+        nicknames = [u.get("nickname") or "" for u in users]
+
+        # Attendance aggregates
+        placeholders = ",".join(["?"] * len(user_ids))
+        cursor.execute(
+            f"""
+            SELECT
+              user_id,
+              MAX(date) AS last_date,
+              SUM(CASE WHEN date = ? THEN 1 ELSE 0 END) AS today_cnt,
+              SUM(CASE WHEN date >= ? THEN 1 ELSE 0 END) AS days_7d
+            FROM attendance
+            WHERE user_id IN ({placeholders})
+            GROUP BY user_id
+            """,
+            (today, since_7d_date, *user_ids),
+        )
+        attendance_rows = {row["user_id"]: dict(row) for row in cursor.fetchall()}
+
+        # Word score aggregates
+        cursor.execute(
+            f"""
+            SELECT
+              user_id,
+              COUNT(*) AS total,
+              MAX(created_at) AS last_at,
+              SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) AS cnt_7d
+            FROM word_score_history
+            WHERE user_id IN ({placeholders})
+            GROUP BY user_id
+            """,
+            (since_7d_dt, *user_ids),
+        )
+        word_rows = {row["user_id"]: dict(row) for row in cursor.fetchall()}
+
+        # Sentence score aggregates
+        cursor.execute(
+            f"""
+            SELECT
+              user_id,
+              COUNT(*) AS total,
+              MAX(created_at) AS last_at,
+              SUM(CASE WHEN created_at >= ? THEN 1 ELSE 0 END) AS cnt_7d
+            FROM sentence_score_history
+            WHERE user_id IN ({placeholders})
+            GROUP BY user_id
+            """,
+            (since_7d_dt, *user_ids),
+        )
+        sentence_rows = {row["user_id"]: dict(row) for row in cursor.fetchall()}
+
+        # Streak per user (small N; compute in python using helper)
+        streaks = {uid: _compute_attendance_streak(conn, uid) for uid in user_ids}
+
+    finally:
+        conn.close()
+
+    last_activity = _last_activity_from_logs(nicknames, limit=50000)
+
+    merged_users = []
+    today_attendance = 0
+    total_word_7d = 0
+    total_sentence_7d = 0
+
+    for u in users:
+        uid = u["id"]
+        a = attendance_rows.get(uid) or {}
+        w = word_rows.get(uid) or {}
+        s = sentence_rows.get(uid) or {}
+        la = last_activity.get(u.get("nickname") or "", {})
+
+        today_cnt = int(a.get("today_cnt") or 0)
+        today_attendance += 1 if today_cnt > 0 else 0
+        total_word_7d += int(w.get("cnt_7d") or 0)
+        total_sentence_7d += int(s.get("cnt_7d") or 0)
+
+        merged_users.append(
+            {
+                "id": uid,
+                "email": u.get("email") or "",
+                "nickname": u.get("nickname") or "",
+                "created_at": u.get("created_at") or "",
+                "attendance_streak": int(streaks.get(uid) or 0),
+                "last_attendance_date": a.get("last_date") or "",
+                "word_total": int(w.get("total") or 0),
+                "word_last_at": w.get("last_at") or "",
+                "sentence_total": int(s.get("total") or 0),
+                "sentence_last_at": s.get("last_at") or "",
+                "last_login_at": la.get("last_login_at") or "",
+                "last_page_view_at": la.get("last_page_view_at") or "",
+                "last_page": la.get("last_page") or "",
+            }
+        )
+
+    return {
+        "success": True,
+        "stats": {
+            "learners": len(merged_users),
+            "today_attendance": today_attendance,
+            "word_7d": total_word_7d,
+            "sentence_7d": total_sentence_7d,
+        },
+        "users": merged_users,
+    }
+
 
 @app.get("/api/admin/logs-tail")
 async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", search: str = ""):
@@ -1750,6 +2299,136 @@ async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", s
         return {"success": False, "detail": str(e)}
 
 
+@app.get("/api/admin/analytics")
+async def admin_analytics(request: Request):
+    """관리자 통계 분석 데이터."""
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        # Ensure learning progress tables exist
+        try:
+            learning_service._init_db()
+        except Exception:
+            pass
+
+        cursor.execute("SELECT COUNT(*) AS n FROM users")
+        total_users = int(cursor.fetchone()["n"])
+
+        since_date = (datetime.now().date() - timedelta(days=6)).isoformat()
+        cursor.execute(
+            """
+            SELECT COUNT(DISTINCT user_id) AS n
+            FROM user_learning_progress
+            WHERE date >= ?
+            """,
+            (since_date,),
+        )
+        active_users = int(cursor.fetchone()["n"] or 0)
+
+        cursor.execute(
+            """
+            SELECT
+              AVG(total_learning_time) AS avg_minutes,
+              AVG(NULLIF(pronunciation_avg_score, 0)) AS avg_score
+            FROM user_learning_progress
+            WHERE date >= ?
+            """,
+            (since_date,),
+        )
+        row = cursor.fetchone() or {}
+        avg_minutes = float(row["avg_minutes"] or 0)
+        avg_score = float(row["avg_score"] or 0)
+        avg_hours = avg_minutes / 60.0 if avg_minutes else 0.0
+
+        # Daily activity counts for last 7 days
+        cursor.execute(
+            """
+            SELECT date,
+                   SUM(pronunciation_practice_count + words_learned + sentences_learned) AS cnt
+            FROM user_learning_progress
+            WHERE date >= ?
+            GROUP BY date
+            """,
+            (since_date,),
+        )
+        activity_map = {row["date"]: int(row["cnt"] or 0) for row in cursor.fetchall()}
+        activity = []
+        for i in range(7):
+            d = (datetime.now().date() - timedelta(days=6 - i)).isoformat()
+            activity.append({"date": d, "count": activity_map.get(d, 0)})
+
+        # Difficulty distribution from vocabulary.json
+        vocab = load_json_data("vocabulary.json") or []
+        if not isinstance(vocab, list):
+            vocab = []
+        dist: dict[str, int] = {}
+        for item in vocab:
+            if not isinstance(item, dict):
+                continue
+            key = (
+                item.get("level")
+                or item.get("topikLevel")
+                or item.get("kiipLevel")
+                or "기타"
+            )
+            key = str(key)
+            dist[key] = dist.get(key, 0) + 1
+        difficulty = [
+            {"label": k, "count": v} for k, v in sorted(dist.items(), key=lambda x: x[0])
+        ]
+
+        # Per-user learning table
+        cursor.execute(
+            """
+            SELECT user_id,
+                   SUM(pronunciation_practice_count + words_learned + sentences_learned) AS learning_count,
+                   AVG(NULLIF(pronunciation_avg_score, 0)) AS avg_score,
+                   MAX(date) AS last_learning
+            FROM user_learning_progress
+            GROUP BY user_id
+            """
+        )
+        progress_rows = {str(row["user_id"]): dict(row) for row in cursor.fetchall()}
+
+        cursor.execute(
+            "SELECT id, nickname, email FROM users WHERE role = ?",
+            (ROLE_LEARNER,),
+        )
+        users = cursor.fetchall()
+        table = []
+        for user in users:
+            uid = str(user["id"])
+            nick = user["nickname"] or uid
+            email = user["email"] or ""
+            progress = progress_rows.get(uid) or progress_rows.get(nick) or {}
+            table.append(
+                {
+                    "user": f"{nick} ({email})" if email else nick,
+                    "learning_count": int(progress.get("learning_count") or 0),
+                    "avg_score": round(float(progress.get("avg_score") or 0), 1),
+                    "last_learning": progress.get("last_learning") or "-",
+                }
+            )
+
+        return {
+            "success": True,
+            "stats": {
+                "total_users": total_users,
+                "active_users": active_users,
+                "avg_study_hours": round(avg_hours, 2),
+                "avg_score": round(avg_score, 2),
+            },
+            "activity": activity,
+            "difficulty": difficulty,
+            "table": table,
+        }
+    finally:
+        conn.close()
+
+
 @app.get("/api/admin/users")
 async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
     """관리자용 사용자 목록 조회."""
@@ -1789,6 +2468,71 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
         }
     finally:
         conn.close()
+
+
+@app.get("/api/admin/words")
+async def admin_words_list(request: Request, q: str = "", skip: int = 0, limit: int = 200):
+    """관리자용 단어 목록 (vocabulary.json 기반)."""
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+    skip = max(0, int(skip or 0))
+    limit = max(1, min(int(limit or 200), 500))
+    q = (q or "").strip().lower()
+
+    vocab = load_json_data("vocabulary.json") or []
+    if not isinstance(vocab, list):
+        vocab = []
+
+    def matches(item: dict) -> bool:
+        if not q:
+            return True
+        fields = [
+            str(item.get("word", "")),
+            str(item.get("meaningKo", "")),
+            str(item.get("meaning", "")),
+            str(item.get("meaningEn", "")),
+            str(item.get("roman", "")),
+            str(item.get("category", "")),
+            str(item.get("topic", "")),
+            str(item.get("topikLevel", "")),
+        ]
+        hay = " ".join(fields).lower()
+        return q in hay
+
+    filtered = [item for item in vocab if isinstance(item, dict) and matches(item)]
+    total = len(filtered)
+
+    categories = {str(item.get("category") or "") for item in filtered if item.get("category")}
+    levels = {str(item.get("level") or "") for item in filtered if item.get("level")}
+    if not levels:
+        levels = {str(item.get("topikLevel") or "") for item in filtered if item.get("topikLevel")}
+
+    sliced = filtered[skip : skip + limit]
+    words = []
+    for item in sliced:
+        words.append(
+            {
+                "id": item.get("id") or "",
+                "word": item.get("word") or "",
+                "meaning": item.get("meaningKo")
+                or item.get("meaning")
+                or item.get("meaningEn")
+                or "",
+                "category": item.get("category") or item.get("topic") or "",
+                "level": item.get("level") or item.get("topikLevel") or "",
+            }
+        )
+
+    return {
+        "success": True,
+        "stats": {
+            "total": total,
+            "categories": len([c for c in categories if c]),
+            "levels": len([l for l in levels if l]),
+        },
+        "words": words,
+        "skip": skip,
+        "limit": limit,
+    }
 
 
 @app.post("/api/admin/users/{user_id}/toggle-admin")
@@ -1927,6 +2671,149 @@ async def admin_get_settings(request: Request):
     
     logger.info(f"[ADMIN_SETTINGS] {admin['email']} retrieved settings")
     return {"success": True, "settings": settings}
+
+
+@app.get("/api/admin/rag/settings")
+async def admin_rag_get_settings(request: Request):
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        _ensure_rag_tables(conn)
+        settings = _rag_get_settings(conn)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) AS n FROM rag_documents")
+        docs = int(cursor.fetchone()["n"])
+        cursor.execute("SELECT COUNT(*) AS n FROM rag_chunks")
+        chunks = int(cursor.fetchone()["n"])
+        logger.info("[ADMIN_RAG] %s viewed settings", admin.get("email"))
+        return {"success": True, "settings": settings, "stats": {"documents": docs, "chunks": chunks}}
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/rag/settings")
+async def admin_rag_update_settings(request: Request):
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    payload = await request.json()
+    enabled = 1 if bool(payload.get("enabled")) else 0
+    top_k = int(payload.get("top_k") or 5)
+    top_k = max(1, min(top_k, 10))
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        _ensure_rag_tables(conn)
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE rag_settings SET enabled = ?, top_k = ?, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
+            (enabled, top_k),
+        )
+        conn.commit()
+        logger.info("[ADMIN_RAG] %s updated settings enabled=%s top_k=%s", admin.get("email"), enabled, top_k)
+        return {"success": True}
+    finally:
+        conn.close()
+
+
+@app.get("/api/admin/rag/documents")
+async def admin_rag_list_documents(request: Request):
+    _require_role(request, {ROLE_SYSTEM_ADMIN})
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        _ensure_rag_tables(conn)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, title, source, mime_type, created_at
+            FROM rag_documents
+            ORDER BY created_at DESC
+            LIMIT 200
+            """
+        )
+        docs = [dict(r) for r in cursor.fetchall()]
+        return {"success": True, "documents": docs}
+    finally:
+        conn.close()
+
+
+@app.delete("/api/admin/rag/documents/{doc_id}")
+async def admin_rag_delete_document(request: Request, doc_id: int):
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        _ensure_rag_tables(conn)
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM rag_documents WHERE id = ?", (doc_id,))
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="문서를 찾을 수 없습니다.")
+        cursor.execute("SELECT id FROM rag_chunks WHERE document_id = ?", (doc_id,))
+        chunk_ids = [row[0] for row in cursor.fetchall()]
+        if chunk_ids:
+            placeholders = ",".join(["?"] * len(chunk_ids))
+            cursor.execute(
+                f"DELETE FROM rag_chunks_fts WHERE chunk_id IN ({placeholders})", chunk_ids
+            )
+        cursor.execute("DELETE FROM rag_chunks WHERE document_id = ?", (doc_id,))
+        cursor.execute("DELETE FROM rag_documents WHERE id = ?", (doc_id,))
+        conn.commit()
+        logger.info("[ADMIN_RAG] %s deleted document id=%s", admin.get("email"), doc_id)
+        return {"success": True}
+    finally:
+        conn.close()
+
+
+@app.post("/api/admin/rag/documents")
+async def admin_rag_upload_document(
+    request: Request,
+    file: UploadFile = File(...),
+    title: str = Form(""),
+    source: str = Form(""),
+):
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(status_code=400, detail="빈 파일입니다.")
+    mime_type = file.content_type or "text/plain"
+    try:
+        text = raw.decode("utf-8", errors="ignore")
+    except Exception:
+        text = str(raw)
+
+    title = (title or "").strip() or (file.filename or "문서")
+    source = (source or "").strip() or (file.filename or "upload")
+    chunks = _rag_chunk_text(text, max_chars=700)
+    if not chunks:
+        raise HTTPException(status_code=400, detail="텍스트를 추출할 수 없습니다.")
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        _ensure_rag_tables(conn)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO rag_documents (title, source, mime_type) VALUES (?, ?, ?)",
+            (title, source, mime_type),
+        )
+        doc_id = cursor.lastrowid
+        for idx, chunk in enumerate(chunks):
+            cursor.execute(
+                "INSERT INTO rag_chunks (document_id, chunk_index, content) VALUES (?, ?, ?)",
+                (doc_id, idx, chunk),
+            )
+            chunk_id = cursor.lastrowid
+            cursor.execute(
+                "INSERT INTO rag_chunks_fts (content, chunk_id) VALUES (?, ?)",
+                (chunk, chunk_id),
+            )
+        conn.commit()
+        logger.info(
+            "[ADMIN_RAG] %s uploaded document id=%s chunks=%s",
+            admin.get("email"),
+            doc_id,
+            len(chunks),
+        )
+        return {"success": True, "document_id": doc_id, "chunks": len(chunks)}
+    finally:
+        conn.close()
 
 
 @app.post("/api/user/password/change")
@@ -2321,6 +3208,16 @@ async def gemini_image(prompt: str = Form(...), save_locally: bool = Form(True))
 
     result = await generate_image_gemini(prompt, save_locally=save_locally)
     if not result.get("success"):
+        fallback = await generate_image_dall_e(
+            prompt=enhance_prompt_for_korean_learning(prompt, "illustration"),
+            size=os.getenv("DALLE_IMAGE_SIZE", "1024x1024"),
+            quality=os.getenv("DALLE_QUALITY", "standard"),
+            style=os.getenv("DALLE_STYLE", "vivid"),
+            save_locally=save_locally,
+        )
+        if fallback.get("success"):
+            fallback["fallback_from"] = "gemini"
+            return JSONResponse(content=fallback)
         return JSONResponse(status_code=500, content=result)
     return JSONResponse(content=result)
 
@@ -2652,8 +3549,13 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
     if file.content_type not in ALLOWED_TYPES:
         return JSONResponse(status_code=415, content={"error": "Unsupported media type"})
 
+    file_location = f"temp_{file.filename}"
+
     # OpenAI-based Whisper STT is disabled when OpenAI integration is commented out.
-    if client is None:
+    if STT_BACKEND == "openai":
+        if client is None:
+            return JSONResponse(status_code=501, content={"error": "OpenAI STT is not configured"})
+    else:
         # Try local STT if configured
         local_stt = os.getenv("LOCAL_STT", "").lower()
         if local_stt == "vosk":
@@ -2680,9 +3582,7 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
                     pass
                 return JSONResponse(status_code=500, content={"error": "local STT failed", "details": str(e)})
         else:
-            return JSONResponse(status_code=501, content={"error": "OpenAI Whisper STT is disabled in this deployment"})
-
-    file_location = f"temp_{file.filename}"
+            return JSONResponse(status_code=501, content={"error": "STT backend not configured"})
     size = 0
     try:
         # stream-write to disk with size limit
@@ -2702,16 +3602,17 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
                     return JSONResponse(status_code=413, content={"error": "File too large"})
                 buffer.write(chunk)
 
-        # 2. OpenAI Whisper로 음성 -> 텍스트 변환 (STT)
-        audio_file = open(file_location, "rb")
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file,
-            language="ko"
-        )
-        user_said = getattr(transcript, "text", None) or transcript.get("text") if isinstance(transcript, dict) else None
-        if user_said is None:
-            user_said = ""
+        # 2. STT (OpenAI Whisper)
+        if STT_BACKEND == "openai":
+            audio_file = open(file_location, "rb")
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                language="ko"
+            )
+            user_said = getattr(transcript, "text", None) or transcript.get("text") if isinstance(transcript, dict) else None
+            if user_said is None:
+                user_said = ""
 
         # 3. 유사도 검사 (간단한 MVP용 알고리즘)
         matcher = SequenceMatcher(None, target_text.replace(" ", ""), user_said.replace(" ", ""))
@@ -2825,6 +3726,139 @@ async def get_vocabulary_word(word_id: str):
         return JSONResponse(status_code=404, content={"error": "Word not found"})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "Failed to load vocabulary word", "details": str(e)})
+
+# KRDIC Dictionary Search API
+@app.get("/api/krdict/search")
+async def krdict_search(
+    q: str,
+    start: int = 1,
+    num: int = 10,
+    sort: str = None,
+    part: str = None,
+    translated: str = None,
+    trans_lang: str = None,
+    advanced: str = None,
+    target: int = None,
+    lang: int = None,
+    method: str = None,
+    type1: str = None,
+    type2: str = None,
+    level: str = None,
+    pos: str = None,
+    multimedia: str = None,
+    letter_s: int = None,
+    letter_e: int = None,
+    sense_cat: str = None,
+    subject_cat: str = None,
+):
+    """Search the Korean Basic Dictionary (krdict)."""
+    request_params = {
+        "q": q,
+        "start": start,
+        "num": num,
+        "sort": sort,
+        "part": part,
+        "translated": translated,
+        "trans_lang": trans_lang,
+        "advanced": advanced,
+        "target": target,
+        "lang": lang,
+        "method": method,
+        "type1": type1,
+        "type2": type2,
+        "level": level,
+        "pos": pos,
+        "multimedia": multimedia,
+        "letter_s": letter_s,
+        "letter_e": letter_e,
+        "sense_cat": sense_cat,
+        "subject_cat": subject_cat,
+    }
+    start_time = time.monotonic()
+    try:
+        result = search_krdict(
+            api_key=KRDICT_API_KEY,
+            q=q,
+            start=start,
+            num=num,
+            sort=sort,
+            part=part,
+            translated=translated,
+            trans_lang=trans_lang,
+            advanced=advanced,
+            target=target,
+            lang=lang,
+            method=method,
+            type1=type1,
+            type2=type2,
+            level=level,
+            pos=pos,
+            multimedia=multimedia,
+            letter_s=letter_s,
+            letter_e=letter_e,
+            sense_cat=sense_cat,
+            subject_cat=subject_cat,
+        )
+        elapsed_ms = int((time.monotonic() - start_time) * 1000)
+        if result.get("error"):
+            logger.warning(
+                "[KRDICT] error=%s message=%s q=%s params=%s elapsed_ms=%s",
+                result["error"].get("code"),
+                result["error"].get("message"),
+                q,
+                {k: v for k, v in request_params.items() if v is not None and k != "q"},
+                elapsed_ms,
+            )
+            return JSONResponse(status_code=502, content=result)
+        logger.info(
+            "[KRDICT] success q=%s total=%s items=%s elapsed_ms=%s params=%s",
+            q,
+            (result.get("channel") or {}).get("total"),
+            len(result.get("items") or []),
+            elapsed_ms,
+            {k: v for k, v in request_params.items() if v is not None and k != "q"},
+        )
+        return JSONResponse(content=result)
+    except ValueError as e:
+        logger.warning(
+            "[KRDICT] bad_request q=%s error=%s params=%s",
+            q,
+            str(e),
+            {k: v for k, v in request_params.items() if v is not None and k != "q"},
+        )
+        return JSONResponse(status_code=400, content={"error": str(e)})
+    except RuntimeError as e:
+        logger.error(
+            "[KRDICT] runtime_error q=%s error=%s params=%s",
+            q,
+            str(e),
+            {k: v for k, v in request_params.items() if v is not None and k != "q"},
+        )
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    except requests.RequestException as e:
+        logger.error(
+            "[KRDICT] upstream_error q=%s error=%s params=%s",
+            q,
+            str(e),
+            {k: v for k, v in request_params.items() if v is not None and k != "q"},
+            exc_info=True,
+        )
+        return JSONResponse(
+            status_code=502,
+            content={"error": "KRDICT request failed", "details": str(e)},
+        )
+    except Exception as e:
+        logger.error(
+            "[KRDICT] unexpected_error q=%s error=%s params=%s",
+            q,
+            str(e),
+            {k: v for k, v in request_params.items() if v is not None and k != "q"},
+            exc_info=True,
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"error": "KRDICT search failed", "details": str(e)},
+        )
 
 # Folktales APIs
 @app.get("/api/folktales")
@@ -2940,14 +3974,24 @@ async def get_speechpro_sentences_by_level(level: str):
 
 
 # ==========================================
-# MzTTS API Endpoints
+# TTS API Endpoints
 # ==========================================
 
 @app.get("/api/tts/info")
 async def get_tts_info():
-    """Get MzTTS server information"""
+    """Get TTS server information"""
+    if TTS_BACKEND == "openai":
+        return JSONResponse(
+            content={
+                "backend": "openai",
+                "model": OPENAI_TTS_MODEL,
+                "voice": OPENAI_TTS_VOICE,
+                "format": OPENAI_TTS_FORMAT,
+            }
+        )
     try:
         info = get_mztts_server_info()
+        info["backend"] = "mztts"
         return JSONResponse(content=info)
     except Exception as e:
         return JSONResponse(
@@ -2979,7 +4023,7 @@ class STTProxyRequest(BaseModel):
 @app.post("/api/tts/generate")
 async def generate_tts(request: TTSRequest):
     """
-    Generate Korean speech using MzTTS API.
+    Generate Korean speech using selected TTS backend.
 
     Parameters:
     - text: Korean text to synthesize
@@ -2992,6 +4036,37 @@ async def generate_tts(request: TTSRequest):
     """
     try:
         from fastapi.responses import Response
+        import hashlib
+
+        if TTS_BACKEND == "openai":
+            if client is None or not OPENAI_API_KEY:
+                raise RuntimeError("OpenAI TTS not configured")
+            response = client.audio.speech.create(
+                model=OPENAI_TTS_MODEL,
+                voice=OPENAI_TTS_VOICE,
+                input=request.text,
+                response_format=OPENAI_TTS_FORMAT,
+            )
+            audio_bytes = getattr(response, "content", None)
+            if audio_bytes is None:
+                audio_bytes = response.read() if hasattr(response, "read") else None
+            if not audio_bytes:
+                raise RuntimeError("No audio data received from OpenAI TTS")
+            media_type = (
+                "audio/wav"
+                if OPENAI_TTS_FORMAT == "wav"
+                else "audio/mpeg"
+                if OPENAI_TTS_FORMAT == "mp3"
+                else "application/octet-stream"
+            )
+            filename_hash = hashlib.md5(request.text.encode('utf-8')).hexdigest()[:8]
+            return Response(
+                content=audio_bytes,
+                media_type=media_type,
+                headers={
+                    "Content-Disposition": f'attachment; filename=\"tts_{filename_hash}.{OPENAI_TTS_FORMAT}\"'
+                },
+            )
 
         # Call MzTTS API
         result = _call_mztts_api(
@@ -3004,13 +4079,12 @@ async def generate_tts(request: TTSRequest):
         )
 
         # Return WAV file
-        import hashlib
         filename_hash = hashlib.md5(request.text.encode('utf-8')).hexdigest()[:8]
         return Response(
             content=result["audio_data"],
             media_type=result["content_type"],
             headers={
-                "Content-Disposition": f'attachment; filename="tts_{filename_hash}.wav"'
+                "Content-Disposition": f'attachment; filename=\"tts_{filename_hash}.wav\"'
             }
         )
 
@@ -3245,6 +4319,34 @@ async def speechpro_evaluate(
                 status_code=400,
                 content={"error": f"audio convert failed: {conv_err}"}
             )
+
+        recognized_text = None
+        if STT_BACKEND == "openai" and client:
+            tmp_path = None
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                    tmp.write(audio_content_raw)
+                    tmp_path = tmp.name
+                with open(tmp_path, "rb") as f:
+                    transcript = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=f,
+                        language="ko"
+                    )
+                recognized_text = (
+                    getattr(transcript, "text", None)
+                    or transcript.get("text")
+                    if isinstance(transcript, dict)
+                    else None
+                )
+            except Exception as stt_err:
+                print(f"[Evaluate] STT failed: {stt_err}")
+            finally:
+                if tmp_path and os.path.exists(tmp_path):
+                    try:
+                        os.remove(tmp_path)
+                    except Exception:
+                        pass
         
         # 1) 요청에 사전 계산 정보가 함께 왔다면 그대로 사용
         pre_syll_ltrs = syll_ltrs.strip() if syll_ltrs else None
@@ -3335,6 +4437,8 @@ async def speechpro_evaluate(
                 "ai_model": f"{MODEL_BACKEND}/{OLLAMA_MODEL if MODEL_BACKEND == 'ollama' else GEMINI_MODEL if MODEL_BACKEND == 'gemini' else OPENAI_MODEL}",
                 "ai_feedback_time": round(ai_feedback_time, 2) if ai_feedback else None
             }
+            if recognized_text:
+                response_data["recognized_text"] = recognized_text
             if ai_feedback:
                 response_data["ai_feedback"] = ai_feedback
             
@@ -3343,6 +4447,8 @@ async def speechpro_evaluate(
         # 2) 프리셋이 없으면 기존 전체 워크플로우 수행
         print(f"[Evaluate] No preset found, using full workflow")
         result = speechpro_full_workflow(text, audio_content)
+        if recognized_text:
+            result["recognized_text"] = recognized_text
         if include_ai_feedback and result.get("success"):
             try:
                 score_dict = result.get("score") or {}
@@ -3500,8 +4606,33 @@ async def chatbot_api(request: Request):
         
         system_prompt = """당신은 한국어 교육 AI 튜터입니다. 간결하고 명확하게 답변해주세요.
 중요: 당신의 모델명이나 기술적 세부사항(EXAONE, Ollama 등)을 언급하지 마세요. 단지 "한국어 학습을 돕는 AI 튜터"라고만 소개하세요."""
-        
+
+        rag_context = ""
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            try:
+                _ensure_rag_tables(conn)
+                settings = _rag_get_settings(conn)
+                if settings.get("enabled"):
+                    hits = _rag_search(conn, user_message, top_k=settings.get("top_k", 5))
+                    if hits:
+                        blocks = []
+                        for i, h in enumerate(hits, start=1):
+                            title = h.get("title") or ""
+                            source = h.get("source") or ""
+                            content = (h.get("content") or "").strip()
+                            blocks.append(
+                                f"[자료 {i}] {title} ({source})\n{content}"
+                            )
+                        rag_context = "\n\n".join(blocks)
+            finally:
+                conn.close()
+        except Exception:
+            rag_context = ""
+
         prompt = f"{system_prompt}\n\n질문: {user_message}"
+        if rag_context:
+            prompt += f"\n\n[참고 자료]\n{rag_context}\n\n위 참고 자료를 근거로 답변하되, 모르면 모른다고 말하세요."
         
         # Use Ollama backend
         if selected_model == "ollama":
@@ -3564,12 +4695,18 @@ async def chatbot_api(request: Request):
                         content={"error": "OpenAI API 키가 설정되지 않았습니다."}
                     )
                 
+                messages = [{"role": "system", "content": system_prompt}]
+                if rag_context:
+                    messages.append(
+                        {
+                            "role": "system",
+                            "content": f"[참고 자료]\n{rag_context}\n\n위 참고 자료를 근거로 답변하되, 모르면 모른다고 말하세요.",
+                        }
+                    )
+                messages.append({"role": "user", "content": user_message})
                 response = client.chat.completions.create(
                     model=OPENAI_MODEL,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_message}
-                    ],
+                    messages=messages,
                     temperature=0.7,
                     max_tokens=1000
                 )
@@ -4043,6 +5180,29 @@ async def get_word_scores(request: Request, limit: int = 3):
     limit = max(1, min(limit, 10))
     history = _get_word_score_history(user["id"], limit=limit)
     return JSONResponse({"scores": history})
+
+
+@app.get("/api/learning/word-scores/recent")
+async def get_recent_word_score_target(request: Request):
+    """Return the most recently scored word_id for the current user."""
+    user = _require_authenticated_user(request)
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT word_id
+            FROM word_score_history
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (user["id"],),
+        )
+        row = cursor.fetchone()
+        return JSONResponse({"word_id": row[0] if row else None})
+    finally:
+        conn.close()
 
 
 @app.post("/api/learning/word-scores")
