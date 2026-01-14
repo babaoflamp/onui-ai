@@ -69,7 +69,7 @@ endblock %} {% block content %}
       <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
         <button
           id="backBtn"
-          class="text-purple-600 hover:text-purple-700 text-sm mb-4 flex items-center gap-1"
+          class="sticky top-4 bg-white text-purple-600 hover:text-purple-700 hover:bg-purple-50 text-sm mb-4 flex items-center gap-1 px-3 py-2 rounded-lg border border-purple-200 z-10"
         >
           ← 목록으로
         </button>
@@ -134,6 +134,14 @@ endblock %} {% block content %}
           id="quizResult"
           class="hidden mt-6 p-4 rounded-lg text-center"
         ></div>
+
+        <!-- Back to List Button -->
+        <button
+          id="backBtn2"
+          class="w-full mt-6 bg-purple-100 hover:bg-purple-200 text-purple-600 hover:text-purple-700 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+        >
+          ← 목록으로 돌아가기
+        </button>
       </div>
     </div>
 
@@ -279,10 +287,12 @@ endblock %} {% block content %}
       readingSection.classList.remove("hidden");
       document.getElementById("quizResult").classList.add("hidden");
       userAnswers = {};
-      
+
       // Auto scroll to story title
       setTimeout(() => {
-        document.getElementById("storyTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+        document
+          .getElementById("storyTitle")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
 
@@ -391,6 +401,17 @@ endblock %} {% block content %}
         readingSection.classList.add("hidden");
         folktaleList.classList.remove("hidden");
       });
+
+      // Back button 2 (at bottom)
+      const backBtn2 = document.getElementById("backBtn2");
+      if (backBtn2) {
+        backBtn2.addEventListener("click", () => {
+          readingSection.classList.add("hidden");
+          folktaleList.classList.remove("hidden");
+          // Auto scroll to top
+          folktaleList.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
 
       // Submit quiz button
       submitQuiz.addEventListener("click", () => {

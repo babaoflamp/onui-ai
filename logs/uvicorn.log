@@ -3083,3 +3083,67 @@ INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154915.png HTT
 2026-01-14 18:46:23,367 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 200
 2026-01-14 18:46:23,367 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218
 INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154932.png HTTP/1.1" 200 OK
+2026-01-14 18:48:01,295 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,301 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 18:48:01,301 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 18:48:01,508 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,510 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,513 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/css/components.css HTTP/1.1" 200 OK
+2026-01-14 18:48:01,515 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 200 OK
+2026-01-14 18:48:01,581 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,583 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/js/ui-components.js HTTP/1.1" 200 OK
+2026-01-14 18:48:01,940 - main - INFO - [REQUEST] GET /static/img/landing/history-graph.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,941 - main - INFO - [REQUEST] GET /static/img/landing/ai-feedback.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:01,944 - main - INFO - [RESPONSE] GET /static/img/landing/history-graph.png - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/landing/history-graph.png HTTP/1.1" 304 Not Modified
+2026-01-14 18:48:01,945 - main - INFO - [RESPONSE] GET /static/img/landing/ai-feedback.png - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/landing/ai-feedback.png HTTP/1.1" 304 Not Modified
+2026-01-14 18:48:13,941 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:48:13,949 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:48:13,950 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 18:48:14,337 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:48:14,342 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 18:48:15,856 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154011.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:15,858 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154011.png - Status: 200
+2026-01-14 18:48:15,859 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154011.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154011.png HTTP/1.1" 200 OK
+2026-01-14 18:48:23,398 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:23,400 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 200
+2026-01-14 18:48:23,400 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 200 OK
+2026-01-14 18:48:29,514 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154820.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:29,516 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154820.png - Status: 200
+2026-01-14 18:48:29,517 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154820.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154820.png HTTP/1.1" 200 OK
+2026-01-14 18:48:38,102 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154829.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:38,105 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154829.png - Status: 200
+2026-01-14 18:48:38,105 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154829.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154829.png HTTP/1.1" 200 OK
+2026-01-14 18:48:48,968 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154849.png from 112.220.79.218 | User: Guest
+2026-01-14 18:48:48,971 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 200
+2026-01-14 18:48:48,971 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154849.png HTTP/1.1" 200 OK
+2026-01-14 18:49:13,842 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154932.png from 112.220.79.218 | User: Guest
+2026-01-14 18:49:13,844 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 200
+2026-01-14 18:49:13,845 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154932.png HTTP/1.1" 200 OK
+2026-01-14 18:50:18,136 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:50:18,148 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:50:18,149 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 18:50:18,544 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:50:18,547 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 18:50:25,263 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:50:25,266 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:50:25,266 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 18:50:25,580 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:50:25,584 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
