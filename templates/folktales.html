@@ -64,14 +64,6 @@ endblock %} {% block content %}
       <!-- Will be populated by JavaScript -->
     </div>
 
-    <!-- Back Button (Fixed) -->
-    <button
-      id="backBtn"
-      class="hidden fixed top-4 left-4 bg-white text-purple-600 hover:text-purple-700 hover:bg-purple-50 text-sm flex items-center gap-1 px-3 py-2 rounded-lg border border-purple-200 z-50 shadow-md"
-    >
-      ← 목록으로
-    </button>
-
     <!-- Reading Section (hidden initially) -->
     <div id="readingSection" class="hidden">
       <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
@@ -86,7 +78,13 @@ endblock %} {% block content %}
         <p id="storySummary" class="text-sm text-gray-600 mb-6 italic"></p>
 
         <!-- Story Image -->
-        <div id="storyImageContainer" class="mb-6 hidden">
+        <div id="storyImageContainer" class="mb-6 hidden relative">
+          <button
+            id="backBtn"
+            class="absolute -top-3 -right-3 bg-white text-purple-600 hover:text-purple-700 hover:bg-purple-50 text-sm flex items-center gap-1 px-3 py-2 rounded-lg border border-purple-200 z-10 shadow-md"
+          >
+            ← 목록으로
+          </button>
           <img
             id="storyImage"
             src=""

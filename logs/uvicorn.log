@@ -3177,3 +3177,21 @@ INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
 2026-01-14 18:52:25,343 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
 2026-01-14 18:52:25,344 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
 INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 304 Not Modified
+2026-01-14 18:53:53,302 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:53:53,309 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:53:53,310 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 18:53:53,717 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:53:53,721 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 18:56:00,531 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:56:00,542 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:56:00,543 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 18:56:00,888 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:56:00,892 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 18:56:02,967 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-14 18:56:02,970 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
+2026-01-14 18:56:02,970 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 304 Not Modified
