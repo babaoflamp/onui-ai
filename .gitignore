@@ -73,6 +73,12 @@ temp/
 # Instance folder
 instance/
 
+# Assets and generated outputs
+docs/requirements/
+runtime_bundle/
+uploads/images/
+static/img/
+
 # Build
 dist/
 build/

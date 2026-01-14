@@ -196,7 +196,7 @@ AI 기반 한국어 학습 플랫폼</textarea
       localStorage.getItem("user_role") ||
       (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
     if (role !== "system_admin") {
-      alert("접근 권한이 없습니다.");
+      AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
       window.location.href = "/admin/login";
     }
   }

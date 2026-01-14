@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}듣고 받아쓰기 - 오누이 한국어{%
 endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -15,7 +16,7 @@ endblock %} {% block content %}
     </header>
 
     <!-- Level Selection -->
-    <section class="mb-6">
+    <section class="mb-6 hidden">
       <div class="flex items-center gap-2 mb-3">
         <label class="text-sm font-semibold text-gray-700">레벨 선택:</label>
         <select
@@ -28,7 +29,7 @@ endblock %} {% block content %}
         </select>
         <button
           id="startBtn"
-          class="ml-auto px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-semibold transition-all"
+          class="ml-auto px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 font-semibold transition-all hidden"
         >
           시작하기
         </button>
@@ -36,7 +37,7 @@ endblock %} {% block content %}
     </section>
 
     <!-- Practice Panel -->
-    <section id="practicePanel" class="hidden">
+    <section id="practicePanel">
       <!-- Progress -->
       <div class="mb-6 p-4 bg-gray-50 rounded-xl">
         <div class="flex justify-between items-center mb-2">
@@ -217,7 +218,10 @@ endblock %} {% block content %}
     let score = 0;
     let totalQuestions = 5;
     let playCount = 0;
-    let utterance = null;
+    const ttsTimeoutMs = 15000;
+    let activeAudio = null;
+    let activeAudioUrl = "";
+    let isTtsLoading = false;
 
     // Load sentences
     async function loadSentences(level) {
@@ -232,29 +236,121 @@ endblock %} {% block content %}
           .slice(0, totalQuestions);
 
         if (sentences.length === 0) {
-          alert("해당 레벨의 문장이 없습니다.");
+          AlertManager.warning(
+            "해당 레벨의 문장이 없습니다.",
+            "데이터 없음",
+            document.getElementById("alertsContainer")
+          );
         }
       } catch (error) {
         console.error("Error loading sentences:", error);
-        alert("문장을 불러오는데 실패했습니다.");
+        AlertManager.error(
+          "문장을 불러오는데 실패했습니다.",
+          "로드 오류",
+          document.getElementById("alertsContainer")
+        );
       }
     }
 
-    // Speak sentence using browser TTS
-    function speakSentence(text) {
-      if (!text) return;
+    function cleanupAudio() {
+      try {
+        if (activeAudio) {
+          activeAudio.pause();
+          activeAudio.src = "";
+        }
+      } catch (_) {}
+      activeAudio = null;
+      if (activeAudioUrl) {
+        try {
+          URL.revokeObjectURL(activeAudioUrl);
+        } catch (_) {}
+      }
+      activeAudioUrl = "";
+    }
 
-      // Cancel previous speech
-      window.speechSynthesis.cancel();
+    function setPlayStatus(statusText, sourceButton) {
+      if (playCountEl) playCountEl.textContent = statusText || "";
+      if (sourceButton) {
+        sourceButton.disabled = true;
+        sourceButton.classList.add("opacity-70");
+      }
+      // Keep the other button disabled while loading/playing to avoid overlap
+      if (playBtn) playBtn.disabled = true;
+      if (replayBtn) replayBtn.disabled = true;
+    }
 
-      utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "ko-KR";
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
+    function restoreButtons() {
+      if (playBtn) {
+        playBtn.disabled = false;
+        playBtn.classList.remove("opacity-70");
+      }
+      if (replayBtn) {
+        replayBtn.classList.remove("opacity-70");
+        replayBtn.disabled = playCount <= 0;
+      }
+    }
 
-      window.speechSynthesis.speak(utterance);
-      playCount++;
-      playCountEl.textContent = `재생 횟수: ${playCount}회`;
+    async function playTTS(text, sourceButton) {
+      if (!text || isTtsLoading) return;
+      isTtsLoading = true;
+      cleanupAudio();
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), ttsTimeoutMs);
+      const originalLabel = sourceButton ? sourceButton.innerHTML : "";
+      try {
+        if (sourceButton)
+          sourceButton.innerHTML = "<span>⏳</span><span>생성 중...</span>";
+        setPlayStatus("음성을 불러오는 중...", sourceButton);
+
+        const speaker = Number(localStorage.getItem("mztts_speaker") || "0");
+        const response = await fetch("/api/tts/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, speaker }),
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(errText || "TTS 생성 실패");
+        }
+
+        const blob = await response.blob();
+        activeAudioUrl = URL.createObjectURL(blob);
+        activeAudio = new Audio(activeAudioUrl);
+        activeAudio.volume = 1.0;
+        activeAudio.addEventListener("ended", () => {
+          cleanupAudio();
+          restoreButtons();
+          if (playCountEl)
+            playCountEl.textContent = `재생 횟수: ${playCount}회`;
+        });
+
+        playCount += 1;
+        if (playCountEl) playCountEl.textContent = `재생 횟수: ${playCount}회`;
+        if (dictationInput) dictationInput.disabled = false;
+        if (submitBtn) submitBtn.disabled = false;
+        if (replayBtn) replayBtn.disabled = false;
+
+        await activeAudio.play();
+      } catch (err) {
+        console.error("TTS 재생 오류:", err);
+        cleanupAudio();
+        restoreButtons();
+        if (playCountEl) {
+          playCountEl.textContent =
+            err?.name === "AbortError"
+              ? "TTS 요청이 지연되고 있습니다. 다시 시도해주세요."
+              : "음성 재생에 실패했습니다. 잠시 후 다시 시도해주세요.";
+        }
+      } finally {
+        clearTimeout(timeoutId);
+        if (sourceButton)
+          sourceButton.innerHTML =
+            originalLabel || "<span>▶</span><span>재생</span>";
+        if (sourceButton) sourceButton.classList.remove("opacity-70");
+        isTtsLoading = false;
+      }
     }
 
     // Display current sentence
@@ -263,10 +359,10 @@ endblock %} {% block content %}
       playCount = 0;
       playCountEl.textContent = "";
       dictationInput.value = "";
-      dictationInput.disabled = false;
-      submitBtn.disabled = false;
+      dictationInput.disabled = true;
+      submitBtn.disabled = true;
       playBtn.disabled = false;
-      replayBtn.disabled = false;
+      replayBtn.disabled = true;
       nextBtn.classList.add("hidden");
       feedbackPanel.classList.add("hidden");
 
@@ -404,6 +500,7 @@ endblock %} {% block content %}
 
     // Restart practice
     function restartPractice() {
+      cleanupAudio();
       resultPanel.classList.add("hidden");
       startBtn.disabled = false;
       levelSelect.disabled = false;
@@ -412,10 +509,10 @@ endblock %} {% block content %}
     // Event listeners
     startBtn.addEventListener("click", startPractice);
     playBtn.addEventListener("click", () =>
-      speakSentence(currentSentence.text)
+      playTTS(currentSentence?.text, playBtn)
     );
     replayBtn.addEventListener("click", () =>
-      speakSentence(currentSentence.text)
+      playTTS(currentSentence?.text, replayBtn)
     );
     submitBtn.addEventListener("click", submitAnswer);
     nextBtn.addEventListener("click", nextSentence);
@@ -428,6 +525,9 @@ endblock %} {% block content %}
         submitAnswer();
       }
     });
+
+    // Auto-start practice on page load
+    startPractice();
   })();
 </script>
 {% endblock %}

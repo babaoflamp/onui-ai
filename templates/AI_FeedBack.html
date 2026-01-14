@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 한국어 발음 분석</title>
+    <style>
+        /* 기본 설정 및 폰트 */
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --bg-light: #F9FAFB;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #EEF2FF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* 메인 버튼 */
+        .open-btn {
+            padding: 18px 36px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #6366F1, #4F46E5);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .open-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        /* 모달 오버레이 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* 모달 컨텐츠 */
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            padding: 32px;
+            border-radius: 28px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        /* 단계별 레이아웃 제어 */
+        .step { display: none; animation: slideIn 0.4s ease-out; }
+        .step.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 공통 스타일 */
+        h2 { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 8px; }
+        .btn-next {
+            width: 100%; padding: 16px; border: none; border-radius: 14px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+            margin-top: 20px;
+        }
+        .primary-btn { background: var(--primary); color: white; }
+        .primary-btn:hover { background: #4338CA; }
+        .secondary-btn { background: #F3F4F6; color: var(--text-main); }
+
+        /* Step 1: 점수 강조 */
+        .score-big { font-size: 4.5rem; font-weight: 800; color: var(--primary); margin: 10px 0; }
+        .feedback-badge { display: inline-block; padding: 6px 16px; background: #ECFDF5; color: var(--secondary); border-radius: 50px; font-weight: 600; margin-bottom: 20px; }
+        .sentence-card { background: var(--bg-light); padding: 20px; border-radius: 18px; text-align: left; border: 1px solid #E5E7EB; }
+        
+        /* Step 3: 단어 분석 */
+        .word-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
+        .word-item { padding: 10px 15px; background: #EEF2FF; border-radius: 10px; border-bottom: 3px solid #C7D2FE; }
+        .word-score { display: block; font-size: 0.8rem; color: var(--primary); font-weight: 700; }
+
+        /* Step 5, 6: 텍스트 피드백 */
+        .text-box { text-align: left; line-height: 1.6; color: #4B5563; background: #F9FAFB; padding: 15px; border-radius: 12px; font-size: 0.95rem; }
+        .icon-title { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 10px; color: var(--text-main); }
+
+    </style>
+</head>
+<body>
+
+    <button class="open-btn" onclick="openModal()">AI 결과 확인하기</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            
+            <div class="step active" id="step1">
+                <h2>[발음 점수]</h2>
+                <div class="score-big">90<span style="font-size: 1.5rem; color: #9CA3AF;">/100</span></div>
+                <div class="feedback-badge">✨ 완벽한 발음입니다!</div>
+                <div class="sentence-card">
+                    <small style="color: #9CA3AF;">🎙️ 평가한 문장</small>
+                    <p style="margin: 8px 0 0; font-size: 1.1rem; font-weight: 600;">공과금을 납부하러 은행에 갔어요.</p>
+                </div>
+                <button class="btn-next primary-btn" onclick="nextStep(2)">AI 종합 평가 결과 보기 〉</button>
+            </div>
+
+            <div class="step" id="step2">
+                <h2>문장 점수 평가</h2>
+                <div style="margin: 40px 0;">
+                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 15px;">문장 완성도: 95%</div>
+                    <div style="width: 100%; height: 12px; background: #E5E7EB; border-radius: 10px; overflow: hidden;">
+                        <div style="width: 95%; height: 100%; background: var(--secondary);"></div>
+                    </div>
+                </div>
+                <p>문장의 억양과 속도가 매우 안정적입니다.</p>
+                <button class="btn-next primary-btn" onclick="nextStep(3)">다음</button>
+            </div>
+
+            <div class="step" id="step3">
+                <h2>단어별 분석</h2>
+                <div class="word-grid">
+                    <div class="word-item"><span class="word-score">92</span>공과금을</div>
+                    <div class="word-item"><span class="word-score">85</span>납부하러</div>
+                    <div class="word-item"><span class="word-score">98</span>은행에</div>
+                    <div class="word-item"><span class="word-score">94</span>갔어요</div>
+                </div>
+                <p style="margin-top:20px; font-size: 0.9rem;">각 단어를 클릭하면 올바른 발음을 들을 수 있습니다.</p>
+                <button class="btn-next primary-btn" onclick="nextStep(4)">다음</button>
+            </div>
+
+            <div class="step" id="step4">
+                <h2>핵심 요약 점수</h2>
+                <div style="padding: 40px 0;">
+                    <div style="width: 120px; height: 120px; border: 8px solid var(--primary); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        <span style="font-size: 2.5rem; font-weight: 800;">90</span>
+                    </div>
+                </div>
+                <p>전체적인 학습 성취도가 매우 높습니다!</p>
+                <button class="btn-next primary-btn" onclick="nextStep(5)">다음</button>
+            </div>
+
+            <div class="step" id="step5">
+                <div class="icon-title">💪 강점 포인트</div>
+                <div class="text-box">
+                    안녕하세요! 발음 평가 결과에 대한 피드백입니다. 훌륭한 결과 축하드립니다! 90점이라는 높은 점수를 받으셨어요. 전반적으로 발음이 매우 정확하고 자연스러워서 듣기에 편안했습니다.
+                </div>
+                <button class="btn-next primary-btn" onclick="nextStep(6)">다음</button>
+            </div>
+
+            <div class="step" id="step6">
+                <div class="icon-title">💡 연습 팁</div>
+                <div class="text-box" style="margin-bottom: 15px;">
+                    발음 연습을 위해, <strong>"공과금을"</strong> 부분을 여러 번 반복해서 발음하는 연습을 해보세요. "공"과 "과" 발음의 차이를 의식하면서 연습하면 더욱 효과적일 것입니다.
+                </div>
+                <div class="icon-title">💬 추가 코멘트</div>
+                <div class="text-box" style="border-left: 4px solid var(--secondary); background: #ECFDF5;">
+                    AI 피드백 : 하루에 10개씩 단어를 계속 공부해 보세요.
+                </div>
+                <button class="btn-next primary-btn" onclick="closeModal()" style="background: var(--secondary);">완료</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('modalOverlay');
+        const steps = document.querySelectorAll('.step');
+
+        function openModal() {
+            modal.style.display = 'flex';
+            showStep(1);
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function nextStep(stepNumber) {
+            showStep(stepNumber);
+        }
+
+        function showStep(n) {
+            steps.forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + n).classList.add('active');
+        }
+
+        // 배경 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}AI 학습 도구 - 오누이 한국어{%
 endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <script>
     // Learning progress tracking
@@ -894,54 +895,8 @@ endblock %} {% block content %}
 
   // Speak a given string using Web Speech API
   function speakText(txt) {
-    if (!txt) return;
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
-      // Prefer a Korean voice when available
-      u.lang = "ko-KR";
-      u.rate = 0.95;
-      // pick a voice that matches Korean
-      const pickKoreanVoice = () => {
-        const voices = window.speechSynthesis.getVoices() || [];
-        for (const v of voices) {
-          if (!v) continue;
-          const lname = (v.lang || "").toLowerCase();
-          const n = (v.name || "").toLowerCase();
-          if (
-            lname.startsWith("ko") ||
-            n.includes("korean") ||
-            n.includes("noto") ||
-            n.includes("nanum")
-          ) {
-            return v;
-          }
-        }
-        return null;
-      };
-
-      // If the user selected a voice, prefer it
-      try {
-        const selVal = (document.getElementById("voiceSelect") || {}).value;
-        if (selVal) {
-          const [name, lang] = selVal.split("||");
-          const voices = window.speechSynthesis.getVoices() || [];
-          const found = voices.find((v) => v.name === name && v.lang === lang);
-          if (found) u.voice = found;
-        }
-      } catch (e) {
-        /* ignore */
-      }
-
-      let voice = pickKoreanVoice();
-      if (!u.voice && voice) {
-        u.voice = voice;
-      }
-
-      window.speechSynthesis.speak(u);
-    } else {
-      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
-    }
+    console.warn("Browser TTS is disabled.");
+    return;
   }
 
   // Test model
@@ -1265,108 +1220,14 @@ endblock %} {% block content %}
 
   // Speak a given string using Web Speech API (used by per-item buttons)
   function speakText(txt) {
-    if (!txt) return;
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
-      u.lang = "ko-KR";
-      u.rate = 0.95;
-      const voices = window.speechSynthesis.getVoices() || [];
-      for (const v of voices) {
-        if (!v) continue;
-        const lname = (v.lang || "").toLowerCase();
-        const n = (v.name || "").toLowerCase();
-        if (
-          lname.startsWith("ko") ||
-          n.includes("korean") ||
-          n.includes("noto") ||
-          n.includes("nanum")
-        ) {
-          u.voice = v;
-          break;
-        }
-      }
-      // If voices not yet loaded, try again when available
-      if (!u.voice) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          const vs = window.speechSynthesis.getVoices() || [];
-          for (const v of vs) {
-            const lname = (v.lang || "").toLowerCase();
-            const n = (v.name || "").toLowerCase();
-            if (
-              lname.startsWith("ko") ||
-              n.includes("korean") ||
-              n.includes("noto") ||
-              n.includes("nanum")
-            ) {
-              u.voice = v;
-              break;
-            }
-          }
-          window.speechSynthesis.speak(u);
-        };
-      } else {
-        window.speechSynthesis.speak(u);
-      }
-    } else {
-      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
-    }
+    console.warn("Browser TTS is disabled.");
+    return;
   }
 
   // Speak the whole dialogue sequence; prefers pronunciation if present
   function speakDialogue() {
-    const items = document.querySelectorAll("#contentResult .dialogue-item");
-    if (!items.length) return;
-
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      items.forEach((item, index) => {
-        // Prefer reading the original Korean text (Hangul). If not available,
-        // fall back to the romanized pronunciation.
-        const textAttr =
-          item.getAttribute("data-text") ||
-          item.querySelector(".dialogue-text")?.textContent ||
-          "";
-        const pron = item.getAttribute("data-pron");
-        const txt = textAttr && textAttr.trim() ? textAttr : pron || "";
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = "ko-KR";
-        u.rate = 0.95;
-        // If the user selected a specific voice, prefer that one
-        try {
-          const selVal = (document.getElementById("voiceSelect") || {}).value;
-          if (selVal) {
-            const [name, lang] = selVal.split("||");
-            const voices = window.speechSynthesis.getVoices() || [];
-            const found = voices.find(
-              (v) => v.name === name && v.lang === lang
-            );
-            if (found) u.voice = found;
-          }
-        } catch (e) {}
-
-        const voices = window.speechSynthesis.getVoices() || [];
-        for (const v of voices) {
-          if (!v) continue;
-          const lname = (v.lang || "").toLowerCase();
-          const n = (v.name || "").toLowerCase();
-          if (
-            lname.startsWith("ko") ||
-            n.includes("korean") ||
-            n.includes("noto") ||
-            n.includes("nanum")
-          ) {
-            if (!u.voice) u.voice = v;
-            break;
-          }
-        }
-        setTimeout(() => {
-          window.speechSynthesis.speak(u);
-        }, index * 1800);
-      });
-    } else {
-      alert("죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.");
-    }
+    console.warn("Browser TTS is disabled.");
+    return;
   }
 
   // Helper: Practice vocabulary (copy to pronunciation section)
@@ -1442,7 +1303,7 @@ endblock %} {% block content %}
     const resultDiv = document.getElementById("situationalResult");
 
     if (!situation) {
-      alert("상황을 선택해주세요.");
+      AlertManager.warning("상황을 선택해주세요.", "선택 필요", document.getElementById("alertsContainer"));
       return;
     }
 

@@ -6,13 +6,16 @@ from datetime import timedelta
 import hashlib
 import hmac
 import logging
+from logging.handlers import TimedRotatingFileHandler
 from functools import lru_cache
+from typing import Optional, Dict
 from pathlib import Path
 from datetime import datetime
+import threading
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from openai import OpenAI
@@ -27,6 +30,7 @@ import subprocess
 import wave
 import base64
 import tempfile
+from pathlib import Path
 import time
 
 try:
@@ -163,10 +167,22 @@ MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
 
 # STT/TTS Backend
 STT_BACKEND = os.getenv("STT_BACKEND", "openai" if OPENAI_API_KEY else "local")
-TTS_BACKEND = os.getenv("TTS_BACKEND", "mztts")
+TTS_BACKEND = os.getenv("TTS_BACKEND", "gemini")
 OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
 OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
 OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "wav")
+GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", GEMINI_MODEL)
+GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
+TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
+TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
+TTS_PREWARM_ON_STARTUP = os.getenv("TTS_PREWARM_ON_STARTUP", "").lower() in ("1", "true", "yes")
+TTS_CACHE = {}
+WORD_IMAGE_CACHE_PATH = Path(os.getenv("WORD_IMAGE_CACHE_PATH", "data/word_image_cache.json"))
+WORD_IMAGE_CACHE_LOCK = threading.Lock()
+
+# Session management
+SESSION_EXPIRY_SECONDS = 24 * 60 * 60  # 24 hours
+active_sessions = {}  # {token: {"user_id": int, "email": str, "created_at": float, "is_admin": bool}}
 
 # Role definitions
 ROLE_LEARNER = "learner"
@@ -279,7 +295,7 @@ def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
     if not audio_bytes:
         raise ValueError("audio bytes empty")
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory(dir=str(APP_TMP_DIR)) as tmpdir:
         src_path = os.path.join(tmpdir, "input.bin")
         dst_path = os.path.join(tmpdir, "output.wav")
 
@@ -422,6 +438,252 @@ def _call_mztts_api(
 
     except requests.exceptions.RequestException as e:
         raise RuntimeError(f"Failed to connect to MzTTS API: {e}")
+
+
+def _extract_gemini_audio(result: dict) -> dict:
+    candidates = result.get("candidates") or []
+    for cand in candidates:
+        parts = cand.get("content", {}).get("parts", []) or []
+        for part in parts:
+            inline = part.get("inlineData") or part.get("inline_data") or {}
+            data = inline.get("data")
+            mime = inline.get("mimeType") or inline.get("mime_type")
+            if data:
+                return {"audio_data": base64.b64decode(data), "content_type": mime or GEMINI_TTS_MIME}
+    raise RuntimeError("Gemini TTS response did not include audio data")
+
+
+def _tts_cache_key(text: str, model: str, backend: str = "gemini") -> str:
+    raw = f"{backend}:{model}:{text}".encode("utf-8")
+    return hashlib.md5(raw).hexdigest()
+
+
+def _get_tts_cache(key: str) -> Optional[Dict]:
+    cached = TTS_CACHE.get(key)
+    if cached:
+        return cached
+    meta_path = TTS_CACHE_DIR / f"{key}.json"
+    audio_path = TTS_CACHE_DIR / f"{key}.bin"
+    if not meta_path.exists() or not audio_path.exists():
+        return None
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        audio_bytes = audio_path.read_bytes()
+        cached = {
+            "content_type": meta.get("content_type") or "application/octet-stream",
+            "audio_data": audio_bytes,
+        }
+        TTS_CACHE[key] = cached
+        return cached
+    except Exception:
+        return None
+
+
+def _set_tts_cache(key: str, content_type: str, audio_data: bytes) -> None:
+    if len(TTS_CACHE) >= TTS_CACHE_MAX:
+        TTS_CACHE.clear()
+    try:
+        TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        meta_path = TTS_CACHE_DIR / f"{key}.json"
+        audio_path = TTS_CACHE_DIR / f"{key}.bin"
+        meta_path.write_text(
+            json.dumps({"content_type": content_type}, ensure_ascii=True),
+            encoding="utf-8",
+        )
+        audio_path.write_bytes(audio_data)
+        TTS_CACHE[key] = {"content_type": content_type, "audio_data": audio_data}
+    except Exception:
+        return
+
+
+def _prewarm_tts_cache_for_sentences() -> None:
+    if TTS_BACKEND != "gemini":
+        logger.info("[TTS_PREWARM] Skipped (backend=%s)", TTS_BACKEND)
+        return
+    if not GEMINI_API_KEY:
+        logger.warning("[TTS_PREWARM] Skipped (GEMINI_API_KEY missing)")
+        return
+    try:
+        sentences = load_json_data("sentences.json") or []
+    except Exception as e:
+        logger.error("[TTS_PREWARM] Failed to load sentences: %s", e)
+        return
+    if not isinstance(sentences, list) or not sentences:
+        logger.warning("[TTS_PREWARM] No sentences found to prewarm")
+        return
+
+    logger.info("[TTS_PREWARM] Starting prewarm for %s sentences", len(sentences))
+    start_time = time.perf_counter()
+    warmed = 0
+    skipped = 0
+    failed = 0
+    for item in sentences:
+        text = item.get("text") if isinstance(item, dict) else str(item)
+        if not text:
+            continue
+        cache_key = _tts_cache_key(text, GEMINI_TTS_MODEL, "gemini")
+        if _get_tts_cache(cache_key):
+            skipped += 1
+            continue
+        try:
+            result = _call_gemini_tts_api(text=text)
+            content_type = result.get("content_type") or "application/octet-stream"
+            audio_data = result["audio_data"]
+            if content_type.startswith("audio/L16"):
+                audio_data = _amplify_pcm16(audio_data)
+                audio_data = _pcm16_to_wav(audio_data, sample_rate=24000, channels=1)
+                content_type = "audio/wav"
+            _set_tts_cache(cache_key, content_type, audio_data)
+            warmed += 1
+        except Exception as e:
+            failed += 1
+            logger.warning("[TTS_PREWARM] Failed for '%s': %s", text, e)
+    elapsed = time.perf_counter() - start_time
+    logger.info(
+        "[TTS_PREWARM] Done warmed=%s skipped=%s failed=%s elapsed=%.1fs",
+        warmed,
+        skipped,
+        failed,
+        elapsed,
+    )
+
+
+def _load_word_image_cache() -> dict:
+    if not WORD_IMAGE_CACHE_PATH.exists():
+        return {}
+    try:
+        return json.loads(WORD_IMAGE_CACHE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_word_image_cache(cache: dict) -> None:
+    try:
+        WORD_IMAGE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        WORD_IMAGE_CACHE_PATH.write_text(
+            json.dumps(cache, ensure_ascii=True),
+            encoding="utf-8",
+        )
+    except Exception:
+        return
+
+
+def _get_cached_word_image(key: str) -> Optional[Dict]:
+    if not key:
+        return None
+    with WORD_IMAGE_CACHE_LOCK:
+        cache = _load_word_image_cache()
+        return cache.get(key)
+
+
+def _set_cached_word_image(key: str, url: str) -> None:
+    if not key or not url:
+        return
+    with WORD_IMAGE_CACHE_LOCK:
+        cache = _load_word_image_cache()
+        cache[key] = {"url": url, "updatedAt": int(time.time() * 1000)}
+        _save_word_image_cache(cache)
+
+
+def _amplify_pcm16(pcm_data: bytes, target_peak: float = 1.0, max_gain: float = None) -> bytes:
+    """Normalize PCM16 audio to a target peak."""
+    import struct
+
+    if not pcm_data:
+        return pcm_data
+
+    sample_count = len(pcm_data) // 2
+    if sample_count == 0:
+        return pcm_data
+
+    samples = struct.unpack("<" + "h" * sample_count, pcm_data)
+    peak = max((abs(s) for s in samples), default=0)
+    if peak == 0:
+        return pcm_data
+
+    target = int(32767 * target_peak)
+    gain = target / peak
+    if max_gain is not None:
+        gain = min(gain, max_gain)
+    if gain <= 1.0:
+        return pcm_data
+
+    amplified = [
+        max(-32768, min(32767, int(s * gain)))
+        for s in samples
+    ]
+    return struct.pack("<" + "h" * sample_count, *amplified)
+
+
+def _pcm16_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1) -> bytes:
+    """Wrap raw PCM16 LE bytes in a WAV container for browser playback."""
+    import struct
+
+    bits_per_sample = 16
+    byte_rate = sample_rate * channels * bits_per_sample // 8
+    block_align = channels * bits_per_sample // 8
+    data_size = len(pcm_data)
+    riff_size = 36 + data_size
+
+    header = b"".join(
+        [
+            b"RIFF",
+            struct.pack("<I", riff_size),
+            b"WAVE",
+            b"fmt ",
+            struct.pack("<I", 16),
+            struct.pack("<H", 1),  # PCM
+            struct.pack("<H", channels),
+            struct.pack("<I", sample_rate),
+            struct.pack("<I", byte_rate),
+            struct.pack("<H", block_align),
+            struct.pack("<H", bits_per_sample),
+            b"data",
+            struct.pack("<I", data_size),
+        ]
+    )
+    return header + pcm_data
+
+
+def _call_gemini_tts_api(text: str, model: str = None) -> dict:
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY not configured")
+
+    gemini_model = model or GEMINI_TTS_MODEL
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={GEMINI_API_KEY}"
+    prompts = [
+        f"Speak the following Korean text aloud. Output audio only. Transcript: {text}",
+        f"Generate speech audio only for the following transcript:\n{text}",
+    ]
+
+    last_error = None
+    for prompt in prompts:
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"responseModalities": ["AUDIO"]},
+        }
+
+        try:
+            resp = requests.post(url, json=payload, timeout=60)
+        except requests.exceptions.RequestException as e:
+            last_error = RuntimeError(f"Failed to connect to Gemini API: {e}")
+            continue
+
+        if not resp.ok:
+            error_text = resp.text.strip()
+            if len(error_text) > 1000:
+                error_text = error_text[:1000] + "...(truncated)"
+            last_error = RuntimeError(
+                f"Gemini TTS API error {resp.status_code} for model {gemini_model}: {error_text}"
+            )
+            continue
+
+        try:
+            return _extract_gemini_audio(resp.json())
+        except Exception as e:
+            last_error = e
+
+    raise RuntimeError(str(last_error) if last_error else "Gemini TTS failed")
 
 
 def get_mztts_server_info() -> dict:
@@ -888,26 +1150,67 @@ def _create_session_token(user_id: int, email: str, is_admin: bool = False) -> s
     import time
     
     # Simple format: base64(id|email|timestamp|random|is_admin)
-    timestamp = str(int(time.time()))
+    timestamp = time.time()
     random_str = secrets.token_hex(16)
-    data = f"{user_id}|{email}|{timestamp}|{random_str}|{int(bool(is_admin))}"
-    return base64.b64encode(data.encode()).decode()
+    data = f"{user_id}|{email}|{int(timestamp)}|{random_str}|{int(bool(is_admin))}"
+    token = base64.b64encode(data.encode()).decode()
+    
+    # Store session with expiry info
+    active_sessions[token] = {
+        "user_id": user_id,
+        "email": email,
+        "created_at": timestamp,
+        "is_admin": bool(is_admin)
+    }
+    
+    return token
 
 
 def _parse_session_token(token: str) -> dict:
     """Parse session token, return dict with user_id/email or None."""
+    import time
+    
     try:
+        # Check active_sessions first (includes expiry check)
+        if token in active_sessions:
+            session = active_sessions[token]
+            created_at = session.get("created_at", 0)
+            
+            # Check if session has expired
+            if time.time() - created_at > SESSION_EXPIRY_SECONDS:
+                # Session expired, remove it
+                del active_sessions[token]
+                logger.info(f"[SESSION_EXPIRED] user_id={session.get('user_id')} email={session.get('email')}")
+                return None
+            
+            # Session is valid
+            return {
+                "user_id": session["user_id"],
+                "email": session["email"],
+                "is_admin": session.get("is_admin", False)
+            }
+        
+        # Fallback: parse token (for backward compatibility)
         data = base64.b64decode(token.encode()).decode()
         parts = data.split("|")
-        if len(parts) >= 2:
-            payload = {"user_id": int(parts[0]), "email": parts[1]}
+        if len(parts) >= 3:
+            user_id = int(parts[0])
+            email = parts[1]
+            timestamp = int(parts[2])
+            
+            # Check expiry
+            if time.time() - timestamp > SESSION_EXPIRY_SECONDS:
+                logger.info(f"[SESSION_EXPIRED] user_id={user_id} email={email}")
+                return None
+            
+            payload = {"user_id": user_id, "email": email}
             if len(parts) >= 5:
                 payload["is_admin"] = parts[4] == "1"
             else:
                 payload["is_admin"] = False
             return payload
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[SESSION_PARSE_ERROR] {e}")
     return None
 
 
@@ -1073,11 +1376,28 @@ def _find_vocab_id_by_word(word_text: str) -> str:
 # ==========================================
 # 로깅 설정
 # ==========================================
+Path("logs").mkdir(parents=True, exist_ok=True)
+file_handler = TimedRotatingFileHandler(
+    "logs/detailed.log",
+    when="midnight",
+    interval=1,
+    backupCount=30,
+    encoding="utf-8"
+)
+file_handler.suffix = "%Y-%m-%d"
+def _log_namer(default_name: str) -> str:
+    base = os.path.basename(default_name)
+    prefix = "detailed.log."
+    if base.startswith(prefix):
+        date_part = base[len(prefix):]
+        return os.path.join(os.path.dirname(default_name), f"{date_part}-detailed.log")
+    return default_name
+file_handler.namer = _log_namer
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/detailed.log'),
+        file_handler,
         logging.StreamHandler()
     ]
 )
@@ -1149,12 +1469,32 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             try:
                 body = await request.body()
                 if body:
+                    content_type = request.headers.get("content-type", "").lower()
+                    is_binary = (
+                        "multipart/form-data" in content_type
+                        or "application/octet-stream" in content_type
+                        or content_type.startswith("audio/")
+                        or content_type.startswith("video/")
+                        or b"\x00" in body[:200]
+                    )
+                    if is_binary:
+                        logger.info(
+                            "[BODY] <omitted binary payload; content-type=%s; size=%d>",
+                            content_type or "unknown",
+                            len(body),
+                        )
+                        body = b""
                     # JSON 형식이면 파싱, 아니면 문자열로
                     try:
                         body_json = json.loads(body)
-                        logger.info(f"[BODY] {json.dumps(body_json, ensure_ascii=False)[:500]}")
+                        logger.info(
+                            f"[BODY] {json.dumps(body_json, ensure_ascii=False)[:500]}"
+                        )
                     except:
-                        logger.info(f"[BODY] {body.decode('utf-8', errors='ignore')[:500]}")
+                        if body:
+                            logger.info(
+                                f"[BODY] {body.decode('utf-8', errors='ignore')[:500]}"
+                            )
             except Exception as e:
                 logger.debug(f"[BODY_ERROR] {e}")
         
@@ -1185,6 +1525,75 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+app.state.templates = templates
+learning_service = LearningProgressService()
+app.state.learning_service = learning_service
+
+from backend.routes.sentence_learning import router as sentence_learning_router
+app.include_router(sentence_learning_router)
+
+from backend.routes.learning_progress import router as learning_progress_router
+app.include_router(learning_progress_router)
+
+from backend.routes.tts import router as tts_router
+app.include_router(tts_router)
+
+from backend.routes.speechpro import router as speechpro_router
+app.include_router(speechpro_router)
+
+# App state hooks for routers (avoid importing from main.py)
+app.state.require_authenticated_user = _require_authenticated_user
+app.state.normalize_role = _normalize_role
+app.state.role_instructor = ROLE_INSTRUCTOR
+app.state.role_system_admin = ROLE_SYSTEM_ADMIN
+app.state.db_path = DB_PATH
+app.state.get_word_score_history = _get_word_score_history
+app.state.get_sentence_score_history = _get_sentence_score_history
+app.state.find_vocab_id_by_word = _find_vocab_id_by_word
+
+# TTS hooks/config for routers
+app.state.logger = logger
+app.state.tts_backend = TTS_BACKEND
+app.state.openai_client = client
+app.state.openai_api_key = OPENAI_API_KEY
+app.state.openai_tts_model = OPENAI_TTS_MODEL
+app.state.openai_tts_voice = OPENAI_TTS_VOICE
+app.state.openai_tts_format = OPENAI_TTS_FORMAT
+app.state.gemini_tts_model = GEMINI_TTS_MODEL
+app.state.gemini_tts_mime = GEMINI_TTS_MIME
+app.state.get_mztts_server_info = get_mztts_server_info
+app.state.call_mztts_api = _call_mztts_api
+app.state.call_gemini_tts_api = _call_gemini_tts_api
+app.state.tts_cache_key = _tts_cache_key
+app.state.get_tts_cache = _get_tts_cache
+app.state.set_tts_cache = _set_tts_cache
+app.state.amplify_pcm16 = _amplify_pcm16
+app.state.pcm16_to_wav = _pcm16_to_wav
+
+# SpeechPro hooks/config for routers
+app.state.convert_audio_bytes_to_wav16 = _convert_audio_bytes_to_wav16
+app.state.load_speechpro_precomputed_sentences = (
+    lambda: globals()["load_speechpro_precomputed_sentences"]()
+)
+app.state.find_precomputed_sentence = lambda text: globals()[
+    "find_precomputed_sentence"
+](text)
+app.state.generate_pronunciation_feedback = lambda text, score_result: globals()[
+    "_generate_pronunciation_feedback"
+](text, score_result)
+app.state.model_backend = MODEL_BACKEND
+app.state.ollama_model = OLLAMA_MODEL
+app.state.gemini_model = GEMINI_MODEL
+app.state.openai_model = OPENAI_MODEL
+app.state.stt_backend = STT_BACKEND
+
+# 특정 호스트(moj.ngrok.app) 루트 접근 시 speechpro-practice로 리다이렉트
+@app.middleware("http")
+async def redirect_speechpro_practice(request: Request, call_next):
+    host = request.headers.get("host", "")
+    if host.startswith("moj.ngrok.app") and request.url.path in ("", "/"):
+        return RedirectResponse(url="/speechpro-practice")
+    return await call_next(request)
 
 # CORS 설정
 # 개발 환경: localhost 허용
@@ -1231,6 +1640,42 @@ def startup_event():
         logger.info("사용자 데이터베이스 초기화 완료")
     except Exception as e:
         logger.error(f"User DB init failed: {e}")
+    if TTS_PREWARM_ON_STARTUP:
+        threading.Thread(target=_prewarm_tts_cache_for_sentences, daemon=True).start()
+    
+    # Start session cleanup background task
+    threading.Thread(target=_cleanup_expired_sessions, daemon=True).start()
+    logger.info(f"세션 관리 시작 (만료 시간: {SESSION_EXPIRY_SECONDS // 3600}시간)")
+
+
+def _cleanup_expired_sessions():
+    """Background task to cleanup expired sessions every hour."""
+    import time
+    
+    while True:
+        try:
+            time.sleep(3600)  # Run every hour
+            current_time = time.time()
+            expired_tokens = [
+                token for token, session in active_sessions.items()
+                if current_time - session.get("created_at", 0) > SESSION_EXPIRY_SECONDS
+            ]
+            
+            for token in expired_tokens:
+                session = active_sessions.pop(token, None)
+                if session:
+                    logger.info(
+                        f"[SESSION_CLEANUP] Removed expired session for user_id={session.get('user_id')} "
+                        f"email={session.get('email')}"
+                    )
+            
+            if expired_tokens:
+                logger.info(f"[SESSION_CLEANUP] Removed {len(expired_tokens)} expired sessions")
+            else:
+                logger.debug(f"[SESSION_CLEANUP] No expired sessions found. Active: {len(active_sessions)}")
+                
+        except Exception as e:
+            logger.error(f"[SESSION_CLEANUP] Error: {e}", exc_info=True)
 
 # ==========================================
 # 학습 데이터 로드 헬퍼 함수
@@ -1364,27 +1809,38 @@ FluencyPro 분석:
             if high_words:
                 word_summary += "\n잘한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in high_words[:3]])
 
-        prompt = f"""당신은 한국어 발음 교육 전문가입니다. 다음 발음 평가 결과를 종합적으로 분석하고 학습자에게 정확하고 도움이 되는 피드백을 제공해주세요.
+        prompt = f"""당신은 한국어 발음 교육 전문가이자 친절한 코치입니다. 아래 발음 평가 결과를 바탕으로 학습자에게 **보기 좋고 읽기 쉬운 텍스트(마크다운 금지)** 피드백을 작성해주세요.
 
-**평가 대상 문장:** {text}
+[평가 대상 문장]
+{text}
 
-**종합 평가 결과:**
+[종합 평가 결과]
 - 전체 점수: {overall_score}점{speechpro_info}
 {fluency_info}
 {word_summary}
 
-**피드백 작성 가이드:**
-1. 점수 평가 (현재 수준 인정, 구체적 칭찬 포함) - 1-2문장
-2. SpeechPro 데이터 기반 정확도 분석 - 2-3문장  
-3. FluencyPro 데이터 기반 유창성 분석 - 1-2문장
-4. 구체적인 발음 개선 포인트 (어려운 단어 중심) - 2-3가지
-5. 효과적인 연습 방법 제안 - 1-2가지
+[출력 형식(그대로 지켜서 출력)]
+📌 한줄 요약: (학습자의 현재 상태를 1줄로)
 
-**작성 규칙:**
-- 친절하고 격려적인 톤 유지
-- 300-500자 이내로 작성
-- JSON이나 특수 포맷 없이 일반 텍스트만 사용
-- 마크다운 형식 금지"""
+✅ 잘한 점
+• (2~3개, 구체적으로)
+
+🛠️ 개선 포인트
+• (2~3개, 어려웠던 단어/음절 중심으로)
+
+🏋️ 연습 방법
+• (1~3개, 바로 따라할 수 있게)
+
+📊 점수 요약
+전체: {overall_score}/100
+(가능하면 정확 발음/완성도/유창성 등 핵심 수치 2~4개만 추가)
+
+[작성 규칙]
+- 따뜻하게 격려하되 과장하지 않기 😊
+- 이모지는 섹션 제목/강조에만 적당히 (남발 금지)
+- 마크다운 문법 금지: #, ##, **, -, 1., > 등 사용하지 말 것
+- 코드블록, JSON, 표(table) 금지
+- 너무 길지 않게(대략 8~14줄)"""
 
         if MODEL_BACKEND == "ollama":
             payload = {
@@ -1429,8 +1885,7 @@ FluencyPro 분석:
         else:
             return None
         
-        # Remove any markdown/json artifacts
-        feedback = re.sub(r'```.*?```', '', feedback, flags=re.DOTALL)
+        # Remove obvious JSON artifacts (keep markdown formatting as requested)
         feedback = re.sub(r'\{.*?\}', '', feedback, flags=re.DOTALL)
         feedback = feedback.strip()
         
@@ -1606,16 +2061,10 @@ def signup_page(request: Request):
     """회원가입 페이지"""
     return templates.TemplateResponse("signup.html", {"request": request})
 
-@app.get("/speechpro-practice")
-def speechpro_practice_page(request: Request):
-    """SpeechPro 발음 정확도 평가"""
-    return templates.TemplateResponse("speechpro-practice.html", {"request": request})
-
-
 @app.get("/stt-api-test")
 def stt_api_test_page(request: Request):
-    """STT API 테스트 페이지"""
-    return templates.TemplateResponse("stt-api-test.html", {"request": request})
+    """STT API 테스트 페이지 (disabled)"""
+    return JSONResponse(status_code=404, content={"error": "Not found"})
 
 @app.get("/api-test")
 def api_test_page(request: Request):
@@ -1936,10 +2385,21 @@ async def attendance_month(request: Request, year: int, month: int):
 
 @app.post("/api/logout")
 async def logout(request: Request):
-    """로그아웃 (클라이언트에서 토큰 삭제)."""
-    # In a real system, invalidate token in backend
-    # For now, just return success
-    return {"success": True}
+    """사용자 로그아웃."""
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    if not token:
+        token = request.cookies.get("session_token", "")
+    
+    if token:
+        session = _parse_session_token(token)
+        if session:
+            logger.info(f"[LOGOUT] user_id={session['user_id']} email={session['email']}")
+        
+        # Remove from active_sessions
+        if token in active_sessions:
+            del active_sessions[token]
+    
+    return {"success": True, "message": "로그아웃되었습니다."}
 
 
 # ------------------------------------------
@@ -3222,6 +3682,28 @@ async def gemini_image(prompt: str = Form(...), save_locally: bool = Form(True))
     return JSONResponse(content=result)
 
 
+@app.get("/api/word-images/cache")
+async def get_word_image_cache(key: str = None):
+    if not key:
+        return JSONResponse(status_code=400, content={"error": "key is required"})
+    cached = _get_cached_word_image(key)
+    return JSONResponse(content={"cached": bool(cached), "entry": cached or {}})
+
+
+@app.post("/api/word-images/cache")
+async def set_word_image_cache(request: Request):
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "invalid json"})
+    key = (data.get("key") or "").strip()
+    url = (data.get("url") or "").strip()
+    if not key or not url:
+        return JSONResponse(status_code=400, content={"error": "key and url are required"})
+    _set_cached_word_image(key, url)
+    return JSONResponse(content={"success": True})
+
+
 @app.get("/api/ollama/models")
 def get_ollama_models():
     """Proxy endpoint to list Ollama models available on the local server."""
@@ -3936,83 +4418,10 @@ async def get_pronunciation_word(word_id: str):
 
 
 # ==========================================
-# SpeechPro Evaluation Sentences
+# TTS API Endpoints (moved to backend/routes/tts.py)
 # ==========================================
-
-@app.get("/api/speechpro/sentences")
-async def get_speechpro_sentences():
-    """Get all SpeechPro evaluation sentences"""
-    try:
-        precomputed = load_speechpro_precomputed_sentences()
-        return JSONResponse(content=precomputed)
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
-
-
-@app.get("/api/speechpro/sentences/{sentence_id}")
-async def get_speechpro_sentence(sentence_id: int):
-    """Get a specific SpeechPro evaluation sentence by ID"""
-    try:
-        sentences = load_speechpro_precomputed_sentences()
-        sentence = next((s for s in sentences if s.get("id") == sentence_id), None)
-        if sentence:
-            return JSONResponse(content=sentence)
-        return JSONResponse(status_code=404, content={"error": "Sentence not found"})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentence", "details": str(e)})
-
-
-@app.get("/api/speechpro/sentences/level/{level}")
-async def get_speechpro_sentences_by_level(level: str):
-    """Get SpeechPro evaluation sentences by level (A1, A2, B1, etc.)"""
-    try:
-        sentences = load_speechpro_precomputed_sentences()
-        filtered = [s for s in sentences if s.get("level") == level.upper()]
-        return JSONResponse(content=filtered)
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": "Failed to load speechpro sentences", "details": str(e)})
-
-
-# ==========================================
-# TTS API Endpoints
-# ==========================================
-
-@app.get("/api/tts/info")
-async def get_tts_info():
-    """Get TTS server information"""
-    if TTS_BACKEND == "openai":
-        return JSONResponse(
-            content={
-                "backend": "openai",
-                "model": OPENAI_TTS_MODEL,
-                "voice": OPENAI_TTS_VOICE,
-                "format": OPENAI_TTS_FORMAT,
-            }
-        )
-    try:
-        info = get_mztts_server_info()
-        info["backend"] = "mztts"
-        return JSONResponse(content=info)
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Failed to get TTS server info", "details": str(e)}
-        )
-
 
 from pydantic import BaseModel
-
-class TTSRequest(BaseModel):
-    text: str
-    speaker: int = 0
-    tempo: float = 1.0
-    pitch: float = 1.0
-    gain: float = 1.0
-
-
-class SpeechProFeedbackRequest(BaseModel):
-    text: str
-    score: dict
 
 
 class STTProxyRequest(BaseModel):
@@ -4020,246 +4429,8 @@ class STTProxyRequest(BaseModel):
     endpoint: str
     payload: dict
 
-@app.post("/api/tts/generate")
-async def generate_tts(request: TTSRequest):
-    """
-    Generate Korean speech using selected TTS backend.
-
-    Parameters:
-    - text: Korean text to synthesize
-    - speaker: Speaker ID (0: Hanna - female voice, default)
-    - tempo: Speed (0.1-2.0, default 1.0)
-    - pitch: Pitch (0.1-2.0, default 1.0)
-    - gain: Volume (0.1-2.0, default 1.0)
-
-    Returns WAV audio file
-    """
-    try:
-        from fastapi.responses import Response
-        import hashlib
-
-        if TTS_BACKEND == "openai":
-            if client is None or not OPENAI_API_KEY:
-                raise RuntimeError("OpenAI TTS not configured")
-            response = client.audio.speech.create(
-                model=OPENAI_TTS_MODEL,
-                voice=OPENAI_TTS_VOICE,
-                input=request.text,
-                response_format=OPENAI_TTS_FORMAT,
-            )
-            audio_bytes = getattr(response, "content", None)
-            if audio_bytes is None:
-                audio_bytes = response.read() if hasattr(response, "read") else None
-            if not audio_bytes:
-                raise RuntimeError("No audio data received from OpenAI TTS")
-            media_type = (
-                "audio/wav"
-                if OPENAI_TTS_FORMAT == "wav"
-                else "audio/mpeg"
-                if OPENAI_TTS_FORMAT == "mp3"
-                else "application/octet-stream"
-            )
-            filename_hash = hashlib.md5(request.text.encode('utf-8')).hexdigest()[:8]
-            return Response(
-                content=audio_bytes,
-                media_type=media_type,
-                headers={
-                    "Content-Disposition": f'attachment; filename=\"tts_{filename_hash}.{OPENAI_TTS_FORMAT}\"'
-                },
-            )
-
-        # Call MzTTS API
-        result = _call_mztts_api(
-            text=request.text,
-            output_type="file",
-            speaker=request.speaker,
-            tempo=request.tempo,
-            pitch=request.pitch,
-            gain=request.gain
-        )
-
-        # Return WAV file
-        filename_hash = hashlib.md5(request.text.encode('utf-8')).hexdigest()[:8]
-        return Response(
-            content=result["audio_data"],
-            media_type=result["content_type"],
-            headers={
-                "Content-Disposition": f'attachment; filename=\"tts_{filename_hash}.wav\"'
-            }
-        )
-
-    except ValueError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Invalid parameters", "details": str(e)}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "TTS generation failed", "details": str(e)}
-        )
-
-
-# ==========================================
-# SpeechPro API 엔드포인트
-# ==========================================
-
-@app.post("/api/speechpro/gtp")
-async def speechpro_gtp(data: dict = None):
-    """
-    GTP (Grapheme-to-Phoneme) API
-    한국어 텍스트를 음소로 변환합니다.
-    
-    Request: {"text": "안녕하세요"}
-    Response: {"id": "...", "text": "...", "syll_ltrs": "...", "syll_phns": "..."}
-    """
-    try:
-        if data is None:
-            data = {}
-        
-        text = data.get("text", "").strip()
-        if not text:
-            return JSONResponse(
-                status_code=400,
-                content={"error": "text is required"}
-            )
-        
-        result = call_speechpro_gtp(text)
-        return JSONResponse(content=result.to_dict())
-    
-    except ValueError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"error": str(e)}
-        )
-    except RuntimeError as e:
-        return JSONResponse(
-            status_code=503,
-            content={"error": str(e)}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"GTP processing failed: {str(e)}"}
-        )
-
-
-@app.post("/api/speechpro/model")
-async def speechpro_model(data: dict = None):
-    """
-    Model API - FST 발음 모델 생성
-    GTP 결과를 바탕으로 발음 평가 모델을 생성합니다.
-    
-    Request: {
-        "text": "안녕하세요",
-        "syll_ltrs": "안_녕_하_세_요",
-        "syll_phns": "..."
-    }
-    Response: {"id": "...", "text": "...", "fst": "..."}
-    """
-    try:
-        if data is None:
-            data = {}
-        
-        text = data.get("text", "").strip()
-        syll_ltrs = data.get("syll_ltrs", "").strip()
-        syll_phns = data.get("syll_phns", "").strip()
-        
-        if not all([text, syll_ltrs, syll_phns]):
-            return JSONResponse(
-                status_code=400,
-                content={"error": "text, syll_ltrs, syll_phns are required"}
-            )
-        
-        result = call_speechpro_model(text, syll_ltrs, syll_phns)
-        return JSONResponse(content=result.to_dict())
-    
-    except ValueError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"error": str(e)}
-        )
-    except RuntimeError as e:
-        return JSONResponse(
-            status_code=503,
-            content={"error": str(e)}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"Model processing failed: {str(e)}"}
-        )
-
-
-@app.post("/api/speechpro/score")
-async def speechpro_score(
-    text: str = Form(...),
-    syll_ltrs: str = Form(...),
-    syll_phns: str = Form(...),
-    fst: str = Form(...),
-    audio: UploadFile = File(...)
-):
-    """
-    Score JSON API - 발음 평가
-    사용자의 음성 데이터를 전송하여 발음 정확도를 평가합니다.
-    
-    Form Data:
-        - text: 평가 대상 텍스트
-        - syll_ltrs: 음절 글자
-        - syll_phns: 음절 음소
-        - fst: FST 모델 데이터
-        - audio: WAV 오디오 파일
-    
-    Response: {"score": 85.5, "details": {...}}
-    """
-    try:
-        # 오디오 파일 읽기
-        audio_content_raw = await audio.read()
-        
-        if not audio_content_raw:
-            return JSONResponse(
-                status_code=400,
-                content={"error": "audio file is required"}
-            )
-
-        try:
-            audio_content = _convert_audio_bytes_to_wav16(audio_content_raw)
-        except Exception as conv_err:
-            return JSONResponse(
-                status_code=400,
-                content={"error": f"audio convert failed: {conv_err}"}
-            )
-        
-        # 필수 파라미터 검증
-        text = text.strip()
-        if not all([text, syll_ltrs, syll_phns, fst]):
-            return JSONResponse(
-                status_code=400,
-                content={"error": "text, syll_ltrs, syll_phns, fst are required"}
-            )
-        
-        result = call_speechpro_score(text, syll_ltrs, syll_phns, fst, audio_content)
-        return JSONResponse(content=result.to_dict())
-    
-    except ValueError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"error": str(e)}
-        )
-    except RuntimeError as e:
-        return JSONResponse(
-            status_code=503,
-            content={"error": str(e)}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"Score processing failed: {str(e)}"}
-        )
-
-
-@app.post("/api/speechpro/evaluate")
-async def speechpro_evaluate(
+# (moved) /api/speechpro/evaluate -> backend/routes/speechpro.py
+async def _speechpro_evaluate_deprecated(
     text: str = Form(...),
     audio: UploadFile = File(...),
     syll_ltrs: str = Form(None),
@@ -4322,9 +4493,10 @@ async def speechpro_evaluate(
 
         recognized_text = None
         if STT_BACKEND == "openai" and client:
+            logger.info("[STT] backend=openai whisper-1 start")
             tmp_path = None
             try:
-                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False, dir=str(APP_TMP_DIR)) as tmp:
                     tmp.write(audio_content_raw)
                     tmp_path = tmp.name
                 with open(tmp_path, "rb") as f:
@@ -4339,14 +4511,17 @@ async def speechpro_evaluate(
                     if isinstance(transcript, dict)
                     else None
                 )
+                logger.info("[STT] backend=openai success=%s", bool(recognized_text))
             except Exception as stt_err:
-                print(f"[Evaluate] STT failed: {stt_err}")
+                logger.warning("[STT] backend=openai failed: %s", stt_err)
             finally:
                 if tmp_path and os.path.exists(tmp_path):
                     try:
                         os.remove(tmp_path)
                     except Exception:
                         pass
+        else:
+            logger.info("[STT] skipped backend=%s client=%s", STT_BACKEND, bool(client))
         
         # 1) 요청에 사전 계산 정보가 함께 왔다면 그대로 사용
         pre_syll_ltrs = syll_ltrs.strip() if syll_ltrs else None
@@ -4375,7 +4550,11 @@ async def speechpro_evaluate(
 
         if preset and preset.get("fst"):
             print(f"[Evaluate] Using preset for scoring")
-            request_id = f"preset_{preset.get('id', 'score')}"
+            # SpeechPro의 scorejson은 `id`를 키로 내부 상태를 캐시/공유하는 구현이 있을 수 있어,
+            # 고정된 id(preset_score 등)를 반복 사용하면 간헐적으로 5xx가 발생할 수 있다.
+            import uuid
+            preset_id = str(preset.get("id") or "preset").strip() or "preset"
+            request_id = f"preset_{preset_id}_{uuid.uuid4().hex[:8]}"
 
             gtp_dict = {
                 "id": f"gtp_{request_id}",
@@ -4481,34 +4660,6 @@ async def speechpro_evaluate(
         )
 
 
-@app.post("/api/speechpro/feedback")
-async def speechpro_feedback(request: SpeechProFeedbackRequest):
-    """Generate AI feedback based on SpeechPro score result."""
-    text = (request.text or "").strip()
-    score_dict = request.score or {}
-
-    if not text:
-        return JSONResponse(status_code=400, content={"error": "text is required"})
-    if not score_dict:
-        return JSONResponse(status_code=400, content={"error": "score is required"})
-
-    try:
-        score_result = ScoreResult(
-            score=float(score_dict.get("score", 0) or 0),
-            details=score_dict.get("details", {}),
-            error_code=int(score_dict.get("error_code", 0) or 0),
-        )
-        ai_feedback = None
-        if MODEL_BACKEND in ("ollama", "openai", "gemini"):
-            ai_feedback = await _generate_pronunciation_feedback(text, score_result)
-        return JSONResponse(content={"success": True, "ai_feedback": ai_feedback})
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"AI feedback failed: {str(e)}", "success": False},
-        )
-
-
 @app.post("/api/stt/proxy")
 async def stt_proxy(request: STTProxyRequest):
     """Proxy STT JSON requests to avoid browser CORS."""
@@ -4587,8 +4738,7 @@ def pricing_page(request: Request):
 @app.get("/sentence-evaluation")
 def sentence_evaluation_page(request: Request):
     """문장 학습 페이지"""
-    return templates.TemplateResponse("sentence-learning.html", {"request": request})
-
+    return templates.TemplateResponse("sentence-evaluation.html", {"request": request})
 
 @app.post("/api/chatbot")
 async def chatbot_api(request: Request):
@@ -4768,40 +4918,163 @@ async def chatbot_api(request: Request):
         )
 
 
-@app.get("/api/speechpro/config")
-async def speechpro_config():
-    """SpeechPro API 설정 조회"""
-    return JSONResponse(content={
-        "url": get_speechpro_url(),
-        "status": "configured"
-    })
+@app.post("/api/stt/whisper")
+async def stt_whisper(
+    file: UploadFile = File(...),
+    language: str = Form("ko"),
+):
+    """OpenAI Whisper STT (direct)."""
+    if not OPENAI_API_KEY or client is None:
+        return JSONResponse(status_code=501, content={"error": "OpenAI STT is not configured"})
 
+    allowed_types = {
+        "audio/wav",
+        "audio/x-wav",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/webm",
+        "audio/ogg",
+        "audio/mp4",
+        "audio/x-m4a",
+    }
 
-@app.post("/api/speechpro/config")
-async def set_speechpro_config(data: dict = None):
-    """SpeechPro API URL 설정"""
+    if file.content_type and file.content_type not in allowed_types:
+        return JSONResponse(status_code=415, content={"error": "Unsupported media type"})
+
+    tmp_path = None
+    original_name = file.filename or ""
+    _, ext = os.path.splitext(original_name)
+    ext = ext.lower()
+    if not ext:
+        if file.content_type == "audio/webm":
+            ext = ".webm"
+        elif file.content_type in ("audio/mpeg", "audio/mp3"):
+            ext = ".mp3"
+        elif file.content_type in ("audio/ogg", "audio/oga"):
+            ext = ".ogg"
+        elif file.content_type in ("audio/mp4", "audio/x-m4a"):
+            ext = ".m4a"
+        else:
+            ext = ".wav"
     try:
-        if data is None:
-            data = {}
-        
-        url = data.get("url", "").strip()
-        if not url:
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=str(APP_TMP_DIR)) as tmp:
+            tmp_path = tmp.name
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                tmp.write(chunk)
+
+        file_size = os.path.getsize(tmp_path)
+        if file_size < 512:
             return JSONResponse(
                 status_code=400,
-                content={"error": "url is required"}
+                content={
+                    "error": "audio too short",
+                    "details": f"file size {file_size} bytes",
+                },
             )
-        
-        set_speechpro_url(url)
-        return JSONResponse(content={
-            "url": get_speechpro_url(),
-            "status": "updated"
-        })
-    
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
+
+        with open(tmp_path, "rb") as f:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=f,
+                language=language or "ko",
+            )
+
+        text = (
+            getattr(transcript, "text", None)
+            or transcript.get("text")
+            if isinstance(transcript, dict)
+            else None
         )
+        if not text:
+            return JSONResponse(
+                content={
+                    "text": "",
+                    "warning": "no speech detected",
+                    "info": {
+                        "filename": original_name,
+                        "content_type": file.content_type,
+                        "size_bytes": file_size,
+                    },
+                }
+            )
+        return JSONResponse(content={"text": text})
+    except Exception as err:
+        logger.warning("[STT] whisper failed: %s", err)
+        return JSONResponse(status_code=500, content={"error": "whisper stt failed", "details": str(err)})
+    finally:
+        try:
+            await file.close()
+        except Exception:
+            pass
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+
+
+@app.post("/api/stt/vosk")
+async def stt_vosk(file: UploadFile = File(...)):
+    """Vosk STT (local)."""
+    local_stt = os.getenv("LOCAL_STT", "").lower()
+    if local_stt != "vosk":
+        return JSONResponse(status_code=501, content={"error": "LOCAL_STT=vosk is required"})
+
+    vosk_model_path = os.getenv("VOSK_MODEL_PATH")
+    if not vosk_model_path:
+        return JSONResponse(status_code=501, content={"error": "VOSK_MODEL_PATH not configured"})
+
+    allowed_types = {
+        "audio/wav",
+        "audio/x-wav",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/webm",
+        "audio/ogg",
+        "audio/mp4",
+        "audio/x-m4a",
+    }
+
+    if file.content_type and file.content_type not in allowed_types:
+        return JSONResponse(status_code=415, content={"error": "Unsupported media type"})
+
+    tmp_input = None
+    tmp_wav = None
+    original_name = file.filename or ""
+    _, ext = os.path.splitext(original_name)
+    ext = ext.lower() or ".wav"
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=str(APP_TMP_DIR)) as tmp:
+            tmp_input = tmp.name
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                tmp.write(chunk)
+
+        fd, tmp_wav = tempfile.mkstemp(suffix=".wav", dir=str(APP_TMP_DIR))
+        os.close(fd)
+        _ensure_wav_16k_mono(tmp_input, tmp_wav)
+        text = _transcribe_with_vosk(tmp_wav, vosk_model_path)
+        return JSONResponse(content={"text": text or ""})
+    except Exception as err:
+        logger.warning("[STT] vosk failed: %s", err)
+        return JSONResponse(status_code=500, content={"error": "vosk stt failed", "details": str(err)})
+    finally:
+        try:
+            await file.close()
+        except Exception:
+            pass
+        for path in (tmp_input, tmp_wav):
+            if path and os.path.exists(path):
+                try:
+                    os.remove(path)
+                except Exception:
+                    pass
 
 
 # ============================================================================
@@ -5055,237 +5328,6 @@ async def get_fluency_metrics(user_id: str):
         )
 
 
-# ============================================================================
-# 학습 진도 및 캐릭터 Pop-Up API
-# ============================================================================
-
-learning_service = LearningProgressService()
-
-@app.post("/api/learning/pronunciation-completed")
-async def record_pronunciation_completed(request: Request):
-    """발음 연습 완료 기록"""
-    try:
-        data = await request.json()
-        user_id = data.get("user_id", "anonymous")
-        score = int(data.get("score", 0))
-        
-        result = learning_service.update_pronunciation_practice(user_id, score)
-        
-        # Pop-Up 트리거 확인
-        popup_trigger = learning_service.check_popup_trigger(user_id)
-        
-        return JSONResponse({
-            "success": True,
-            "updated": result,
-            "popup": popup_trigger
-        })
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-@app.post("/api/learning/popup-shown")
-async def record_popup_shown(request: Request):
-    """Pop-Up 표시 기록 (인증 필요)"""
-    try:
-        # 사용자 인증 확인
-        user = await get_current_user(request)
-        if not user:
-            return JSONResponse(
-                status_code=401,
-                content={"error": "Unauthorized"}
-            )
-
-        data = await request.json()
-        user_id = user['id']
-        popup_type = data.get("popup_type")
-        character = data.get("character")
-        message = data.get("message")
-        trigger_reason = data.get("trigger_reason", "user_activity")
-
-        learning_service.record_popup_shown(
-            user_id, popup_type, character, message, trigger_reason
-        )
-
-        return JSONResponse({"success": True})
-    except Exception as e:
-        print(f"Error recording popup: {e}")
-        import traceback
-        traceback.print_exc()
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-@app.get("/api/learning/user-stats/{user_id}")
-async def get_user_learning_stats(user_id: str):
-    """사용자 학습 통계 조회"""
-    try:
-        stats = learning_service.get_user_stats(user_id)
-        return JSONResponse(stats)
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-@app.get("/api/learning/today-progress/{user_id}")
-async def get_today_progress(user_id: str):
-    """오늘의 학습 진도 조회"""
-    try:
-        progress = learning_service.get_or_create_today_progress(user_id)
-        return JSONResponse(progress)
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-@app.post("/api/learning/check-popup")
-async def check_popup_trigger(request: Request):
-    """Pop-Up 트리거 확인 (인증 필요)"""
-    try:
-        # 사용자 인증 확인
-        user = _require_authenticated_user(request)
-        role = _normalize_role(user.get("role"), user.get("is_admin"))
-        if role in (ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN):
-            return JSONResponse({"popup": None})
-
-        user_id = user['id']
-        popup = learning_service.check_popup_trigger(user_id)
-
-        if popup and popup.get('should_show'):
-            return JSONResponse({
-                "popup": popup
-            })
-        else:
-            return JSONResponse({
-                "popup": None
-            })
-    except Exception as e:
-        print(f"Error checking popup: {e}")
-        import traceback
-        traceback.print_exc()
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
-        )
-
-
-@app.get("/api/learning/word-scores")
-async def get_word_scores(request: Request, limit: int = 3):
-    """Get per-word score history for the current user."""
-    user = _require_authenticated_user(request)
-    limit = max(1, min(limit, 10))
-    history = _get_word_score_history(user["id"], limit=limit)
-    return JSONResponse({"scores": history})
-
-
-@app.get("/api/learning/word-scores/recent")
-async def get_recent_word_score_target(request: Request):
-    """Return the most recently scored word_id for the current user."""
-    user = _require_authenticated_user(request)
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT word_id
-            FROM word_score_history
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-            LIMIT 1
-            """,
-            (user["id"],),
-        )
-        row = cursor.fetchone()
-        return JSONResponse({"word_id": row[0] if row else None})
-    finally:
-        conn.close()
-
-
-@app.post("/api/learning/word-scores")
-async def add_word_score(request: Request):
-    """Add a word score entry for the current user."""
-    user = _require_authenticated_user(request)
-    payload = await request.json()
-    word_id = (payload.get("word_id") or "").strip()
-    word_text = (payload.get("word_text") or "").strip()
-    if not word_id and word_text:
-        word_id = _find_vocab_id_by_word(word_text)
-    score = payload.get("score")
-    if not word_id:
-        return JSONResponse({"success": False, "skipped": True})
-    try:
-        score = int(score)
-    except Exception:
-        raise HTTPException(status_code=400, detail="score must be an integer")
-    if score < 0 or score > 100:
-        raise HTTPException(status_code=400, detail="score must be 0-100")
-
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO word_score_history (user_id, word_id, score)
-            VALUES (?, ?, ?)
-            """,
-            (user["id"], word_id, score),
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    return JSONResponse({"success": True})
-
-
-@app.get("/api/learning/sentence-scores")
-async def get_sentence_scores(request: Request, limit: int = 3):
-    """Get per-sentence score history for the current user."""
-    user = _require_authenticated_user(request)
-    limit = max(1, min(limit, 10))
-    history = _get_sentence_score_history(user["id"], limit=limit)
-    return JSONResponse({"scores": history})
-
-
-@app.post("/api/learning/sentence-scores")
-async def add_sentence_score(request: Request):
-    """Add a sentence score entry for the current user."""
-    user = _require_authenticated_user(request)
-    payload = await request.json()
-    sentence_id = payload.get("sentence_id")
-    score = payload.get("score")
-    if sentence_id is None:
-        raise HTTPException(status_code=400, detail="sentence_id is required")
-    try:
-        sentence_id = int(sentence_id)
-    except Exception:
-        raise HTTPException(status_code=400, detail="sentence_id must be an integer")
-    try:
-        score = int(score)
-    except Exception:
-        raise HTTPException(status_code=400, detail="score must be an integer")
-    if score < 0 or score > 100:
-        raise HTTPException(status_code=400, detail="score must be 0-100")
-
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO sentence_score_history (user_id, sentence_id, score)
-            VALUES (?, ?, ?)
-            """,
-            (user["id"], sentence_id, score),
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    return JSONResponse({"success": True})
-
 # ====================
 # Media Generation APIs
 # ====================
@@ -5390,3 +5432,19 @@ if __name__ == "__main__":
         log_level="info",
         access_log=True
     )
+# Use an app-writable temp directory (some deployments mount /tmp read-only).
+APP_TMP_DIR = Path(os.getenv("ONUI_TMP_DIR", "data/tmp"))
+try:
+    APP_TMP_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    # If creation fails, fallback to current working directory.
+    APP_TMP_DIR = Path(".")
+
+# Make Python's tempfile (and many libs) prefer the app temp dir over /tmp.
+try:
+    os.environ["TMPDIR"] = str(APP_TMP_DIR)
+    os.environ["TEMP"] = str(APP_TMP_DIR)
+    os.environ["TMP"] = str(APP_TMP_DIR)
+    tempfile.tempdir = str(APP_TMP_DIR)
+except Exception:
+    pass

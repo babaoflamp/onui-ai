@@ -409,8 +409,8 @@ onui-ai/
 ### 🎵 TTS (Text-to-Speech) API
 | 메서드 | 라우트 | 설명 |
 |--------|--------|------|
-| `GET` | `/api/tts/info` | MzTTS 서버 정보 조회 |
-| `POST` | `/api/tts/generate` | MzTTS로 음성 생성 |
+| `GET` | `/api/tts/info` | Gemini TTS 정보 조회 |
+| `POST` | `/api/tts/generate` | Gemini TTS로 음성 생성 |
 
 ### 🤖 Ollama (로컬 LLM) API
 | 메서드 | 라우트 | 설명 |

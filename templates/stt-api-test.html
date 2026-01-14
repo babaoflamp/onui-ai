@@ -2,36 +2,22 @@
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 py-10">
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">STT API 테스트</h1>
+    <h1 class="text-2xl font-bold text-gray-900">Vosk STT 테스트</h1>
     <p class="text-sm text-gray-500 mt-2">
-      STT API 인터페이스 문서에 맞춰 간단하게 요청을 보낼 수 있습니다.
+      Vosk(STT) 전용 테스트 페이지입니다.
     </p>
   </div>
 
   <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <label class="flex flex-col gap-2">
-        <span class="text-xs font-semibold text-gray-600">서버 Base URL</span>
-        <input
-          id="sttBaseUrl"
-          class="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value="http://112.220.79.218:33085"
-        />
-      </label>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <label class="flex flex-col gap-2">
         <span class="text-xs font-semibold text-gray-600">Endpoint</span>
-        <select
+        <input
           id="sttEndpoint"
-          class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white"
-        >
-          <option value="/speechpro/normalize">/speechpro/normalize</option>
-          <option value="/speechpro/arpa">/speechpro/arpa</option>
-          <option value="/speechpro/sentence">/speechpro/sentence</option>
-          <option value="/speechpro/gtp">/speechpro/gtp</option>
-          <option value="/speechpro/model">/speechpro/model</option>
-          <option value="/speechpro/score">/speechpro/score</option>
-          <option value="/speechpro/scorefile">/speechpro/scorefile (multipart)</option>
-        </select>
+          class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50"
+          value="/api/stt/vosk"
+          readonly
+        />
       </label>
       <label class="flex flex-col gap-2">
         <span class="text-xs font-semibold text-gray-600">오디오 파일</span>
@@ -53,26 +39,30 @@
             ⏹️ 녹음 중지
           </button>
         </div>
+        <div class="flex items-center gap-3 text-xs text-gray-600">
+          <div class="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div
+              id="sttLevelBar"
+              class="h-full bg-emerald-500"
+              style="width: 0%"
+            ></div>
+          </div>
+          <span id="sttLevelText">0%</span>
+          <span id="sttDurationText">0.0s</span>
+        </div>
+        <label class="flex items-center gap-2 text-xs text-gray-600">
+          <input id="sttAnalyzeOnPlay" type="checkbox" class="rounded" />
+          재생 시 평균 볼륨 측정
+        </label>
+        <span id="sttAvgLevelText" class="text-xs text-gray-500">평균 0%</span>
+        <span
+          id="sttAvgLevelLabel"
+          class="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"
+          >상태: 대기</span
+        >
         <audio id="sttRecordedAudio" class="hidden w-full" controls></audio>
       </label>
     </div>
-    <label class="flex items-center gap-2 text-xs text-gray-600">
-      <input id="sttUseProxy" type="checkbox" class="rounded" checked />
-      로컬 프록시 사용 (CORS 회피)
-    </label>
-
-    <label class="flex flex-col gap-2">
-      <span class="text-xs font-semibold text-gray-600">요청 JSON</span>
-      <textarea
-        id="sttPayload"
-        rows="10"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
-      >{
-  "id": "1000",
-  "text": "안녕하세요"
-}</textarea>
-    </label>
-
     <div class="flex items-center gap-3">
       <button
         id="sttSend"
@@ -82,64 +72,6 @@
       </button>
       <span id="sttStatus" class="text-xs text-gray-500"></span>
     </div>
-  </div>
-
-  <div class="mt-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4">
-    <h2 class="text-sm font-semibold text-gray-800">WebSocket 테스트</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <label class="flex flex-col gap-2 md:col-span-2">
-        <span class="text-xs font-semibold text-gray-600">WS URL</span>
-        <input
-          id="sttWsUrl"
-          class="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value="ws://112.220.79.218:33085/ws"
-        />
-      </label>
-      <div class="flex items-end gap-2">
-        <button
-          id="sttWsConnect"
-          class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500"
-        >
-          연결
-        </button>
-        <button
-          id="sttWsDisconnect"
-          class="px-3 py-2 rounded-lg bg-gray-100 text-gray-600 text-xs font-semibold hover:bg-gray-200"
-          disabled
-        >
-          종료
-        </button>
-      </div>
-    </div>
-    <label class="flex flex-col gap-2">
-      <span class="text-xs font-semibold text-gray-600">WS 메시지(JSON)</span>
-      <textarea
-        id="sttWsMessage"
-        rows="6"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono"
-      >{"id":"1000","text":"안녕하세요"}</textarea>
-    </label>
-    <div class="flex items-center gap-2">
-      <button
-        id="sttWsSend"
-        class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500"
-        disabled
-      >
-        메시지 전송
-      </button>
-      <button
-        id="sttWsSendAudio"
-        class="px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-semibold hover:bg-indigo-100"
-        disabled
-      >
-        오디오 전송
-      </button>
-      <span id="sttWsStatus" class="text-xs text-gray-500"></span>
-    </div>
-    <pre
-      id="sttWsLog"
-      class="text-xs text-gray-700 bg-gray-50 border border-gray-100 rounded-lg p-4 overflow-auto"
-    >-</pre>
   </div>
 
   <div class="mt-6 bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
@@ -152,9 +84,7 @@
 </div>
 
 <script>
-  const baseUrlEl = document.getElementById("sttBaseUrl");
   const endpointEl = document.getElementById("sttEndpoint");
-  const payloadEl = document.getElementById("sttPayload");
   const responseEl = document.getElementById("sttResponse");
   const sendBtn = document.getElementById("sttSend");
   const statusEl = document.getElementById("sttStatus");
@@ -162,18 +92,21 @@
   const recordStartEl = document.getElementById("sttRecordStart");
   const recordStopEl = document.getElementById("sttRecordStop");
   const recordedAudioEl = document.getElementById("sttRecordedAudio");
-  const useProxyEl = document.getElementById("sttUseProxy");
+  const levelBarEl = document.getElementById("sttLevelBar");
+  const levelTextEl = document.getElementById("sttLevelText");
+  const durationTextEl = document.getElementById("sttDurationText");
+  const analyzeOnPlayEl = document.getElementById("sttAnalyzeOnPlay");
+  const avgLevelTextEl = document.getElementById("sttAvgLevelText");
+  const avgLevelLabelEl = document.getElementById("sttAvgLevelLabel");
   let recorder = null;
   let recordedChunks = [];
-  const wsUrlEl = document.getElementById("sttWsUrl");
-  const wsMessageEl = document.getElementById("sttWsMessage");
-  const wsConnectEl = document.getElementById("sttWsConnect");
-  const wsDisconnectEl = document.getElementById("sttWsDisconnect");
-  const wsSendEl = document.getElementById("sttWsSend");
-  const wsSendAudioEl = document.getElementById("sttWsSendAudio");
-  const wsStatusEl = document.getElementById("sttWsStatus");
-  const wsLogEl = document.getElementById("sttWsLog");
-  let ws = null;
+  let audioContext = null;
+  let analyser = null;
+  let sourceNode = null;
+  let levelTimer = null;
+  let durationTimer = null;
+  let startedAt = 0;
+  let lastRecordedFile = null;
 
   function setStatus(text, isError) {
     statusEl.textContent = text;
@@ -182,58 +115,26 @@
   }
 
   async function sendRequest() {
-    const baseUrl = (baseUrlEl.value || "").trim().replace(/\/$/, "");
     const endpoint = endpointEl.value;
-    const url = `${baseUrl}${endpoint}`;
-
-    let payload = null;
-    try {
-      payload = JSON.parse(payloadEl.value || "{}");
-    } catch (err) {
-      setStatus("JSON 형식을 확인해주세요.", true);
-      return;
-    }
+    const url = endpoint;
 
     setStatus("요청 중...", false);
     responseEl.textContent = "";
 
     try {
       let response;
-      const useProxy = useProxyEl.checked;
-      if (endpoint === "/speechpro/scorefile") {
-        const audioFile = audioFileEl.files[0];
-        if (!audioFile) {
-          setStatus("오디오 파일을 선택해주세요.", true);
+      const audioFile = audioFileEl.files[0];
+      if (!audioFile) {
+        setStatus("오디오 파일을 선택해주세요.", true);
+        return;
+      }
+        if (audioFile.size < 512) {
+          setStatus("오디오가 너무 짧습니다.", true);
           return;
         }
         const formData = new FormData();
-        formData.append("wav_usr", audioFile);
-        formData.append("config", JSON.stringify(payload));
-        if (useProxy) {
-          formData.append("base_url", baseUrl);
-          formData.append("endpoint", endpoint);
-          response = await fetch("/api/stt/scorefile", {
-            method: "POST",
-            body: formData,
-          });
-        } else {
-          response = await fetch(url, { method: "POST", body: formData });
-        }
-      } else {
-        if (useProxy) {
-          response = await fetch("/api/stt/proxy", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ base_url: baseUrl, endpoint, payload }),
-          });
-        } else {
-          response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-        }
-      }
+        formData.append("file", audioFile);
+      response = await fetch(url, { method: "POST", body: formData });
 
       const text = await response.text();
       let json;
@@ -258,6 +159,13 @@
     if (recorder && recorder.state === "recording") return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      sourceNode = audioContext.createMediaStreamSource(stream);
+      sourceNode.connect(analyser);
       recordedChunks = [];
       recorder = new MediaRecorder(stream);
       recorder.ondataavailable = (event) => {
@@ -267,12 +175,17 @@
         const blob = new Blob(recordedChunks, { type: "audio/webm" });
         convertToWav(blob)
           .then((wavBlob) => {
+            if (wavBlob.size < 512) {
+              setStatus("녹음이 너무 짧습니다.", true);
+              return;
+            }
             const file = new File([wavBlob], "recording.wav", {
               type: "audio/wav",
             });
             const dt = new DataTransfer();
             dt.items.add(file);
             audioFileEl.files = dt.files;
+            lastRecordedFile = file;
             recordedAudioEl.src = URL.createObjectURL(wavBlob);
             recordedAudioEl.classList.remove("hidden");
           })
@@ -283,6 +196,14 @@
         stream.getTracks().forEach((track) => track.stop());
       };
       recorder.start();
+      startedAt = performance.now();
+      durationTextEl.textContent = "0.0s";
+      levelTextEl.textContent = "0%";
+      levelBarEl.style.width = "0%";
+      if (levelTimer) clearInterval(levelTimer);
+      if (durationTimer) clearInterval(durationTimer);
+      levelTimer = setInterval(updateInputLevel, 120);
+      durationTimer = setInterval(updateDuration, 100);
       recordStartEl.disabled = true;
       recordStopEl.disabled = false;
       setStatus("녹음 중...", false);
@@ -295,9 +216,34 @@
   function stopRecording() {
     if (!recorder || recorder.state !== "recording") return;
     recorder.stop();
+    if (levelTimer) clearInterval(levelTimer);
+    if (durationTimer) clearInterval(durationTimer);
     recordStartEl.disabled = false;
     recordStopEl.disabled = true;
     setStatus("녹음 완료", false);
+  }
+
+  function updateDuration() {
+    const seconds = (performance.now() - startedAt) / 1000;
+    durationTextEl.textContent = `${seconds.toFixed(1)}s`;
+  }
+
+  function updateInputLevel() {
+    if (!analyser) return;
+    const data = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(data);
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = (data[i] - 128) / 128;
+      sum += v * v;
+    }
+    const rms = Math.sqrt(sum / data.length);
+    const percent = Math.min(100, Math.round(rms * 260));
+    levelBarEl.style.width = `${percent}%`;
+    levelTextEl.textContent = `${percent}%`;
+    levelBarEl.classList.toggle("bg-amber-500", percent > 30 && percent <= 60);
+    levelBarEl.classList.toggle("bg-red-500", percent > 60);
+    levelBarEl.classList.toggle("bg-emerald-500", percent <= 30);
   }
 
   async function convertToWav(blob) {
@@ -345,65 +291,64 @@
   sendBtn.addEventListener("click", sendRequest);
   recordStartEl.addEventListener("click", startRecording);
   recordStopEl.addEventListener("click", stopRecording);
+  recordedAudioEl.addEventListener("play", () => {
+    if (!analyzeOnPlayEl.checked) return;
+    const file = audioFileEl.files[0] || lastRecordedFile;
+    if (file) analyzeAverageLevel(file);
+  });
 
-  function appendWsLog(message) {
-    if (wsLogEl.textContent === "-") wsLogEl.textContent = "";
-    wsLogEl.textContent += message + "\n";
-    wsLogEl.scrollTop = wsLogEl.scrollHeight;
+  async function analyzeAverageLevel(file) {
+    try {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const arrayBuffer = await file.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const channelData = audioBuffer.getChannelData(0);
+      let sum = 0;
+      for (let i = 0; i < channelData.length; i++) {
+        const v = channelData[i];
+        sum += v * v;
+      }
+      const rms = Math.sqrt(sum / channelData.length);
+      const percent = Math.min(100, Math.round(rms * 260));
+      avgLevelTextEl.textContent = `평균 ${percent}%`;
+      updateAvgLabel(percent);
+    } catch (err) {
+      avgLevelTextEl.textContent = "평균 분석 실패";
+      updateAvgLabel(null, true);
+      console.error("평균 볼륨 분석 오류:", err);
+    }
   }
 
-  function updateWsButtons(connected) {
-    wsConnectEl.disabled = connected;
-    wsDisconnectEl.disabled = !connected;
-    wsSendEl.disabled = !connected;
-    wsSendAudioEl.disabled = !connected;
-  }
-
-  wsConnectEl.addEventListener("click", () => {
-    const url = (wsUrlEl.value || "").trim();
-    if (!url) return;
-    ws = new WebSocket(url);
-    wsStatusEl.textContent = "연결 중...";
-    ws.onopen = () => {
-      wsStatusEl.textContent = "연결됨";
-      updateWsButtons(true);
-      appendWsLog("[open] connected");
-    };
-    ws.onmessage = (event) => {
-      appendWsLog(`[message] ${event.data}`);
-    };
-    ws.onerror = () => {
-      wsStatusEl.textContent = "오류";
-      appendWsLog("[error] connection error");
-    };
-    ws.onclose = () => {
-      wsStatusEl.textContent = "연결 종료";
-      updateWsButtons(false);
-      appendWsLog("[close] disconnected");
-    };
-  });
-
-  wsDisconnectEl.addEventListener("click", () => {
-    if (ws) ws.close();
-  });
-
-  wsSendEl.addEventListener("click", () => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const msg = wsMessageEl.value || "";
-    ws.send(msg);
-    appendWsLog(`[send] ${msg}`);
-  });
-
-  wsSendAudioEl.addEventListener("click", async () => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const file = audioFileEl.files[0];
-    if (!file) {
-      wsStatusEl.textContent = "오디오 파일 필요";
+  function updateAvgLabel(percent, isError) {
+    if (isError) {
+      avgLevelLabelEl.textContent = "상태: 실패";
+      avgLevelLabelEl.className =
+        "text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-600";
       return;
     }
-    const arrayBuffer = await file.arrayBuffer();
-    ws.send(arrayBuffer);
-    appendWsLog(`[send] audio ${file.name} (${file.size} bytes)`);
-  });
+    if (percent === null || percent === undefined) {
+      avgLevelLabelEl.textContent = "상태: 대기";
+      avgLevelLabelEl.className =
+        "text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600";
+      return;
+    }
+    if (percent < 15) {
+      avgLevelLabelEl.textContent = "상태: 너무 작음";
+      avgLevelLabelEl.className =
+        "text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700";
+      return;
+    }
+    if (percent < 45) {
+      avgLevelLabelEl.textContent = "상태: 적정";
+      avgLevelLabelEl.className =
+        "text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700";
+      return;
+    }
+    avgLevelLabelEl.textContent = "상태: 큼";
+    avgLevelLabelEl.className =
+      "text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700";
+  }
 </script>
 {% endblock %}

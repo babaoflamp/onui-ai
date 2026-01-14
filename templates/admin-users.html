@@ -16,7 +16,8 @@ block content %}
     >
   </div>
 
-  <div id="adminStatus" class="text-sm text-gray-600 mb-6"></div>
+  <!-- Alerts Container -->
+  <div id="alertsContainer" class="mb-6"></div>
 
   <!-- Search & Filter -->
   <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-sm">
@@ -87,236 +88,233 @@ block content %}
 </div>
 {% endblock %} {% block extra_js %}
 <script>
-  (function () {
-    const statusEl = document.getElementById("adminStatus");
-    const tbody = document.getElementById("usersTbody");
-    const searchEl = document.getElementById("searchEmail");
-    const filterEl = document.getElementById("filterRole");
+    (function () {
+      const alertsContainer = document.getElementById("alertsContainer");
+      const tbody = document.getElementById("usersTbody");
+      const searchEl = document.getElementById("searchEmail");
+      const filterEl = document.getElementById("filterRole");
 
-    function setStatus(msg, ok = true) {
-      statusEl.textContent = msg;
-      statusEl.className = ok
-        ? "text-sm text-emerald-600"
-        : "text-sm text-red-600";
-    }
-
-    function ensureAdmin() {
-      const token = localStorage.getItem("auth_token");
-      const role =
-        localStorage.getItem("user_role") ||
-        (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
-      const allowed = ["instructor", "system_admin"];
-      if (!token || !allowed.includes(role)) {
-        alert("접근 권한이 없습니다.");
-        window.location.href = "/admin/login";
-        return null;
+      function ensureAdmin() {
+        const token = localStorage.getItem("auth_token");
+        const role =
+          localStorage.getItem("user_role") ||
+          (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+        const allowed = ["instructor", "system_admin"];
+        if (!token || !allowed.includes(role)) {
+          AlertManager.error("접근 권한이 없습니다.", "권한 오류", alertsContainer);
+          setTimeout(() => (window.location.href = "/admin/login"), 800);
+          return null;
+        }
+        return token;
       }
-      return token;
-    }
 
-    window.loadUsers = async function () {
-      const token = ensureAdmin();
-      if (!token) return;
+      window.loadUsers = async function () {
+        const token = ensureAdmin();
+        if (!token) return;
 
-      setStatus("사용자 목록을 불러오는 중...", true);
+        alertsContainer.innerHTML = "";
+        LoadingManager.show("사용자 목록을 불러오는 중...");
 
-      try {
-        const res = await fetch("/api/admin/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.detail || "사용자 목록을 불러오지 못했습니다.");
-        }
-
-        const data = await res.json();
-        let users = data.users || [];
-        const total = data.total || 0;
-        const searchTerm = (searchEl.value || "").trim().toLowerCase();
-        const roleFilter = (filterEl.value || "").trim();
-
-        if (searchTerm) {
-          users = users.filter((user) => {
-            const email = (user.email || "").toLowerCase();
-            const nickname = (user.nickname || "").toLowerCase();
-            return email.includes(searchTerm) || nickname.includes(searchTerm);
+        try {
+          const res = await fetch("/api/admin/users", {
+            headers: { Authorization: `Bearer ${token}` },
           });
-        }
-        if (roleFilter) {
-          users = users.filter((user) => {
-            const userRole = user.role || (user.is_admin ? "system_admin" : "learner");
-            return userRole === roleFilter;
-          });
-        }
 
-        if (users.length === 0) {
-          tbody.innerHTML = `<tr><td class="px-4 py-3 text-gray-500" colspan="5" style="text-align: center;">사용자가 없습니다.</td></tr>`;
-          setStatus(`총 ${total}명의 사용자 중 표시할 항목이 없습니다.`, false);
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "사용자 목록을 불러오지 못했습니다.");
+          }
+
+          const data = await res.json();
+          let users = data.users || [];
+          const total = data.total || 0;
+          const searchTerm = (searchEl.value || "").trim().toLowerCase();
+          const roleFilter = (filterEl.value || "").trim();
+
+          if (searchTerm) {
+            users = users.filter((user) => {
+              const email = (user.email || "").toLowerCase();
+              const nickname = (user.nickname || "").toLowerCase();
+              return email.includes(searchTerm) || nickname.includes(searchTerm);
+            });
+          }
+          if (roleFilter) {
+            users = users.filter((user) => {
+              const userRole = user.role || (user.is_admin ? "system_admin" : "learner");
+              return userRole === roleFilter;
+            });
+          }
+  LoadingManager.hide();
+          if (users.length === 0) {
+            tbody.innerHTML = `<tr><td class="px-4 py-3 text-gray-500" colspan="5" style="text-align: center;">사용자가 없습니다.</td></tr>`;
+            ToastManager.info(`총 ${total}명의 사용자 중 표시할 항목이 없습니다.`ay-500" colspan="5" style="text-align: center;">사용자가 없습니다.</td></tr>`;
+            setStatus(`총 ${total}명의 사용자 중 표시할 항목이 없습니다.`, false);
+            return;
+          }
+
+          const roleLabelMap = {
+            learner: "학습자",
+            instructor: "교수",
+            system_admin: "시스템관리자",
+          };
+          const currentRole =
+            localStorage.getItem("user_role") ||
+            (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+          const canManage = currentRole === "system_admin";
+
+          tbody.innerHTML = users
+            .map((user) => {
+              const userRole = user.role || (user.is_admin ? "system_admin" : "learner");
+              const roleLabel = roleLabelMap[userRole] || "학습자";
+              return `
+            <tr>
+              <td class="px-4 py-3 text-gray-900">${user.email}</td>
+              <td class="px-4 py-3 text-gray-700">${user.nickname}</td>
+              <td class="px-4 py-3">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                  userRole === "system_admin"
+                    ? "bg-orange-100 text-orange-800"
+                    : userRole === "instructor"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-gray-100 text-gray-800"
+                }">
+                  ${roleLabel}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-500 text-xs">${
+                user.created_at?.substring(0, 10) || "-"
+              }</td>
+              <td class="px-4 py-3 text-center">
+                ${
+                  canManage
+                    ? `
+                <div class="flex flex-wrap gap-2 justify-center items-center">
+                  <select id="role-${user.id}" class="border border-gray-200 rounded px-2 py-1 text-xs">
+                    <option value="learner" ${userRole === "learner" ? "selected" : ""}>학습자</option>
+                    <option value="instructor" ${userRole === "instructor" ? "selected" : ""}>교수</option>
+                    <option value="system_admin" ${userRole === "system_admin" ? "selected" : ""}>시스템관리자</option>
+                  </select>
+                  <button onclick="updateRole(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200">
+                    역할 저장
+                  </button>
+                  <button onclick="resetPassword(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
+                    비번초기화
+                  </button>
+                </div>`
+                    : `<span class="text-xs text-gray-400">권한 없음</span>`
+                }
+              </td>
+            </tr>`
+            })
+          LoadingManager.hide();
+          ToastManager.success(`총 ${total}명 중 ${users.length}명 표시`);
+        } catch (err) {
+          LoadingManager.hide();
+          console.error(err);
+          tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
+          AlertManager.error(err.message, "오류", alertsContainer
+          tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
+          setStatus(err.message, false);
+        }
+      };
+
+      window.toggleAdmin = async function (userId, makeAdmin) {
+        const token = ensureAdmin();
+        if (!token) return;
+
+        if (
+          !confirm(
+            `${makeAdmin ? "관리자로 설정" : "관리자 권한 제거"}하시겠습니까?`
+          )
+        )
+          return;
+
+        try {
+          const res = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ is_admin: makeAdmin }),
+          });
+
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "권한 변경에 실패했습니다.");
+          }
+  AlertManager.error(err.message, "오류", alertsContainer
+          loadUsers();
+        } catch (err) {
+          AlertManager.error(err.message, "오류", document.getElementById("alertsContainer") || document.body);
+        }
+      };
+
+      window.updateRole = async function (userId) {
+        const token = ensureAdmin();
+        if (!token) return;
+
+        const select = document.getElementById(`role-${userId}`);
+        if (!select) return;
+        const role = select.value;
+
+        try {
+          const res = await fetch(`/api/admin/users/${userId}/role`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ role }),
+          });
+
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "역할 변경에 실패했습니다.");
+          }
+
+          AlertManager.error(err.message, "오류", alertsContainer);
+        }
+      };
+
+      window.resetPassword = async function (userId) {
+        const token = ensureAdmin();
+        if (!token) return;
+
+        const newPwd = prompt("새 비밀번호를 입력하세요 (8자 이상):");
+        if (!newPwd) return;
+        if (newPwd.length < 8) {
+          AlertManager.error("비밀번호는 8자 이상이어야 합니다.", "유효성 검사 오류", alertsContainer
+        if (newPwd.length < 8) {
+          AlertManager.warning("비밀번호는 8자 이상이어야 합니다.", "입력 오류", document.getElementById("alertsContainer") || document.body);
           return;
         }
 
-        const roleLabelMap = {
-          learner: "학습자",
-          instructor: "교수",
-          system_admin: "시스템관리자",
-        };
-        const currentRole =
-          localStorage.getItem("user_role") ||
-          (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
-        const canManage = currentRole === "system_admin";
+        if (!confirm("비밀번호를 초기화하시겠습니까?")) return;
 
-        tbody.innerHTML = users
-          .map((user) => {
-            const userRole = user.role || (user.is_admin ? "system_admin" : "learner");
-            const roleLabel = roleLabelMap[userRole] || "학습자";
-            return `
-          <tr>
-            <td class="px-4 py-3 text-gray-900">${user.email}</td>
-            <td class="px-4 py-3 text-gray-700">${user.nickname}</td>
-            <td class="px-4 py-3">
-              <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                userRole === "system_admin"
-                  ? "bg-orange-100 text-orange-800"
-                  : userRole === "instructor"
-                  ? "bg-blue-100 text-blue-800"
-                  : "bg-gray-100 text-gray-800"
-              }">
-                ${roleLabel}
-              </span>
-            </td>
-            <td class="px-4 py-3 text-gray-500 text-xs">${
-              user.created_at?.substring(0, 10) || "-"
-            }</td>
-            <td class="px-4 py-3 text-center">
-              ${
-                canManage
-                  ? `
-              <div class="flex flex-wrap gap-2 justify-center items-center">
-                <select id="role-${user.id}" class="border border-gray-200 rounded px-2 py-1 text-xs">
-                  <option value="learner" ${userRole === "learner" ? "selected" : ""}>학습자</option>
-                  <option value="instructor" ${userRole === "instructor" ? "selected" : ""}>교수</option>
-                  <option value="system_admin" ${userRole === "system_admin" ? "selected" : ""}>시스템관리자</option>
-                </select>
-                <button onclick="updateRole(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200">
-                  역할 저장
-                </button>
-                <button onclick="resetPassword(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
-                  비번초기화
-                </button>
-              </div>`
-                  : `<span class="text-xs text-gray-400">권한 없음</span>`
-              }
-            </td>
-          </tr>`
-          })
-          .join("");
+        try {
+          const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ new_password: newPwd }),
+          });
 
-        setStatus(`총 ${total}명 중 ${users.length}명 표시`, true);
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
-        setStatus(err.message, false);
-      }
-    };
-
-    window.toggleAdmin = async function (userId, makeAdmin) {
-      const token = ensureAdmin();
-      if (!token) return;
-
-      if (
-        !confirm(
-          `${makeAdmin ? "관리자로 설정" : "관리자 권한 제거"}하시겠습니까?`
-        )
-      )
-        return;
-
-      try {
-        const res = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ is_admin: makeAdmin }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.detail || "권한 변경에 실패했습니다.");
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "비밀번호 초기화에 실패했습니다.");
+          ToastManager.success("비밀번호가 초기화되었습니다.");
+          loadUsers();
+        } catch (err) {
+          AlertManager.error(err.message, "오류", alertsContainer
+        } catch (err) {
+          AlertManager.error(err.message, "오류", document.getElementById("alertsContainer") || document.body);
         }
+      };
 
-        loadUsers();
-      } catch (err) {
-        alert(err.message);
-      }
-    };
-
-    window.updateRole = async function (userId) {
-      const token = ensureAdmin();
-      if (!token) return;
-
-      const select = document.getElementById(`role-${userId}`);
-      if (!select) return;
-      const role = select.value;
-
-      try {
-        const res = await fetch(`/api/admin/users/${userId}/role`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ role }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.detail || "역할 변경에 실패했습니다.");
-        }
-
-        loadUsers();
-      } catch (err) {
-        alert(err.message);
-      }
-    };
-
-    window.resetPassword = async function (userId) {
-      const token = ensureAdmin();
-      if (!token) return;
-
-      const newPwd = prompt("새 비밀번호를 입력하세요 (8자 이상):");
-      if (!newPwd) return;
-      if (newPwd.length < 8) {
-        alert("비밀번호는 8자 이상이어야 합니다.");
-        return;
-      }
-
-      if (!confirm("비밀번호를 초기화하시겠습니까?")) return;
-
-      try {
-        const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ new_password: newPwd }),
-        });
-
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.detail || "비밀번호 초기화에 실패했습니다.");
-        }
-
-        alert("비밀번호가 초기화되었습니다.");
-        loadUsers();
-      } catch (err) {
-        alert(err.message);
-      }
-    };
-
-    loadUsers();
-  })();
+      loadUsers();
+    })();
 </script>
 {% endblock %}

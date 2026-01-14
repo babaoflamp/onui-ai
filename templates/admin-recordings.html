@@ -62,7 +62,7 @@ endblock %} {% block content %}
       (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
     const allowed = ["instructor", "system_admin"];
     if (!allowed.includes(role)) {
-      alert("접근 권한이 없습니다.");
+      AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
       window.location.href = "/admin/login";
     }
   }

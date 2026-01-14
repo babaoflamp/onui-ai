@@ -155,8 +155,8 @@
         <figcaption>
           <p class="showcase-card__label">강점 강조 항목</p>
           <p class="showcase-card__text">
-            잘한 부분을 강조해주는 캡처 화면으로 학습자에게 동기부여와 긍정 피드백을
-            제공합니다.
+            잘한 부분을 강조해주는 캡처 화면으로 학습자에게 동기부여와 긍정
+            피드백을 제공합니다.
           </p>
         </figcaption>
       </figure>
@@ -284,11 +284,14 @@
       </div>
     </div>
 
+    <div id="alertsContainer"></div>
+
     <form id="landingForm" class="space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="space-y-2">
           <label class="text-sm font-semibold text-gray-800">이메일</label>
           <input
+            id="emailInput"
             name="email"
             type="email"
             required
@@ -309,6 +312,7 @@
         <div class="space-y-2">
           <label class="text-sm font-semibold text-gray-800">비밀번호</label>
           <input
+            id="passwordInput"
             name="password"
             type="password"
             required
@@ -321,6 +325,7 @@
             >비밀번호 확인</label
           >
           <input
+            id="passwordConfirmInput"
             name="password_confirm"
             type="password"
             required
@@ -830,30 +835,53 @@
   <script>
     (function () {
       const form = document.getElementById("landingForm");
-      const statusEl = document.getElementById("landingStatus");
+      const alertsContainer = document.getElementById("alertsContainer");
+      const emailInput = document.getElementById("emailInput");
+      const passwordInput = document.getElementById("passwordInput");
+      const passwordConfirmInput = document.getElementById(
+        "passwordConfirmInput"
+      );
+
       if (!form) return;
 
-      function setStatus(msg, ok = true) {
-        if (!statusEl) return;
-        statusEl.textContent = msg;
-        statusEl.className = ok
-          ? "text-sm text-emerald-600"
-          : "text-sm text-red-600";
-      }
+      // Clear field errors on input
+      [emailInput, passwordInput, passwordConfirmInput].forEach((input) => {
+        if (input) {
+          input.addEventListener("input", () =>
+            FormValidator.clearFieldError(input)
+          );
+        }
+      });
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const fd = new FormData(form);
 
+        // Client validation: email format
+        const email = fd.get("email") || "";
+        if (!FormValidator.isValidEmail(email)) {
+          FormValidator.showFieldError(
+            emailInput,
+            "유효한 이메일 주소를 입력해주세요"
+          );
+          return;
+        }
+
         // Client validation: password match and length
         const pw = fd.get("password") || "";
         const pc = fd.get("password_confirm") || "";
         if (pw !== pc) {
-          setStatus("비밀번호가 일치하지 않습니다.", false);
+          FormValidator.showFieldError(
+            passwordConfirmInput,
+            "비밀번호가 일치하지 않습니다"
+          );
           return;
         }
         if (pw.length < 8) {
-          setStatus("비밀번호는 8자 이상이어야 합니다.", false);
+          FormValidator.showFieldError(
+            passwordInput,
+            "비밀번호는 8자 이상이어야 합니다"
+          );
           return;
         }
 
@@ -878,7 +906,7 @@
           style,
         };
 
-        setStatus("가입 중...", true);
+        LoadingManager.show("가입 중...");
 
         try {
           const res = await fetch("/api/signup", {
@@ -894,8 +922,9 @@
             throw new Error(error.detail || "가입에 실패했습니다.");
           }
           const data = await res.json();
-          setStatus(
-            `✓ ${data.nickname}님 가입을 환영합니다! 이제 로그인해주세요.`
+          LoadingManager.hide();
+          ToastManager.success(
+            `${data.nickname}님 가입을 환영합니다! 이제 로그인해주세요.`
           );
           setTimeout(() => {
             window.location.href = "/login";
@@ -903,7 +932,12 @@
           form.reset();
         } catch (err) {
           console.error(err);
-          setStatus(err.message || "가입 중 오류가 발생했습니다.", false);
+          LoadingManager.hide();
+          AlertManager.error(
+            err.message || "가입 중 오류가 발생했습니다.",
+            "가입 오류",
+            alertsContainer
+          );
         }
       });
 
@@ -975,7 +1009,9 @@
             guestLoginBtn.disabled = false;
             guestLoginBtn.innerHTML =
               '<span class="text-2xl">🎭</span><span>게스트로 바로 시작하기</span>';
-            alert("게스트 로그인에 실패했습니다. 다시 시도해주세요.");
+            ToastManager.error(
+              "게스트 로그인에 실패했습니다. 다시 시도해주세요."
+            );
           }
         });
       }

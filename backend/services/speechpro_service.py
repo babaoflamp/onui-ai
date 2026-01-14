@@ -9,6 +9,7 @@ import os
 import uuid
 import requests
 import base64
+import time
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 
@@ -295,22 +296,35 @@ def call_speechpro_score(
 
     try:
         print(f"[Score] Sending payload with FST length: {len(fst)}")
-        response = requests.post(
-            url,
-            json=payload,
-            headers={'Content-Type': 'application/json'},
-            timeout=60  # 긴 문장 처리를 위해 타임아웃 증가
-        )
-        print(f"[Score] Response status: {response.status_code}")
-        
-        # 500 에러 시 더 자세한 정보 로깅
-        if response.status_code >= 500:
-            print(f"[Score] Server error response: {response.text[:500]}")
+
+        max_attempts = 3
+        response = None
+        for attempt in range(1, max_attempts + 1):
+            response = requests.post(
+                url,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=60,  # 긴 문장 처리를 위해 타임아웃 증가
+            )
+            print(f"[Score] Response status: {response.status_code} (attempt {attempt}/{max_attempts})")
+
+            # SpeechPro가 간헐적으로 5xx를 반환하는 경우가 있어, 짧게 재시도한다.
+            if response.status_code >= 500 and attempt < max_attempts:
+                body_preview = (response.text or "")[:500]
+                print(f"[Score] Server error response (attempt {attempt}): {body_preview}")
+                time.sleep(0.4 * attempt)
+                continue
+            break
+
+        # 5xx 에러 시 더 자세한 정보 로깅
+        if response is not None and response.status_code >= 500:
+            body_preview = (response.text or "")[:500]
+            print(f"[Score] Server error response: {body_preview}")
             raise RuntimeError(
                 f"SpeechPro 서버에서 오류가 발생했습니다 (상태: {response.status_code}). "
-                "문장이 너무 길거나 복잡할 수 있습니다. 더 짧은 문장으로 시도해주세요."
+                f"응답(앞부분): {body_preview}"
             )
-        
+
         response.raise_for_status()
         data = response.json()
         print(f"[Score] Response data: {data}")

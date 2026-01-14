@@ -54,7 +54,10 @@ def convert_audio_to_pcm(audio_data: bytes, target_sample_rate: int = 8000) -> b
             import tempfile
 
             # 임시 파일 생성
-            with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as input_file:
+            from pathlib import Path
+            tmp_dir = Path(os.getenv("ONUI_TMP_DIR", "data/tmp"))
+            tmp_dir.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(suffix='.webm', delete=False, dir=str(tmp_dir)) as input_file:
                 input_file.write(audio_data)
                 input_path = input_file.name
 

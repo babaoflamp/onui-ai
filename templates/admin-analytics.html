@@ -28,16 +28,18 @@ endblock %} {% block content %}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
       <div class="border rounded-lg p-4">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">일별 활동</h2>
-        <div class="bg-gray-50 h-64 rounded flex items-center justify-center">
-          <p class="text-gray-500">차트 데이터 준비 중...</p>
-        </div>
+        <div
+          id="activity-chart"
+          class="bg-gray-50 h-64 rounded flex items-center justify-center"
+        ></div>
       </div>
 
       <div class="border rounded-lg p-4">
         <h2 class="text-xl font-semibold text-gray-900 mb-4">난이도별 분포</h2>
-        <div class="bg-gray-50 h-64 rounded flex items-center justify-center">
-          <p class="text-gray-500">차트 데이터 준비 중...</p>
-        </div>
+        <div
+          id="difficulty-chart"
+          class="bg-gray-50 h-64 rounded flex items-center justify-center"
+        ></div>
       </div>
     </div>
 
@@ -83,7 +85,7 @@ endblock %} {% block content %}
       (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
     const allowed = ["instructor", "system_admin"];
     if (!allowed.includes(role)) {
-      alert("접근 권한이 없습니다.");
+      AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
       window.location.href = "/admin/login";
     }
   }
@@ -92,17 +94,176 @@ endblock %} {% block content %}
   async function loadAnalytics() {
     try {
       checkAdminAccess();
-      // 실제 API 구현 예정
-      document.getElementById("analytics-table").innerHTML = `
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const res = await fetch("/api/admin/analytics", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const error = await res
+          .json()
+          .catch(() => ({ error: "통계 데이터를 불러올 수 없습니다." }));
+        throw new Error(error.error || "통계 데이터를 불러올 수 없습니다.");
+      }
+
+      const data = await res.json();
+      const stats = data.stats || {};
+      const activity = data.activity || [];
+      const difficulty = data.difficulty || [];
+      const table = data.table || [];
+
+      document.getElementById("total-users").textContent = stats.total_users || 0;
+      document.getElementById("active-users").textContent = stats.active_users || 0;
+      document.getElementById("avg-study-time").textContent =
+        stats.avg_study_hours ? `${stats.avg_study_hours}시간` : "0시간";
+      document.getElementById("avg-score").textContent =
+        stats.avg_score ? `${stats.avg_score}점` : "0점";
+
+      renderActivityChart(activity);
+      renderDifficultyChart(difficulty);
+      renderTable(table);
+    } catch (error) {
+      console.error("Error loading analytics:", error);
+      const tableEl = document.getElementById("analytics-table");
+      if (tableEl) {
+        tableEl.innerHTML = `
+          <tr>
+            <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-red-500">
+              ${error.message || "통계 데이터를 불러올 수 없습니다."}
+            </td>
+          </tr>
+        `;
+      }
+      const activityEl = document.getElementById("activity-chart");
+      if (activityEl) {
+        activityEl.innerHTML =
+          "<p class='text-gray-500'>차트 데이터를 불러올 수 없습니다.</p>";
+      }
+      const difficultyEl = document.getElementById("difficulty-chart");
+      if (difficultyEl) {
+        difficultyEl.innerHTML =
+          "<p class='text-gray-500'>차트 데이터를 불러올 수 없습니다.</p>";
+      }
+    }
+  }
+
+  function renderActivityChart(activity) {
+    const container = document.getElementById("activity-chart");
+    if (!container) return;
+    if (!activity.length) {
+      container.innerHTML =
+        "<p class='text-gray-500'>표시할 데이터가 없습니다.</p>";
+      return;
+    }
+    const width = 520;
+    const height = 220;
+    const padding = 32;
+    const max = Math.max(...activity.map((a) => a.count), 1);
+    const stepX = activity.length > 1 ? (width - padding * 2) / (activity.length - 1) : 0;
+    const barWidth = stepX ? Math.max(18, Math.min(36, stepX * 0.7)) : 36;
+
+    const points = activity.map((item, idx) => {
+      const x = padding + idx * stepX;
+      const y = height - padding - (item.count / max) * (height - padding * 2);
+      return { x, y, count: item.count, date: item.date };
+    });
+
+    const bars = points
+      .map((p) => {
+        const x = p.x - barWidth / 2;
+        const barHeight = height - padding - p.y;
+        return `<rect x="${x}" y="${p.y}" width="${barWidth}" height="${barHeight}" rx="6" fill="#60a5fa"></rect>`;
+      })
+      .join("");
+
+    const labels = points
+      .map(
+        (p) =>
+          `<text x="${p.x}" y="${p.y - 10}" text-anchor="middle" font-size="12" font-weight="600" fill="#1f2937">${p.count}</text>`
+      )
+      .join("");
+
+    const xLabels = points
+      .map(
+        (p) => {
+          const day = p.date ? p.date.slice(5) : "";
+          return `<text x="${p.x}" y="${height - padding + 20}" text-anchor="middle" font-size="10" fill="#6b7280">${day}</text>`;
+        }
+      )
+      .join("");
+
+    container.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" class="w-full h-full">
+        <rect x="0" y="0" width="${width}" height="${height}" fill="#f9fafb" />
+        <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#e5e7eb" />
+        <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#e5e7eb" />
+        ${bars}
+        ${labels}
+        ${xLabels}
+      </svg>
+    `;
+  }
+
+  function renderDifficultyChart(difficulty) {
+    const container = document.getElementById("difficulty-chart");
+    if (!container) return;
+    if (!difficulty.length) {
+      container.innerHTML =
+        "<p class='text-gray-500'>표시할 데이터가 없습니다.</p>";
+      return;
+    }
+
+    const total = difficulty.reduce((sum, item) => sum + (item.count || 0), 0) || 1;
+    const rows = difficulty
+      .map((item) => {
+        const pct = Math.round(((item.count || 0) / total) * 100);
+        return `
+          <div class="flex items-center justify-between gap-3">
+            <div class="text-sm text-gray-700">${item.label || "-"}</div>
+            <div class="flex-1 h-2 rounded-full bg-gray-200 overflow-hidden">
+              <div class="h-full bg-orange-400" style="width:${pct}%"></div>
+            </div>
+            <div class="text-xs text-gray-500">${item.count || 0}개</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="w-full h-full flex items-center">
+        <div class="w-full space-y-3 px-2">${rows}</div>
+      </div>
+    `;
+  }
+
+  function renderTable(rows) {
+    const tableEl = document.getElementById("analytics-table");
+    if (!tableEl) return;
+    if (!rows.length) {
+      tableEl.innerHTML = `
         <tr>
           <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
-            통계 데이터를 불러올 수 없습니다. (API 개발 예정)
+            학습 데이터가 없습니다.
           </td>
         </tr>
       `;
-    } catch (error) {
-      console.error("Error loading analytics:", error);
+      return;
     }
+    tableEl.innerHTML = rows
+      .map(
+        (row) => `
+          <tr>
+            <td class="border border-gray-300 px-4 py-2">${row.user || "-"}</td>
+            <td class="border border-gray-300 px-4 py-2">${row.learning_count || 0}</td>
+            <td class="border border-gray-300 px-4 py-2">${row.avg_score || 0}점</td>
+            <td class="border border-gray-300 px-4 py-2">${row.last_learning || "-"}</td>
+          </tr>
+        `
+      )
+      .join("");
   }
 
   document.addEventListener("DOMContentLoaded", loadAnalytics);

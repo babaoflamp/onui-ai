@@ -1,0 +1,200 @@
+{% extends "base.html" %} {% block title %}학습 상태 - 관리자{% endblock %} {% block
+content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">📈 학습 상태</h1>
+        <p class="text-sm text-gray-600 mt-1">
+          학습자별 출석/학습 기록/최근 접속 정보를 확인합니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="닉네임/이메일 검색"
+          class="w-56 px-3 py-2 rounded-lg border border-gray-200 text-sm"
+        />
+        <button
+          id="refresh-btn"
+          class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600"
+        >
+          새로고침
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-blue-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">학습자 수</p>
+        <p class="text-3xl font-bold text-blue-600" id="stat-learners">-</p>
+      </div>
+      <div class="bg-green-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">오늘 출석</p>
+        <p class="text-3xl font-bold text-green-600" id="stat-today">-</p>
+      </div>
+      <div class="bg-purple-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">최근 7일 학습(단어)</p>
+        <p class="text-3xl font-bold text-purple-600" id="stat-word7">-</p>
+      </div>
+      <div class="bg-orange-50 rounded-lg p-4">
+        <p class="text-gray-600 text-sm">최근 7일 학습(문장)</p>
+        <p class="text-3xl font-bold text-orange-600" id="stat-sentence7">-</p>
+      </div>
+    </div>
+
+    <div class="mt-6 border-t pt-6">
+      <div class="overflow-x-auto">
+        <table class="min-w-full border-collapse border border-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                학습자
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                출석(연속)
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                단어 학습
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                문장 학습
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                최근 접속/활동
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-center text-sm">
+                상세
+              </th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr>
+              <td
+                colspan="6"
+                class="border border-gray-200 px-4 py-6 text-center text-gray-500"
+              >
+                데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">
+        * 최근 접속/활동은 서버 로그 기반이며, 로그 보관 범위에 따라 일부 누락될 수
+        있습니다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function checkAdminAccess() {
+    const role =
+      localStorage.getItem("user_role") ||
+      (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+    const allowed = ["instructor", "system_admin"];
+    if (!allowed.includes(role)) {
+      AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
+      setTimeout(() => (window.location.href = "/admin/login"), 800);
+      window.location.href = "/admin/login";
+    }
+  }
+
+  function fmtDate(s) {
+    if (!s) return "-";
+    return String(s).replace("T", " ").replace("Z", "");
+  }
+
+  function badge(text, color) {
+    const cls =
+      color === "green"
+        ? "bg-green-100 text-green-800"
+        : color === "blue"
+        ? "bg-blue-100 text-blue-800"
+        : color === "orange"
+        ? "bg-orange-100 text-orange-800"
+        : "bg-gray-100 text-gray-800";
+    return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cls}">${text}</span>`;
+  }
+
+  function renderRow(u) {
+    const name = `${u.nickname || "-"}<div class="text-xs text-gray-500">${
+      u.email || ""
+    }</div>`;
+    const attendance = `${badge(
+      `${u.attendance_streak || 0}일`,
+      u.attendance_streak >= 7 ? "green" : "gray"
+    )}<div class="text-xs text-gray-500 mt-1">최근: ${
+      u.last_attendance_date || "-"
+    }</div>`;
+    const word = `${badge(
+      `${u.word_total || 0}회`,
+      u.word_last_at ? "blue" : "gray"
+    )}<div class="text-xs text-gray-500 mt-1">최근: ${fmtDate(
+      u.word_last_at
+    )}</div>`;
+    const sentence = `${badge(
+      `${u.sentence_total || 0}회`,
+      u.sentence_last_at ? "orange" : "gray"
+    )}<div class="text-xs text-gray-500 mt-1">최근: ${fmtDate(
+      u.sentence_last_at
+    )}</div>`;
+    const activity = `<div class="text-sm text-gray-900">로그인: ${fmtDate(
+      u.last_login_at
+    )}</div><div class="text-xs text-gray-500 mt-1">페이지: ${
+      u.last_page || "-"
+    } (${fmtDate(u.last_page_view_at)})</div>`;
+    const detailBtn = `<button class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm" onclick="AlertManager.info('준비중: 상세 페이지', '알림', document.body)">보기</button>`;
+    return `<tr>
+      <td class="border border-gray-200 px-4 py-3 align-top">${name}</td>
+      <td class="border border-gray-200 px-4 py-3 align-top">${attendance}</td>
+      <td class="border border-gray-200 px-4 py-3 align-top">${word}</td>
+      <td class="border border-gray-200 px-4 py-3 align-top">${sentence}</td>
+      <td class="border border-gray-200 px-4 py-3 align-top">${activity}</td>
+      <td class="border border-gray-200 px-4 py-3 text-center align-top">${detailBtn}</td>
+    </tr>`;
+  }
+
+  async function load() {
+    checkAdminAccess();
+    const q = document.getElementById("search-input").value.trim();
+    const token = localStorage.getItem("auth_token");
+    const url = new URL("/api/admin/learner-status", window.location.origin);
+    if (q) url.searchParams.set("q", q);
+    const res = await fetch(url.toString(), {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.detail || "failed");
+
+    document.getElementById("stat-learners").textContent = data.stats.learners;
+    document.getElementById("stat-today").textContent = data.stats.today_attendance;
+    document.getElementById("stat-word7").textContent = data.stats.word_7d;
+    document.getElementById("stat-sentence7").textContent = data.stats.sentence_7d;
+
+    const tbody = document.getElementById("rows");
+    if (!data.users.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-6 text-center text-gray-500">표시할 학습자가 없습니다.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.users.map(renderRow).join("");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("refresh-btn").addEventListener("click", load);
+    document.getElementById("search-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") load();
+    });
+    load().catch((e) => {
+      console.error(e);
+      const tbody = document.getElementById("rows");
+      tbody.innerHTML = `<tr><td colspan="6" class="border border-gray-200 px-4 py-6 text-center text-red-600">불러오기 실패: ${String(
+        e.message || e
+      )}</td></tr>`;
+    });
+  });
+</script>
+{% endblock %}
+

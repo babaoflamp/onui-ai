@@ -23,6 +23,10 @@
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 공통 UI 컴포넌트 CSS -->
+    <link rel="stylesheet" href="/static/css/components.css" />
+
     <script>
       // Suppress Tailwind CDN warning in console (development use only)
       if (window.tailwindcss) {
@@ -81,10 +85,14 @@
           radial-gradient(circle at 100% 100%, #e0e7ff, transparent 50%),
           linear-gradient(135deg, var(--bg1), var(--bg2));
         color: var(--text-main);
+        font-size: 16px;
+        line-height: 1.6;
+        font-weight: 400;
       }
 
       .nav-link {
         transition: all 0.2s ease;
+        font-weight: 600;
       }
 
       .nav-link:hover {
@@ -113,6 +121,10 @@
         z-index: 1000;
         margin-top: 0px;
         padding-top: 8px;
+      }
+
+      .dropdown-content a {
+        font-weight: 400;
       }
 
       .dropdown:hover .dropdown-content {
@@ -176,7 +188,7 @@
         left: auto;
       }
 
-	      /* AI 학습 & 관리자 드롭다운: 더 좁은 너비 */
+      /* AI 학습 & 관리자 드롭다운: 더 좁은 너비 */
       #learning-dropdown .dropdown-content,
       #system-learning-dropdown .dropdown-content,
       #admin-dropdown .dropdown-content {
@@ -188,23 +200,23 @@
       }
     </style>
 
-	    <style>
-	      /* Embedded mode: hide global chrome when inside iframe or embed=1 */
-	      .embedded nav,
-	      .embedded footer,
-	      .embedded #chatbot-widget {
-	        display: none !important;
-	      }
-	      .embedded main {
-	        padding-top: 0 !important;
-	      }
-	    </style>
-	
+    <style>
+      /* Embedded mode: hide global chrome when inside iframe or embed=1 */
+      .embedded nav,
+      .embedded footer,
+      .embedded #chatbot-widget {
+        display: none !important;
+      }
+      .embedded main {
+        padding-top: 0 !important;
+      }
+    </style>
+
     <style></style>
 
     {% block extra_css %}{% endblock %}
   </head>
-	  <body class="bg-gray-100">
+  <body class="bg-gray-100">
     <script>
       // Mark document as embedded if loaded in iframe or with embed=1
       (function () {
@@ -238,10 +250,17 @@
             </div>
 
             <!-- Desktop Navigation -->
-	            <div
-	              id="learner-nav"
-	              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
-	            >
+            <div
+              id="learner-nav"
+              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
+            >
+              <!-- 홈 -->
+              <a
+                href="/dashboard"
+                class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+              >
+                🏠 <span data-i18n="nav.home">홈</span>
+              </a>
               <!-- AI 발음 교정 -->
               <div class="dropdown inline-flex items-center">
                 <button
@@ -251,14 +270,15 @@
                 </button>
                 <div class="dropdown-content">
                   <a href="/speechpro-practice"
-                    >🎤 <span data-i18n="nav.pron_test"
+                    >🎤
+                    <span data-i18n="nav.pron_test"
                       >AI 발음 종합 평가 테스트</span
                     ></a
                   >
                 </div>
               </div>
 
-	              <!-- AI 학습 -->
+              <!-- AI 학습 -->
               <div
                 class="dropdown inline-flex items-center"
                 id="learning-dropdown"
@@ -272,16 +292,14 @@
                   <a href="/word-list"
                     >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
                   >
-                  <a href="/krdict"
-                    >📖 <span data-i18n="nav.krdict">사전 검색</span></a
-                  >
-                  <a href="/sentence-evaluation"
-                    >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
+                  <a href="/sentence-learning"
+                    >🧾
+                    <span data-i18n="nav.sentence_learning">문장 학습</span></a
                   >
                   <a href="/curriculum"
                     >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
                   >
-	              </div>
+                </div>
               </div>
 
               <!-- 활동하기 드롭다운 -->
@@ -298,7 +316,10 @@
                     <span data-i18n="nav.fun_games">재미있는 놀이</span>
                   </div>
                   <a href="/word-matching-game"
-                    >🧩 <span data-i18n="nav.game_wordmatch">단어맞추기 게임</span></a
+                    >🧩
+                    <span data-i18n="nav.game_wordmatch"
+                      >단어맞추기 게임</span
+                    ></a
                   >
                   <a href="/synonym-antonym-game"
                     >📝
@@ -319,10 +340,14 @@
                     <span data-i18n="nav.fun_stories">재미있는 이야기</span>
                   </div>
                   <a href="/folktales"
-                    >📖 <span data-i18n="nav.story_folktales">전래동화 읽기</span></a
+                    >📖
+                    <span data-i18n="nav.story_folktales"
+                      >전래동화 읽기</span
+                    ></a
                   >
                   <a href="/cultural-expressions"
-                    >🎨 <span data-i18n="nav.story_culture">문화 표현 학습</span></a
+                    >🎨
+                    <span data-i18n="nav.story_culture">문화 표현 학습</span></a
                   >
                 </div>
               </div>
@@ -336,10 +361,12 @@
                 </button>
                 <div class="dropdown-content">
                   <a href="/pronunciation-stages"
-                    >🔤 <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
+                    >🔤
+                    <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
                   >
                   <a href="/pronunciation-rules"
-                    >📖 <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
+                    >📖
+                    <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
                   >
                 </div>
               </div>
@@ -360,7 +387,6 @@
               >
                 <span data-i18n="nav.sitemap">사이트맵</span>
               </a>
-
             </div>
           </div>
 
@@ -386,18 +412,24 @@
                 <a href="/admin"
                   >🖥️ <span data-i18n="nav.admin_console">관리자 콘솔</span></a
                 >
-	                <a
-	                  href="/content-generation"
-	                  id="admin-content-link"
-	                  style="display: none"
-	                  >📝 <span data-i18n="nav.admin_content">AI 맞춤형 콘텐츠 생성</span></a
-	                >
-	                <a
-	                  href="/media-generation"
-	                  id="admin-media-link"
-	                  style="display: none"
-	                  >🎬 <span data-i18n="nav.admin_media">AI 상황별 이미지 생성</span></a
-	                >
+                <a
+                  href="/content-generation"
+                  id="admin-content-link"
+                  style="display: none"
+                  >📝
+                  <span data-i18n="nav.admin_content"
+                    >AI 맞춤형 콘텐츠 생성</span
+                  ></a
+                >
+                <a
+                  href="/media-generation"
+                  id="admin-media-link"
+                  style="display: none"
+                  >🎬
+                  <span data-i18n="nav.admin_media"
+                    >AI 상황별 이미지 생성</span
+                  ></a
+                >
               </div>
             </div>
 
@@ -467,6 +499,13 @@
                     class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
                   />한국어</a
                 >
+                <a href="#" onclick="setAppLang('en'); return false;"
+                  ><img
+                    src="/static/img/flags/en.svg"
+                    alt="English"
+                    class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
+                  />English</a
+                >
                 <a href="#" onclick="setAppLang('ja'); return false;"
                   ><img
                     src="/static/img/flags/ja.svg"
@@ -485,16 +524,18 @@
             </div>
 
             <!-- 도움말: 우측 햄버거 버튼 -->
-	            <div
-	              class="dropdown dropdown-right inline-flex items-center relative"
-	              id="help-dropdown"
-	            >
+            <div
+              class="dropdown dropdown-right inline-flex items-center relative"
+              id="help-dropdown"
+            >
               <button
                 class="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 aria-label="도움말 메뉴"
               >
                 <span class="text-lg">☰</span>
-                <span class="hidden sm:inline" data-i18n="nav.help">도움말</span>
+                <span class="hidden sm:inline" data-i18n="nav.help"
+                  >도움말</span
+                >
               </button>
               <div class="dropdown-content">
                 <span class="menu-disabled block px-4 py-3 text-xs"
@@ -524,6 +565,12 @@
       <!-- Mobile menu (hidden by default) -->
       <div class="sm:hidden" id="mobile-menu" style="display: none">
         <div class="pt-2 pb-3 space-y-2">
+          <a
+            href="/dashboard"
+            class="block px-4 py-2 text-sm font-semibold text-gray-900 bg-gray-50 rounded-lg"
+          >
+            🏠 <span data-i18n="nav.home">홈</span>
+          </a>
           <!-- 발음교정 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
             <div class="text-sm font-semibold text-gray-900 mb-1">발음교정</div>
@@ -544,13 +591,18 @@
             >
           </div>
 
-	          <!-- AI 학습 -->
-	          <div
-	            class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg"
-	            id="mobile-ai-learning"
-	            style="display: none"
-	          >
-            <div class="text-sm font-semibold text-gray-900 mb-1" data-i18n="nav.ai_learning">AI 학습</div>
+          <!-- AI 학습 -->
+          <div
+            class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg"
+            id="mobile-ai-learning"
+            style="display: none"
+          >
+            <div
+              class="text-sm font-semibold text-gray-900 mb-1"
+              data-i18n="nav.ai_learning"
+            >
+              AI 학습
+            </div>
             <a href="/learning" class="block pl-4 py-1 text-sm text-gray-700"
               >🧠 <span data-i18n="nav.ai_tools">AI 학습 도구</span></a
             >
@@ -559,32 +611,27 @@
               class="block pl-4 py-1 text-sm text-gray-700"
               >📝 <span data-i18n="nav.content_generation">맞춤형 교재</span></a
             >
-            <a
-              href="/word-list"
-              class="block pl-4 py-1 text-sm text-gray-700"
+            <a href="/word-list" class="block pl-4 py-1 text-sm text-gray-700"
               >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
             >
             <a
-              href="/krdict"
-              class="block pl-4 py-1 text-sm text-gray-700"
-              >📖 <span data-i18n="nav.krdict">사전 검색</span></a
-            >
-            <a
-              href="/sentence-evaluation"
+              href="/sentence-learning"
               class="block pl-4 py-1 text-sm text-gray-700"
               >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
             >
-            <a
-              href="/curriculum"
-              class="block pl-4 py-1 text-sm text-gray-700"
+            <a href="/curriculum" class="block pl-4 py-1 text-sm text-gray-700"
               >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
             >
-
-	          </div>
+          </div>
 
           <!-- 활동하기 -->
           <div class="pl-3 pr-4 py-2 bg-gray-50 rounded-lg">
-            <div class="text-sm font-semibold text-gray-900 mb-1" data-i18n="nav.activities">활동하기</div>
+            <div
+              class="text-sm font-semibold text-gray-900 mb-1"
+              data-i18n="nav.activities"
+            >
+              활동하기
+            </div>
             <div class="pl-2 py-1">
               <div class="text-xs font-semibold text-gray-700 mb-1">
                 <span data-i18n="nav.fun_games">재미있는 놀이</span>
@@ -592,12 +639,16 @@
               <a
                 href="/word-matching-game"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >🧩 <span data-i18n="nav.game_wordmatch">단어맞추기 게임</span></a
+                >🧩
+                <span data-i18n="nav.game_wordmatch">단어맞추기 게임</span></a
               >
               <a
                 href="/synonym-antonym-game"
                 class="block pl-4 py-1 text-sm text-gray-600"
-                >📝 <span data-i18n="nav.game_syn_ant">동의어/반의어 찾기 게임</span></a
+                >📝
+                <span data-i18n="nav.game_syn_ant"
+                  >동의어/반의어 찾기 게임</span
+                ></a
               >
               <a
                 href="/initial-quiz"
@@ -615,7 +666,8 @@
                 <span data-i18n="nav.fun_stories">재미있는 이야기</span>
               </div>
               <a href="/folktales" class="block pl-4 py-1 text-sm text-gray-600"
-                >📖 <span data-i18n="nav.story_folktales">전래동화 읽기</span></a
+                >📖
+                <span data-i18n="nav.story_folktales">전래동화 읽기</span></a
               >
               <a
                 href="/cultural-expressions"
@@ -662,63 +714,63 @@
               학습 진도
             </a>
             <!-- Admin Link Mobile -->
-	            <div id="mobile-admin-menu" style="display: none">
-	              <a
-	                href="/admin"
-	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-	              >
-	                관리자 콘솔
-	              </a>
-	              <a
-	                href="/content-generation"
-	                id="mobile-admin-content-link"
-	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-	                style="display: none"
-	              >
-	                📝 <span data-i18n="nav.admin_content">AI 맞춤형 콘텐츠 생성</span>
-	              </a>
-	              <a
-	                href="/media-generation"
-	                id="mobile-admin-media-link"
-	                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
-	                style="display: none"
-	              >
-	                🎬 <span data-i18n="nav.admin_media">AI 상황별 이미지 생성</span>
-	              </a>
-	            </div>
-	
-	            <!-- System Admin Navigation (Desktop) -->
-	            <div
-	              id="system-nav"
-	              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
-	              style="display: none"
-	            >
-	              <!-- AI 학습 (System Admin only) -->
-	              <div
-	                class="dropdown inline-flex items-center"
-	                id="system-learning-dropdown"
-	              >
-	                <button
-	                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
-	                >
-	                  <span data-i18n="nav.ai_learning">AI 학습</span> ▾
-	                </button>
-	                <div class="dropdown-content">
-	                  <a href="/word-list"
-	                    >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
-	                  >
-	                  <a href="/krdict"
-	                    >📖 <span data-i18n="nav.krdict">사전 검색</span></a
-	                  >
-	                  <a href="/sentence-evaluation"
-	                    >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
-	                  >
-	                  <a href="/curriculum"
-	                    >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
-	                  >
-	                </div>
-	              </div>
-	            </div>
+            <div id="mobile-admin-menu" style="display: none">
+              <a
+                href="/admin"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+              >
+                관리자 콘솔
+              </a>
+              <a
+                href="/content-generation"
+                id="mobile-admin-content-link"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                style="display: none"
+              >
+                📝
+                <span data-i18n="nav.admin_content">AI 맞춤형 콘텐츠 생성</span>
+              </a>
+              <a
+                href="/media-generation"
+                id="mobile-admin-media-link"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-orange-500 hover:text-gray-800"
+                style="display: none"
+              >
+                🎬
+                <span data-i18n="nav.admin_media">AI 상황별 이미지 생성</span>
+              </a>
+            </div>
+
+            <!-- System Admin Navigation (Desktop) -->
+            <div
+              id="system-nav"
+              class="hidden sm:ml-4 lg:ml-6 sm:flex sm:space-x-2 lg:space-x-4"
+              style="display: none"
+            >
+              <!-- AI 학습 (System Admin only) -->
+              <div
+                class="dropdown inline-flex items-center"
+                id="system-learning-dropdown"
+              >
+                <button
+                  class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
+                >
+                  <span data-i18n="nav.ai_learning">AI 학습</span> ▾
+                </button>
+                <div class="dropdown-content">
+                  <a href="/word-list"
+                    >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
+                  >
+                  <a href="/sentence-learning"
+                    >🧾
+                    <span data-i18n="nav.sentence_learning">문장 학습</span></a
+                  >
+                  <a href="/curriculum"
+                    >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
+                  >
+                </div>
+              </div>
+            </div>
             <a
               href="/mypage"
               id="mobile-user-display"
@@ -744,6 +796,147 @@
       id="chatbot-widget"
       class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
     >
+      <!-- Dictionary Button -->
+      <button
+        id="krdict-toggle"
+        type="button"
+        class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-emerald-400"
+        aria-label="사전 검색"
+        title="사전 검색"
+      >
+        <span class="text-4xl leading-none select-none" aria-hidden="true"
+          >📖</span
+        >
+      </button>
+
+      <!-- Dictionary Window -->
+      <div
+        id="krdict-window"
+        class="hidden absolute right-0 bottom-[calc(100%+0.75rem)] w-96 h-[520px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        style="max-width: calc(100vw - 2rem)"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-lg" aria-hidden="true">📖</span>
+            <div class="font-semibold">사전 검색</div>
+          </div>
+          <button
+            id="krdict-close"
+            type="button"
+            class="text-white hover:bg-white/20 rounded-full p-1"
+            aria-label="닫기"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Search -->
+        <form
+          id="krdict-widget-form"
+          class="p-3 bg-white border-b border-gray-200 flex flex-col gap-2"
+        >
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="krdict-widget-query"
+              placeholder="예) 나무, 나무라다"
+              class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400"
+              autocomplete="off"
+            />
+            <button
+              id="krdict-widget-submit"
+              type="submit"
+              class="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
+            >
+              검색
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label for="krdict-widget-part" class="sr-only">검색 대상</label>
+              <select
+                id="krdict-widget-part"
+                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+              >
+                <option value="">전체</option>
+                <option value="word">어휘</option>
+                <option value="ip">관용구/속담</option>
+                <option value="dfn">뜻풀이</option>
+                <option value="exam">용례</option>
+              </select>
+            </div>
+            <div>
+              <label for="krdict-widget-method" class="sr-only"
+                >검색 방식</label
+              >
+              <select
+                id="krdict-widget-method"
+                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+              >
+                <option value="">일치</option>
+                <option value="include">포함</option>
+                <option value="start">시작</option>
+                <option value="end">끝</option>
+              </select>
+            </div>
+            <div>
+              <label for="krdict-widget-num" class="sr-only">출력 건수</label>
+              <select
+                id="krdict-widget-num"
+                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+              >
+                <option value="10">10개</option>
+                <option value="20">20개</option>
+                <option value="30">30개</option>
+              </select>
+            </div>
+          </div>
+        </form>
+        <div
+          id="krdict-widget-status"
+          class="px-4 py-2 text-xs text-gray-600 bg-gray-50 hidden"
+        ></div>
+
+        <!-- Results -->
+        <div
+          id="krdict-widget-results"
+          class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
+        >
+          <div class="text-sm text-gray-500">
+            검색어를 입력하고 Enter를 눌러보세요.
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="p-3 border-t border-gray-200 bg-white flex items-center justify-between"
+        >
+          <a
+            href="/krdict"
+            class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold"
+          >
+            전체 페이지로 열기 →
+          </a>
+          <div class="text-[11px] text-gray-400">한국어기초사전(Open API)</div>
+        </div>
+      </div>
+
       <div class="relative flex flex-col items-end">
         <!-- Mail Button -->
         <button
@@ -1032,10 +1225,250 @@
           width: calc(100vw - 2rem);
           right: 1rem;
         }
+        #krdict-window {
+          width: calc(100vw - 2rem);
+          right: 1rem;
+        }
       }
     </style>
 
     <script>
+      // Dictionary Widget
+      const krdictToggle = document.getElementById("krdict-toggle");
+      const krdictWindow = document.getElementById("krdict-window");
+      const krdictClose = document.getElementById("krdict-close");
+      const krdictForm = document.getElementById("krdict-widget-form");
+      const krdictQuery = document.getElementById("krdict-widget-query");
+      const krdictSubmit = document.getElementById("krdict-widget-submit");
+      const krdictPart = document.getElementById("krdict-widget-part");
+      const krdictMethod = document.getElementById("krdict-widget-method");
+      const krdictNum = document.getElementById("krdict-widget-num");
+      const krdictStatus = document.getElementById("krdict-widget-status");
+      const krdictResults = document.getElementById("krdict-widget-results");
+
+      function loadKrdictWidgetPreferences() {
+        try {
+          const part = localStorage.getItem("krdict-widget-part");
+          const method = localStorage.getItem("krdict-widget-method");
+          const num = localStorage.getItem("krdict-widget-num");
+          if (krdictPart && part !== null) krdictPart.value = part;
+          if (krdictMethod && method !== null) krdictMethod.value = method;
+          if (krdictNum && num !== null) krdictNum.value = num;
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      function saveKrdictWidgetPreferences() {
+        try {
+          if (krdictPart)
+            localStorage.setItem("krdict-widget-part", krdictPart.value || "");
+          if (krdictMethod)
+            localStorage.setItem(
+              "krdict-widget-method",
+              krdictMethod.value || ""
+            );
+          if (krdictNum)
+            localStorage.setItem("krdict-widget-num", krdictNum.value || "10");
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      function setKrdictStatus(text) {
+        if (!krdictStatus) return;
+        const msg = (text || "").trim();
+        if (!msg) {
+          krdictStatus.classList.add("hidden");
+          krdictStatus.textContent = "";
+          return;
+        }
+        krdictStatus.textContent = msg;
+        krdictStatus.classList.remove("hidden");
+      }
+
+      function renderKrdictItem(item) {
+        const word = escapeHtml(item.word || "—");
+        const pronunciation = escapeHtml(item.pronunciation || "");
+        const pos = item.pos ? escapeHtml(item.pos) : "";
+        const grade = item.word_grade ? escapeHtml(item.word_grade) : "";
+        const tags = [
+          pos
+            ? `<span class="px-2 py-1 rounded-full bg-white text-gray-700 text-xs border border-gray-200">${pos}</span>`
+            : "",
+          grade
+            ? `<span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs border border-emerald-100">${grade}</span>`
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        const senses = Array.isArray(item.senses) ? item.senses : [];
+        const senseList = senses
+          .slice(0, 2)
+          .map((sense) => {
+            const order = sense.sense_order ? `${sense.sense_order}. ` : "";
+            return `<li class="text-sm text-gray-700 leading-relaxed">${escapeHtml(
+              `${order}${sense.definition || ""}`.trim()
+            )}</li>`;
+          })
+          .join("");
+
+        const example = item.example
+          ? `<p class="text-xs text-gray-600 mt-2">용례: ${escapeHtml(
+              item.example
+            )}</p>`
+          : "";
+
+        const link = item.link
+          ? `<a href="${escapeHtml(
+              item.link
+            )}" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold">사전 상세 보기 →</a>`
+          : "";
+
+        return `
+	          <article class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
+	            <div class="flex items-start justify-between gap-3">
+	              <div class="min-w-0">
+	                <div class="text-lg font-bold text-gray-900 truncate">${word}</div>
+	                <div class="text-xs text-gray-500 mt-1">${pronunciation}</div>
+	              </div>
+	              <div class="flex flex-wrap gap-2 justify-end">${tags}</div>
+	            </div>
+	            ${senseList ? `<ul class="mt-3 space-y-1">${senseList}</ul>` : ""}
+	            ${example}
+	            <div class="mt-3">${link}</div>
+	          </article>
+	        `;
+      }
+
+      async function fetchKrdictResults(query) {
+        const params = new URLSearchParams({
+          q: query,
+          start: "1",
+          num: (krdictNum && krdictNum.value) || "10",
+        });
+        if (krdictPart && krdictPart.value)
+          params.set("part", krdictPart.value);
+        if (krdictMethod && krdictMethod.value)
+          params.set("method", krdictMethod.value);
+        const response = await fetch(`/api/krdict/search?${params.toString()}`);
+        const data = await response.json();
+        return { ok: response.ok, data };
+      }
+
+      function closeKrdictWindow() {
+        if (krdictWindow) krdictWindow.classList.add("hidden");
+      }
+
+      function openKrdictWindow() {
+        if (!krdictWindow) return;
+        // 다른 패널은 닫아두기
+        document.getElementById("mail-dropdown")?.classList.add("hidden");
+        document.getElementById("chatbot-window")?.classList.add("hidden");
+        loadKrdictWidgetPreferences();
+        krdictWindow.classList.remove("hidden");
+        setTimeout(() => krdictQuery?.focus(), 0);
+      }
+
+      if (krdictToggle) {
+        krdictToggle.addEventListener("click", () => {
+          if (!krdictWindow) return;
+          const willOpen = krdictWindow.classList.contains("hidden");
+          if (willOpen) openKrdictWindow();
+          else closeKrdictWindow();
+        });
+      }
+
+      if (krdictClose) {
+        krdictClose.addEventListener("click", closeKrdictWindow);
+      }
+
+      if (krdictForm) {
+        krdictForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const query = (krdictQuery?.value || "").trim();
+          if (!query) return;
+
+          saveKrdictWidgetPreferences();
+          krdictSubmit.disabled = true;
+          setKrdictStatus("검색 중...");
+          if (krdictResults) {
+            krdictResults.innerHTML =
+              '<div class="text-sm text-gray-500">검색 중입니다...</div>';
+          }
+
+          try {
+            const result = await fetchKrdictResults(query);
+            const payload = result.data || {};
+            if (!result.ok || payload.error) {
+              const message =
+                (payload.error && payload.error.message) ||
+                payload.error ||
+                "검색 중 문제가 발생했습니다.";
+              setKrdictStatus(message);
+              if (krdictResults) {
+                krdictResults.innerHTML =
+                  '<div class="text-sm text-red-600">검색에 실패했습니다.</div>';
+              }
+              return;
+            }
+
+            const channel = payload.channel || {};
+            const items = Array.isArray(payload.items) ? payload.items : [];
+            setKrdictStatus(
+              `총 ${channel.total || 0}건 중 ${items.length}건 표시`
+            );
+
+            if (!items.length) {
+              if (krdictResults) {
+                krdictResults.innerHTML =
+                  '<div class="text-sm text-gray-500">검색 결과가 없습니다.</div>';
+              }
+              return;
+            }
+
+            if (krdictResults) {
+              krdictResults.innerHTML = items.map(renderKrdictItem).join("");
+            }
+          } catch (err) {
+            setKrdictStatus("검색 요청을 처리하지 못했습니다.");
+            if (krdictResults) {
+              krdictResults.innerHTML =
+                '<div class="text-sm text-red-600">네트워크 오류가 발생했습니다.</div>';
+            }
+          } finally {
+            krdictSubmit.disabled = false;
+          }
+        });
+      }
+
+      // Persist option changes immediately
+      if (krdictPart)
+        krdictPart.addEventListener("change", saveKrdictWidgetPreferences);
+      if (krdictMethod)
+        krdictMethod.addEventListener("change", saveKrdictWidgetPreferences);
+      if (krdictNum)
+        krdictNum.addEventListener("change", saveKrdictWidgetPreferences);
+
+      // Load on initial page load so the UI is consistent when opened later
+      loadKrdictWidgetPreferences();
+
+      // Close dictionary window when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!krdictWindow || krdictWindow.classList.contains("hidden")) return;
+        if (krdictWindow.contains(e.target) || krdictToggle.contains(e.target))
+          return;
+        closeKrdictWindow();
+      });
+
+      // Close dictionary window with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeKrdictWindow();
+        }
+      });
+
       // Chatbot Widget
       const chatbotToggle = document.getElementById("chatbot-toggle");
       const chatbotWindow = document.getElementById("chatbot-window");
@@ -1248,39 +1681,40 @@
             </p>
             <p>
               대표번호 : 02-6429-7100 · FAX : 02-6429-7188 · 영업(AUTO) :
-              02-6429-7109 · 영업(AI) : 02-6429-7156 · 주식 :
-              02-6429-7121
+              02-6429-7109 · 영업(AI) : 02-6429-7156 · 주식 : 02-6429-7121
             </p>
           </div>
         </div>
-        <div class="mt-1 border-t border-gray-200 pt-2 text-xs text-gray-500 font-semibold">
+        <div
+          class="mt-1 border-t border-gray-200 pt-2 text-xs text-gray-500 font-semibold"
+        >
           <span>copyright ⓒ mediazen all rights reserved.</span>
         </div>
       </div>
     </footer>
 
-	    <script>
-	      // Mobile menu toggle
-	      const mobileMenuButton = document.createElement("button");
-	      mobileMenuButton.className =
-	        "sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100";
-	      mobileMenuButton.innerHTML = `
+    <script>
+      // Mobile menu toggle
+      const mobileMenuButton = document.createElement("button");
+      mobileMenuButton.className =
+        "sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100";
+      mobileMenuButton.innerHTML = `
 	      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 	        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
 	      </svg>
 	    `;
 
-	      // Add menu button to nav (this would need proper positioning in production)
-	      mobileMenuButton.addEventListener("click", () => {
-	        const menu = document.getElementById("mobile-menu");
-	        menu.style.display = menu.style.display === "none" ? "block" : "none";
-	      });
+      // Add menu button to nav (this would need proper positioning in production)
+      mobileMenuButton.addEventListener("click", () => {
+        const menu = document.getElementById("mobile-menu");
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+      });
 
-	      // Prepend the mobile menu button into the header for small screens
-	      const headerFlex = document.querySelector("nav .flex");
-	      if (headerFlex) {
-	        headerFlex.prepend(mobileMenuButton);
-	      }
+      // Prepend the mobile menu button into the header for small screens
+      const headerFlex = document.querySelector("nav .flex");
+      if (headerFlex) {
+        headerFlex.prepend(mobileMenuButton);
+      }
 
       // Set active state on navigation links by matching current path
       function setActiveNav() {
@@ -1310,20 +1744,20 @@
         const loginLink = document.getElementById("login-link");
         const signupLink = document.getElementById("signup-link");
         const progressLink = document.getElementById("progress-link");
-		        const learnerNav = document.getElementById("learner-nav");
-		        const systemNav = document.getElementById("system-nav");
-		        const mobileAiLearning = document.getElementById("mobile-ai-learning");
-	        const adminDropdown = document.getElementById("admin-dropdown");
-	        const mobileAdminMenu = document.getElementById("mobile-admin-menu");
-	        const adminContentLink = document.getElementById("admin-content-link");
-	        const adminMediaLink = document.getElementById("admin-media-link");
-	        const mobileAdminContentLink = document.getElementById(
-	          "mobile-admin-content-link"
-	        );
-	        const mobileAdminMediaLink = document.getElementById(
-	          "mobile-admin-media-link"
-	        );
-	        const userDisplay = document.getElementById("user-display");
+        const learnerNav = document.getElementById("learner-nav");
+        const systemNav = document.getElementById("system-nav");
+        const mobileAiLearning = document.getElementById("mobile-ai-learning");
+        const adminDropdown = document.getElementById("admin-dropdown");
+        const mobileAdminMenu = document.getElementById("mobile-admin-menu");
+        const adminContentLink = document.getElementById("admin-content-link");
+        const adminMediaLink = document.getElementById("admin-media-link");
+        const mobileAdminContentLink = document.getElementById(
+          "mobile-admin-content-link"
+        );
+        const mobileAdminMediaLink = document.getElementById(
+          "mobile-admin-media-link"
+        );
+        const userDisplay = document.getElementById("user-display");
         const mobileUserDisplay = document.getElementById(
           "mobile-user-display"
         );
@@ -1337,31 +1771,35 @@
           if (signupLink) signupLink.style.display = "none";
           if (progressLink)
             progressLink.style.display = isLearner ? "inline-block" : "none";
-	          if (learnerNav) learnerNav.style.display = isLearner ? "flex" : "none";
-	          if (systemNav) systemNav.style.display = isSystemAdmin ? "flex" : "none";
-	          const adminLink = document.getElementById("admin-link");
-	          if (adminLink) adminLink.style.display = isAdmin ? "none" : "none";
-	          if (adminDropdown)
-	            adminDropdown.style.display = hasAdminAccess ? "flex" : "none";
-	          const canSeeSystemAdminItems = isSystemAdmin;
-	          if (adminContentLink)
-	            adminContentLink.style.display = canSeeSystemAdminItems
-	              ? "block"
-	              : "none";
-	          if (adminMediaLink)
-	            adminMediaLink.style.display = canSeeSystemAdminItems ? "block" : "none";
-	          if (mobileAdminMenu)
-	            mobileAdminMenu.style.display = hasAdminAccess ? "block" : "none";
-	          if (mobileAiLearning)
-	            mobileAiLearning.style.display = isSystemAdmin ? "block" : "none";
-	          if (mobileAdminContentLink)
-	            mobileAdminContentLink.style.display = canSeeSystemAdminItems
-	              ? "block"
-	              : "none";
-	          if (mobileAdminMediaLink)
-	            mobileAdminMediaLink.style.display = canSeeSystemAdminItems
-	              ? "block"
-	              : "none";
+          if (learnerNav)
+            learnerNav.style.display = isLearner ? "flex" : "none";
+          if (systemNav)
+            systemNav.style.display = isSystemAdmin ? "flex" : "none";
+          const adminLink = document.getElementById("admin-link");
+          if (adminLink) adminLink.style.display = isAdmin ? "none" : "none";
+          if (adminDropdown)
+            adminDropdown.style.display = hasAdminAccess ? "flex" : "none";
+          const canSeeSystemAdminItems = isSystemAdmin;
+          if (adminContentLink)
+            adminContentLink.style.display = canSeeSystemAdminItems
+              ? "block"
+              : "none";
+          if (adminMediaLink)
+            adminMediaLink.style.display = canSeeSystemAdminItems
+              ? "block"
+              : "none";
+          if (mobileAdminMenu)
+            mobileAdminMenu.style.display = hasAdminAccess ? "block" : "none";
+          if (mobileAiLearning)
+            mobileAiLearning.style.display = isSystemAdmin ? "block" : "none";
+          if (mobileAdminContentLink)
+            mobileAdminContentLink.style.display = canSeeSystemAdminItems
+              ? "block"
+              : "none";
+          if (mobileAdminMediaLink)
+            mobileAdminMediaLink.style.display = canSeeSystemAdminItems
+              ? "block"
+              : "none";
           if (userDisplay) {
             userDisplay.textContent = `👤 ${nickname || "사용자"}`;
             userDisplay.style.display = "inline-block";
@@ -1381,20 +1819,21 @@
           if (chatbotWidget) {
             chatbotWidget.style.display = role === "system_admin" ? "none" : "";
           }
-	        } else {
+        } else {
           if (loginLink) loginLink.style.display = "inline-block";
           if (signupLink) signupLink.style.display = "inline-block";
           if (progressLink) progressLink.style.display = "none";
-	          if (learnerNav) learnerNav.style.display = "flex";
-	          if (systemNav) systemNav.style.display = "none";
-	          if (mobileAiLearning) mobileAiLearning.style.display = "none";
-	          if (adminDropdown) adminDropdown.style.display = "none";
-	          if (adminContentLink) adminContentLink.style.display = "none";
-	          if (adminMediaLink) adminMediaLink.style.display = "none";
-	          if (mobileAdminMenu) mobileAdminMenu.style.display = "none";
-	          if (mobileAdminContentLink) mobileAdminContentLink.style.display = "none";
-	          if (mobileAdminMediaLink) mobileAdminMediaLink.style.display = "none";
-	          if (userDisplay) userDisplay.style.display = "none";
+          if (learnerNav) learnerNav.style.display = "flex";
+          if (systemNav) systemNav.style.display = "none";
+          if (mobileAiLearning) mobileAiLearning.style.display = "none";
+          if (adminDropdown) adminDropdown.style.display = "none";
+          if (adminContentLink) adminContentLink.style.display = "none";
+          if (adminMediaLink) adminMediaLink.style.display = "none";
+          if (mobileAdminMenu) mobileAdminMenu.style.display = "none";
+          if (mobileAdminContentLink)
+            mobileAdminContentLink.style.display = "none";
+          if (mobileAdminMediaLink) mobileAdminMediaLink.style.display = "none";
+          if (userDisplay) userDisplay.style.display = "none";
           if (logoutBtn) logoutBtn.style.display = "none";
           if (mobileUserMenu) mobileUserMenu.style.display = "none";
           if (mobileLinkoutBtn) mobileLinkoutBtn.style.display = "none";
@@ -1403,14 +1842,21 @@
       }
 
       // Language/i18n helpers (landing + dashboard)
-      const LANG_LABELS = { ko: "한국어", ja: "日本語", zh: "中文" };
+      const LANG_LABELS = {
+        ko: "한국어",
+        ja: "日本語",
+        zh: "中文",
+        en: "English",
+      };
       const LANG_FLAG_IMAGES = {
         ko: "/static/img/flags/ko.svg",
         ja: "/static/img/flags/ja.svg",
         zh: "/static/img/flags/zh.svg",
+        en: "/static/img/flags/en.svg",
       };
       window.GLOBAL_I18N = {
         ko: {
+          "nav.home": "홈",
           "nav.pron_ai": "AI 발음 교정",
           "nav.pron_test": "AI 발음 종합 평가 테스트",
           "nav.ai_learning": "AI 학습",
@@ -1446,6 +1892,7 @@
           "auth.logout": "로그아웃",
         },
         ja: {
+          "nav.home": "ホーム",
           "nav.pron_ai": "AI 発音矯正",
           "nav.pron_test": "AI 発音総合評価テスト",
           "nav.ai_learning": "AI 学習",
@@ -1481,6 +1928,7 @@
           "auth.logout": "ログアウト",
         },
         zh: {
+          "nav.home": "首页",
           "nav.pron_ai": "AI 发音矫正",
           "nav.pron_test": "AI 发音综合评测",
           "nav.ai_learning": "AI 学习",
@@ -1515,6 +1963,42 @@
           "auth.signup": "注册",
           "auth.logout": "退出登录",
         },
+        en: {
+          "nav.home": "Home",
+          "nav.pron_ai": "AI Pronunciation",
+          "nav.pron_test": "Pronunciation Test",
+          "nav.ai_learning": "AI Learning",
+          "nav.word_list": "Word List",
+          "nav.krdict": "Dictionary",
+          "nav.sentence_learning": "Sentence Learning",
+          "nav.curriculum": "Pronunciation",
+          "nav.activities": "Activities",
+          "nav.fun_games": "Fun Games",
+          "nav.game_wordmatch": "Word Matching",
+          "nav.game_syn_ant": "Synonyms/Antonyms",
+          "nav.game_initial": "Initial Quiz",
+          "nav.game_card": "Card Matching",
+          "nav.fun_stories": "Stories",
+          "nav.story_folktales": "Folktales",
+          "nav.story_culture": "Culture Expressions",
+          "nav.basic": "Basics",
+          "nav.basic_jamo": "Hangul Basics",
+          "nav.basic_rules": "Pronunciation Rules",
+          "nav.sitemap": "Sitemap",
+          "nav.mypage": "Profile",
+          "nav.progress": "Progress",
+          "nav.admin": "Admin",
+          "nav.admin_console": "Admin Console",
+          "nav.admin_content": "Content Generation",
+          "nav.admin_media": "Image Generation",
+          "nav.help": "Help",
+          "nav.help_channel": "Support",
+          "nav.ai_tools": "AI Tools",
+          "nav.content_generation": "Textbook",
+          "auth.login": "Login",
+          "auth.signup": "Sign Up",
+          "auth.logout": "Logout",
+        },
       };
 
       function getAppLang() {
@@ -1527,13 +2011,13 @@
           }
         } catch (_) {}
         const stored = (localStorage.getItem("app_lang") || "").toLowerCase();
-        if (["ko", "ja", "zh"].includes(stored)) return stored;
+        if (["ko", "ja", "zh", "en"].includes(stored)) return stored;
         return "ko";
       }
 
       window.setAppLang = function setAppLang(lang) {
         const next = (lang || "").toLowerCase();
-        if (!["ko", "ja", "zh"].includes(next)) return;
+        if (!["ko", "ja", "zh", "en"].includes(next)) return;
         localStorage.setItem("app_lang", next);
         // Apply immediately without full reload.
         try {
@@ -1593,7 +2077,8 @@
         document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
           const key = el.getAttribute("data-i18n-placeholder");
           if (!key) return;
-          if (table[key] !== undefined) el.setAttribute("placeholder", table[key]);
+          if (table[key] !== undefined)
+            el.setAttribute("placeholder", table[key]);
         });
         if (table["__title__"]) document.title = table["__title__"];
       }
@@ -1913,7 +2398,8 @@
       function openCharacterModal(character) {
         const data = characterData[character];
         const lang = (getAppLang && getAppLang()) || "ko";
-        const messages = (data.messages_i18n && data.messages_i18n[lang]) || data.messages;
+        const messages =
+          (data.messages_i18n && data.messages_i18n[lang]) || data.messages;
         const randomMessage =
           messages[Math.floor(Math.random() * messages.length)];
 
@@ -2069,6 +2555,9 @@
         );
       };
     </script>
+
+    <!-- 공통 UI 컴포넌트 JavaScript -->
+    <script src="/static/js/ui-components.js"></script>
 
     {% block extra_js %}{% endblock %}
 

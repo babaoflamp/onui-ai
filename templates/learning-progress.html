@@ -65,23 +65,57 @@ endblock %} {% block content %}
     <!-- Weekly Stats -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">📈 주간 통계</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
-          <p class="text-sm text-gray-600 mb-2">총 발음 평가</p>
-          <div class="text-4xl font-bold text-blue-600" id="weeklyTotal">0</div>
-          <p class="text-xs text-gray-500 mt-2">지난 7일간</p>
-        </div>
-        <div class="bg-green-50 rounded-xl p-6 border border-green-100">
-          <p class="text-sm text-gray-600 mb-2">평균 정확도</p>
-          <div class="text-4xl font-bold text-green-600" id="weeklyAvg">0%</div>
-          <p class="text-xs text-gray-500 mt-2">지난 7일간</p>
-        </div>
-        <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
-          <p class="text-sm text-gray-600 mb-2">연속 학습일</p>
-          <div class="text-4xl font-bold text-orange-600" id="consecutiveDays">
-            0
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-6">
+        <div class="rounded-xl border border-gray-100 bg-gray-50 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-semibold text-gray-700">학습 그래프 (최근 7일)</div>
+            <div class="flex items-center gap-3 text-xs text-gray-500">
+              <span class="inline-flex items-center gap-1"
+                ><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>평가 횟수</span
+              >
+              <span class="inline-flex items-center gap-1"
+                ><span class="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>학습 시간</span
+              >
+              <span class="inline-flex items-center gap-1"
+                ><span class="w-2 h-2 rounded-full bg-green-600 inline-block"></span>평균 점수</span
+              >
+            </div>
           </div>
-          <p class="text-xs text-gray-500 mt-2">🔥 스트릭</p>
+          <div
+            id="weeklyGraph"
+            class="w-full bg-white rounded-lg border border-gray-200 p-3 overflow-hidden"
+          >
+            <div class="text-sm text-gray-500">그래프를 불러오는 중...</div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">
+            * 평가 횟수/학습 시간(막대)과 평균 점수(선)를 함께 표시합니다.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+          <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">총 발음 평가</p>
+              <span class="text-xs font-semibold text-blue-700" id="weeklyTotalDelta"></span>
+            </div>
+            <div class="text-4xl font-bold text-blue-600" id="weeklyTotal">0</div>
+            <p class="text-xs text-gray-500 mt-2">지난 7일간</p>
+          </div>
+          <div class="bg-green-50 rounded-xl p-6 border border-green-100">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">평균 정확도</p>
+              <span class="text-xs font-semibold text-green-700" id="weeklyAvgDelta"></span>
+            </div>
+            <div class="text-4xl font-bold text-green-600" id="weeklyAvg">0%</div>
+            <p class="text-xs text-gray-500 mt-2">가중 평균</p>
+          </div>
+          <div class="bg-orange-50 rounded-xl p-6 border border-orange-100">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">연속 학습일</p>
+              <span class="text-xs font-semibold text-orange-700" id="weeklyActiveDays"></span>
+            </div>
+            <div class="text-4xl font-bold text-orange-600" id="consecutiveDays">0</div>
+            <p class="text-xs text-gray-500 mt-2">🔥 스트릭</p>
+          </div>
         </div>
       </div>
     </div>
@@ -263,6 +297,12 @@ endblock %} {% block content %}
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
+              <span class="text-gray-700">총 학습일</span>
+              <span class="font-bold text-gray-900" id="learningDays">0</span>
+            </div>
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
               <span class="text-gray-700">평균 정확도</span>
               <span class="font-bold text-gray-900" id="allTimeAvg">0%</span>
             </div>
@@ -271,6 +311,12 @@ endblock %} {% block content %}
             >
               <span class="text-gray-700">최고 정확도</span>
               <span class="font-bold text-green-600" id="bestScore">0%</span>
+            </div>
+            <div
+              class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+            >
+              <span class="text-gray-700">최근 학습일</span>
+              <span class="font-bold text-gray-900" id="lastLearningDate">-</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
@@ -298,7 +344,8 @@ endblock %} {% block content %}
 
     <!-- Daily Log -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">📅 최근 학습 기록</h2>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">📅 최근 학습 기록</h2>
+      <p class="text-xs text-gray-500 mb-6">최근 30일 기준으로 표시됩니다.</p>
       <div id="dailyLog" class="space-y-3">
         <!-- Dynamically populated -->
       </div>
@@ -343,8 +390,8 @@ endblock %} {% block content %}
     },
   };
 
-  async function loadProgressData() {
-    try {
+	  async function loadProgressData() {
+	    try {
       // Check if user is logged in using localStorage
       const token = localStorage.getItem("auth_token");
       const nickname = localStorage.getItem("user_nickname");
@@ -385,14 +432,34 @@ endblock %} {% block content %}
       document.getElementById("todayLevel").textContent =
         todayData.achievement_level || "-";
 
-      // Update weekly stats
-      const weeklyTotal = statsData.total_practices || 0;
-      const weeklyAvg = Math.round(statsData.avg_score || 0);
-      const consecutive = statsData.consecutive_days || 0;
+	      // Update weekly stats
+	      const weeklyStats = statsData.weekly || {};
+	      const weeklyTotal = weeklyStats.total_practices || 0;
+	      const weeklyAvg = Math.round(weeklyStats.avg_score || 0);
+	      const consecutive = statsData.consecutive_days || 0;
+	      const weeklyActiveDays = weeklyStats.active_days || 0;
+	      const weeklyDelta = weeklyStats.delta || {};
 
-      document.getElementById("weeklyTotal").textContent = weeklyTotal;
-      document.getElementById("weeklyAvg").textContent = weeklyAvg + "%";
-      document.getElementById("consecutiveDays").textContent = consecutive;
+	      document.getElementById("weeklyTotal").textContent = weeklyTotal;
+	      document.getElementById("weeklyAvg").textContent = weeklyAvg + "%";
+	      document.getElementById("consecutiveDays").textContent = consecutive;
+	      const deltaTotalEl = document.getElementById("weeklyTotalDelta");
+	      const deltaAvgEl = document.getElementById("weeklyAvgDelta");
+	      if (deltaTotalEl) {
+	        const v = Number(weeklyDelta.practices || 0);
+	        deltaTotalEl.textContent = v === 0 ? "±0" : v > 0 ? `+${v}` : `${v}`;
+	      }
+	      if (deltaAvgEl) {
+	        const v = Number(weeklyDelta.avg_score || 0);
+	        deltaAvgEl.textContent =
+	          v === 0 ? "±0%" : v > 0 ? `+${v}%` : `${v}%`;
+	      }
+	      const weeklyActiveEl = document.getElementById("weeklyActiveDays");
+	      if (weeklyActiveEl) {
+	        weeklyActiveEl.textContent = `주간 활동 ${weeklyActiveDays}일`;
+	      }
+
+	      renderWeeklyGraph(statsData.daily_log || []);
 
       // Overall coverage (optional fields from backend)
       const sentencesLearned = statsData.sentences_learned || 0;
@@ -528,14 +595,18 @@ endblock %} {% block content %}
       document.getElementById("accuracyNeedCount").textContent =
         accuracyStats.need_improvement;
 
-      document.getElementById("totalPractices").textContent =
-        statsData.total_practices || 0;
-      document.getElementById("allTimeAvg").textContent =
-        Math.round(statsData.avg_score || 0) + "%";
-      document.getElementById("bestScore").textContent =
-        Math.round(statsData.best_score || 0) + "%";
-      document.getElementById("totalDuration").textContent =
-        Math.round(statsData.total_duration || 0) + "분";
+	      document.getElementById("totalPractices").textContent =
+	        statsData.total_practices || 0;
+	      const learningDaysEl = document.getElementById("learningDays");
+	      if (learningDaysEl) learningDaysEl.textContent = statsData.learning_days || 0;
+	      document.getElementById("allTimeAvg").textContent =
+	        Math.round(statsData.avg_score || 0) + "%";
+	      document.getElementById("bestScore").textContent =
+	        Math.round(statsData.best_score || 0) + "%";
+	      const lastLearningEl = document.getElementById("lastLearningDate");
+	      if (lastLearningEl) lastLearningEl.textContent = statsData.last_learning_date || "-";
+	      document.getElementById("totalDuration").textContent =
+	        Math.round(statsData.total_duration || 0) + "분";
 
       // Update achievements
       const achievements = statsData.achievements || [];
@@ -567,45 +638,47 @@ endblock %} {% block content %}
         });
       }
 
-      // Update daily log (last 7 days)
-      const logResponse = await fetch(`/api/learning/user-stats/${userId}`);
-      const logData = logResponse.ok ? await logResponse.json() : {};
-      const dailyLog = logData.daily_log || [];
+	      // Update daily log (from statsData.daily_log)
+	      const dailyLog = statsData.daily_log || [];
 
       const dailyLogContainer = document.getElementById("dailyLog");
-      if (dailyLog.length === 0) {
-        dailyLogContainer.innerHTML =
-          '<p class="text-center text-gray-500">아직 기록이 없습니다</p>';
-      } else {
-        dailyLogContainer.innerHTML = dailyLog
-          .map(
-            (log) => `
-          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-            <div class="flex-1">
-              <p class="font-semibold text-gray-900">${new Date(
-                log.date
-              ).toLocaleDateString("ko-KR", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}</p>
-              <p class="text-sm text-gray-600">${
-                log.practices || 0
-              }회 발음 평가 · 평균 ${Math.round(log.avg_score || 0)}점</p>
-            </div>
-            <div class="text-right">
-              <p class="text-lg font-bold text-blue-600">${Math.round(
-                log.avg_score || 0
-              )}%</p>
-              <p class="text-xs text-gray-500">${Math.round(
-                log.duration || 0
-              )}분</p>
-            </div>
-          </div>
-        `
-          )
-          .join("");
-      }
+	      const sortedDailyLog = [...dailyLog].sort((a, b) =>
+	        String(b?.date || "").localeCompare(String(a?.date || ""))
+	      );
+
+	      if (sortedDailyLog.length === 0) {
+	        dailyLogContainer.innerHTML =
+	          '<p class="text-center text-gray-500">아직 기록이 없습니다</p>';
+	      } else {
+	        dailyLogContainer.innerHTML = sortedDailyLog
+	          .map(
+	            (log) => `
+	          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+	            <div class="flex-1">
+	              <p class="font-semibold text-gray-900">${new Date(
+	                log.date
+	              ).toLocaleDateString("ko-KR", {
+	                weekday: "short",
+	                month: "short",
+	                day: "numeric",
+	              })}</p>
+	              <p class="text-sm text-gray-600">${
+	                log.practices || 0
+	              }회 발음 평가 · 평균 ${Math.round(log.avg_score || 0)}점 · ${
+                Math.round(log.duration || 0)
+              }분</p>
+	            </div>
+	            <div class="text-right">
+	              <p class="text-lg font-bold text-blue-600">${Math.round(
+	                log.avg_score || 0
+	              )}%</p>
+	              <p class="text-xs text-gray-500">${log.practices || 0}회</p>
+	            </div>
+	          </div>
+	        `
+	          )
+	          .join("");
+	      }
 
       // Hide loading, show content
       document.getElementById("loadingState").style.display = "none";
@@ -619,7 +692,154 @@ endblock %} {% block content %}
     }
   }
 
-  // Load data when page loads
-  document.addEventListener("DOMContentLoaded", loadProgressData);
-</script>
-{% endblock %}
+	  // Load data when page loads
+	  document.addEventListener("DOMContentLoaded", loadProgressData);
+
+	  function renderWeeklyGraph(dailyLog) {
+	    const host = document.getElementById("weeklyGraph");
+	    if (!host) return;
+
+	    const toKey = (d) => {
+	      const yr = d.getFullYear();
+	      const mo = String(d.getMonth() + 1).padStart(2, "0");
+	      const da = String(d.getDate()).padStart(2, "0");
+	      return `${yr}-${mo}-${da}`;
+	    };
+
+	    const today = new Date();
+	    const days = [];
+	    for (let i = 6; i >= 0; i -= 1) {
+	      const d = new Date(today);
+	      d.setDate(today.getDate() - i);
+	      days.push(d);
+	    }
+
+	    const map = new Map();
+	    (dailyLog || []).forEach((item) => {
+	      if (!item || !item.date) return;
+	      map.set(item.date, item);
+	    });
+
+	    const series = days.map((d) => {
+	      const key = toKey(d);
+	      const item = map.get(key) || {};
+	      return {
+	        key,
+	        label: `${d.getMonth() + 1}/${d.getDate()}`,
+	        practices: Number(item.practices || 0),
+	        duration: Number(item.duration || 0),
+	        score: Number(item.avg_score || 0),
+	      };
+	    });
+
+	    const maxPractices = Math.max(1, ...series.map((s) => s.practices));
+	    const maxDuration = Math.max(1, ...series.map((s) => s.duration));
+	    const svgW = 700;
+	    const svgH = 220;
+	    const padL = 36;
+	    const padR = 12;
+	    const padT = 12;
+	    const padB = 36;
+	    const plotW = svgW - padL - padR;
+	    const plotH = svgH - padT - padB;
+
+	    const barW = plotW / series.length;
+	    const barInner = Math.max(10, barW * 0.7);
+	    const barGap = Math.max(2, barInner * 0.08);
+	    const barEach = (barInner - barGap) / 2;
+
+	    const xForIndex = (i) => padL + i * barW + barW / 2;
+	    const yForScore = (score) => {
+	      const clamped = Math.max(0, Math.min(100, score));
+	      return padT + plotH - (clamped / 100) * plotH;
+	    };
+	    const yForPractice = (p) =>
+	      padT + plotH - (p / maxPractices) * plotH;
+	    const yForDuration = (m) =>
+	      padT + plotH - (m / maxDuration) * plotH;
+
+	    const bars = series
+	      .map((s, i) => {
+	        const center = xForIndex(i);
+
+	        const x0 = center - barInner / 2;
+	        const xPractice = x0;
+	        const xDuration = x0 + barEach + barGap;
+
+	        const yP = yForPractice(s.practices);
+	        const hP = padT + plotH - yP;
+	        const yD = yForDuration(s.duration);
+	        const hD = padT + plotH - yD;
+
+	        const title = `${s.label}\n평가 ${s.practices}회\n학습 ${Math.round(
+	          s.duration
+	        )}분\n평균 ${Math.round(s.score)}%`;
+
+	        const practiceRect = `<rect x="${xPractice.toFixed(
+	          1
+	        )}" y="${yP.toFixed(1)}" width="${barEach.toFixed(
+	          1
+	        )}" height="${hP.toFixed(
+	          1
+	        )}" rx="6" fill="#3b82f6"><title>${title}</title></rect>`;
+	        const durationRect = `<rect x="${xDuration.toFixed(
+	          1
+	        )}" y="${yD.toFixed(1)}" width="${barEach.toFixed(
+	          1
+	        )}" height="${hD.toFixed(
+	          1
+	        )}" rx="6" fill="#f97316"><title>${title}</title></rect>`;
+	        return practiceRect + durationRect;
+	      })
+	      .join("");
+
+	    const linePoints = series
+	      .map((s, i) => `${xForIndex(i).toFixed(1)},${yForScore(s.score).toFixed(1)}`)
+	      .join(" ");
+
+	    const dots = series
+	      .map((s, i) => {
+	        const cx = xForIndex(i);
+	        const cy = yForScore(s.score);
+	        return `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(
+	          1
+	        )}" r="3.5" fill="#16a34a" />`;
+	      })
+	      .join("");
+
+	    const labels = series
+	      .map((s, i) => {
+	        const x = xForIndex(i);
+	        const y = padT + plotH + 22;
+	        return `<text x="${x.toFixed(
+	          1
+	        )}" y="${y}" text-anchor="middle" font-size="11" fill="#6b7280">${s.label}</text>`;
+	      })
+	      .join("");
+
+	    const grid = [25, 50, 75].map((pct) => {
+	      const y = yForScore(pct);
+	      return `<line x1="${padL}" y1="${y.toFixed(
+	        1
+	      )}" x2="${(padL + plotW).toFixed(
+	        1
+	      )}" y2="${y.toFixed(1)}" stroke="#e5e7eb" stroke-width="1" />`;
+	    });
+
+	    host.innerHTML = `
+	      <svg viewBox="0 0 ${svgW} ${svgH}" width="100%" height="220" role="img" aria-label="최근 7일 학습 그래프">
+	        ${grid.join("")}
+	        <line x1="${padL}" y1="${(padT + plotH).toFixed(
+	      1
+	    )}" x2="${(padL + plotW).toFixed(1)}" y2="${(
+	      padT + plotH
+	    ).toFixed(1)}" stroke="#d1d5db" stroke-width="1" />
+	        ${bars}
+	        <polyline points="${linePoints}" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+	        ${dots}
+	        ${labels}
+	      </svg>
+	    `;
+	  }
+	</script>
+	{% endblock %}

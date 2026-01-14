@@ -17,6 +17,9 @@
 
   <!-- Signup Card -->
   <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Alerts Container -->
+    <div id="alertsContainer" class="mb-4"></div>
+
     <form id="signupForm" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1" for="name"
@@ -91,6 +94,7 @@
       </div>
 
       <button
+        id="signupBtn"
         type="submit"
         class="w-full mt-2 px-4 py-2 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold hover:bg-[#e67a15] transition"
       >
@@ -107,27 +111,87 @@
   </div>
 
   <script>
-    document
-      .getElementById("signupForm")
-      .addEventListener("submit", async (e) => {
+    (function () {
+      const form = document.getElementById("signupForm");
+      const signupBtn = document.getElementById("signupBtn");
+      const nameInput = document.getElementById("name");
+      const emailInput = document.getElementById("email");
+      const nicknameInput = document.getElementById("nickname");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirm_password");
+      const alertsContainer = document.getElementById("alertsContainer");
+
+      // Clear field errors on input
+      const inputs = [
+        nameInput,
+        emailInput,
+        nicknameInput,
+        passwordInput,
+        confirmPasswordInput,
+      ];
+      inputs.forEach((input) => {
+        input.addEventListener("input", () => {
+          FormValidator.clearFieldError(input);
+        });
+      });
+
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
-        const nickname = document.getElementById("nickname").value;
-        const password = document.getElementById("password").value;
-        const confirmPassword =
-          document.getElementById("confirm_password").value;
+        // 유효성 검사
+        alertsContainer.innerHTML = "";
+        let hasErrors = false;
 
-        if (password !== confirmPassword) {
-          alert("비밀번호가 일치하지 않습니다");
+        if (!FormValidator.isRequired(nameInput.value)) {
+          FormValidator.showFieldError(nameInput, "이름은 필수입니다.");
+          hasErrors = true;
+        }
+
+        if (!FormValidator.isRequired(emailInput.value)) {
+          FormValidator.showFieldError(emailInput, "이메일은 필수입니다.");
+          hasErrors = true;
+        } else if (!FormValidator.isValidEmail(emailInput.value)) {
+          FormValidator.showFieldError(
+            emailInput,
+            "유효한 이메일을 입력해주세요."
+          );
+          hasErrors = true;
+        }
+
+        if (!FormValidator.isRequired(nicknameInput.value)) {
+          FormValidator.showFieldError(nicknameInput, "닉네임은 필수입니다.");
+          hasErrors = true;
+        }
+
+        if (!FormValidator.isRequired(passwordInput.value)) {
+          FormValidator.showFieldError(passwordInput, "비밀번호는 필수입니다.");
+          hasErrors = true;
+        } else if (!FormValidator.minLength(passwordInput.value, 8)) {
+          FormValidator.showFieldError(
+            passwordInput,
+            "비밀번호는 8자 이상이어야 합니다."
+          );
+          hasErrors = true;
+        }
+
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          FormValidator.showFieldError(
+            confirmPasswordInput,
+            "비밀번호가 일치하지 않습니다."
+          );
+          hasErrors = true;
+        }
+
+        if (hasErrors) {
+          AlertManager.error(
+            "입력 정보를 확인해주세요.",
+            "유효성 검사 오류",
+            alertsContainer
+          );
           return;
         }
 
-        if (password.length < 8) {
-          alert("비밀번호는 8자 이상이어야 합니다");
-          return;
-        }
+        LoadingManager.setButtonLoading(signupBtn, "가입 중...");
 
         try {
           const response = await fetch("/api/signup", {
@@ -136,26 +200,36 @@
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              name: name,
-              email: email,
-              nickname: nickname,
-              password: password,
+              name: nameInput.value,
+              email: emailInput.value,
+              nickname: nicknameInput.value,
+              password: passwordInput.value,
             }),
           });
 
           const data = await response.json();
 
-          if (response.ok) {
-            alert("회원가입이 완료되었습니다. 로그인해주세요.");
-            window.location.href = "/login";
-          } else {
-            alert(data.detail || "회원가입 실패");
+          if (!response.ok) {
+            throw new Error(data.detail || "회원가입에 실패했습니다.");
           }
+
+          LoadingManager.clearButtonLoading(signupBtn);
+          ToastManager.success("회원가입이 완료되었습니다.");
+
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1500);
         } catch (error) {
-          console.error("Error:", error);
-          alert("오류가 발생했습니다");
+          console.error("회원가입 오류:", error);
+          LoadingManager.clearButtonLoading(signupBtn);
+          AlertManager.error(
+            error.message || "오류가 발생했습니다.",
+            "회원가입 실패",
+            alertsContainer
+          );
         }
       });
+    })();
   </script>
 </div>
 {% endblock %}

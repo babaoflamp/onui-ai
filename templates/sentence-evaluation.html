@@ -2,6 +2,7 @@
 %} {% block extra_css %}
 <link rel="stylesheet" href="/static/css/pronunciation-practice.css" />
 {% endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-6xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -43,12 +44,6 @@
           >
             <option value="">-- 문장 선택 --</option>
           </select>
-          <button
-            onclick="loadSentencesData()"
-            class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
-          >
-            새로고침
-          </button>
         </div>
 
         <!-- 직접 입력 섹션 -->
@@ -78,9 +73,17 @@
       <div
         class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200"
       >
-        <label class="block text-sm font-semibold text-gray-700 mb-3"
-          >선택된 문장</label
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3"
         >
+          <label class="text-sm font-semibold text-gray-700">선택된 문장</label>
+          <button
+            onclick="playSelectedSentenceTTS()"
+            class="px-4 py-2 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold text-sm"
+          >
+            🔊 들어보기
+          </button>
+        </div>
         <div
           id="selectedSentenceDisplay"
           class="text-2xl font-bold text-gray-900"
@@ -91,31 +94,73 @@
 
       <!-- 녹음 섹션 -->
       <div
-        class="mb-8 p-6 bg-gradient-to-r from-pink-50 to-red-50 rounded-xl border-2 border-red-200"
+        class="mt-6 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-orange-50/40"
       >
-        <label class="block text-lg font-semibold text-gray-900 mb-4"
-          >🎤 녹음 및 평가</label
+        <div id="sentenceRecordingStatus" class="mb-4">
+          <p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>
+        </div>
+
+        <div
+          id="sentenceCountdown"
+          class="text-5xl font-bold text-red-500 text-center mb-4 hidden"
         >
-        <div class="flex gap-3 flex-wrap">
+          3
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
           <button
-            id="startRecordingBtn"
+            id="sentenceRecordStart"
             onclick="startSentenceRecording()"
-            class="flex items-center gap-2 px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg hover:bg-[#e67a15] transition font-semibold shadow-md"
+            class="px-6 py-3 bg-orange-500 border-2 border-orange-500 text-white rounded-lg font-semibold hover:bg-orange-400 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>🎤</span>
-            녹음 시작
+            🎙️ 녹음 시작
           </button>
           <button
-            id="stopRecordingBtn"
+            id="sentenceRecordStop"
             onclick="stopSentenceRecording()"
-            disabled
-            class="flex items-center gap-2 px-6 py-3 bg-white border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FFE6BF] transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-6 py-3 bg-white border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-100 transition flex-1 sm:flex-none hidden"
           >
-            <span>⏹️</span>
-            정지 및 평가
+            ⏹️ 녹음 중지
+          </button>
+          <button
+            id="sentenceRecordPlay"
+            onclick="playSentenceRecording()"
+            class="px-6 py-3 bg-orange-100 border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-400 hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
+            disabled
+          >
+            ▶️ 재생
           </button>
         </div>
-        <div id="recordingStatus" class="mt-4 text-sm text-gray-600"></div>
+
+        <div
+          id="sentenceRecordingProgress"
+          class="w-full max-w-xl mx-auto mb-4 hidden"
+        >
+          <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div
+              id="sentenceRecordingProgressBar"
+              class="h-full bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 transition-all"
+              style="width: 0%"
+            ></div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">녹음 진행 중...</p>
+        </div>
+
+        <div
+          id="sentenceRecordingTimer"
+          class="text-2xl font-mono text-orange-500 mb-4 hidden"
+        >
+          00:00
+        </div>
+
+        <div id="sentencePlaybackSection" class="mt-6 hidden">
+          <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
+          <audio
+            id="sentenceAudioPlayback"
+            controls
+            class="w-full mb-3 rounded-lg"
+          ></audio>
+        </div>
       </div>
 
       <!-- 평가 결과 -->
@@ -204,25 +249,65 @@
   </div>
 </div>
 
-<script src="/static/js/pronunciation-practice.js"></script>
 <script>
   // 초기화
-  console.log("Sentence evaluation page loaded");
-
   document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM loaded for sentence evaluation");
     loadSentencesData();
   });
+
+  let sentenceItems = [];
 
   // 문장 선택
   function selectSentence() {
     const select = document.getElementById("sentence-select");
     const selected = select.options[select.selectedIndex];
-    const sentence = selected.value;
+    const selectedId = Number(selected?.dataset?.id);
+    const selectedItem = sentenceItems.find((item) => item.id === selectedId);
+    const sentence = selectedItem ? selectedItem.text : selected.value;
 
     if (sentence) {
       document.getElementById("selectedSentenceDisplay").textContent = sentence;
       document.getElementById("custom-sentence").value = ""; // 직접 입력 칸 초기화
+    }
+  }
+
+  async function playSelectedSentenceTTS() {
+    const sentence = document
+      .getElementById("selectedSentenceDisplay")
+      ?.textContent?.trim();
+    if (!sentence || sentence === "문장을 선택하거나 입력해주세요") {
+AlertManager.warning("먼저 문장을 선택하거나 입력해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    try {
+      const response = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sentence }),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("TTS 생성 실패");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      audio.play().catch((err) => {
+        console.error("TTS 재생 오류:", err);
+      });
+      audio.addEventListener("ended", () => {
+        URL.revokeObjectURL(url);
+      });
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        console.error("TTS 요청 시간 초과:", err);
+      } else {
+        console.error("TTS 오류:", err);
+      }
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -232,7 +317,7 @@
     const sentence = input.value.trim();
 
     if (!sentence) {
-      alert("문장을 입력해주세요.");
+AlertManager.warning("문장을 입력해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
@@ -242,7 +327,6 @@
 
   // 문장 데이터 로드 (inline 로딩 상태 사용, full-screen 스피너 없음)
   async function loadSentencesData() {
-    console.log("loadSentencesData() called");
     const select = document.getElementById("sentence-select");
 
     try {
@@ -251,15 +335,12 @@
         select.innerHTML = '<option value="">문장 불러오는 중...</option>';
       }
 
-      const response = await fetch("/api/speechpro/sentences");
-      console.log("Response status:", response.status);
-
+      const response = await fetch("/api/puzzle/sentences");
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Sentences loaded:", data);
 
       // Clear existing options (except first)
       if (select) {
@@ -267,13 +348,14 @@
 
         // Add sentences
         if (data.sentences && Array.isArray(data.sentences)) {
+          sentenceItems = data.sentences;
           data.sentences.forEach((sentence) => {
             const option = document.createElement("option");
-            option.value = sentence;
-            option.textContent = sentence;
+            option.value = sentence.text || "";
+            option.dataset.id = sentence.id;
+            option.textContent = sentence.text || "";
             select.appendChild(option);
           });
-          console.log(`Added ${data.sentences.length} sentences to dropdown`);
         }
       }
     } catch (error) {
@@ -293,6 +375,31 @@
   let mediaRecorder;
   let audioChunks = [];
   let mediaStream = null;
+  let recordingStartTime = null;
+  let recordingTimer = null;
+  let recordingProgressTimer = null;
+  let recordedAudioBlob = null;
+  let pendingEvaluationText = "";
+
+  const sentenceRecordStartEl = document.getElementById("sentenceRecordStart");
+  const sentenceRecordStopEl = document.getElementById("sentenceRecordStop");
+  const sentenceRecordPlayEl = document.getElementById("sentenceRecordPlay");
+  const sentenceRecordingStatusEl = document.getElementById(
+    "sentenceRecordingStatus"
+  );
+  const sentenceCountdownEl = document.getElementById("sentenceCountdown");
+  const sentenceRecordingTimerEl = document.getElementById(
+    "sentenceRecordingTimer"
+  );
+  const sentencePlaybackSectionEl = document.getElementById(
+    "sentencePlaybackSection"
+  );
+  const sentenceAudioPlaybackEl = document.getElementById(
+    "sentenceAudioPlayback"
+  );
+  const sentenceRecordingProgressEl = document.getElementById(
+    "sentenceRecordingProgress"
+  );
 
   async function startSentenceRecording() {
     const sentenceText = document.getElementById(
@@ -300,44 +407,86 @@
     ).textContent;
 
     if (sentenceText === "문장을 선택하거나 입력해주세요") {
-      alert("먼저 평가할 문장을 선택하거나 입력해주세요.");
+AlertManager.warning("먼저 평가할 문장을 선택하거나 입력해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
     try {
       mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(mediaStream);
       audioChunks = [];
+      recordedAudioBlob = null;
 
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.push(event.data);
+      if (sentenceRecordStartEl) sentenceRecordStartEl.classList.add("hidden");
+      if (sentenceRecordPlayEl) sentenceRecordPlayEl.classList.add("hidden");
+
+      if (sentenceCountdownEl) {
+        sentenceCountdownEl.classList.remove("hidden");
+        sentenceCountdownEl.textContent = "3";
+      }
+
+      let countdown = 3;
+      const countdownInterval = setInterval(() => {
+        countdown -= 1;
+        if (sentenceCountdownEl) {
+          sentenceCountdownEl.textContent = String(countdown);
         }
-      };
 
-      mediaRecorder.start();
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          if (sentenceCountdownEl) sentenceCountdownEl.classList.add("hidden");
 
-      // UI 업데이트
-      document.getElementById("startRecordingBtn").disabled = true;
-      document
-        .getElementById("startRecordingBtn")
-        .classList.add("opacity-50", "cursor-not-allowed");
-      document.getElementById("stopRecordingBtn").disabled = false;
-      document
-        .getElementById("stopRecordingBtn")
-        .classList.remove("opacity-50", "cursor-not-allowed", "bg-gray-300");
-      document
-        .getElementById("stopRecordingBtn")
-        .classList.add("bg-gradient-to-r", "from-red-500", "to-red-600");
+          mediaRecorder = new MediaRecorder(mediaStream);
+          mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+              audioChunks.push(event.data);
+            }
+          };
+          mediaRecorder.onstop = async () => {
+            recordedAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+            if (sentenceAudioPlaybackEl) {
+              const url = URL.createObjectURL(recordedAudioBlob);
+              sentenceAudioPlaybackEl.src = url;
+            }
+            if (sentencePlaybackSectionEl) {
+              sentencePlaybackSectionEl.classList.remove("hidden");
+            }
+            if (sentenceRecordPlayEl) {
+              sentenceRecordPlayEl.disabled = false;
+              sentenceRecordPlayEl.classList.remove("hidden");
+            }
+            if (pendingEvaluationText) {
+              const textToEval = pendingEvaluationText;
+              pendingEvaluationText = "";
+              await runSentenceEvaluation(textToEval, recordedAudioBlob);
+            }
+          };
+          mediaRecorder.start();
 
-      document.getElementById("recordingStatus").innerHTML =
-        '<div class="flex items-center gap-2"><div class="animate-pulse">🔴</div> 녹음 중...</div>';
-      document.getElementById("evaluationResult").classList.add("hidden");
-
-      console.log("Recording started");
+          recordingStartTime = Date.now();
+          if (sentenceRecordingTimerEl) {
+            sentenceRecordingTimerEl.classList.remove("hidden");
+            startSentenceTimer();
+          }
+          if (sentenceRecordingStatusEl) {
+            sentenceRecordingStatusEl.innerHTML =
+              '<p class="text-red-600 font-semibold">🔴 녹음 중...</p>';
+          }
+          if (sentenceRecordStopEl)
+            sentenceRecordStopEl.classList.remove("hidden");
+          if (sentenceRecordingProgressEl) {
+            sentenceRecordingProgressEl.classList.remove("hidden");
+          }
+          startRecordingProgress();
+          document.getElementById("evaluationResult").classList.add("hidden");
+        }
+      }, 1000);
     } catch (error) {
       console.error("마이크 접근 오류:", error);
-      alert("마이크에 접근할 수 없습니다. 브라우저 설정을 확인해주세요.");
+AlertManager.error("마이크에 접근할 수 없습니다. 브라우저 설정을 확인해주세요.", "마이크 오류", document.getElementById("alertsContainer"));
+      if (sentenceCountdownEl) sentenceCountdownEl.classList.add("hidden");
+      if (sentenceRecordStartEl)
+        sentenceRecordStartEl.classList.remove("hidden");
+      if (sentenceRecordPlayEl) sentenceRecordPlayEl.classList.remove("hidden");
     }
   }
 
@@ -348,82 +497,151 @@
     ).textContent;
 
     try {
+      if (!mediaRecorder || mediaRecorder.state !== "recording") return;
+
+      pendingEvaluationText = sentenceText;
       mediaRecorder.stop();
+      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
 
-      // UI 업데이트
-      document.getElementById("startRecordingBtn").disabled = false;
-      document
-        .getElementById("startRecordingBtn")
-        .classList.remove("opacity-50", "cursor-not-allowed");
-      document.getElementById("stopRecordingBtn").disabled = true;
-      document
-        .getElementById("stopRecordingBtn")
-        .classList.add("opacity-50", "cursor-not-allowed", "bg-gray-300");
-      document
-        .getElementById("stopRecordingBtn")
-        .classList.remove("bg-gradient-to-r", "from-red-500", "to-red-600");
+      if (sentenceRecordStartEl)
+        sentenceRecordStartEl.classList.remove("hidden");
+      if (sentenceRecordStopEl) sentenceRecordStopEl.classList.add("hidden");
+      if (sentenceRecordingStatusEl) {
+        sentenceRecordingStatusEl.innerHTML =
+          '<p class="text-green-600 font-semibold">✅ 녹음 완료</p>';
+      }
+      if (sentenceRecordingTimerEl)
+        sentenceRecordingTimerEl.classList.add("hidden");
+      stopSentenceTimer();
+      if (sentenceRecordingProgressEl)
+        sentenceRecordingProgressEl.classList.add("hidden");
+      stopRecordingProgress();
+    } catch (error) {
+      console.error("녹음 중지 오류:", error);
+AlertManager.error("녹음 중 오류가 발생했습니다.", "녹음 오류", document.getElementById("alertsContainer"));
+    }
+  }
 
-      mediaRecorder.onstop = async () => {
-        // Stop all tracks
-        if (mediaStream) {
-          mediaStream.getTracks().forEach((track) => track.stop());
-          mediaStream = null;
-        }
+  async function runSentenceEvaluation(sentenceText, audioBlob) {
+    if (!sentenceText || !audioBlob) return;
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "recording.wav");
+    formData.append("text", sentenceText);
 
-        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-        const formData = new FormData();
-        formData.append("file", audioBlob, "recording.wav");
-        formData.append("text", sentenceText);
+    if (sentenceRecordingStatusEl) {
+      sentenceRecordingStatusEl.innerHTML =
+        '<div class="flex items-center gap-3 justify-center"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div><span class="text-sm text-gray-600">SpeechPro API로 분석 중입니다...</span></div>';
+    }
 
-        document.getElementById("recordingStatus").innerHTML =
-          '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div><span>SpeechPro API로 분석 중입니다...</span></div>';
+    try {
+      const res = await fetch("/api/speechpro/evaluate", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
 
-        try {
-          const res = await fetch("/api/speechpro/evaluate", {
-            method: "POST",
-            body: formData,
-          });
-          const data = await res.json();
-
-          console.log("Evaluation result:", data);
-
-          if (data.error) {
-            document.getElementById("recordingStatus").innerHTML = `
-              <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-                <p class="text-red-600 text-xs mt-1">${data.error}</p>
-              </div>
-            `;
-          } else {
-            // Show modal with results
-            showSpeechProModal(data, sentenceText);
-            document.getElementById("recordingStatus").innerHTML =
-              '<p class="text-green-600 font-semibold">✅ 평가 완료!</p>';
-          }
-        } catch (error) {
-          console.error("평가 오류:", error);
-          document.getElementById("recordingStatus").innerHTML = `
+      if (data.error) {
+        if (sentenceRecordingStatusEl) {
+          sentenceRecordingStatusEl.innerHTML = `
             <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-              <p class="text-red-600 text-xs mt-1">평가 중 문제가 발생했습니다.</p>
+              <p class="text-red-600 text-xs mt-1">${data.error}</p>
             </div>
           `;
         }
-      };
+      } else {
+        showSpeechProModal(data, sentenceText);
+        if (sentenceRecordingStatusEl) {
+          sentenceRecordingStatusEl.innerHTML =
+            '<p class="text-green-600 font-semibold">✅ 평가 완료!</p>';
+        }
+      }
     } catch (error) {
-      console.error("녹음 중지 오류:", error);
-      alert("녹음 중 오류가 발생했습니다.");
+      console.error("평가 오류:", error);
+      if (sentenceRecordingStatusEl) {
+        sentenceRecordingStatusEl.innerHTML = `
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
+            <p class="text-red-600 text-xs mt-1">평가 중 문제가 발생했습니다.</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  function startRecordingProgress() {
+    recordingStartTime = Date.now();
+    const bar = document.getElementById("sentenceRecordingProgressBar");
+    if (recordingProgressTimer) {
+      clearInterval(recordingProgressTimer);
+    }
+    recordingProgressTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+      const cycle = elapsed % 10;
+      const pct = Math.max(5, Math.round((cycle / 10) * 100));
+      if (bar) bar.style.width = `${pct}%`;
+    }, 100);
+  }
+
+  function stopRecordingProgress() {
+    if (recordingProgressTimer) {
+      clearInterval(recordingProgressTimer);
+      recordingProgressTimer = null;
+    }
+    const bar = document.getElementById("sentenceRecordingProgressBar");
+    if (bar) bar.style.width = "0%";
+  }
+
+  function startSentenceTimer() {
+    if (!sentenceRecordingTimerEl) return;
+    stopSentenceTimer();
+    recordingTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      sentenceRecordingTimerEl.textContent = `${String(minutes).padStart(
+        2,
+        "0"
+      )}:${String(seconds).padStart(2, "0")}`;
+    }, 100);
+  }
+
+  function stopSentenceTimer() {
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      recordingTimer = null;
+    }
+  }
+
+  function playSentenceRecording() {
+    if (!sentenceAudioPlaybackEl || !sentenceAudioPlaybackEl.src) return;
+    if (sentenceAudioPlaybackEl.paused) {
+      sentenceAudioPlaybackEl.play();
+      if (sentenceRecordPlayEl) sentenceRecordPlayEl.textContent = "⏸️ 정지";
+    } else {
+      sentenceAudioPlaybackEl.pause();
+      if (sentenceRecordPlayEl) sentenceRecordPlayEl.textContent = "▶️ 재생";
     }
   }
 
   // SpeechPro 모달 표시
   function showSpeechProModal(data, targetText) {
     const modal = document.getElementById("speechpro-modal");
-    const score = data.score || 0;
+    let score = 0;
+    if (typeof data?.overall_score === "number") {
+      score = data.overall_score;
+    } else if (typeof data?.score === "number") {
+      score = data.score;
+    } else if (typeof data?.score?.overall_score === "number") {
+      score = data.score.overall_score;
+    } else if (typeof data?.score?.overall === "number") {
+      score = data.score.overall;
+    }
 
     // Update score
-    document.getElementById("sp-overall-score").textContent = score;
-    document.getElementById("sp-score-bar").style.width = score + "%";
+    const roundedScore = Math.round(score);
+    document.getElementById("sp-overall-score").textContent = roundedScore;
+    document.getElementById("sp-score-bar").style.width = `${roundedScore}%`;
 
     // Score feedback
     let feedback = "";
@@ -437,39 +655,70 @@
     // Details content
     let detailsHtml = "";
 
-    if (data.fluency !== undefined) {
-      detailsHtml += `<div class="flex justify-between"><span>🎯 유창성:</span><span class="font-semibold">${data.fluency}%</span></div>`;
+    const fluency =
+      typeof data?.fluency === "number"
+        ? data.fluency
+        : typeof data?.score?.fluency === "number"
+        ? data.score.fluency
+        : null;
+    if (fluency !== null) {
+      detailsHtml += `<div class="flex justify-between"><span>🎯 유창성:</span><span class="font-semibold">${Math.round(
+        fluency
+      )}%</span></div>`;
     }
 
-    if (data.sentence_scores && data.sentence_scores.length > 0) {
-      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">문장별 점수:</p>`;
-      data.sentence_scores.forEach((s, idx) => {
-        const barWidth = Math.round(s);
-        detailsHtml += `
-          <div class="mb-2">
-            <div class="flex justify-between text-sm mb-1">
-              <span>문장 ${idx + 1}</span>
-              <span class="font-semibold">${s}점</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full" style="width: ${barWidth}%"></div>
-            </div>
-          </div>
-        `;
+    const detailRoot =
+      data?.score?.details ||
+      data?.score?.result ||
+      data?.result ||
+      data?.details ||
+      {};
+    const quality = detailRoot.quality || detailRoot;
+    const sentenceItems = Array.isArray(quality.sentences)
+      ? quality.sentences
+      : [];
+
+    const wordItems = [];
+    const syllableItems = [];
+
+    sentenceItems.forEach((sentence) => {
+      if (!sentence || sentence.text === "!SIL") return;
+      const words = Array.isArray(sentence.words) ? sentence.words : [];
+      words.forEach((word) => {
+        if (!word || word.text === "!SIL") return;
+        wordItems.push(word);
+        const sylls = Array.isArray(word.syll) ? word.syll : [];
+        sylls.forEach((syll) => {
+          if (!syll || syll.text === "!SIL") return;
+          syllableItems.push(syll);
+          const phones = Array.isArray(syll.phones) ? syll.phones : [];
+          phones.forEach((phone) => {
+            if (!phone || phone.text === "!SIL") return;
+          });
+        });
       });
-      detailsHtml += `</div>`;
+    });
+
+    if (wordItems.length > 0) {
+      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">단어별 분석:</p><div class="space-y-2">`;
+      wordItems.forEach((word) => {
+        const text = word.text || word.word || word.token;
+        if (!text) return;
+        detailsHtml += `<div class="text-sm"><span class="font-medium">${text}:</span> <span class="text-blue-600">${Math.round(
+          word.score || 0
+        )}점</span></div>`;
+      });
+      detailsHtml += `</div></div>`;
     }
 
-    if (data.words && data.words.length > 0) {
-      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">단어별 분석:</p><div class="space-y-2">`;
-      data.words.forEach((word) => {
-        if (word.text && word.text !== "!SIL") {
-          detailsHtml += `<div class="text-sm"><span class="font-medium">${
-            word.text
-          }:</span> <span class="text-blue-600">${Math.round(
-            word.score || 0
-          )}점</span></div>`;
-        }
+    if (syllableItems.length > 0) {
+      detailsHtml += `<div class="mt-4"><p class="font-semibold mb-2">음절별 분석:</p><div class="space-y-2">`;
+      syllableItems.forEach((syll) => {
+        const text = syll.text || syll.syllable;
+        if (!text) return;
+        const scoreVal =
+          typeof syll.score === "number" ? Math.round(syll.score) : 0;
+        detailsHtml += `<div class="text-sm"><span class="font-medium">${text}:</span> <span class="text-blue-600">${scoreVal}점</span></div>`;
       });
       detailsHtml += `</div></div>`;
     }

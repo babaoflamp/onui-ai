@@ -19,6 +19,9 @@ endblock %} {% block content %}
   </div>
 
   <div class="bg-white rounded-2xl p-6 shadow-lg">
+    <!-- Alerts Container -->
+    <div id="alertsContainer" class="mb-6"></div>
+
     <!-- Writing Test Section -->
     <section
       class="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
@@ -112,6 +115,7 @@ endblock %} {% block content %}
   // Update character count
   const fluencyInput = document.getElementById("fluencyInput");
   const charCount = document.getElementById("charCount");
+  const alertsContainer = document.getElementById("alertsContainer");
 
   function updateCharCount() {
     charCount.textContent = fluencyInput.value.length;
@@ -127,7 +131,7 @@ endblock %} {% block content %}
     const text = document.getElementById("fluencyInput").value;
 
     if (!text.trim()) {
-      alert("글을 입력해주세요.");
+      AlertManager.warning("글을 입력해주세요.", "입력 필요", alertsContainer);
       return;
     }
 
@@ -153,6 +157,7 @@ endblock %} {% block content %}
             <p class="text-red-600 text-xs mt-1">${json.error}</p>
           </div>
         `;
+        AlertManager.error(json.error, "채점 오류", alertsContainer);
       } else {
         const score = json.score || 0;
         const scoreColor = score > 80 ? "green" : score > 60 ? "yellow" : "red";
@@ -202,6 +207,7 @@ endblock %} {% block content %}
             }
           </div>
         `;
+        ToastManager.success(`채점 완료: ${score}점`);
       }
     } catch (error) {
       resultDiv.innerHTML = `
@@ -210,6 +216,11 @@ endblock %} {% block content %}
           <p class="text-red-600 text-xs mt-1">채점 중 오류가 발생했습니다: ${error.message}</p>
         </div>
       `;
+      AlertManager.error(
+        `채점 중 오류: ${error.message}`,
+        "오류",
+        alertsContainer
+      );
     }
   }
 

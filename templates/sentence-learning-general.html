@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+{% block title %}문장 학습(일반) | 오누이 한국어{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">문장 학습(일반)</h1>
+      <p class="text-sm text-gray-600 mt-2">
+        쉬운 한국어 문장을 하나씩 익히고, 마지막 학습 위치에서 이어서 진행할 수 있어요.
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <label for="levelSelect" class="text-xs font-semibold text-gray-500">레벨</label>
+      <select
+        id="levelSelect"
+        class="rounded-xl border border-gray-200 px-3 py-2 text-sm bg-white"
+      >
+        <option value="all">전체</option>
+        <option value="A1">A1</option>
+        <option value="A2">A2</option>
+        <option value="B1">B1</option>
+        <option value="B2">B2</option>
+        <option value="C1">C1</option>
+        <option value="C2">C2</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Progress -->
+    <section class="lg:col-span-4 bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900">마지막 학습 상태</h2>
+        <button
+          id="resetProgressBtn"
+          type="button"
+          class="text-xs font-semibold text-red-600 hover:text-red-500"
+        >
+          초기화
+        </button>
+      </div>
+
+      <div class="mt-4 rounded-xl bg-emerald-50/60 border border-emerald-200 p-4">
+        <div class="text-xs text-emerald-800 font-semibold">진행률</div>
+        <div class="mt-2 flex items-center justify-between">
+          <div class="text-sm font-bold text-gray-900">
+            <span id="progressCount">0</span>/<span id="progressTotal">0</span>
+          </div>
+          <div id="progressPercent" class="text-xs font-semibold text-emerald-700">0%</div>
+        </div>
+        <div class="mt-2 w-full h-2 rounded-full bg-emerald-100 overflow-hidden">
+          <div id="progressBar" class="h-2 bg-emerald-500 rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div class="rounded-xl bg-gray-50 border border-gray-200 p-4">
+          <div class="text-xs font-semibold text-gray-500">마지막 문장</div>
+          <div id="lastSentenceText" class="mt-2 text-sm font-semibold text-gray-900">-</div>
+          <div id="lastUpdatedAt" class="mt-2 text-[11px] text-gray-500">-</div>
+        </div>
+
+        <div class="rounded-xl bg-gray-50 border border-gray-200 p-4">
+          <div class="text-xs font-semibold text-gray-500">바로가기</div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a
+              href="/krdict"
+              class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-100"
+            >
+              📖 사전
+            </a>
+            <a
+              href="/sentence-evaluation"
+              class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-100"
+            >
+              🎙️ 문장 발음 평가
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main -->
+    <section class="lg:col-span-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="sentenceLevelChip" class="px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold">-</span>
+            <span id="sentenceCategoryChip" class="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">-</span>
+          </div>
+          <h2 id="sentenceText" class="mt-3 text-2xl font-extrabold text-gray-900 leading-snug break-words">-</h2>
+          <p id="sentenceIndexLabel" class="mt-2 text-xs text-gray-500">-</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            id="listenBtn"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 text-sm font-semibold transition disabled:opacity-60"
+            disabled
+          >
+            🔊 들어보기
+          </button>
+          <button
+            id="markLearnedBtn"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
+            disabled
+          >
+            ✅ 학습 완료
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
+          id="toggleTranslationBtn"
+          type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
+        >
+          해석 숨기기
+        </button>
+        <button
+          id="toggleHintBtn"
+          type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
+        >
+          힌트 숨기기
+        </button>
+        <button
+          id="toggleSituationBtn"
+          type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
+        >
+          상황 숨기기
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div id="translationBox" class="rounded-xl bg-gray-50 border border-gray-200 p-4">
+          <p class="text-xs text-gray-500 mb-1">해석</p>
+          <p id="sentenceTranslation" class="text-sm text-gray-800">-</p>
+        </div>
+        <div id="hintBox" class="rounded-xl bg-gray-50 border border-gray-200 p-4">
+          <p class="text-xs text-gray-500 mb-1">힌트</p>
+          <p id="sentenceHint" class="text-sm text-gray-800">-</p>
+        </div>
+        <div id="situationBox" class="rounded-xl bg-gray-50 border border-gray-200 p-4">
+          <p class="text-xs text-gray-500 mb-1">상황</p>
+          <p id="sentenceSituation" class="text-sm text-gray-800">-</p>
+        </div>
+      </div>
+
+      <div class="mt-7 flex items-center justify-between gap-3">
+        <button
+          id="prevBtn"
+          type="button"
+          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold"
+          disabled
+        >
+          ← 이전
+        </button>
+        <div id="toast" class="text-xs text-gray-500"></div>
+        <button
+          id="nextBtn"
+          type="button"
+          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold"
+          disabled
+        >
+          다음 →
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const levelSelect = document.getElementById("levelSelect");
+  const resetProgressBtn = document.getElementById("resetProgressBtn");
+  const progressCountEl = document.getElementById("progressCount");
+  const progressTotalEl = document.getElementById("progressTotal");
+  const progressPercentEl = document.getElementById("progressPercent");
+  const progressBarEl = document.getElementById("progressBar");
+  const lastSentenceTextEl = document.getElementById("lastSentenceText");
+  const lastUpdatedAtEl = document.getElementById("lastUpdatedAt");
+
+  const sentenceLevelChipEl = document.getElementById("sentenceLevelChip");
+  const sentenceCategoryChipEl = document.getElementById("sentenceCategoryChip");
+  const sentenceTextEl = document.getElementById("sentenceText");
+  const sentenceIndexLabelEl = document.getElementById("sentenceIndexLabel");
+  const translationBoxEl = document.getElementById("translationBox");
+  const hintBoxEl = document.getElementById("hintBox");
+  const situationBoxEl = document.getElementById("situationBox");
+  const translationEl = document.getElementById("sentenceTranslation");
+  const hintEl = document.getElementById("sentenceHint");
+  const situationEl = document.getElementById("sentenceSituation");
+
+  const toggleTranslationBtn = document.getElementById("toggleTranslationBtn");
+  const toggleHintBtn = document.getElementById("toggleHintBtn");
+  const toggleSituationBtn = document.getElementById("toggleSituationBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const markLearnedBtn = document.getElementById("markLearnedBtn");
+  const listenBtn = document.getElementById("listenBtn");
+  const toastEl = document.getElementById("toast");
+
+  let sentences = [];
+  let currentIndex = 0;
+  let completedSet = new Set();
+  let currentScope = "all";
+  let lastState = null;
+  let currentAudio = null;
+  let currentAudioUrl = null;
+
+  function getStableUserId() {
+    const candidates = [
+      localStorage.getItem("user_id"),
+      localStorage.getItem("user_email"),
+      localStorage.getItem("user_nickname"),
+    ].filter(Boolean);
+    if (candidates.length) return String(candidates[0]);
+
+    let anon = localStorage.getItem("anon_user_id");
+    if (!anon) {
+      const rand = typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
+      anon = `anon_${rand}`;
+      localStorage.setItem("anon_user_id", anon);
+    }
+    return anon;
+  }
+
+  const userId = getStableUserId();
+
+  function toast(message) {
+    const msg = (message || "").trim();
+    toastEl.textContent = msg;
+    if (!msg) return;
+    setTimeout(() => {
+      if (toastEl.textContent === msg) toastEl.textContent = "";
+    }, 2000);
+  }
+
+  function formatDateTime(value) {
+    if (!value) return "-";
+    const dt = new Date(value);
+    if (Number.isNaN(dt.getTime())) return String(value);
+    return dt.toLocaleString("ko-KR");
+  }
+
+  async function fetchSentences(scope) {
+    const level = scope && scope !== "all" ? scope : "";
+    const qs = level ? `?level=${encodeURIComponent(level)}` : "";
+    const res = await fetch(`/api/puzzle/sentences${qs}`);
+    const data = await res.json();
+    return Array.isArray(data.sentences) ? data.sentences : [];
+  }
+
+  async function fetchState(scope) {
+    const res = await fetch(
+      `/api/sentence-learning/state/${encodeURIComponent(userId)}?scope=${encodeURIComponent(scope || "all")}`
+    );
+    return await res.json();
+  }
+
+  async function saveState() {
+    if (!sentences.length) return;
+    const current = sentences[currentIndex];
+    const payload = {
+      user_id: userId,
+      scope: currentScope,
+      current_sentence_id: current ? current.id : null,
+      current_index: currentIndex,
+      completed_sentence_ids: Array.from(completedSet),
+    };
+    const res = await fetch("/api/sentence-learning/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data && data.state) lastState = data.state;
+  }
+
+  function syncIndexFromState(state) {
+    if (!state) return 0;
+    const byId = state.current_sentence_id
+      ? sentences.findIndex((s) => s.id === state.current_sentence_id)
+      : -1;
+    if (byId >= 0) return byId;
+    const idx = Number.isFinite(state.current_index) ? state.current_index : 0;
+    if (idx >= 0 && idx < sentences.length) return idx;
+    return 0;
+  }
+
+  function renderProgress() {
+    const total = sentences.length;
+    const done = completedSet.size;
+    progressCountEl.textContent = String(done);
+    progressTotalEl.textContent = String(total);
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    progressPercentEl.textContent = `${pct}%`;
+    progressBarEl.style.width = `${pct}%`;
+
+    const current = sentences[currentIndex];
+    lastSentenceTextEl.textContent = current ? current.text : "-";
+    lastUpdatedAtEl.textContent = lastState
+      ? `최근 저장: ${formatDateTime(lastState.updated_at)}`
+      : "-";
+  }
+
+  function renderSentence() {
+    const item = sentences[currentIndex];
+    if (!item) {
+      sentenceLevelChipEl.textContent = "-";
+      sentenceCategoryChipEl.textContent = "-";
+      sentenceTextEl.textContent = "표시할 문장이 없습니다.";
+      sentenceIndexLabelEl.textContent = "-";
+      translationEl.textContent = "-";
+      hintEl.textContent = "-";
+      situationEl.textContent = "-";
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      markLearnedBtn.disabled = true;
+      listenBtn.disabled = true;
+      return;
+    }
+
+    sentenceLevelChipEl.textContent = `CEFR ${item.level || "-"}`;
+    sentenceCategoryChipEl.textContent = item.category || "일반";
+    sentenceTextEl.textContent = item.text || "-";
+    sentenceIndexLabelEl.textContent = `${currentIndex + 1} / ${sentences.length}`;
+    translationEl.textContent = item.translation || "해석이 없습니다.";
+    hintEl.textContent = item.hint || "힌트가 없습니다.";
+    situationEl.textContent = item.situation || "상황 설명이 없습니다.";
+
+    const alreadyDone = completedSet.has(item.id);
+    markLearnedBtn.disabled = alreadyDone;
+    markLearnedBtn.textContent = alreadyDone ? "✅ 완료됨" : "✅ 학습 완료";
+    listenBtn.disabled = false;
+
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= sentences.length - 1;
+  }
+
+  function toggleBox(btn, box, onLabel, offLabel) {
+    const isHidden = box.classList.contains("hidden");
+    if (isHidden) {
+      box.classList.remove("hidden");
+      btn.textContent = offLabel;
+    } else {
+      box.classList.add("hidden");
+      btn.textContent = onLabel;
+    }
+  }
+
+  async function gotoIndex(idx) {
+    currentIndex = Math.max(0, Math.min(idx, sentences.length - 1));
+    renderSentence();
+    renderProgress();
+    await saveState();
+  }
+
+  function stopAudioPlayback() {
+    try {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+    } catch (_) {}
+    currentAudio = null;
+    if (currentAudioUrl) {
+      try {
+        URL.revokeObjectURL(currentAudioUrl);
+      } catch (_) {}
+    }
+    currentAudioUrl = null;
+    try {
+      if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+    } catch (_) {}
+  }
+
+  async function playSentenceAudio(text) {
+    const sentenceText = (text || "").trim();
+    if (!sentenceText) return;
+
+    stopAudioPlayback();
+
+    if (listenBtn) {
+      listenBtn.disabled = true;
+      listenBtn.textContent = "🔊 재생 중...";
+    }
+
+    try {
+      const res = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: sentenceText,
+          speaker: 0,
+          tempo: 1.0,
+          pitch: 1.0,
+          gain: 1.0,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error("tts_failed");
+      }
+      const blob = await res.blob();
+      currentAudioUrl = URL.createObjectURL(blob);
+      currentAudio = new Audio(currentAudioUrl);
+      currentAudio.onended = () => {
+        if (listenBtn) {
+          listenBtn.disabled = false;
+          listenBtn.textContent = "🔊 들어보기";
+        }
+      };
+      currentAudio.onerror = () => {
+        if (listenBtn) {
+          listenBtn.disabled = false;
+          listenBtn.textContent = "🔊 들어보기";
+        }
+      };
+      await currentAudio.play();
+      return;
+    } catch (_) {
+      // fall back to browser speech synthesis
+    }
+
+    try {
+      if (typeof speechSynthesis !== "undefined") {
+        const utter = new SpeechSynthesisUtterance(sentenceText);
+        utter.lang = "ko-KR";
+        utter.rate = 0.95;
+        utter.pitch = 1.0;
+        utter.onend = () => {
+          if (listenBtn) {
+            listenBtn.disabled = false;
+            listenBtn.textContent = "🔊 들어보기";
+          }
+        };
+        utter.onerror = () => {
+          if (listenBtn) {
+            listenBtn.disabled = false;
+            listenBtn.textContent = "🔊 들어보기";
+          }
+        };
+        speechSynthesis.speak(utter);
+        return;
+      }
+    } catch (_) {}
+
+    if (listenBtn) {
+      listenBtn.disabled = false;
+      listenBtn.textContent = "🔊 들어보기";
+    }
+    toast("음성 재생을 사용할 수 없어요.");
+  }
+
+  async function markCurrentLearned() {
+    const item = sentences[currentIndex];
+    if (!item) return;
+    if (completedSet.has(item.id)) return;
+    completedSet.add(item.id);
+    renderSentence();
+    renderProgress();
+    await saveState();
+    toast("학습 완료로 저장했어요.");
+
+    try {
+      await fetch("/api/learning/sentence-learned", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, count: 1 }),
+      });
+    } catch (_) {
+      // ignore
+    }
+
+    // 다음 미완료 문장으로 이동
+    for (let i = currentIndex + 1; i < sentences.length; i++) {
+      if (!completedSet.has(sentences[i].id)) {
+        await gotoIndex(i);
+        return;
+      }
+    }
+    if (currentIndex < sentences.length - 1) {
+      await gotoIndex(currentIndex + 1);
+    }
+  }
+
+  async function resetProgress() {
+    if (!confirm("문장 학습 진행 상태를 초기화할까요?")) return;
+    stopAudioPlayback();
+    completedSet = new Set();
+    currentIndex = 0;
+    translationBoxEl.classList.remove("hidden");
+    hintBoxEl.classList.remove("hidden");
+    situationBoxEl.classList.remove("hidden");
+    toggleTranslationBtn.textContent = "해석 숨기기";
+    toggleHintBtn.textContent = "힌트 숨기기";
+    toggleSituationBtn.textContent = "상황 숨기기";
+    renderSentence();
+    renderProgress();
+    await saveState();
+    toast("초기화했어요.");
+  }
+
+  async function loadScope(scope) {
+    stopAudioPlayback();
+    currentScope = scope || "all";
+    sentences = await fetchSentences(currentScope);
+
+    const state = await fetchState(currentScope);
+    lastState = state && state.scope ? state : null;
+    completedSet = new Set(
+      Array.isArray(state.completed_sentence_ids) ? state.completed_sentence_ids : []
+    );
+    currentIndex = syncIndexFromState(state);
+
+    renderSentence();
+    renderProgress();
+    await saveState();
+  }
+
+  toggleTranslationBtn.addEventListener("click", () =>
+    toggleBox(toggleTranslationBtn, translationBoxEl, "해석 보기", "해석 숨기기")
+  );
+  toggleHintBtn.addEventListener("click", () =>
+    toggleBox(toggleHintBtn, hintBoxEl, "힌트 보기", "힌트 숨기기")
+  );
+  toggleSituationBtn.addEventListener("click", () =>
+    toggleBox(toggleSituationBtn, situationBoxEl, "상황 보기", "상황 숨기기")
+  );
+
+  prevBtn.addEventListener("click", () => gotoIndex(currentIndex - 1));
+  nextBtn.addEventListener("click", () => gotoIndex(currentIndex + 1));
+  markLearnedBtn.addEventListener("click", markCurrentLearned);
+  listenBtn.addEventListener("click", () => {
+    const item = sentences[currentIndex];
+    if (!item) return;
+    playSentenceAudio(item.text || "");
+  });
+  resetProgressBtn.addEventListener("click", resetProgress);
+
+  levelSelect.addEventListener("change", async () => {
+    const value = levelSelect.value || "all";
+    localStorage.setItem("sentence-learning-level", value);
+    await loadScope(value);
+  });
+
+  (async function init() {
+    const savedLevel = localStorage.getItem("sentence-learning-level") || "all";
+    levelSelect.value = savedLevel;
+    await loadScope(savedLevel);
+  })();
+</script>
+{% endblock %}

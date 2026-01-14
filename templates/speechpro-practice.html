@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}AI 발음 종합 평가 테스트 - 오누이 AI{% endblock
 %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4 py-8">
   <!-- Header -->
   <div class="mb-8">
@@ -838,52 +839,51 @@
       targetEl.innerHTML = html;
     }
 
-    // AI 피드백을 꾸며주는 헬퍼 (모든 줄에 이모지 보장)
+    // AI 피드백을 꾸며주는 헬퍼 (마크다운 기호 제거 + 보기 좋게 정리)
     function formatAiFeedback(raw, score) {
       const txt = (raw || "").trim();
       if (!txt) return "";
 
-      const emojis = ["✅", "💡", "🎯", "🚀", "🔎", "✨", "📌", "🌟", "🪄"];
-      const hasEmoji = (s) => /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(s);
-      const ensureEmojiLine = (line, idx) => {
-        if (!line.trim()) return "";
-        if (hasEmoji(line)) return line;
-        const icon = emojis[idx % emojis.length];
-        return `${icon} ${line}`;
+      // 1) 코드블록 제거 (혹시라도 들어오면)
+      let cleaned = txt.replace(/```[\s\S]*?```/g, "").trim();
+
+      // 2) 마크다운 흔적 제거/치환
+      cleaned = cleaned
+        .replace(/^#{1,6}\s*/gm, "") // headings
+        .replace(/\*\*(.+?)\*\*/g, "$1") // bold
+        .replace(/^>\s*/gm, "") // blockquote
+        .replace(/^\s*([-*+])\s+/gm, "• ") // unordered list -> •
+        .replace(/^\s*\d+\.\s+/gm, "• "); // ordered list -> •
+
+      // 3) 섹션 헤더를 "이쁘게" 보정 (모델이 이모지 없이 쓰면 붙여줌)
+      const ensureHeaderEmoji = (line) => {
+        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(line);
+        if (hasEmoji) return line;
+        if (/한줄\s*요약/i.test(line)) return `📌 ${line}`;
+        if (/(잘한\s*점|강점)/i.test(line)) return `✅ ${line}`;
+        if (/(개선|보완|교정)/i.test(line)) return `🛠️ ${line}`;
+        if (/(연습|방법|팁|추천)/i.test(line)) return `🏋️ ${line}`;
+        if (/(점수|스코어)/i.test(line)) return `📊 ${line}`;
+        return line;
       };
 
-      let lines = txt
-        .split(/\n+/)
+      const lines = cleaned
+        .split("\n")
         .map((l) => l.trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .map(ensureHeaderEmoji);
 
-      // ### 제거
-      lines = lines
-        .map((line) => line.replace(/^#+\s*/, "").trim())
-        .filter(Boolean);
+      const output = lines.join("\n").trim();
+      if (!output) return "";
 
-      const hasMdStructure = /(^\s*[-*+]\s)|(^\s*\d+\.\s)/m.test(txt);
-
-      if (lines.length === 1 && !hasMdStructure) {
-        return ensureEmojiLine(lines[0], 0);
+      // 단일 문장만 올 때는 앞에 반짝이 표시만 붙여서 보기 좋게
+      const hasLineBreak = output.includes("\n");
+      if (!hasLineBreak) {
+        const hasEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(output);
+        return hasEmoji ? output : `✨ ${output}`;
       }
 
-      const header = " ✨ AI 피드백";
-      const scoreLine = typeof score === "number" ? `> 점수: ${score}점` : "";
-
-      const normalized = lines.map((line, idx) => {
-        const listMatch = line.match(/^[-*+]\s+(.*)$/);
-        const orderedMatch = line.match(/^\d+\.\s+(.*)$/);
-        const content = listMatch
-          ? listMatch[1]
-          : orderedMatch
-          ? orderedMatch[1]
-          : line;
-        const withEmoji = ensureEmojiLine(content, idx);
-        return `- ${withEmoji}`;
-      });
-
-      return [header, scoreLine, "", ...normalized].filter(Boolean).join("\n");
+      return output;
     }
 
     function extractFeedbackSections(text) {
@@ -903,10 +903,23 @@
         general: [],
       };
 
+      let currentSection = null;
+
       const stripEmoji = (line) =>
         line.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]+\s*/u, "").trim();
       const baseCleaner = (line) =>
-        stripEmoji(line.replace(/^[-*+>\d.\s]+/, "")).trim();
+        stripEmoji(line.replace(/^[•\u2022\-*+>\d.\s]+/, "")).trim();
+
+      const isHeaderLine = (line) => {
+        const stripped = stripEmoji(line);
+        if (!stripped) return null;
+        if (/한줄\s*요약/i.test(stripped)) return "summary";
+        if (/(잘한\s*점|강점)/i.test(stripped)) return "strengths";
+        if (/(개선|보완|교정)/i.test(stripped)) return "improvements";
+        if (/(연습|방법|팁|추천)/i.test(stripped)) return "tips";
+        if (/(점수\s*요약|스코어|점수)/i.test(stripped)) return "summary";
+        return null;
+      };
 
       const strengthKeywords = [
         "강점",
@@ -939,16 +952,26 @@
       ];
 
       lines.forEach((line) => {
-        if (/^>?[\s]*AI\s*피드백/i.test(line)) return;
-        if (line.startsWith(">")) {
-          const summaryText = line.replace(/^>\s*/, "").trim();
-          if (summaryText) sections.summary.push(summaryText);
+        // 섹션 헤더(예: "✅ 잘한 점")는 저장하지 않고 현재 섹션만 전환
+        const headerSection = isHeaderLine(line);
+        if (headerSection) {
+          currentSection = headerSection;
+          // "📌 한줄 요약: ..." 형태면 콜론 뒤 내용을 summary로 바로 저장
+          const inlineSummary = stripEmoji(line).split(":").slice(1).join(":").trim();
+          if (headerSection === "summary" && inlineSummary) {
+            sections.summary.push(inlineSummary);
+          }
           return;
         }
 
         const cleaned = baseCleaner(line);
         if (!cleaned) return;
         const normalized = cleaned.toLowerCase();
+
+        if (currentSection) {
+          sections[currentSection].push(cleaned);
+          return;
+        }
 
         if (
           strengthKeywords.some(
@@ -1252,7 +1275,7 @@
       const audioElement = document.getElementById("audio-playback");
 
       if (!audioElement.src) {
-        alert("음성을 녹음해주세요.");
+        AlertManager.warning("음성을 녹음해주세요.", "녹음 필요", document.getElementById("alertsContainer"));
         return;
       }
 
@@ -1512,7 +1535,18 @@
       const total = aiFeedbackSteps.length;
       if (indicator) indicator.textContent = `${total ? aiFeedbackStepIndex + 1 : 0} / ${total}`;
       if (prevBtn) prevBtn.disabled = aiFeedbackStepIndex <= 0;
-      if (nextBtn) nextBtn.disabled = aiFeedbackStepIndex >= total - 1 || total === 0;
+      if (nextBtn) {
+        const isLastStep = aiFeedbackStepIndex >= total - 1 && total > 0;
+        if (isLastStep) {
+          nextBtn.disabled = false;
+          nextBtn.textContent = "닫기";
+          nextBtn.onclick = closeAiFeedbackModal;
+        } else {
+          nextBtn.disabled = total === 0;
+          nextBtn.textContent = "다음";
+          nextBtn.onclick = nextAiFeedbackStep;
+        }
+      }
     }
 
     function nextAiFeedbackStep() {
@@ -2200,10 +2234,19 @@
 
         // 2. Pop-Up 표시 여부 확인
         console.log("Checking popup trigger...");
-        const popupCheckResponse = await fetch(
-          `/api/learning/check-popup/${nickname}`,
-          { method: "POST" }
-        );
+        const popupToken = localStorage.getItem("session_token");
+        if (!popupToken) {
+          console.warn("No session token for popup check.");
+          return;
+        }
+
+        const popupCheckResponse = await fetch("/api/learning/check-popup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${popupToken}`,
+          },
+        });
 
         console.log("Popup check response status:", popupCheckResponse.status);
 
@@ -2213,30 +2256,29 @@
           return;
         }
 
-        const popupData = await popupCheckResponse.json();
-        console.log("Popup data:", popupData);
+        const popupPayload = await popupCheckResponse.json();
+        console.log("Popup data:", popupPayload);
 
-        if (popupData.should_show_popup && popupData.popup_message) {
-          console.log(
-            "Showing popup:",
-            popupData.character,
-            popupData.popup_message
-          );
-          // Pop-Up 표시
+        if (popupPayload.popup && popupPayload.popup.should_show) {
+          const popup = popupPayload.popup;
+          console.log("Showing popup:", popup);
           showCharacterPopup(
-            popupData.character || "오빠",
-            popupData.popup_message,
-            popupData.popup_type || "info"
+            popup.character || "오빠",
+            popup.message,
+            popup.type || "info"
           );
 
-          // Pop-Up 표시 기록
           await fetch("/api/learning/popup-shown", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${popupToken}`,
+            },
             body: JSON.stringify({
-              user_id: nickname,
-              character: popupData.character || "오빠",
-              popup_type: popupData.popup_type || "info",
+              popup_type: popup.type,
+              character: popup.character,
+              message: popup.message,
+              trigger_reason: popup.trigger,
             }),
           });
         }

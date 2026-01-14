@@ -1,0 +1,266 @@
+{% extends "base.html" %} {% block title %}RAG 설정 - 관리자{% endblock %} {% block
+content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex items-start justify-between gap-4 flex-col md:flex-row">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">🧠 RAG 설정</h1>
+        <p class="text-sm text-gray-600 mt-1">
+          문서를 업로드하면 검색(FTS) 기반으로 관련 내용을 찾아 챗봇 답변에
+          참고자료로 붙입니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          id="refresh"
+          class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-semibold"
+        >
+          새로고침
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-orange-50 rounded-lg p-4 border border-orange-100">
+        <p class="text-sm text-gray-600">RAG 사용</p>
+        <div class="mt-2 flex items-center justify-between">
+          <div class="text-lg font-bold text-gray-900" id="enabled-label">-</div>
+          <label class="inline-flex items-center cursor-pointer">
+            <input id="enabled" type="checkbox" class="sr-only peer" />
+            <div
+              class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-orange-500 relative"
+            >
+              <div
+                class="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-all peer-checked:translate-x-5"
+              ></div>
+            </div>
+          </label>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">
+          켜면 `/api/chatbot` 응답에 참고자료가 자동으로 포함됩니다.
+        </p>
+      </div>
+
+      <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+        <p class="text-sm text-gray-600">검색 Top-K</p>
+        <div class="mt-2 flex items-center gap-2">
+          <input
+            id="topk"
+            type="number"
+            min="1"
+            max="10"
+            class="w-24 px-3 py-2 rounded-lg border border-gray-200 text-sm"
+          />
+          <button
+            id="save-settings"
+            class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+          >
+            저장
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">추천: 3~5</p>
+      </div>
+
+      <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+        <p class="text-sm text-gray-600">상태</p>
+        <div class="mt-2 text-sm text-gray-900">
+          <div>문서: <span id="doc-count">-</span></div>
+          <div>청크: <span id="chunk-count">-</span></div>
+          <div class="text-xs text-gray-500 mt-2">
+            마지막 변경: <span id="updated-at">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 border-t pt-6">
+      <div class="flex items-center justify-between gap-3 flex-col md:flex-row">
+        <h2 class="text-lg font-semibold text-gray-900">문서 업로드</h2>
+        <div class="flex items-center gap-2">
+          <input
+            id="title"
+            type="text"
+            placeholder="문서 제목 (옵션)"
+            class="w-56 px-3 py-2 rounded-lg border border-gray-200 text-sm"
+          />
+          <input
+            id="source"
+            type="text"
+            placeholder="출처/링크 (옵션)"
+            class="w-64 px-3 py-2 rounded-lg border border-gray-200 text-sm"
+          />
+        </div>
+      </div>
+      <div class="mt-3 rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed">
+        <p class="font-semibold text-gray-800 mb-2">RAG 적용 방식 (간단 설명)</p>
+        <p class="mb-1">1) 문서를 업로드하면 자동으로 조각(청크)으로 분해하고 검색 인덱스를 만듭니다.</p>
+        <p class="mb-1">2) 사용자가 질문하면 관련된 조각만 찾아서 참고자료로 붙입니다.</p>
+        <p class="mb-0">3) AI는 그 참고자료를 근거로 답변합니다. 문서에 없으면 없다고 안내합니다.</p>
+      </div>
+      <div class="mt-3 flex items-center gap-2 flex-wrap">
+        <input id="file" type="file" accept=".txt,.md,.json" />
+        <button
+          id="upload"
+          class="px-4 py-2 rounded-lg bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700"
+        >
+          업로드
+        </button>
+        <p class="text-xs text-gray-500">
+          지원: txt, md, json (텍스트로 처리)
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-6 border-t pt-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">업로드된 문서</h2>
+      </div>
+      <div class="overflow-x-auto mt-3">
+        <table class="min-w-full border-collapse border border-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                제목/출처
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-left text-sm">
+                생성일
+              </th>
+              <th class="border border-gray-200 px-4 py-2 text-center text-sm">
+                작업
+              </th>
+            </tr>
+          </thead>
+          <tbody id="docs">
+            <tr>
+              <td
+                colspan="3"
+                class="border border-gray-200 px-4 py-6 text-center text-gray-500"
+              >
+                데이터를 불러오는 중입니다...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function checkAdminAccess() {
+    const role =
+      localStorage.getItem("user_role") ||
+      (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
+    const allowed = ["system_admin"];
+    if (!allowed.includes(role)) {
+      AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
+      setTimeout(() => (window.location.href = "/admin/login"), 800);
+      window.location.href = "/admin/login";
+    }
+  }
+
+  function tokenHeaders() {
+    const token = localStorage.getItem("auth_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  async function loadAll() {
+    checkAdminAccess();
+    const s = await fetch("/api/admin/rag/settings", { headers: tokenHeaders() });
+    const settings = await s.json();
+    if (!settings.success) throw new Error(settings.detail || "settings failed");
+
+    document.getElementById("enabled").checked = !!settings.settings.enabled;
+    document.getElementById("enabled-label").textContent = settings.settings.enabled
+      ? "ON"
+      : "OFF";
+    document.getElementById("topk").value = settings.settings.top_k || 5;
+    document.getElementById("updated-at").textContent =
+      settings.settings.updated_at || "-";
+    document.getElementById("doc-count").textContent = settings.stats.documents;
+    document.getElementById("chunk-count").textContent = settings.stats.chunks;
+
+    const d = await fetch("/api/admin/rag/documents", { headers: tokenHeaders() });
+    const docs = await d.json();
+    if (!docs.success) throw new Error(docs.detail || "docs failed");
+
+    const tbody = document.getElementById("docs");
+    if (!docs.documents.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="border border-gray-200 px-4 py-6 text-center text-gray-500">문서가 없습니다.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = docs.documents
+      .map((doc) => {
+        const title = doc.title || "(제목 없음)";
+        const source = doc.source ? `<div class="text-xs text-gray-500">${doc.source}</div>` : "";
+        const del = `<button class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-sm" onclick="deleteDoc(${doc.id})">삭제</button>`;
+        return `<tr>
+          <td class="border border-gray-200 px-4 py-3">
+            <div class="font-semibold text-gray-900">${title}</div>
+            ${source}
+          </td>
+          <td class="border border-gray-200 px-4 py-3 text-sm text-gray-700">${doc.created_at || ""}</td>
+          <td class="border border-gray-200 px-4 py-3 text-center">${del}</td>
+        </tr>`;
+      })
+      .join("");
+  }
+
+  async function saveSettings() {
+    const enabled = document.getElementById("enabled").checked;
+    const top_k = Number(document.getElementById("topk").value) || 5;
+    const res = await fetch("/api/admin/rag/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...tokenHeaders() },
+      body: JSON.stringify({ enabled, top_k }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.detail || "save failed");
+    await loadAll();
+  }
+
+  async function uploadDoc() {
+    const file = document.getElementById("file").files[0];
+    if (!file) {
+    AlertManager.warning("파일을 선택해주세요.", "입력 오류", document.body);
+    return;
+  }
+    const form = new FormData();
+    form.append("file", file);
+    form.append("title", document.getElementById("title").value || "");
+    form.append("source", document.getElementById("source").value || "");
+    const res = await fetch("/api/admin/rag/documents", {
+      method: "POST",
+      headers: { ...tokenHeaders() },
+      body: form,
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.detail || "upload failed");
+    document.getElementById("file").value = "";
+    await loadAll();
+  }
+
+  async function deleteDoc(id) {
+    if (!confirm("삭제할까요? (문서/청크 모두 삭제)")) return;
+    const res = await fetch(`/api/admin/rag/documents/${id}`, {
+      method: "DELETE",
+      headers: tokenHeaders(),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.detail || "delete failed");
+    await loadAll();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("refresh").addEventListener("click", loadAll);
+    document.getElementById("save-settings").addEventListener("click", saveSettings);
+    document.getElementById("upload").addEventListener("click", () =>
+      uploadDoc().catch((e) => AlertManager.error(String(e.message || e), "업로드 오류", document.body))
+    );
+    document.getElementById("enabled").addEventListener("change", () =>
+      saveSettings().catch((e) => AlertManager.error(String(e.message || e), "저장 오류", document.body))
+    );
+    loadAll().catch((e) => AlertManager.error(String(e.message || e), "로드 오류", document.body));
+  });
+</script>
+{% endblock %}

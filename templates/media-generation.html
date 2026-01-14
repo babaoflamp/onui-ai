@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}상황별 콘텐츠 생성 - 오누이 한국어{%
 endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4 py-8">
   <!-- Header -->
   <div class="mb-8">
@@ -174,7 +175,7 @@ endblock %} {% block content %}
     const situation = document.getElementById("situation").value.trim();
 
     if (!situation) {
-      alert("학습 상황을 입력해주세요.");
+      AlertManager.warning("학습 상황을 입력해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
@@ -280,7 +281,7 @@ endblock %} {% block content %}
 
   function downloadImage() {
     if (!currentImageUrl) {
-      alert("다운로드할 이미지가 없습니다.");
+      AlertManager.warning("다운로드할 이미지가 없습니다.", "이미지 없음", document.getElementById("alertsContainer")); return;
       return;
     }
     const link = document.createElement("a");

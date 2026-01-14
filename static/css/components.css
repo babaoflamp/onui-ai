@@ -1,0 +1,419 @@
+/* ============================================
+   공통 UI 컴포넌트 스타일시트
+   ============================================ */
+
+/* ==========================================
+   버튼 스타일
+   ========================================== */
+
+/* 기본 버튼 (Primary) */
+.btn,
+button:not([class*="bg-"]):not([class*="text-"]),
+input[type="button"]:not([class*="bg-"]),
+input[type="submit"]:not([class*="bg-"]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary,
+.btn:not(.btn-secondary):not(.btn-danger):not(.btn-ghost) {
+  background: linear-gradient(135deg, var(--accent), #ff9a56);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn:hover:not(.btn-secondary):hover:not(.btn-danger):not(.btn-ghost):not(
+    :disabled
+  ) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.4);
+}
+
+.btn-primary:active:not(:disabled),
+.btn:active:not(.btn-secondary):not(.btn-danger):not(.btn-ghost):not(
+    :disabled
+  ) {
+  transform: translateY(0);
+}
+
+.btn-primary:focus:not(:disabled),
+.btn:focus:not(.btn-secondary):not(.btn-danger):not(.btn-ghost):not(:disabled) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Secondary 버튼 */
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.btn-secondary:focus:not(:disabled) {
+  outline: 2px solid #9ca3af;
+  outline-offset: 2px;
+}
+
+/* Danger 버튼 */
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:focus:not(:disabled) {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+/* Ghost 버튼 */
+.btn-ghost {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-ghost:focus:not(:disabled) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Disabled 상태 */
+.btn:disabled,
+button:disabled,
+input[type="button"]:disabled,
+input[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Small 사이즈 */
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Large 사이즈 */
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* Block (full width) */
+.btn-block {
+  width: 100%;
+  display: flex;
+}
+
+/* ==========================================
+   로딩 상태 표시
+   ========================================== */
+
+.loading-spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-spinner.sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 2px;
+}
+
+.loading-spinner.lg {
+  width: 2rem;
+  height: 2rem;
+  border-width: 4px;
+}
+
+.btn .loading-spinner {
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 전체 화면 로딩 오버레이 */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.loading-overlay.hidden {
+  display: none;
+}
+
+.loading-overlay-content {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.loading-overlay-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e5e7eb;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.loading-overlay-text {
+  font-size: 1rem;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+/* ==========================================
+   에러/알림 메시지
+   ========================================== */
+
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.alert-message {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Success */
+.alert-success {
+  background-color: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.alert-success .alert-title {
+  color: #059669;
+}
+
+.alert-success .alert-message {
+  color: #047857;
+}
+
+/* Error */
+.alert-error {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+.alert-error .alert-title {
+  color: #dc2626;
+}
+
+.alert-error .alert-message {
+  color: #b91c1c;
+}
+
+/* Warning */
+.alert-warning {
+  background-color: #fefce8;
+  border-color: #eab308;
+  color: #92400e;
+}
+
+.alert-warning .alert-title {
+  color: #ca8a04;
+}
+
+.alert-warning .alert-message {
+  color: #92400e;
+}
+
+/* Info */
+.alert-info {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #1e40af;
+}
+
+.alert-info .alert-title {
+  color: #1d4ed8;
+}
+
+.alert-info .alert-message {
+  color: #1e40af;
+}
+
+/* 닫기 버튼 */
+.alert-close {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.alert-close:hover {
+  opacity: 1;
+}
+
+/* ==========================================
+   토스트 알림 (Snackbar)
+   ========================================== */
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 300px;
+  z-index: 999;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.toast.hide {
+  animation: slideOut 0.3s ease forwards;
+}
+
+.toast-success {
+  border-left: 4px solid #10b981;
+  color: #047857;
+}
+
+.toast-error {
+  border-left: 4px solid #ef4444;
+  color: #b91c1c;
+}
+
+.toast-warning {
+  border-left: 4px solid #eab308;
+  color: #92400e;
+}
+
+.toast-info {
+  border-left: 4px solid #3b82f6;
+  color: #1e40af;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .toast {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    min-width: auto;
+  }
+
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .alert {
+    padding: 0.875rem;
+    gap: 0.5rem;
+  }
+
+  .alert-icon {
+    font-size: 1.25rem;
+  }
+
+  .alert-title {
+    font-size: 0.75rem;
+  }
+
+  .alert-message {
+    font-size: 0.75rem;
+  }
+}

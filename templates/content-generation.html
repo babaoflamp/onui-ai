@@ -553,12 +553,16 @@ endblock %} {% block extra_css %}
           <!-- Action Buttons -->
           <div class="flex gap-2 items-center pt-2">
             <div class="flex items-center gap-2 mr-2">
-              <label for="voiceSelect" class="text-xs text-gray-600">음성 선택</label>
+              <label for="voiceSelect" class="text-xs text-gray-600">스피커 선택</label>
               <select id="voiceSelect" class="text-sm border border-gray-200 rounded px-2 py-1 bg-white">
-                <option value="">(목소리 불러오는 중...)</option>
+                <option value="0">(스피커 불러오는 중...)</option>
               </select>
             </div>
-            <button onclick="speakDialogue()" class="flex-1 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white px-6 py-2 rounded-lg hover:bg-[#e67a15] transition-all font-semibold flex items-center justify-center gap-2">
+            <button
+              id="dialogueSpeakBtn"
+              onclick="speakDialogue()"
+              class="flex-1 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white px-6 py-2 rounded-lg hover:bg-[#e67a15] transition-all font-semibold flex items-center justify-center gap-2"
+            >
               <span>🔊</span>
               대화 읽어주기
             </button>
@@ -583,51 +587,86 @@ endblock %} {% block extra_css %}
     }
   }
 
-  // Speak a given string
-  function speakText(txt) {
-    if (!txt) return;
+  let isSpeaking = false;
+  let stopSpeaking = false;
+  let currentAudio = null;
+
+  function getSelectedSpeaker() {
+    const sel = document.getElementById("voiceSelect");
+    const val = sel ? Number(sel.value) : 0;
+    return Number.isFinite(val) ? val : 0;
+  }
+
+  function setSpeakButtonState(active) {
+    const btn = document.getElementById("dialogueSpeakBtn");
+    if (!btn) return;
+    if (active) {
+      btn.innerHTML = "<span>⏹️</span> 읽기 중지";
+      btn.classList.remove("hover:bg-[#e67a15]");
+      btn.classList.add("bg-red-500", "border-red-500", "hover:bg-red-400");
+    } else {
+      btn.innerHTML = "<span>🔊</span> 대화 읽어주기";
+      btn.classList.remove("bg-red-500", "border-red-500", "hover:bg-red-400");
+      btn.classList.add("hover:bg-[#e67a15]");
+    }
+  }
+
+  function stopSpeechQueue() {
+    stopSpeaking = true;
+    isSpeaking = false;
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.src = "";
+      currentAudio = null;
+    }
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
-      u.lang = "ko-KR";
-      u.rate = 0.95;
-      const pickKoreanVoice = () => {
-        const voices = window.speechSynthesis.getVoices() || [];
-        for (const v of voices) {
-          if (!v) continue;
-          const lname = (v.lang || "").toLowerCase();
-          const n = (v.name || "").toLowerCase();
-          if (
-            lname.startsWith("ko") ||
-            n.includes("korean") ||
-            n.includes("noto") ||
-            n.includes("nanum")
-          ) {
-            return v;
-          }
-        }
-        return null;
-      };
-
-      try {
-        const selVal = (document.getElementById("voiceSelect") || {}).value;
-        if (selVal) {
-          const [name, lang] = selVal.split("||");
-          const voices = window.speechSynthesis.getVoices() || [];
-          const found = voices.find((v) => v.name === name && v.lang === lang);
-          if (found) u.voice = found;
-        }
-      } catch (e) {}
-
-      let voice = pickKoreanVoice();
-      if (!u.voice && voice) {
-        u.voice = voice;
-      }
-
-      window.speechSynthesis.speak(u);
-    } else {
-      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
     }
+    setSpeakButtonState(false);
+  }
+
+  function speakWithBrowserTTS(text) {
+    console.warn("Browser TTS is disabled.");
+    return Promise.resolve();
+  }
+
+  async function playTTS(text) {
+    if (!text) return;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    try {
+      const speaker = getSelectedSpeaker();
+      const response = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, speaker }),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("TTS 생성 실패");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+      await audio.play();
+      audio.addEventListener("ended", () => {
+        URL.revokeObjectURL(url);
+      });
+      return new Promise((resolve) => {
+        audio.addEventListener("ended", resolve, { once: true });
+        audio.addEventListener("error", resolve, { once: true });
+      });
+    } catch (err) {
+      console.error("TTS 오류:", err);
+      return;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  // Speak a given string (MzTTS)
+  function speakText(txt) {
+    stopSpeechQueue();
+    playTTS(txt);
   }
 
   // Test model
@@ -695,50 +734,69 @@ endblock %} {% block extra_css %}
     }
   }
 
-  // Populate voice select
-  function populateVoiceList() {
+  // Populate MzTTS speaker list
+  async function populateVoiceList() {
     const sel = document.getElementById("voiceSelect");
     if (!sel) return;
-    if (!("speechSynthesis" in window)) {
-      sel.innerHTML = '<option value="">음성 지원 불가</option>';
-      return;
-    }
+    sel.innerHTML = '<option value="0">(스피커 불러오는 중...)</option>';
+    try {
+      const res = await fetch("/api/tts/info");
+      if (!res.ok) throw new Error("TTS 정보를 불러오지 못했습니다.");
+      const info = await res.json();
+      const speakersRaw = info.speakers || info.speaker || info.voice || [];
+      const speakers = [];
 
-    function refresh() {
-      const voices = window.speechSynthesis.getVoices() || [];
-      voices.sort((a, b) => {
-        const aKo = (a.lang || "").toLowerCase().startsWith("ko");
-        const bKo = (b.lang || "").toLowerCase().startsWith("ko");
-        if (aKo === bKo) return (a.name || "").localeCompare(b.name || "");
-        return aKo ? -1 : 1;
-      });
+      if (Array.isArray(speakersRaw)) {
+        speakersRaw.forEach((item, idx) => {
+          if (typeof item === "number") {
+            speakers.push({ id: item, label: `Speaker ${item}` });
+          } else if (typeof item === "string") {
+            speakers.push({ id: idx, label: item });
+          } else if (item && typeof item === "object") {
+            const id =
+              item.id ?? item.speaker_id ?? item.index ?? item.value ?? idx;
+            const label =
+              item.name ??
+              item.label ??
+              item.title ??
+              `Speaker ${id}`;
+            speakers.push({ id, label });
+          }
+        });
+      } else if (speakersRaw && typeof speakersRaw === "object") {
+        Object.entries(speakersRaw).forEach(([key, value]) => {
+          const id = Number(key);
+          const label = typeof value === "string" ? value : `Speaker ${key}`;
+          speakers.push({ id: Number.isFinite(id) ? id : key, label });
+        });
+      }
 
-      let current = "";
-      try {
-        current = localStorage.getItem("onui_voice") || "";
-      } catch (e) {}
+      const stored = Number(localStorage.getItem("mztts_speaker") || "0");
+      const current = Number.isFinite(stored) ? stored : 0;
 
       sel.innerHTML = "";
-      const emptyOpt = document.createElement("option");
-      emptyOpt.value = "";
-      emptyOpt.innerText = "(시스템 기본 음성)";
-      sel.appendChild(emptyOpt);
-
-      voices.forEach((v) => {
-        const o = document.createElement("option");
-        o.value = `${v.name}||${v.lang}`;
-        o.innerText = `${v.name} (${v.lang})`;
-        if (o.value === current) o.selected = true;
-        sel.appendChild(o);
-      });
+      if (!speakers.length) {
+        const fallback = document.createElement("option");
+        fallback.value = "0";
+        fallback.innerText = "Speaker 0";
+        sel.appendChild(fallback);
+      } else {
+        speakers.forEach((sp) => {
+          const o = document.createElement("option");
+          o.value = String(sp.id);
+          o.innerText = sp.label;
+          if (Number(sp.id) === current) o.selected = true;
+          sel.appendChild(o);
+        });
+      }
+    } catch (err) {
+      console.warn("Failed to load MzTTS speakers:", err);
+      sel.innerHTML = '<option value="0">Speaker 0</option>';
     }
-
-    refresh();
-    window.speechSynthesis.onvoiceschanged = refresh;
 
     sel.addEventListener("change", () => {
       try {
-        localStorage.setItem("onui_voice", sel.value || "");
+        localStorage.setItem("mztts_speaker", sel.value || "0");
       } catch (e) {}
     });
   }
@@ -768,56 +826,31 @@ endblock %} {% block extra_css %}
   }
 
   // Speak dialogue sequence
-  function speakDialogue() {
+  async function speakDialogue() {
     const items = document.querySelectorAll("#contentResult .dialogue-item");
     if (!items.length) return;
 
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      items.forEach((item, index) => {
-        const textAttr =
-          item.getAttribute("data-text") ||
-          item.querySelector(".dialogue-text")?.textContent ||
-          "";
-        const pron = item.getAttribute("data-pron");
-        const txt = textAttr && textAttr.trim() ? textAttr : pron || "";
-        const u = new SpeechSynthesisUtterance(txt);
-        u.lang = "ko-KR";
-        u.rate = 0.95;
-        try {
-          const selVal = (document.getElementById("voiceSelect") || {}).value;
-          if (selVal) {
-            const [name, lang] = selVal.split("||");
-            const voices = window.speechSynthesis.getVoices() || [];
-            const found = voices.find(
-              (v) => v.name === name && v.lang === lang
-            );
-            if (found) u.voice = found;
-          }
-        } catch (e) {}
-
-        const voices = window.speechSynthesis.getVoices() || [];
-        for (const v of voices) {
-          if (!v) continue;
-          const lname = (v.lang || "").toLowerCase();
-          const n = (v.name || "").toLowerCase();
-          if (
-            lname.startsWith("ko") ||
-            n.includes("korean") ||
-            n.includes("noto") ||
-            n.includes("nanum")
-          ) {
-            if (!u.voice) u.voice = v;
-            break;
-          }
-        }
-        setTimeout(() => {
-          window.speechSynthesis.speak(u);
-        }, index * 1800);
-      });
-    } else {
-      alert("죄송합니다. 이 브라우저는 음성 합성을 지원하지 않습니다.");
+    if (isSpeaking) {
+      stopSpeechQueue();
+      return;
     }
+
+    stopSpeaking = false;
+    isSpeaking = true;
+    setSpeakButtonState(true);
+
+    for (const item of items) {
+      if (stopSpeaking) break;
+      const textAttr =
+        item.getAttribute("data-text") ||
+        item.querySelector(".dialogue-text")?.textContent ||
+        "";
+      const pron = item.getAttribute("data-pron");
+      const txt = textAttr && textAttr.trim() ? textAttr : pron || "";
+      await playTTS(txt);
+    }
+
+    stopSpeechQueue();
   }
 
   window.addEventListener("DOMContentLoaded", () => {

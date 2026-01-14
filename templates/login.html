@@ -4,6 +4,9 @@ endblock %} {% block content %}
   class="min-h-screen bg-gradient-to-br from-orange-50 to-pink-50 flex items-center justify-center px-4"
 >
   <div class="w-full max-w-md">
+    <!-- Alerts Container -->
+    <div id="alertsContainer" class="mb-4"></div>
+
     <!-- Login Card -->
     <div class="bg-white rounded-3xl shadow-2xl p-8 border border-orange-100">
       <!-- Header -->
@@ -18,6 +21,7 @@ endblock %} {% block content %}
         <div class="space-y-2">
           <label class="text-sm font-semibold text-gray-800">닉네임</label>
           <input
+            id="nicknameInput"
             name="nickname"
             type="text"
             required
@@ -31,6 +35,7 @@ endblock %} {% block content %}
         <div class="space-y-2">
           <label class="text-sm font-semibold text-gray-800">비밀번호</label>
           <input
+            id="passwordInput"
             name="password"
             type="password"
             required
@@ -40,14 +45,9 @@ endblock %} {% block content %}
           />
         </div>
 
-        <!-- Status Message -->
-        <div
-          id="loginStatus"
-          class="text-sm text-gray-600 text-center min-h-6"
-        ></div>
-
         <!-- Submit Button -->
         <button
+          id="loginBtn"
           type="submit"
           class="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-3 rounded-lg shadow-lg hover:from-orange-600 hover:to-pink-600 transition-all duration-200 active:scale-95"
         >
@@ -69,7 +69,7 @@ endblock %} {% block content %}
       <div class="text-center">
         <p class="text-gray-600 mb-3">아직 계정이 없으신가요?</p>
         <a
-          href="/"
+          href="/signup"
           class="inline-flex items-center justify-center text-white bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-2.5 rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-600 transition-all"
         >
           회원가입하기
@@ -96,27 +96,53 @@ endblock %} {% block content %}
 <script>
   (function () {
     const form = document.getElementById("loginForm");
-    const statusEl = document.getElementById("loginStatus");
+    const loginBtn = document.getElementById("loginBtn");
+    const nicknameInput = document.getElementById("nicknameInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const alertsContainer = document.getElementById("alertsContainer");
+
     if (!form) return;
 
-    function setStatus(msg, ok = true) {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.className = ok
-        ? "text-sm text-emerald-600 font-medium"
-        : "text-sm text-red-600 font-medium";
-    }
+    // Clear field errors on input
+    nicknameInput.addEventListener("input", () => {
+      FormValidator.clearFieldError(nicknameInput);
+    });
+    passwordInput.addEventListener("input", () => {
+      FormValidator.clearFieldError(passwordInput);
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const fd = new FormData(form);
+
+      // 유효성 검사
+      alertsContainer.innerHTML = "";
+      let hasErrors = false;
+
+      if (!FormValidator.isRequired(nicknameInput.value)) {
+        FormValidator.showFieldError(nicknameInput, "닉네임은 필수입니다.");
+        hasErrors = true;
+      }
+
+      if (!FormValidator.isRequired(passwordInput.value)) {
+        FormValidator.showFieldError(passwordInput, "비밀번호는 필수입니다.");
+        hasErrors = true;
+      }
+
+      if (hasErrors) {
+        AlertManager.error(
+          "입력 정보를 확인해주세요.",
+          "유효성 검사 오류",
+          alertsContainer
+        );
+        return;
+      }
 
       const payload = {
-        nickname: fd.get("nickname") || "",
-        password: fd.get("password") || "",
+        nickname: nicknameInput.value,
+        password: passwordInput.value,
       };
 
-      setStatus("로그인 중...", true);
+      LoadingManager.setButtonLoading(loginBtn, "로그인 중...");
 
       try {
         const res = await fetch("/api/login", {
@@ -125,14 +151,12 @@ endblock %} {% block content %}
           body: JSON.stringify(payload),
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-          const error = await res
-            .json()
-            .catch(() => ({ detail: "로그인 실패" }));
-          throw new Error(error.detail || "로그인에 실패했습니다.");
+          throw new Error(data.detail || "로그인에 실패했습니다.");
         }
 
-        const data = await res.json();
         // Store token and nickname in localStorage
         localStorage.setItem("auth_token", data.token);
         localStorage.setItem("user_nickname", data.nickname);
@@ -148,19 +172,30 @@ endblock %} {% block content %}
           localStorage.removeItem("is_admin");
         }
         localStorage.removeItem("is_guest");
-        // Reset welcome mail flag for new login
         localStorage.removeItem("welcome_mail_sent");
-        setStatus(`✓ ${data.nickname}님 환영합니다!`);
 
-        // Redirect after 1.2 seconds
+        LoadingManager.clearButtonLoading(loginBtn);
+        ToastManager.success(`${data.nickname}님 환영합니다!`);
+
+        // Redirect after 1.5 seconds
         setTimeout(() => {
           const role = localStorage.getItem("user_role");
-          const shouldGoAdmin = role === "instructor" || role === "system_admin";
+          if (role === "learner") {
+            window.location.href = "/dashboard";
+            return;
+          }
+          const shouldGoAdmin =
+            role === "instructor" || role === "system_admin";
           window.location.href = shouldGoAdmin ? "/admin" : "/";
-        }, 1200);
+        }, 1500);
       } catch (err) {
-        console.error(err);
-        setStatus(err.message || "로그인 중 오류가 발생했습니다.", false);
+        console.error("로그인 오류:", err);
+        LoadingManager.clearButtonLoading(loginBtn);
+        AlertManager.error(
+          err.message || "로그인 중 오류가 발생했습니다.",
+          "로그인 실패",
+          alertsContainer
+        );
       }
     });
   })();

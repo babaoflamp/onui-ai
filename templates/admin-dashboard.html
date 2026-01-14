@@ -27,7 +27,8 @@ endblock %} {% block content %}
     </div>
   </div>
 
-  <div id="adminStatus" class="text-sm text-gray-600 mb-6"></div>
+  <!-- Alerts Container -->
+  <div id="alertsContainer" class="mb-6"></div>
 
   <!-- Admin Menu Quick Links -->
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
@@ -121,7 +122,7 @@ endblock %} {% block content %}
 {% endblock %} {% block extra_js %}
 <script>
   (function () {
-    const statusEl = document.getElementById("adminStatus");
+    const alertsContainer = document.getElementById("alertsContainer");
     const totalEl = document.getElementById("totalUsers");
     const adminEl = document.getElementById("adminUsers");
     const recentCountEl = document.getElementById("recentCount");
@@ -129,14 +130,6 @@ endblock %} {% block content %}
     const tbody = document.getElementById("recentTbody");
     const refreshBtn = document.getElementById("refreshAdmin");
     const logoutBtn = document.getElementById("adminLogout");
-
-    function setStatus(msg, ok = true) {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.className = ok
-        ? "text-sm text-emerald-600"
-        : "text-sm text-red-600";
-    }
 
     function ensureAdmin() {
       const token = localStorage.getItem("auth_token");
@@ -154,7 +147,9 @@ endblock %} {% block content %}
     async function loadSummary() {
       const token = ensureAdmin();
       if (!token) return;
-      setStatus("요약 정보를 불러오는 중...", true);
+
+      alertsContainer.innerHTML = "";
+      LoadingManager.show("요약 정보를 불러오는 중...");
 
       try {
         const res = await fetch("/api/admin/summary", {
@@ -162,7 +157,12 @@ endblock %} {% block content %}
         });
 
         if (res.status === 401 || res.status === 403) {
-          setStatus("다시 로그인해주세요.", false);
+          LoadingManager.hide();
+          AlertManager.error(
+            "다시 로그인해주세요.",
+            "인증 오류",
+            alertsContainer
+          );
           localStorage.removeItem("auth_token");
           localStorage.removeItem("user_nickname");
           localStorage.removeItem("is_admin");
@@ -201,10 +201,16 @@ endblock %} {% block content %}
               .join("")
           : '<tr><td class="px-4 py-3 text-gray-500" colspan="3">최근 가입 사용자가 없습니다.</td></tr>';
 
-        setStatus("최신 데이터로 업데이트되었습니다.", true);
+        LoadingManager.hide();
+        ToastManager.success("최신 데이터로 업데이트되었습니다.");
       } catch (err) {
+        LoadingManager.hide();
         console.error(err);
-        setStatus(err.message || "오류가 발생했습니다.", false);
+        AlertManager.error(
+          err.message || "데이터를 불러오지 못했습니다.",
+          "오류",
+          alertsContainer
+        );
       }
     }
 

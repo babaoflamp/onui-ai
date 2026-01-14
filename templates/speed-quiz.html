@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}스피드 퀴즈 - 오누이 한국어{%
 endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -165,7 +166,7 @@ endblock %} {% block content %}
         words = data.vocabulary || [];
 
         if (words.length === 0) {
-          alert("해당 레벨의 단어가 없습니다.");
+          AlertManager.warning("해당 레벨의 단어가 없습니다.", "데이터 없음", document.getElementById("alertsContainer"));
           return false;
         }
 
@@ -174,7 +175,7 @@ endblock %} {% block content %}
         return true;
       } catch (error) {
         console.error("Error loading vocabulary:", error);
-        alert("단어를 불러오는데 실패했습니다.");
+        AlertManager.error("단어를 불러오는데 실패했습니다.", "로드 오류", document.getElementById("alertsContainer"));
         return false;
       }
     }

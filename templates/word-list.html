@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block title %}학습 단어 목록 | 오누이 한국어{% endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-6xl mx-auto px-4 py-10">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
     <div>
@@ -59,31 +60,29 @@
       </div>
 
       <div id="wordPracticeSection">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-          <div class="md:col-span-3 flex flex-col items-center gap-3">
-            <div
-              class="w-full max-w-2xl bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-center"
-            >
-              <div class="w-full">
-                <div
-                  id="wordImage"
-                  class="h-[280px] w-full bg-white rounded-lg shadow-inner flex items-center justify-center text-5xl"
-                >
-                  📘
-                </div>
-                <p id="wordImageStatus" class="text-xs text-gray-500 mt-2 text-center hidden">
-                  이미지 생성 중...
-                </p>
+        <div class="flex flex-col gap-4 items-stretch">
+          <div
+            class="w-full bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center justify-center"
+          >
+            <div class="w-full">
+              <div
+                id="wordImage"
+                class="h-[500px] w-[500px] max-w-full bg-white rounded-lg shadow-inner flex items-center justify-center text-5xl mx-auto"
+              >
+                📘
               </div>
+              <p id="wordImageStatus" class="text-xs text-gray-500 mt-2 text-center hidden">
+                이미지 생성 중...
+              </p>
             </div>
-            <button
-              id="generateImageBtn"
-              class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ✨ 이미지 생성
-            </button>
           </div>
-          <div class="md:col-span-2 space-y-3">
+          <button
+            id="generateImageBtn"
+            class="self-center px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ✨ 이미지 생성
+          </button>
+          <div class="space-y-3">
             <div class="bg-gray-50 rounded-xl p-4">
               <p class="text-sm text-gray-700 leading-relaxed" id="wordDesc"></p>
             </div>
@@ -571,6 +570,29 @@
     } catch (_) {}
   }
 
+  async function getServerCachedImage(key) {
+    if (!key) return null;
+    try {
+      const res = await fetch(`/api/word-images/cache?key=${encodeURIComponent(key)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.entry?.url || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function setServerCachedImage(key, url) {
+    if (!key || !url) return;
+    try {
+      await fetch("/api/word-images/cache", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key, url }),
+      });
+    } catch (_) {}
+  }
+
   function getWordImageKey(item) {
     if (!item) return null;
     return item.id ? `id:${item.id}` : `word:${item.word || ""}`;
@@ -607,6 +629,16 @@
         delete cache[key];
         setWordImageCache(cache);
       }
+      const serverCached = await getServerCachedImage(key);
+      if (serverCached) {
+        const nextCache = getWordImageCache();
+        nextCache[key] = { url: serverCached, updatedAt: Date.now() };
+        setWordImageCache(nextCache);
+        if (currentImageKey === key) {
+          renderWordImage(item, serverCached);
+        }
+        return;
+      }
       const meaning = item.meaningKo || item.meaning || "";
       const situation = meaning || "";
       if (!situation) return;
@@ -616,8 +648,8 @@
         `한국어 학습용 개념 일러스트: ${situation}. `
         + "단어/뜻/라벨/말풍선 등 텍스트는 절대 포함하지 말 것. "
         + "어떠한 언어의 글자도 금지(한글/영문/숫자 포함). "
-        + "실제 사진처럼 보이는 포토리얼리스틱 스타일, 자연광, 선명한 디테일, "
-        + "스튜디오 촬영 느낌, 얕은 심도, 필름 톤, 한국 문화 맥락, "
+        + "정사각형 500x500 구성으로 생성. "
+        + "자연광, 선명한 디테일, 한국 문화 맥락, "
         + "단순한 배경, 주제 객체를 화면 중앙에 크게, "
         + "고해상도, 워터마크 없음."
       );
@@ -647,12 +679,13 @@
         updatedAt: Date.now(),
       };
       setWordImageCache(nextCache);
+      setServerCachedImage(key, imageUrl);
       if (currentImageKey === key) {
         renderWordImage(item, imageUrl);
       }
     } catch (err) {
       console.warn("이미지 생성 실패:", err);
-      alert("이미지 생성에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      AlertManager.error("이미지 생성에 실패했습니다. 잠시 후 다시 시도해주세요.", "생성 오류", document.getElementById("alertsContainer"));
     } finally {
       imageRequestInFlight.delete(key);
       if (generateImageBtnEl && currentImageKey === key) {
@@ -773,6 +806,18 @@
       generateImageBtnEl.disabled = Boolean(cached);
       generateImageBtnEl.textContent = "✨ 이미지 생성";
     }
+    if (!cached && imageKey) {
+      getServerCachedImage(imageKey).then((serverUrl) => {
+        if (!serverUrl) return;
+        const nextCache = getWordImageCache();
+        nextCache[imageKey] = { url: serverUrl, updatedAt: Date.now() };
+        setWordImageCache(nextCache);
+        if (currentImageKey === imageKey) {
+          renderWordImage(item, serverUrl);
+          if (generateImageBtnEl) generateImageBtnEl.disabled = true;
+        }
+      });
+    }
     historyTitleEl.textContent = `'${item.word}' 점수 히스토리`;
     if (centerHistoryTitleEl) {
       centerHistoryTitleEl.textContent = `'${item.word}' 점수 히스토리`;
@@ -809,32 +854,65 @@
     }
   }
 
+  function speakWithBrowserTTS(text) {
+    console.warn("Browser TTS is disabled.");
+    return;
+  }
+
   async function playTTS(text) {
     if (!text) return;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const originalLabel = playButtonEl ? playButtonEl.textContent : "";
     try {
       if (playButtonEl) {
         playButtonEl.disabled = true;
         playButtonEl.classList.add("opacity-70");
+        playButtonEl.textContent = "⏳ 음성 생성 중...";
       }
-      const response = await fetch("/api/tts/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (!response.ok) throw new Error("TTS 생성 실패");
-      const blob = await response.blob();
+      const fetchWithRetry = async (retries) => {
+        let lastErr = null;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            const response = await fetch("/api/tts/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text }),
+              signal: controller.signal,
+            });
+            if (!response.ok) throw new Error("TTS 생성 실패");
+            return response.blob();
+          } catch (err) {
+            lastErr = err;
+            if (attempt >= retries) break;
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          }
+        }
+        throw lastErr;
+      }
+      const blob = await fetchWithRetry(1);
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
-      audio.play();
+      audio.volume = 1.0;
+      audio.play().catch((err) => {
+        console.error("TTS 재생 오류:", err);
+      });
       audio.addEventListener("ended", () => {
         URL.revokeObjectURL(url);
       });
     } catch (err) {
-      console.error("TTS 오류:", err);
+      if (err?.name === "AbortError") {
+        console.error("TTS 요청 시간 초과:", err);
+      } else {
+        console.error("TTS 오류:", err);
+      }
+      return;
     } finally {
+      clearTimeout(timeoutId);
       if (playButtonEl) {
         playButtonEl.disabled = false;
         playButtonEl.classList.remove("opacity-70");
+        playButtonEl.textContent = originalLabel || "▶ 발음 듣기";
       }
     }
   }
@@ -843,7 +921,7 @@
     if (recorder && recorder.state === "recording") return;
     if (practiceRecorder && practiceRecorder.state === "recording") return;
     if (!getSelectedWord()) {
-      alert("학습 단어를 먼저 선택해주세요.");
+      AlertManager.warning("학습 단어를 먼저 선택해주세요.", "선택 필요", document.getElementById("alertsContainer")); return;
       return;
     }
     try {
@@ -912,7 +990,7 @@
       }, 1000);
     } catch (err) {
       console.error("녹음 시작 오류:", err);
-      alert("마이크 권한을 확인해 주세요.");
+AlertManager.error("마이크 권한을 확인해 주세요.", "마이크 오류", document.getElementById("alertsContainer"));
       if (countdownEl) countdownEl.classList.add("hidden");
     }
   }
@@ -1040,7 +1118,7 @@
     if (recorder && recorder.state === "recording") return;
     const item = getSelectedWord();
     if (!item) {
-      alert("학습 단어를 먼저 선택해주세요.");
+      AlertManager.warning("학습 단어를 먼저 선택해주세요.", "선택 필요", document.getElementById("alertsContainer")); return;
       return;
     }
     try {
@@ -1106,7 +1184,7 @@
       }, 1000);
     } catch (err) {
       console.error("녹음 시작 오류:", err);
-      alert("마이크 권한을 확인해 주세요.");
+AlertManager.error("마이크 권한을 확인해 주세요.", "마이크 오류", document.getElementById("alertsContainer"));
       if (practiceCountdownEl) practiceCountdownEl.classList.add("hidden");
     }
   }
@@ -1157,12 +1235,13 @@
 
   function renderHistoryChartInto(containerEl, wordId, height = 200) {
     if (!containerEl) return;
-    const history = getHistory(wordId).slice(0, 10).reverse();
-    if (!history.length) {
+    const rawHistory = getHistory(wordId).slice(0, 10);
+    if (!rawHistory.length) {
       containerEl.innerHTML =
         "<div class='h-full flex items-center justify-center text-sm text-gray-400'>히스토리 데이터가 없습니다.</div>";
       return;
     }
+    const history = Array.from({ length: 10 }, (_, idx) => rawHistory[idx] ?? null).reverse();
 
     const width = 480;
     const padding = 32;
@@ -1171,8 +1250,10 @@
     const stepX = history.length > 1 ? (width - padding * 2) / (history.length - 1) : 0;
 
     const points = history.map((score, idx) => {
+      const scoreValue = score ?? 0;
       const x = padding + idx * stepX;
-      const y = height - padding - ((score - min) / (max - min)) * (height - padding * 2);
+      const y =
+        height - padding - ((scoreValue - min) / (max - min)) * (height - padding * 2);
       return { x, y, score };
     });
 
@@ -1181,7 +1262,10 @@
       .map((p) => {
         const x = p.x - barWidth / 2;
         const barHeight = height - padding - p.y;
-        return `<rect x="${x}" y="${p.y}" width="${barWidth}" height="${barHeight}" rx="6" fill="#6366f1"></rect>`;
+        const isPlaceholder = p.score === null;
+        const fill = isPlaceholder ? "#cbd5f5" : "#6366f1";
+        const opacity = isPlaceholder ? "0.45" : "1";
+        return `<rect x="${x}" y="${p.y}" width="${barWidth}" height="${barHeight}" rx="6" fill="${fill}" opacity="${opacity}"></rect>`;
       })
       .join("");
     const xLabels = points
@@ -1191,10 +1275,13 @@
       )
       .join("");
     const labels = points
-      .map(
-        (p) =>
-          `<text x="${p.x}" y="${p.y - 20}" text-anchor="middle" font-size="24" font-weight="800" fill="#111827">${p.score}</text>`
-      )
+      .map((p) => {
+        const isPlaceholder = p.score === null;
+        const fill = isPlaceholder ? "#94a3b8" : "#111827";
+        const weight = isPlaceholder ? "600" : "800";
+        const text = p.score ?? "-";
+        return `<text x="${p.x}" y="${p.y - 20}" text-anchor="middle" font-size="24" font-weight="${weight}" fill="${fill}">${text}</text>`;
+      })
       .join("");
 
     const xGuides = points
@@ -1204,12 +1291,19 @@
       )
       .join("");
 
+    const validScores = history.filter((score) => score !== null);
     const average =
-      history.reduce((sum, score) => sum + score, 0) / history.length;
+      validScores.reduce((sum, score) => sum + score, 0) / validScores.length;
     const avgY =
       height - padding - ((average - min) / (max - min)) * (height - padding * 2);
-    const avgLine = `<line x1="${padding}" y1="${avgY}" x2="${width - padding}" y2="${avgY}" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 6" />`;
-    const avgLabel = `<text x="${width - padding}" y="${avgY - 10}" text-anchor="end" font-size="18" font-weight="700" fill="#b45309">평균 ${Math.round(average)}점</text>`;
+    const avgLine =
+      validScores.length > 0
+        ? `<line x1="${padding}" y1="${avgY}" x2="${width - padding}" y2="${avgY}" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 6" />`
+        : "";
+    const avgLabel =
+      validScores.length > 0
+        ? `<text x="${padding}" y="${avgY - 10}" text-anchor="start" font-size="18" font-weight="700" fill="#b45309">평균 ${Math.round(average)}점</text>`
+        : "";
 
     containerEl.innerHTML = `
       <svg viewBox="0 0 ${width} ${height}" class="w-full h-full">

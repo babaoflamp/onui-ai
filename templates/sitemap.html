@@ -5,8 +5,7 @@
     <p class="text-sm text-gray-500">한국어 교육 사이트 맵</p>
     <h1 class="text-4xl font-bold text-gray-900 mt-2">전체 섹션 한눈에 보기</h1>
     <p class="text-gray-600 mt-3">
-      실제로 준비된 기능은 링크로 이동하고, 준비 예정인 항목은 "준비중"으로
-      표시했습니다.
+      오누이 한국어의 모든 기능을 한눈에 확인하세요.
     </p>
   </div>
 
@@ -25,10 +24,16 @@
         <li>국적(모국어), 소속, 관심 분야, 학습 계기/목표</li>
         <li>선호 학습 스타일 · 시간대</li>
       </ul>
-      <div class="mt-4">
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >준비중</span
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-orange-600 rounded-full hover:bg-orange-700"
+          >랜딩 페이지</a
+        >
+        <a
+          href="/signup"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700"
+          >회원가입</a
         >
       </div>
     </div>
@@ -47,10 +52,16 @@
         <li>학습 관리자</li>
         <li>시스템 관리자</li>
       </ul>
-      <div class="mt-4">
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >준비중</span
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/login"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700"
+          >로그인</a
+        >
+        <a
+          href="/admin-login"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-purple-600 rounded-full hover:bg-purple-700"
+          >관리자 로그인</a
         >
       </div>
     </div>
@@ -68,10 +79,16 @@
         <li>프로필 변경(사진, 비밀번호)</li>
         <li>출석체크</li>
       </ul>
-      <div class="mt-4">
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >준비중</span
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/mypage"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-teal-600 rounded-full hover:bg-teal-700"
+          >마이페이지</a
+        >
+        <a
+          href="/dashboard"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700"
+          >대시보드</a
         >
       </div>
     </div>
@@ -92,18 +109,19 @@
       </ul>
       <div class="mt-4 flex gap-2 flex-wrap">
         <a
-          href="/pronunciation-practice"
+          href="/curriculum"
           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700"
-          >발음 연습 바로가기</a
+          >발음 교정</a
         >
         <a
           href="/word-list"
           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-orange-600 rounded-full hover:bg-orange-700"
           >학습 단어 목록</a
         >
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >세부 단계는 준비중</span
+        <a
+          href="/pronunciation-stages"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-purple-600 rounded-full hover:bg-purple-700"
+          >자음모음 배우기</a
         >
       </div>
     </div>
@@ -121,10 +139,11 @@
         <li>연음 · 된소리 · ㅎ 탈락/약화 · 구개음화 · 사이시옷</li>
         <li>모음 축약/탈락/추가</li>
       </ul>
-      <div class="mt-4">
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >준비중</span
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/pronunciation-rules"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-emerald-600 rounded-full hover:bg-emerald-700"
+          >발음규칙 학습</a
         >
       </div>
     </div>
@@ -142,7 +161,7 @@
         <li>SpeechPro 발음 정확도 평가</li>
         <li>맞춤형 교재 생성</li>
         <li>상황별 콘텐츠 생성</li>
-        <li>한국어 작문 테스트</li>
+        <li>문장 학습</li>
       </ul>
       <div class="mt-4 flex gap-2 flex-wrap">
         <a
@@ -180,41 +199,23 @@
         </div>
       </div>
       <ul class="space-y-2 text-sm text-gray-700">
-        <li>재미있는 놀이 (8개)</li>
-        <li>문장 순서 맞추기 · 어휘 정원 · 오늘의 표현</li>
-        <li>타이핑 게임 · 듣고 받아쓰기 · 스피드 퀴즈</li>
-        <li>초성 퀴즈 · 카드 짝 맞추기</li>
+        <li>
+          재미있는 놀이: 단어맞추기 · 동의어/반의어 · 초성 퀴즈 · 카드 짝 맞추기
+        </li>
+        <li>재미있는 이야기: 전래동화 · 문화 표현</li>
+        <li>오늘의 표현 · 단어 꽃밭 · 받아쓰기</li>
       </ul>
       <div class="mt-4 flex gap-2 flex-wrap">
+        <!-- 재미있는 놀이 -->
         <a
-          href="/word-puzzle"
+          href="/word-matching-game"
           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-purple-600 rounded-full hover:bg-purple-700"
-          >문장 순서 맞추기</a
+          >단어맞추기</a
         >
         <a
-          href="/daily-expression"
+          href="/synonym-antonym-game"
           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-pink-600 rounded-full hover:bg-pink-700"
-          >오늘의 표현</a
-        >
-        <a
-          href="/vocab-garden"
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-teal-600 rounded-full hover:bg-teal-700"
-          >어휘 정원</a
-        >
-        <a
-          href="/typing-game"
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700"
-          >타이핑 게임</a
-        >
-        <a
-          href="/listening-dictation"
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700"
-          >듣고 받아쓰기</a
-        >
-        <a
-          href="/speed-quiz"
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
-          >스피드 퀴즈</a
+          >동의어/반의어</a
         >
         <a
           href="/initial-quiz"
@@ -225,6 +226,33 @@
           href="/card-matching-game"
           class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-emerald-600 rounded-full hover:bg-emerald-700"
           >카드 짝 맞추기</a
+        >
+        <!-- 재미있는 이야기 -->
+        <a
+          href="/folktales"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-indigo-600 rounded-full hover:bg-indigo-700"
+          >전래동화</a
+        >
+        <a
+          href="/cultural-expressions"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-red-600 rounded-full hover:bg-red-700"
+          >문화 표현</a
+        >
+        <!-- 기타 활동 -->
+        <a
+          href="/daily-expression"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700"
+          >오늘의 표현</a
+        >
+        <a
+          href="/vocab-garden"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-teal-600 rounded-full hover:bg-teal-700"
+          >단어 꽃밭</a
+        >
+        <a
+          href="/listening-dictation"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-cyan-600 rounded-full hover:bg-cyan-700"
+          >받아쓰기</a
         >
       </div>
     </div>
@@ -270,11 +298,13 @@
       </div>
       <ul class="space-y-2 text-sm text-gray-700">
         <li>공지사항 · Q&A · 1:1 문의(게시판/메일/전화)</li>
+        <li>AI 챗봇을 통한 학습 지원</li>
       </ul>
-      <div class="mt-4">
-        <span
-          class="inline-flex items-center px-3 py-1 text-xs font-medium text-orange-700 bg-orange-50 rounded-full"
-          >준비중</span
+      <div class="mt-4 flex gap-2 flex-wrap">
+        <a
+          href="/chatbot"
+          class="inline-flex items-center px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700"
+          >AI 챗봇</a
         >
       </div>
     </div>

@@ -246,7 +246,7 @@ block content %}
       class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4"
     >
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900">🔊 MzTTS API</h2>
+        <h2 class="text-lg font-semibold text-gray-900">🔊 Gemini TTS API</h2>
         <span class="text-xs text-gray-500">텍스트 → 음성</span>
       </div>
       <div class="space-y-2">
@@ -460,7 +460,8 @@ block content %}
         localStorage.getItem("user_role") ||
         (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
       if (!token || role !== "system_admin") {
-        alert("접근 권한이 없습니다.");
+AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.getElementById("alertsContainer") || document.body);
+        setTimeout(() => (window.location.href = "/admin/login"), 800);
         window.location.href = "/admin/login";
         return null;
       }
@@ -496,7 +497,7 @@ block content %}
       if (!token) return;
       const method = methodEl.value;
       const url = urlEl.value.trim();
-      if (!url) return alert("URL을 입력하세요.");
+      if (!url) { AlertManager.warning("URL을 입력하세요.", "입력 필요", document.getElementById("alertsContainer")); return; }
       statusEl.textContent = "전송중...";
       timeEl.textContent = "-ms";
       sizeEl.textContent = "-";

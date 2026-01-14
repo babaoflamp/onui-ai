@@ -211,7 +211,8 @@ content %}
         localStorage.getItem("user_role") ||
         (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
       if (!token || role !== "system_admin") {
-        alert("접근 권한이 없습니다.");
+        AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
+        setTimeout(() => (window.location.href = "/admin/login"), 800);
         window.location.href = "/admin/login";
         return null;
       }
@@ -280,7 +281,7 @@ content %}
 
     window.downloadLogs = function () {
       // TODO: Implement log download
-      alert("로그 다운로드 기능은 다음 업데이트에서 추가됩니다.");
+ToastManager.info("로그 다운로드 기능은 다음 업데이트에서 추가됩니다.");
     };
 
     loadSettings();

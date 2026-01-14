@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}발음 교정 | 오누이 한국어{% endblock
 %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -136,7 +137,7 @@
 
         document.getElementById("submitBtn").disabled = false;
       } catch (error) {
-        alert("마이크 접근 권한을 허용해주세요.");
+        AlertManager.error("마이크 접근 권한을 허용해주세요.", "마이크 오류", document.getElementById("alertsContainer"));
       }
     } else {
       recorder.stop();
@@ -175,7 +176,7 @@
 
   async function submitPronunciation() {
     if (!window.recordedAudioBlob) {
-      alert("먼저 녹음해주세요!");
+      AlertManager.warning("먼저 녹음해주세요!", "녹음 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 

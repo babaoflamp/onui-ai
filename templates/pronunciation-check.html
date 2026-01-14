@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}발음 검사 - 오누이 한국어{% endblock
 %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -522,7 +523,7 @@
       // 타이머 시작
       startTimer();
     } catch (error) {
-      alert(`마이크 접근 실패: ${error.message}`);
+      AlertManager.error(`마이크 접근 실패: ${error.message}`, "마이크 오류", document.getElementById("alertsContainer"));
     }
   }
 
@@ -613,12 +614,12 @@
     const audioElement = document.getElementById("audio-playback");
 
     if (!targetText || targetText === "문장을 입력하고 설정 버튼을 누르세요") {
-      alert("평가할 문장을 먼저 설정해주세요.");
+      AlertManager.warning("평가할 문장을 먼저 설정해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
     if (!audioElement.src) {
-      alert("음성을 녹음해주세요.");
+      AlertManager.warning("음성을 녹음해주세요.", "녹음 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
@@ -643,13 +644,13 @@
       console.log("[발음 검사] API 응답:", data);
 
       if (data.error) {
-        alert(`오류: ${data.error}`);
+        AlertManager.error(`오류: ${data.error}`, "평가 오류", document.getElementById("alertsContainer"));
       } else {
         showSpeechProModal(data, targetText);
       }
     } catch (error) {
       console.error("평가 오류:", error);
-      alert(`평가 중 오류가 발생했습니다: ${error.message}`);
+      AlertManager.error(`평가 중 오류가 발생했습니다: ${error.message}`, "평가 오류", document.getElementById("alertsContainer"));
     } finally {
       // 버튼 복원
       hideEvaluationLoading();
@@ -658,51 +659,8 @@
 
   // Speak text using Web Speech API
   function speakText(txt) {
-    if (!txt) return;
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt);
-      u.lang = "ko-KR";
-      u.rate = 0.95;
-      const voices = window.speechSynthesis.getVoices() || [];
-      for (const v of voices) {
-        if (!v) continue;
-        const lname = (v.lang || "").toLowerCase();
-        const n = (v.name || "").toLowerCase();
-        if (
-          lname.startsWith("ko") ||
-          n.includes("korean") ||
-          n.includes("noto") ||
-          n.includes("nanum")
-        ) {
-          u.voice = v;
-          break;
-        }
-      }
-      if (!u.voice) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          const vs = window.speechSynthesis.getVoices() || [];
-          for (const v of vs) {
-            const lname = (v.lang || "").toLowerCase();
-            const n = (v.name || "").toLowerCase();
-            if (
-              lname.startsWith("ko") ||
-              n.includes("korean") ||
-              n.includes("noto") ||
-              n.includes("nanum")
-            ) {
-              u.voice = v;
-              break;
-            }
-          }
-          window.speechSynthesis.speak(u);
-        };
-      } else {
-        window.speechSynthesis.speak(u);
-      }
-    } else {
-      alert("이 브라우저는 음성 합성을 지원하지 않습니다.");
-    }
+    console.warn("Browser TTS is disabled.");
+    return;
   }
 
   // Set practice text from input
@@ -711,7 +669,7 @@
     const text = input.value.trim();
 
     if (!text) {
-      alert("연습할 문장을 입력해주세요.");
+      AlertManager.warning("연습할 문장을 입력해주세요.", "입력 필요", document.getElementById("alertsContainer")); return;
       return;
     }
 
@@ -753,8 +711,7 @@
         audio.play();
       } catch (error) {
         console.error("TTS 오류:", error);
-        // 폴백: Web Speech API 사용
-        speakText(text);
+        return;
       }
     };
   });

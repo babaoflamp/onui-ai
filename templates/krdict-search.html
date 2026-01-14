@@ -1,8 +1,9 @@
-{% extends "base.html" %}
-{% block title %}사전 검색 | 오누리 한국어{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}사전 검색 | 오누리 한국어{% endblock
+%} {% block content %}
 <div class="max-w-6xl mx-auto px-4 py-10">
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
+  <div
+    class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8"
+  >
     <div>
       <h1 class="text-3xl font-bold text-gray-900">사전 검색</h1>
       <p class="text-sm text-gray-600 mt-2">
@@ -11,8 +12,16 @@
     </div>
   </div>
 
-  <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-6">
-    <form id="krdict-form" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+  <!-- Alerts Container -->
+  <div id="alertsContainer" class="mb-4"></div>
+
+  <section
+    class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mb-6"
+  >
+    <form
+      id="krdict-form"
+      class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end"
+    >
       <div class="md:col-span-5">
         <label class="text-xs font-semibold text-gray-500">검색어</label>
         <input
@@ -72,12 +81,15 @@
     </form>
   </section>
 
-  <section id="krdict-summary" class="text-sm text-gray-600 mb-4 hidden"></section>
-  <section id="krdict-error" class="text-sm text-red-600 mb-4 hidden"></section>
+  <section
+    id="krdict-summary"
+    class="text-sm text-gray-600 mb-4 hidden"
+  ></section>
 
   <section id="krdict-results" class="grid grid-cols-1 gap-4"></section>
 </div>
 
+{% endblock %} {% block extra_js %}
 <script>
   const form = document.getElementById("krdict-form");
   const queryInput = document.getElementById("krdict-query");
@@ -87,12 +99,12 @@
   const submitButton = document.getElementById("krdict-submit");
   const resultsEl = document.getElementById("krdict-results");
   const summaryEl = document.getElementById("krdict-summary");
-  const errorEl = document.getElementById("krdict-error");
+  const alertsContainer = document.getElementById("alertsContainer");
 
   function clearResults() {
     resultsEl.innerHTML = "";
     summaryEl.classList.add("hidden");
-    errorEl.classList.add("hidden");
+    alertsContainer.innerHTML = "";
   }
 
   function renderItem(item) {
@@ -101,7 +113,9 @@
       .slice(0, 3)
       .map((sense) => {
         const order = sense.sense_order ? `${sense.sense_order}. ` : "";
-        return `<li class="text-sm text-gray-700 leading-relaxed">${order}${sense.definition || ""}</li>`;
+        return `<li class="text-sm text-gray-700 leading-relaxed">${order}${
+          sense.definition || ""
+        }</li>`;
       })
       .join("");
 
@@ -109,8 +123,12 @@
       ? `<p class="text-sm text-gray-600 mt-2">용례: ${item.example}</p>`
       : "";
     const tags = [
-      item.pos ? `<span class="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">${item.pos}</span>` : "",
-      item.word_grade ? `<span class="px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs">${item.word_grade}</span>` : "",
+      item.pos
+        ? `<span class="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs">${item.pos}</span>`
+        : "",
+      item.word_grade
+        ? `<span class="px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs">${item.word_grade}</span>`
+        : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -124,7 +142,9 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h3 class="text-xl font-bold text-gray-900">${item.word || "—"}</h3>
-            <p class="text-xs text-gray-500 mt-1">${item.pronunciation || ""}</p>
+            <p class="text-xs text-gray-500 mt-1">${
+              item.pronunciation || ""
+            }</p>
           </div>
           <div class="flex flex-wrap gap-2 items-center">${tags}</div>
         </div>
@@ -153,11 +173,17 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const query = queryInput.value.trim();
-    if (!query) return;
+    if (!query) {
+      AlertManager.warning(
+        "검색어를 입력해주세요.",
+        "검색어 필수",
+        alertsContainer
+      );
+      return;
+    }
 
     clearResults();
-    submitButton.disabled = true;
-    submitButton.textContent = "검색 중...";
+    LoadingManager.setButtonLoading(submitButton, "검색 중...");
 
     try {
       const result = await fetchResults(query);
@@ -168,14 +194,15 @@
           (payload.error && payload.error.message) ||
           payload.error ||
           "검색 중 문제가 발생했습니다.";
-        errorEl.textContent = message;
-        errorEl.classList.remove("hidden");
+        AlertManager.error(message, "검색 오류", alertsContainer);
         return;
       }
 
       const channel = payload.channel || {};
       const items = Array.isArray(payload.items) ? payload.items : [];
-      summaryEl.textContent = `총 ${channel.total || 0}건 중 ${items.length}건 표시`;
+      summaryEl.textContent = `총 ${channel.total || 0}건 중 ${
+        items.length
+      }건 표시`;
       summaryEl.classList.remove("hidden");
 
       if (!items.length) {
@@ -186,11 +213,13 @@
 
       resultsEl.innerHTML = items.map(renderItem).join("");
     } catch (error) {
-      errorEl.textContent = "검색 요청을 처리하지 못했습니다.";
-      errorEl.classList.remove("hidden");
+      AlertManager.error(
+        "검색 요청을 처리하지 못했습니다.",
+        "오류",
+        alertsContainer
+      );
     } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = "검색";
+      LoadingManager.clearButtonLoading(submitButton);
     }
   });
 </script>

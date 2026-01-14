@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block title %}전래동화 읽기 - 오누이 한국어{%
 endblock %} {% block content %}
+<div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Header -->
@@ -370,7 +371,7 @@ endblock %} {% block content %}
         if (
           Object.keys(userAnswers).length < currentFolktale.questions.length
         ) {
-          alert("모든 문제에 답해주세요!");
+          AlertManager.warning("모든 문제에 답해주세요!", "입력 필요", document.getElementById("alertsContainer")); return;
           return;
         }
         checkQuiz();
