@@ -3878,3 +3878,8 @@
 2026-01-14 18:56:02,967 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
 2026-01-14 18:56:02,970 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
 2026-01-14 18:56:02,970 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+2026-01-14 18:57:04,343 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:57:04,354 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:57:04,354 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:57:04,699 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:57:04,703 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
