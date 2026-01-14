@@ -64,15 +64,17 @@ endblock %} {% block content %}
       <!-- Will be populated by JavaScript -->
     </div>
 
+    <!-- Back Button (Fixed) -->
+    <button
+      id="backBtn"
+      class="hidden fixed top-4 left-4 bg-white text-purple-600 hover:text-purple-700 hover:bg-purple-50 text-sm flex items-center gap-1 px-3 py-2 rounded-lg border border-purple-200 z-50 shadow-md"
+    >
+      ← 목록으로
+    </button>
+
     <!-- Reading Section (hidden initially) -->
     <div id="readingSection" class="hidden">
       <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
-        <button
-          id="backBtn"
-          class="sticky top-4 bg-white text-purple-600 hover:text-purple-700 hover:bg-purple-50 text-sm mb-4 flex items-center gap-1 px-3 py-2 rounded-lg border border-purple-200 z-10"
-        >
-          ← 목록으로
-        </button>
         <h2 id="storyTitle" class="text-2xl font-bold text-gray-900 mb-2"></h2>
         <p id="storyTitleEn" class="text-sm text-gray-500 mb-4"></p>
         <div class="mb-4">
@@ -288,6 +290,9 @@ endblock %} {% block content %}
       document.getElementById("quizResult").classList.add("hidden");
       userAnswers = {};
 
+      // Show back button
+      backBtn.classList.remove("hidden");
+
       // Auto scroll to story title
       setTimeout(() => {
         document
@@ -400,6 +405,7 @@ endblock %} {% block content %}
       backBtn.addEventListener("click", () => {
         readingSection.classList.add("hidden");
         folktaleList.classList.remove("hidden");
+        backBtn.classList.add("hidden");
       });
 
       // Back button 2 (at bottom)
@@ -408,6 +414,7 @@ endblock %} {% block content %}
         backBtn2.addEventListener("click", () => {
           readingSection.classList.add("hidden");
           folktaleList.classList.remove("hidden");
+          backBtn.classList.add("hidden");
           // Auto scroll to top
           folktaleList.scrollIntoView({ behavior: "smooth", block: "start" });
         });
