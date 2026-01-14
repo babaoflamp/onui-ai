@@ -2802,3 +2802,54 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 2026-01-14 15:39:11,663 - main - INFO - [TTS_PREWARM] Starting prewarm for 35 sentences
 2026-01-14 15:39:11,674 - main - INFO - [TTS_PREWARM] Done warmed=0 skipped=35 failed=0 elapsed=0.0s
+2026-01-14 15:41:13,392 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:41:13,437 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 15:41:13,437 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+An error occurred: module 'importlib.metadata' has no attribute 'packages_distributions'
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 15:41:13,680 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 15:41:13,684 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 15:41:13,723 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:41:13,728 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 15:41:14,828 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154011.png from 112.220.79.218 | User: Guest
+2026-01-14 15:41:14,831 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154011.png - Status: 200
+2026-01-14 15:41:14,831 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154011.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154011.png HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'scripts/generate_folktale_images.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1717336]
+/home/scottk/Projects/onui-ai/.venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:237: FutureWarning: You are using a non-supported Python version (3.9.5). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/home/scottk/Projects/onui-ai/backend/services/dalle_service.py:19: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [1723291]
+INFO:     Waiting for application startup.
+2026-01-14 15:43:19,551 - main - INFO - ==================================================
+2026-01-14 15:43:19,551 - main - INFO - FastAPI 서버 시작
+2026-01-14 15:43:19,551 - main - INFO - ==================================================
+2026-01-14 15:43:19,551 - main - INFO - 모델 백엔드: ollama
+2026-01-14 15:43:19,555 - main - INFO - Ollama 모델 자동 선택 완료
+2026-01-14 15:43:19,556 - main - INFO - 사용자 데이터베이스 초기화 완료
+2026-01-14 15:43:19,557 - main - INFO - 세션 관리 시작 (만료 시간: 24시간)
+INFO:     Application startup complete.
+2026-01-14 15:43:19,557 - main - INFO - [TTS_PREWARM] Starting prewarm for 35 sentences
+2026-01-14 15:43:19,567 - main - INFO - [TTS_PREWARM] Done warmed=0 skipped=35 failed=0 elapsed=0.0s
+2026-01-14 15:43:48,698 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:43:48,743 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 15:43:48,743 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+An error occurred: module 'importlib.metadata' has no attribute 'packages_distributions'
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 15:43:48,989 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:43:48,995 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK

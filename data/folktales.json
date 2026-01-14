@@ -206,7 +206,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: A clever white rabbit on the back of a turtle traveling towards an underwater palace with bubble effects. Then the rabbit tricks the dragon king, with magical underwater dragon palace filled with coral and sea creatures. Traditional Korean folk art style with underwater blues and purples.",
+    "image_url": "/uploads/images/gemini_20260114_154812.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 3,
@@ -309,7 +312,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: Two young sisters ascending to heaven on a magical rope while a fierce tiger tries to climb after them from below. Above them, the sun and moon shine brightly in the sky. Traditional Korean folk art style with celestial glow, stars, and heaven backdrop.",
+    "image_url": "/uploads/images/gemini_20260114_154820.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 4,
@@ -412,7 +418,10 @@
         ],
         "correctAnswer": 1
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: A kind girl (Kongji) spinning with a spinning wheel while mice help her, with her late mother's spirit watching over her. Split scene showing her meeting a noble prince on her wedding day. Traditional Korean folk art style with magical helper mice and spiritual light.",
+    "image_url": "/uploads/images/gemini_20260114_154829.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 5,
@@ -515,7 +524,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: A beautiful heavenly maiden (fairy) bathing in a stream with other celestial maidens in flowing white robes. A poor woodcutter watches from the forest. Then they are shown together as a married couple with children in their humble home. Traditional Korean folk art style with ethereal glow and celestial elements.",
+    "image_url": "/uploads/images/gemini_20260114_154849.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 6,
@@ -618,7 +630,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: A poor honest woodcutter loses his axe in a stream, then a magical spirit (immortal sage) emerges from the water holding three axes - golden, silver, and iron. The spirit rewards the honest woodcutter by giving all three axes. Traditional Korean folk art style with water effects and magical glow.",
+    "image_url": "/uploads/images/gemini_20260114_154857.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 7,
@@ -721,7 +736,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale humorous illustration: A young daughter-in-law in a traditional Korean house, with a disapproving mother-in-law watching. Show the contrast between awkwardness and eventual acceptance. Traditional Korean folk art style with warm family home interior.",
+    "image_url": "/uploads/images/gemini_20260114_154907.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 8,
@@ -824,7 +842,10 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: An elderly grandmother cooking red bean porridge (patjuk) in a traditional Korean kitchen with a fierce tiger at the door. Show the clever grandmother outsmarting the hungry tiger with cornfield challenges. Traditional Korean folk art style with warm home interior.",
+    "image_url": "/uploads/images/gemini_20260114_154915.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 9,
@@ -927,7 +948,10 @@
         ],
         "correctAnswer": 1
       }
-    ]
+    ],
+    "imagePrompt": "Korean historical folktale illustration: A beautiful Goguryeo princess meeting a poor and foolish man (Ondal) in a village. Show his transformation from fool to great general in armor. Traditional Korean historical art style with ancient palace and military elements.",
+    "image_url": "/uploads/images/gemini_20260114_154923.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 10,
@@ -1030,6 +1054,9 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "imagePrompt": "Korean folktale illustration: Two devoted brothers helping each other and their families in a humble village setting. Show them caring for each other's children despite their poverty. Then a magical golden tree appears in front of their house as a heavenly reward. Traditional Korean folk art style with family warmth and magical golden glow.",
+    "image_url": "/uploads/images/gemini_20260114_154932.png",
+    "image_model": "gemini-2.5-flash-image"
   }
 ]
