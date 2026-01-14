@@ -2853,3 +2853,105 @@ INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
 2026-01-14 15:43:48,989 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
 2026-01-14 15:43:48,995 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
 INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 16:12:07,380 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:12:07,388 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 16:12:07,388 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 16:12:07,558 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-14 16:12:07,564 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/css/components.css HTTP/1.1" 304 Not Modified
+2026-01-14 16:12:07,599 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 16:12:07,601 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 16:12:07,654 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-14 16:12:07,658 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/js/ui-components.js HTTP/1.1" 304 Not Modified
+2026-01-14 16:12:07,740 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:12:07,748 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 16:12:45,364 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154812.png from 112.220.79.218 | User: Guest
+2026-01-14 16:12:45,368 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154812.png - Status: 200
+2026-01-14 16:12:45,368 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154812.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154812.png HTTP/1.1" 200 OK
+2026-01-14 16:12:56,863 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:12:56,868 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 16:12:56,868 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 16:12:57,166 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:12:57,171 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 16:12:58,487 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154820.png from 112.220.79.218 | User: Guest
+2026-01-14 16:12:58,490 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154820.png - Status: 200
+2026-01-14 16:12:58,490 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154820.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154820.png HTTP/1.1" 200 OK
+2026-01-14 16:13:06,543 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:13:06,547 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 16:13:06,548 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 16:13:06,786 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 16:13:06,790 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 16:13:07,606 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154829.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:07,608 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154829.png - Status: 200
+2026-01-14 16:13:07,609 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154829.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154829.png HTTP/1.1" 200 OK
+2026-01-14 16:13:14,863 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154849.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:14,865 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 200
+2026-01-14 16:13:14,866 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154849.png HTTP/1.1" 200 OK
+2026-01-14 16:13:23,217 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154857.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:23,220 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154857.png - Status: 200
+2026-01-14 16:13:23,220 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154857.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154857.png HTTP/1.1" 200 OK
+2026-01-14 16:13:31,043 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154907.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:31,047 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154907.png - Status: 200
+2026-01-14 16:13:31,047 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154907.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154907.png HTTP/1.1" 200 OK
+2026-01-14 16:13:46,260 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154915.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:46,262 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154915.png - Status: 200
+2026-01-14 16:13:46,262 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154915.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154915.png HTTP/1.1" 200 OK
+2026-01-14 16:13:56,385 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154923.png from 112.220.79.218 | User: Guest
+2026-01-14 16:13:56,388 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154923.png - Status: 200
+2026-01-14 16:13:56,388 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154923.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154923.png HTTP/1.1" 200 OK
+2026-01-14 16:14:03,718 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154932.png from 112.220.79.218 | User: Guest
+2026-01-14 16:14:03,720 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 200
+2026-01-14 16:14:03,721 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154932.png HTTP/1.1" 200 OK
+2026-01-14 16:28:01,311 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-14 16:28:01,336 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-14 16:28:01,336 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-14 16:28:01,665 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 16:28:01,668 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 16:35:12,800 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-14 16:35:12,802 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-14 16:35:12,803 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-14 16:47:44,507 - main - INFO - [REQUEST] GET /learning-progress from 112.220.79.218 | User: Guest
+2026-01-14 16:47:44,528 - main - INFO - [RESPONSE] GET /learning-progress - Status: 200
+2026-01-14 16:47:44,528 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/learning-progress ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /learning-progress HTTP/1.1" 200 OK
+2026-01-14 16:47:44,717 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-14 16:47:44,720 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/css/components.css HTTP/1.1" 304 Not Modified
+2026-01-14 16:47:44,739 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 16:47:44,741 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 16:47:44,798 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-14 16:47:44,800 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/js/ui-components.js HTTP/1.1" 304 Not Modified
+2026-01-14 16:47:45,018 - main - INFO - [REQUEST] GET /api/learning/today-progress/student from 112.220.79.218 | User: Guest
+2026-01-14 16:47:45,026 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 16:47:45,027 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/learning-progress", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-14T07:47:43.684Z"}
+2026-01-14 16:47:45,028 - main - INFO - [RESPONSE] GET /api/learning/today-progress/student - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/today-progress/student HTTP/1.1" 200 OK
+2026-01-14 16:47:45,034 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/learning-progress ip=112.220.79.218
+2026-01-14 16:47:45,034 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-14 16:47:45,035 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-14 16:47:45,113 - main - INFO - [REQUEST] GET /api/learning/user-stats/student from 112.220.79.218 | User: Guest
+2026-01-14 16:47:45,138 - main - INFO - [RESPONSE] GET /api/learning/user-stats/student - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/user-stats/student HTTP/1.1" 200 OK
