@@ -3700,3 +3700,100 @@
 2026-01-14 16:47:45,035 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
 2026-01-14 16:47:45,113 - main - INFO - [REQUEST] GET /api/learning/user-stats/student from 112.220.79.218 | User: Guest
 2026-01-14 16:47:45,138 - main - INFO - [RESPONSE] GET /api/learning/user-stats/student - Status: 200
+2026-01-14 18:41:17,822 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2026-01-14 18:41:17,844 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 18:41:17,844 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=112.220.79.218
+2026-01-14 18:41:18,037 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-14 18:41:18,040 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+2026-01-14 18:41:18,046 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 18:41:18,047 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+2026-01-14 18:41:18,631 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-14 18:41:18,634 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+2026-01-14 18:41:18,751 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:41:18,752 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:41:17.324Z"}
+2026-01-14 18:41:18,754 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/ ip=112.220.79.218
+2026-01-14 18:41:18,755 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "", "screenSize": "1920x1080"}
+2026-01-14 18:41:18,755 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:41:21,173 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:41:21,177 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:41:21,177 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:41:21,493 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:41:21,499 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-14 18:41:21,623 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:41:21,623 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:41:20.196Z"}
+2026-01-14 18:41:21,626 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-14 18:41:21,626 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-14 18:41:21,627 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:41:22,595 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_183909.png from 112.220.79.218 | User: Guest
+2026-01-14 18:41:22,598 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_183909.png - Status: 200
+2026-01-14 18:41:22,598 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_183909.png ip=112.220.79.218
+2026-01-14 18:41:44,390 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154812.png from 112.220.79.218 | User: Guest
+2026-01-14 18:41:44,393 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154812.png - Status: 200
+2026-01-14 18:41:44,393 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154812.png ip=112.220.79.218
+2026-01-14 18:44:07,748 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:07,751 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:44:07,751 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:44:08,026 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:08,030 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-14 18:44:08,123 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:44:08,123 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:44:06.688Z"}
+2026-01-14 18:44:08,125 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-14 18:44:08,126 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-14 18:44:08,126 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:44:19,452 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:19,455 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:44:19,455 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:44:19,717 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:19,721 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-14 18:44:19,786 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:44:19,786 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:44:18.352Z"}
+2026-01-14 18:44:19,788 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-14 18:44:19,788 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-14 18:44:19,789 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:44:20,567 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154011.png from 112.220.79.218 | User: Guest
+2026-01-14 18:44:20,570 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154011.png - Status: 200
+2026-01-14 18:44:20,570 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154011.png ip=112.220.79.218
+2026-01-14 18:44:32,551 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:32,554 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:44:32,554 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:44:32,826 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:44:32,831 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-14 18:44:32,901 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:44:32,901 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:44:31.470Z"}
+2026-01-14 18:44:32,904 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-14 18:44:32,904 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-14 18:44:32,905 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:45:07,529 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:45:07,532 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 18:45:07,532 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-14 18:45:07,808 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 18:45:07,813 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-14 18:45:07,891 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-14 18:45:07,891 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-14T09:45:06.451Z"}
+2026-01-14 18:45:07,894 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-14 18:45:07,894 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-14 18:45:07,895 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-14 18:45:08,558 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:08,561 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 200
+2026-01-14 18:45:08,561 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+2026-01-14 18:45:24,589 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154820.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:24,592 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154820.png - Status: 200
+2026-01-14 18:45:24,592 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154820.png ip=112.220.79.218
+2026-01-14 18:45:28,571 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154829.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:28,574 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154829.png - Status: 200
+2026-01-14 18:45:28,574 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154829.png ip=112.220.79.218
+2026-01-14 18:45:35,097 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154849.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:35,100 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 200
+2026-01-14 18:45:35,100 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
+2026-01-14 18:45:43,999 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154857.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:44,002 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154857.png - Status: 200
+2026-01-14 18:45:44,002 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154857.png ip=112.220.79.218
+2026-01-14 18:45:53,572 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154907.png from 112.220.79.218 | User: Guest
+2026-01-14 18:45:53,574 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154907.png - Status: 200
+2026-01-14 18:45:53,574 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154907.png ip=112.220.79.218
+2026-01-14 18:46:11,370 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154915.png from 112.220.79.218 | User: Guest
+2026-01-14 18:46:11,373 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154915.png - Status: 200
+2026-01-14 18:46:11,373 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154915.png ip=112.220.79.218
+2026-01-14 18:46:23,364 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154932.png from 112.220.79.218 | User: Guest
+2026-01-14 18:46:23,367 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 200
+2026-01-14 18:46:23,367 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218

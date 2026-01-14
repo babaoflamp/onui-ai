@@ -279,6 +279,11 @@ endblock %} {% block content %}
       readingSection.classList.remove("hidden");
       document.getElementById("quizResult").classList.add("hidden");
       userAnswers = {};
+      
+      // Auto scroll to story title
+      setTimeout(() => {
+        document.getElementById("storyTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
 
     // Render comprehension quiz
