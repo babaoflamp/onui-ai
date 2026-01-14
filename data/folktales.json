@@ -5,23 +5,69 @@
     "titleEn": "Heungbu and Nolbu",
     "story": "옛날에 형 놀부와 동생 흥부가 살았습니다. 놀부는 욕심이 많고 심술이 나빴지만, 흥부는 착하고 정직했습니다. 부모님이 돌아가신 후, 놀부는 재산을 혼자 차지하고 흥부를 쫓아냈습니다. 가난하게 살던 흥부는 어느 날 다친 제비를 구해주었습니다. 이듬해 봄, 그 제비가 박씨를 물고 와서 흥부네 집에 떨어뜨렸습니다. 흥부가 박을 타니 금은보화가 쏟아져 나왔습니다. 이 소식을 들은 놀부는 일부러 제비 다리를 부러뜨렸다가 고쳐주었습니다. 그 제비도 박씨를 물고 왔지만, 놀부가 박을 타자 도깨비와 빚쟁이가 나와 재산을 모두 빼앗아갔습니다. 결국 놀부는 흥부에게 용서를 빌고, 두 형제는 함께 행복하게 살았습니다.",
     "summary": "착한 동생 흥부는 제비를 도와 복을 받고, 욕심 많은 형 놀부는 벌을 받는다는 이야기입니다.",
+    "imagePrompt": "Korean folktale illustration: A poor but kind man (Heungbu) gently tending to an injured swallow with compassionate hands inside a humble traditional Korean wooden house. In the next scene, a swallow carries a gourd seed, and the man opens a magical gourd revealing an abundance of gold, silver treasures and jewels spilling out. Traditional Korean folk art style with warm colors and detailed Korean architecture.",
     "level": "B1",
     "vocabulary": [
-      {"word": "욕심", "meaning": "greed"},
-      {"word": "심술", "meaning": "nastiness, spite"},
-      {"word": "정직하다", "meaning": "to be honest"},
-      {"word": "재산", "meaning": "property, wealth"},
-      {"word": "쫓아내다", "meaning": "to drive out, expel"},
-      {"word": "제비", "meaning": "swallow (bird)"},
-      {"word": "구해주다", "meaning": "to save, rescue"},
-      {"word": "박", "meaning": "gourd"},
-      {"word": "금은보화", "meaning": "gold, silver, and treasures"},
-      {"word": "쏟아지다", "meaning": "to pour out"},
-      {"word": "일부러", "meaning": "on purpose, deliberately"},
-      {"word": "도깨비", "meaning": "goblin, dokkaebi"},
-      {"word": "빚쟁이", "meaning": "creditor"},
-      {"word": "빼앗다", "meaning": "to take away, snatch"},
-      {"word": "용서", "meaning": "forgiveness"}
+      {
+        "word": "욕심",
+        "meaning": "greed"
+      },
+      {
+        "word": "심술",
+        "meaning": "nastiness, spite"
+      },
+      {
+        "word": "정직하다",
+        "meaning": "to be honest"
+      },
+      {
+        "word": "재산",
+        "meaning": "property, wealth"
+      },
+      {
+        "word": "쫓아내다",
+        "meaning": "to drive out, expel"
+      },
+      {
+        "word": "제비",
+        "meaning": "swallow (bird)"
+      },
+      {
+        "word": "구해주다",
+        "meaning": "to save, rescue"
+      },
+      {
+        "word": "박",
+        "meaning": "gourd"
+      },
+      {
+        "word": "금은보화",
+        "meaning": "gold, silver, and treasures"
+      },
+      {
+        "word": "쏟아지다",
+        "meaning": "to pour out"
+      },
+      {
+        "word": "일부러",
+        "meaning": "on purpose, deliberately"
+      },
+      {
+        "word": "도깨비",
+        "meaning": "goblin, dokkaebi"
+      },
+      {
+        "word": "빚쟁이",
+        "meaning": "creditor"
+      },
+      {
+        "word": "빼앗다",
+        "meaning": "to take away, snatch"
+      },
+      {
+        "word": "용서",
+        "meaning": "forgiveness"
+      }
     ],
     "moralLesson": "착한 일을 하면 복을 받고, 욕심을 부리면 벌을 받는다.",
     "questions": [
@@ -55,7 +101,9 @@
         ],
         "correctAnswer": 2
       }
-    ]
+    ],
+    "image_url": "/uploads/images/gemini_20260114_154011.png",
+    "image_model": "gemini-2.5-flash-image"
   },
   {
     "id": 2,
@@ -65,21 +113,66 @@
     "summary": "병든 용왕을 위해 거북이가 토끼를 용궁으로 데려가지만, 토끼가 꾀를 내어 살아남는 이야기입니다.",
     "level": "B1",
     "vocabulary": [
-      {"word": "용궁", "meaning": "dragon palace (underwater palace)"},
-      {"word": "용왕", "meaning": "dragon king"},
-      {"word": "병에 걸리다", "meaning": "to fall ill"},
-      {"word": "의원", "meaning": "doctor (traditional)"},
-      {"word": "간", "meaning": "liver"},
-      {"word": "낫다", "meaning": "to be cured, recover"},
-      {"word": "충신", "meaning": "loyal subject"},
-      {"word": "명령하다", "meaning": "to order, command"},
-      {"word": "꾀다", "meaning": "to lure, entice"},
-      {"word": "호기심", "meaning": "curiosity"},
-      {"word": "속다", "meaning": "to be deceived"},
-      {"word": "꾀를 내다", "meaning": "to come up with a scheme"},
-      {"word": "거짓말", "meaning": "lie, falsehood"},
-      {"word": "재빨리", "meaning": "quickly, swiftly"},
-      {"word": "목숨을 구하다", "meaning": "to save one's life"}
+      {
+        "word": "용궁",
+        "meaning": "dragon palace (underwater palace)"
+      },
+      {
+        "word": "용왕",
+        "meaning": "dragon king"
+      },
+      {
+        "word": "병에 걸리다",
+        "meaning": "to fall ill"
+      },
+      {
+        "word": "의원",
+        "meaning": "doctor (traditional)"
+      },
+      {
+        "word": "간",
+        "meaning": "liver"
+      },
+      {
+        "word": "낫다",
+        "meaning": "to be cured, recover"
+      },
+      {
+        "word": "충신",
+        "meaning": "loyal subject"
+      },
+      {
+        "word": "명령하다",
+        "meaning": "to order, command"
+      },
+      {
+        "word": "꾀다",
+        "meaning": "to lure, entice"
+      },
+      {
+        "word": "호기심",
+        "meaning": "curiosity"
+      },
+      {
+        "word": "속다",
+        "meaning": "to be deceived"
+      },
+      {
+        "word": "꾀를 내다",
+        "meaning": "to come up with a scheme"
+      },
+      {
+        "word": "거짓말",
+        "meaning": "lie, falsehood"
+      },
+      {
+        "word": "재빨리",
+        "meaning": "quickly, swiftly"
+      },
+      {
+        "word": "목숨을 구하다",
+        "meaning": "to save one's life"
+      }
     ],
     "moralLesson": "위기에 처했을 때 지혜로운 생각이 목숨을 구할 수 있다.",
     "questions": [
@@ -123,21 +216,66 @@
     "summary": "호랑이에게 쫓긴 오누이가 하늘로 올라가 해와 달이 되었다는 이야기입니다.",
     "level": "B1",
     "vocabulary": [
-      {"word": "오누이", "meaning": "brother and sister"},
-      {"word": "부잣집", "meaning": "rich house"},
-      {"word": "떡", "meaning": "rice cake"},
-      {"word": "호랑이", "meaning": "tiger"},
-      {"word": "잡아먹다", "meaning": "to catch and eat"},
-      {"word": "떨어지다", "meaning": "to run out, fall"},
-      {"word": "참기름", "meaning": "sesame oil"},
-      {"word": "부드럽다", "meaning": "to be soft, smooth"},
-      {"word": "속이다", "meaning": "to deceive, trick"},
-      {"word": "뒷마당", "meaning": "backyard"},
-      {"word": "타다", "meaning": "to climb, ride"},
-      {"word": "빌다", "meaning": "to pray, wish"},
-      {"word": "동아줄", "meaning": "thick rope"},
-      {"word": "내려오다", "meaning": "to come down"},
-      {"word": "썩다", "meaning": "to rot, decay"}
+      {
+        "word": "오누이",
+        "meaning": "brother and sister"
+      },
+      {
+        "word": "부잣집",
+        "meaning": "rich house"
+      },
+      {
+        "word": "떡",
+        "meaning": "rice cake"
+      },
+      {
+        "word": "호랑이",
+        "meaning": "tiger"
+      },
+      {
+        "word": "잡아먹다",
+        "meaning": "to catch and eat"
+      },
+      {
+        "word": "떨어지다",
+        "meaning": "to run out, fall"
+      },
+      {
+        "word": "참기름",
+        "meaning": "sesame oil"
+      },
+      {
+        "word": "부드럽다",
+        "meaning": "to be soft, smooth"
+      },
+      {
+        "word": "속이다",
+        "meaning": "to deceive, trick"
+      },
+      {
+        "word": "뒷마당",
+        "meaning": "backyard"
+      },
+      {
+        "word": "타다",
+        "meaning": "to climb, ride"
+      },
+      {
+        "word": "빌다",
+        "meaning": "to pray, wish"
+      },
+      {
+        "word": "동아줄",
+        "meaning": "thick rope"
+      },
+      {
+        "word": "내려오다",
+        "meaning": "to come down"
+      },
+      {
+        "word": "썩다",
+        "meaning": "to rot, decay"
+      }
     ],
     "moralLesson": "위험한 상황에서도 희망을 잃지 않으면 구원받을 수 있다.",
     "questions": [
@@ -181,21 +319,66 @@
     "summary": "계모와 언니에게 괴롭힘을 당한 착한 콩쥐가 마침내 행복을 찾는 이야기입니다.",
     "level": "B2",
     "vocabulary": [
-      {"word": "계모", "meaning": "stepmother"},
-      {"word": "이복", "meaning": "step- (sibling)"},
-      {"word": "괴롭히다", "meaning": "to bully, torment"},
-      {"word": "잔치", "meaning": "feast, banquet"},
-      {"word": "항아리", "meaning": "jar, pot"},
-      {"word": "구멍", "meaning": "hole"},
-      {"word": "막다", "meaning": "to block, stop"},
-      {"word": "낟알", "meaning": "grain"},
-      {"word": "쭉정이", "meaning": "chaff, empty grain"},
-      {"word": "골라내다", "meaning": "to pick out, sort out"},
-      {"word": "두꺼비", "meaning": "toad"},
-      {"word": "원님", "meaning": "governor, magistrate"},
-      {"word": "첫눈에 반하다", "meaning": "to fall in love at first sight"},
-      {"word": "질투하다", "meaning": "to be jealous"},
-      {"word": "우물", "meaning": "well"}
+      {
+        "word": "계모",
+        "meaning": "stepmother"
+      },
+      {
+        "word": "이복",
+        "meaning": "step- (sibling)"
+      },
+      {
+        "word": "괴롭히다",
+        "meaning": "to bully, torment"
+      },
+      {
+        "word": "잔치",
+        "meaning": "feast, banquet"
+      },
+      {
+        "word": "항아리",
+        "meaning": "jar, pot"
+      },
+      {
+        "word": "구멍",
+        "meaning": "hole"
+      },
+      {
+        "word": "막다",
+        "meaning": "to block, stop"
+      },
+      {
+        "word": "낟알",
+        "meaning": "grain"
+      },
+      {
+        "word": "쭉정이",
+        "meaning": "chaff, empty grain"
+      },
+      {
+        "word": "골라내다",
+        "meaning": "to pick out, sort out"
+      },
+      {
+        "word": "두꺼비",
+        "meaning": "toad"
+      },
+      {
+        "word": "원님",
+        "meaning": "governor, magistrate"
+      },
+      {
+        "word": "첫눈에 반하다",
+        "meaning": "to fall in love at first sight"
+      },
+      {
+        "word": "질투하다",
+        "meaning": "to be jealous"
+      },
+      {
+        "word": "우물",
+        "meaning": "well"
+      }
     ],
     "moralLesson": "착하게 살면 결국 행복이 찾아온다. 악한 마음은 스스로를 망친다.",
     "questions": [
@@ -239,21 +422,66 @@
     "summary": "나무꾼이 선녀와 결혼하여 함께 하늘나라로 가는 이야기입니다.",
     "level": "B2",
     "vocabulary": [
-      {"word": "홀어머니", "meaning": "widowed mother"},
-      {"word": "모시다", "meaning": "to serve, attend to"},
-      {"word": "나무꾼", "meaning": "woodcutter"},
-      {"word": "사냥꾼", "meaning": "hunter"},
-      {"word": "쫓기다", "meaning": "to be chased"},
-      {"word": "사슴", "meaning": "deer"},
-      {"word": "은혜를 갚다", "meaning": "to repay a favor"},
-      {"word": "연못", "meaning": "pond"},
-      {"word": "목욕하다", "meaning": "to bathe"},
-      {"word": "선녀", "meaning": "fairy, celestial maiden"},
-      {"word": "숨기다", "meaning": "to hide"},
-      {"word": "그리워하다", "meaning": "to miss, long for"},
-      {"word": "불쌍하다", "meaning": "to be pitiful, pathetic"},
-      {"word": "두레박", "meaning": "well bucket"},
-      {"word": "하늘나라", "meaning": "heaven, celestial realm"}
+      {
+        "word": "홀어머니",
+        "meaning": "widowed mother"
+      },
+      {
+        "word": "모시다",
+        "meaning": "to serve, attend to"
+      },
+      {
+        "word": "나무꾼",
+        "meaning": "woodcutter"
+      },
+      {
+        "word": "사냥꾼",
+        "meaning": "hunter"
+      },
+      {
+        "word": "쫓기다",
+        "meaning": "to be chased"
+      },
+      {
+        "word": "사슴",
+        "meaning": "deer"
+      },
+      {
+        "word": "은혜를 갚다",
+        "meaning": "to repay a favor"
+      },
+      {
+        "word": "연못",
+        "meaning": "pond"
+      },
+      {
+        "word": "목욕하다",
+        "meaning": "to bathe"
+      },
+      {
+        "word": "선녀",
+        "meaning": "fairy, celestial maiden"
+      },
+      {
+        "word": "숨기다",
+        "meaning": "to hide"
+      },
+      {
+        "word": "그리워하다",
+        "meaning": "to miss, long for"
+      },
+      {
+        "word": "불쌍하다",
+        "meaning": "to be pitiful, pathetic"
+      },
+      {
+        "word": "두레박",
+        "meaning": "well bucket"
+      },
+      {
+        "word": "하늘나라",
+        "meaning": "heaven, celestial realm"
+      }
     ],
     "moralLesson": "약속을 지키는 것이 중요하며, 진정한 사랑은 서로를 이해하는 것이다.",
     "questions": [
@@ -297,21 +525,66 @@
     "summary": "정직한 나무꾼은 상을 받고, 거짓말하는 나무꾼은 벌을 받는다는 이야기입니다.",
     "level": "A2",
     "vocabulary": [
-      {"word": "정직하다", "meaning": "to be honest"},
-      {"word": "도끼", "meaning": "axe"},
-      {"word": "빠뜨리다", "meaning": "to drop (into water/hole)"},
-      {"word": "슬프다", "meaning": "to be sad"},
-      {"word": "산신령", "meaning": "mountain spirit"},
-      {"word": "금도끼", "meaning": "golden axe"},
-      {"word": "은도끼", "meaning": "silver axe"},
-      {"word": "쇠도끼", "meaning": "iron axe"},
-      {"word": "감동하다", "meaning": "to be moved, touched"},
-      {"word": "욕심", "meaning": "greed"},
-      {"word": "일부러", "meaning": "on purpose"},
-      {"word": "던지다", "meaning": "to throw"},
-      {"word": "거짓말", "meaning": "lie"},
-      {"word": "화가 나다", "meaning": "to be angry"},
-      {"word": "사라지다", "meaning": "to disappear"}
+      {
+        "word": "정직하다",
+        "meaning": "to be honest"
+      },
+      {
+        "word": "도끼",
+        "meaning": "axe"
+      },
+      {
+        "word": "빠뜨리다",
+        "meaning": "to drop (into water/hole)"
+      },
+      {
+        "word": "슬프다",
+        "meaning": "to be sad"
+      },
+      {
+        "word": "산신령",
+        "meaning": "mountain spirit"
+      },
+      {
+        "word": "금도끼",
+        "meaning": "golden axe"
+      },
+      {
+        "word": "은도끼",
+        "meaning": "silver axe"
+      },
+      {
+        "word": "쇠도끼",
+        "meaning": "iron axe"
+      },
+      {
+        "word": "감동하다",
+        "meaning": "to be moved, touched"
+      },
+      {
+        "word": "욕심",
+        "meaning": "greed"
+      },
+      {
+        "word": "일부러",
+        "meaning": "on purpose"
+      },
+      {
+        "word": "던지다",
+        "meaning": "to throw"
+      },
+      {
+        "word": "거짓말",
+        "meaning": "lie"
+      },
+      {
+        "word": "화가 나다",
+        "meaning": "to be angry"
+      },
+      {
+        "word": "사라지다",
+        "meaning": "to disappear"
+      }
     ],
     "moralLesson": "정직하면 복을 받고, 거짓말하면 아무것도 얻지 못한다.",
     "questions": [
@@ -355,21 +628,66 @@
     "summary": "방귀를 참지 못하는 며느리가 재치 있게 위기를 넘기는 유머러스한 이야기입니다.",
     "level": "A2",
     "vocabulary": [
-      {"word": "방귀", "meaning": "fart, flatulence"},
-      {"word": "며느리", "meaning": "daughter-in-law"},
-      {"word": "효성", "meaning": "filial piety"},
-      {"word": "지극하다", "meaning": "to be utmost, extreme"},
-      {"word": "고민", "meaning": "worry, concern"},
-      {"word": "참다", "meaning": "to endure, hold back"},
-      {"word": "시어머니", "meaning": "mother-in-law"},
-      {"word": "쫓겨나다", "meaning": "to be kicked out"},
-      {"word": "재빨리", "meaning": "quickly"},
-      {"word": "재채기", "meaning": "sneeze"},
-      {"word": "놀라다", "meaning": "to be surprised"},
-      {"word": "흔들리다", "meaning": "to shake"},
-      {"word": "대문", "meaning": "main gate"},
-      {"word": "날아가다", "meaning": "to fly away"},
-      {"word": "안도", "meaning": "relief"}
+      {
+        "word": "방귀",
+        "meaning": "fart, flatulence"
+      },
+      {
+        "word": "며느리",
+        "meaning": "daughter-in-law"
+      },
+      {
+        "word": "효성",
+        "meaning": "filial piety"
+      },
+      {
+        "word": "지극하다",
+        "meaning": "to be utmost, extreme"
+      },
+      {
+        "word": "고민",
+        "meaning": "worry, concern"
+      },
+      {
+        "word": "참다",
+        "meaning": "to endure, hold back"
+      },
+      {
+        "word": "시어머니",
+        "meaning": "mother-in-law"
+      },
+      {
+        "word": "쫓겨나다",
+        "meaning": "to be kicked out"
+      },
+      {
+        "word": "재빨리",
+        "meaning": "quickly"
+      },
+      {
+        "word": "재채기",
+        "meaning": "sneeze"
+      },
+      {
+        "word": "놀라다",
+        "meaning": "to be surprised"
+      },
+      {
+        "word": "흔들리다",
+        "meaning": "to shake"
+      },
+      {
+        "word": "대문",
+        "meaning": "main gate"
+      },
+      {
+        "word": "날아가다",
+        "meaning": "to fly away"
+      },
+      {
+        "word": "안도",
+        "meaning": "relief"
+      }
     ],
     "moralLesson": "위기 상황에서 재치와 순발력이 중요하다.",
     "questions": [
@@ -413,21 +731,66 @@
     "summary": "팥죽을 준 친구들의 도움으로 할머니가 호랑이로부터 살아남는 이야기입니다.",
     "level": "B1",
     "vocabulary": [
-      {"word": "팥죽", "meaning": "red bean porridge"},
-      {"word": "산골", "meaning": "mountain village"},
-      {"word": "밭", "meaning": "field"},
-      {"word": "으르렁거리다", "meaning": "to growl"},
-      {"word": "동지", "meaning": "winter solstice"},
-      {"word": "약속하다", "meaning": "to promise"},
-      {"word": "쑤다", "meaning": "to cook porridge"},
-      {"word": "밤알", "meaning": "chestnut"},
-      {"word": "자라", "meaning": "soft-shelled turtle"},
-      {"word": "송곳", "meaning": "awl"},
-      {"word": "맷돌", "meaning": "millstone"},
-      {"word": "지게", "meaning": "A-frame carrier"},
-      {"word": "쇠똥", "meaning": "cow dung"},
-      {"word": "아궁이", "meaning": "fireplace, furnace"},
-      {"word": "물독", "meaning": "water jar"}
+      {
+        "word": "팥죽",
+        "meaning": "red bean porridge"
+      },
+      {
+        "word": "산골",
+        "meaning": "mountain village"
+      },
+      {
+        "word": "밭",
+        "meaning": "field"
+      },
+      {
+        "word": "으르렁거리다",
+        "meaning": "to growl"
+      },
+      {
+        "word": "동지",
+        "meaning": "winter solstice"
+      },
+      {
+        "word": "약속하다",
+        "meaning": "to promise"
+      },
+      {
+        "word": "쑤다",
+        "meaning": "to cook porridge"
+      },
+      {
+        "word": "밤알",
+        "meaning": "chestnut"
+      },
+      {
+        "word": "자라",
+        "meaning": "soft-shelled turtle"
+      },
+      {
+        "word": "송곳",
+        "meaning": "awl"
+      },
+      {
+        "word": "맷돌",
+        "meaning": "millstone"
+      },
+      {
+        "word": "지게",
+        "meaning": "A-frame carrier"
+      },
+      {
+        "word": "쇠똥",
+        "meaning": "cow dung"
+      },
+      {
+        "word": "아궁이",
+        "meaning": "fireplace, furnace"
+      },
+      {
+        "word": "물독",
+        "meaning": "water jar"
+      }
     ],
     "moralLesson": "나눔과 협력으로 큰 위기를 극복할 수 있다.",
     "questions": [
@@ -471,21 +834,66 @@
     "summary": "바보로 불리던 온달이 평강 공주의 사랑과 지혜로 훌륭한 장군이 되는 이야기입니다.",
     "level": "B2",
     "vocabulary": [
-      {"word": "고구려", "meaning": "Goguryeo (ancient Korean kingdom)"},
-      {"word": "공주", "meaning": "princess"},
-      {"word": "바보", "meaning": "fool, idiot"},
-      {"word": "시집보내다", "meaning": "to marry off (a daughter)"},
-      {"word": "농담", "meaning": "joke"},
-      {"word": "귀족", "meaning": "nobleman, aristocrat"},
-      {"word": "약속", "meaning": "promise"},
-      {"word": "마음씨", "meaning": "heart, disposition"},
-      {"word": "장군", "meaning": "general"},
-      {"word": "무사", "meaning": "warrior"},
-      {"word": "전쟁", "meaning": "war"},
-      {"word": "공을 세우다", "meaning": "to achieve merit, distinguish oneself"},
-      {"word": "인정받다", "meaning": "to be recognized, acknowledged"},
-      {"word": "영웅", "meaning": "hero"},
-      {"word": "겉모습", "meaning": "outward appearance"}
+      {
+        "word": "고구려",
+        "meaning": "Goguryeo (ancient Korean kingdom)"
+      },
+      {
+        "word": "공주",
+        "meaning": "princess"
+      },
+      {
+        "word": "바보",
+        "meaning": "fool, idiot"
+      },
+      {
+        "word": "시집보내다",
+        "meaning": "to marry off (a daughter)"
+      },
+      {
+        "word": "농담",
+        "meaning": "joke"
+      },
+      {
+        "word": "귀족",
+        "meaning": "nobleman, aristocrat"
+      },
+      {
+        "word": "약속",
+        "meaning": "promise"
+      },
+      {
+        "word": "마음씨",
+        "meaning": "heart, disposition"
+      },
+      {
+        "word": "장군",
+        "meaning": "general"
+      },
+      {
+        "word": "무사",
+        "meaning": "warrior"
+      },
+      {
+        "word": "전쟁",
+        "meaning": "war"
+      },
+      {
+        "word": "공을 세우다",
+        "meaning": "to achieve merit, distinguish oneself"
+      },
+      {
+        "word": "인정받다",
+        "meaning": "to be recognized, acknowledged"
+      },
+      {
+        "word": "영웅",
+        "meaning": "hero"
+      },
+      {
+        "word": "겉모습",
+        "meaning": "outward appearance"
+      }
     ],
     "moralLesson": "사람은 겉모습이 아니라 마음으로 판단해야 하며, 진정한 사랑과 노력으로 누구나 변할 수 있다.",
     "questions": [
@@ -529,21 +937,66 @@
     "summary": "서로를 아끼는 형제의 아름다운 우애를 보여주는 이야기입니다.",
     "level": "B1",
     "vocabulary": [
-      {"word": "형제", "meaning": "brothers, siblings"},
-      {"word": "결혼하다", "meaning": "to get married"},
-      {"word": "식구", "meaning": "family members"},
-      {"word": "땅", "meaning": "land"},
-      {"word": "나누다", "meaning": "to divide, share"},
-      {"word": "농사", "meaning": "farming"},
-      {"word": "추수", "meaning": "harvest"},
-      {"word": "곡식", "meaning": "grain, crops"},
-      {"word": "창고", "meaning": "warehouse, storehouse"},
-      {"word": "옮기다", "meaning": "to move, transfer"},
-      {"word": "줄다", "meaning": "to decrease, diminish"},
-      {"word": "나르다", "meaning": "to carry, transport"},
-      {"word": "껴안다", "meaning": "to embrace, hug"},
-      {"word": "우애", "meaning": "brotherly love, fraternity"},
-      {"word": "오곡", "meaning": "five grains"}
+      {
+        "word": "형제",
+        "meaning": "brothers, siblings"
+      },
+      {
+        "word": "결혼하다",
+        "meaning": "to get married"
+      },
+      {
+        "word": "식구",
+        "meaning": "family members"
+      },
+      {
+        "word": "땅",
+        "meaning": "land"
+      },
+      {
+        "word": "나누다",
+        "meaning": "to divide, share"
+      },
+      {
+        "word": "농사",
+        "meaning": "farming"
+      },
+      {
+        "word": "추수",
+        "meaning": "harvest"
+      },
+      {
+        "word": "곡식",
+        "meaning": "grain, crops"
+      },
+      {
+        "word": "창고",
+        "meaning": "warehouse, storehouse"
+      },
+      {
+        "word": "옮기다",
+        "meaning": "to move, transfer"
+      },
+      {
+        "word": "줄다",
+        "meaning": "to decrease, diminish"
+      },
+      {
+        "word": "나르다",
+        "meaning": "to carry, transport"
+      },
+      {
+        "word": "껴안다",
+        "meaning": "to embrace, hug"
+      },
+      {
+        "word": "우애",
+        "meaning": "brotherly love, fraternity"
+      },
+      {
+        "word": "오곡",
+        "meaning": "five grains"
+      }
     ],
     "moralLesson": "가족 간의 사랑과 희생정신은 가장 아름다운 덕목이다.",
     "questions": [

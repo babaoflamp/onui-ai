@@ -2677,3 +2677,128 @@ INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
 2026-01-14 15:26:38,981 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260109_165045.png - Status: 304
 2026-01-14 15:26:38,981 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260109_165045.png ip=112.220.79.218
 INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260109_165045.png HTTP/1.1" 304 Not Modified
+2026-01-14 15:30:31,338 - main - INFO - [REQUEST] GET /word-list from 112.220.79.218 | User: Guest
+2026-01-14 15:30:31,341 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-14 15:30:31,341 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-14 15:30:31,646 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-14 15:30:31,648 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 15:30:31,708 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-14 15:30:31,736 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 15:31:38,448 - main - INFO - [REQUEST] GET /api/krdict/search from 112.220.79.218 | User: Guest
+2026-01-14 15:31:38,448 - main - INFO - [QUERY] {'q': '나무', 'start': '1', 'num': '10'}
+2026-01-14 15:31:38,654 - main - WARNING - [KRDICT] error=020 message=Unregistered key q=나무 params={'start': 1, 'num': 10} elapsed_ms=202
+2026-01-14 15:31:38,656 - main - INFO - [RESPONSE] GET /api/krdict/search - Status: 502
+INFO:     112.220.79.218:0 - "GET /api/krdict/search?q=%EB%82%98%EB%AC%B4&start=1&num=10 HTTP/1.1" 502 Bad Gateway
+2026-01-14 15:31:47,868 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-14 15:31:47,871 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-14 15:31:47,871 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-14 15:31:55,770 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-14 15:31:55,774 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-14 15:31:55,774 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-14 15:31:56,138 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-14 15:31:56,146 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-14 15:31:59,209 - main - INFO - [REQUEST] GET /word-list from 112.220.79.218 | User: Guest
+2026-01-14 15:31:59,213 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-14 15:31:59,213 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-14 15:31:59,478 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-14 15:31:59,503 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 15:32:00,830 - main - INFO - [REQUEST] GET /sentence-learning from 112.220.79.218 | User: Guest
+2026-01-14 15:32:00,833 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-14 15:32:00,833 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /sentence-learning HTTP/1.1" 200 OK
+2026-01-14 15:32:01,142 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 112.220.79.218 | User: Guest
+2026-01-14 15:32:01,145 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/puzzle/sentences HTTP/1.1" 200 OK
+2026-01-14 15:32:01,257 - main - INFO - [REQUEST] GET /api/sentence-learning/state/anon_42a706f1-1758-44e2-955d-c38e6d9f1c92 from 112.220.79.218 | User: Guest
+2026-01-14 15:32:01,257 - main - INFO - [QUERY] {'scope': 'all'}
+2026-01-14 15:32:01,280 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/anon_42a706f1-1758-44e2-955d-c38e6d9f1c92 - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/sentence-learning/state/anon_42a706f1-1758-44e2-955d-c38e6d9f1c92?scope=all HTTP/1.1" 200 OK
+2026-01-14 15:32:01,363 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-14 15:32:01,364 - main - INFO - [BODY] {"user_id": "anon_42a706f1-1758-44e2-955d-c38e6d9f1c92", "scope": "all", "current_sentence_id": 1, "current_index": 0, "completed_sentence_ids": []}
+2026-01-14 15:32:01,386 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-14 15:32:02,154 - main - INFO - [REQUEST] GET /curriculum from 112.220.79.218 | User: Guest
+2026-01-14 15:32:02,157 - main - INFO - [RESPONSE] GET /curriculum - Status: 200
+2026-01-14 15:32:02,157 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/curriculum ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /curriculum HTTP/1.1" 200 OK
+2026-01-14 15:32:02,366 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-14 15:32:02,397 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 15:32:04,482 - main - INFO - [REQUEST] GET /word-matching-game from 112.220.79.218 | User: Guest
+2026-01-14 15:32:04,485 - main - INFO - [RESPONSE] GET /word-matching-game - Status: 200
+2026-01-14 15:32:04,485 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-matching-game ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-matching-game HTTP/1.1" 200 OK
+2026-01-14 15:32:04,712 - main - INFO - [REQUEST] GET /static/games/z_New_단어맞추기03.html from 112.220.79.218 | User: Guest
+2026-01-14 15:32:04,714 - main - INFO - [RESPONSE] GET /static/games/z_New_단어맞추기03.html - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/games/z_New_%EB%8B%A8%EC%96%B4%EB%A7%9E%EC%B6%94%EA%B8%B003.html HTTP/1.1" 200 OK
+2026-01-14 15:32:05,800 - main - INFO - [REQUEST] GET /synonym-antonym-game from 112.220.79.218 | User: Guest
+2026-01-14 15:32:05,803 - main - INFO - [RESPONSE] GET /synonym-antonym-game - Status: 200
+2026-01-14 15:32:05,803 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/synonym-antonym-game ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /synonym-antonym-game HTTP/1.1" 200 OK
+2026-01-14 15:32:06,057 - main - INFO - [REQUEST] GET /static/games/z_New_동의어반의어찾기2.html from 112.220.79.218 | User: Guest
+2026-01-14 15:32:06,059 - main - INFO - [RESPONSE] GET /static/games/z_New_동의어반의어찾기2.html - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/games/z_New_%EB%8F%99%EC%9D%98%EC%96%B4%EB%B0%98%EC%9D%98%EC%96%B4%EC%B0%BE%EA%B8%B02.html HTTP/1.1" 200 OK
+2026-01-14 15:32:07,857 - main - INFO - [REQUEST] GET /initial-quiz from 112.220.79.218 | User: Guest
+2026-01-14 15:32:07,865 - main - INFO - [RESPONSE] GET /initial-quiz - Status: 200
+2026-01-14 15:32:07,865 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/initial-quiz ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /initial-quiz HTTP/1.1" 200 OK
+2026-01-14 15:32:08,127 - main - INFO - [REQUEST] GET /static/games/initial-quiz.html from 112.220.79.218 | User: Guest
+2026-01-14 15:32:08,129 - main - INFO - [RESPONSE] GET /static/games/initial-quiz.html - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/games/initial-quiz.html HTTP/1.1" 200 OK
+2026-01-14 15:32:09,683 - main - INFO - [REQUEST] GET /card-matching-game from 112.220.79.218 | User: Guest
+2026-01-14 15:32:09,686 - main - INFO - [RESPONSE] GET /card-matching-game - Status: 200
+2026-01-14 15:32:09,686 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/card-matching-game ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /card-matching-game HTTP/1.1" 200 OK
+2026-01-14 15:32:09,918 - main - INFO - [REQUEST] GET /static/games/card-matching-game.html from 112.220.79.218 | User: Guest
+2026-01-14 15:32:09,920 - main - INFO - [RESPONSE] GET /static/games/card-matching-game.html - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/games/card-matching-game.html HTTP/1.1" 200 OK
+2026-01-14 15:32:12,215 - main - INFO - [REQUEST] GET /static/favicon.png from 112.220.79.218 | User: Guest
+2026-01-14 15:32:12,218 - main - INFO - [RESPONSE] GET /static/favicon.png - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/favicon.png HTTP/1.1" 304 Not Modified
+2026-01-14 15:32:14,261 - main - INFO - [REQUEST] GET /card-matching-game from 112.220.79.218 | User: Guest
+2026-01-14 15:32:14,264 - main - INFO - [RESPONSE] GET /card-matching-game - Status: 200
+2026-01-14 15:32:14,264 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/card-matching-game ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /card-matching-game HTTP/1.1" 200 OK
+2026-01-14 15:32:16,033 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:32:16,036 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 15:32:16,036 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 15:32:16,320 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 15:32:16,323 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'scripts/generate_folktale_images.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1454035]
+/home/scottk/Projects/onui-ai/.venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:237: FutureWarning: You are using a non-supported Python version (3.9.5). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/home/scottk/Projects/onui-ai/backend/services/dalle_service.py:19: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [1717336]
+INFO:     Waiting for application startup.
+2026-01-14 15:39:11,656 - main - INFO - ==================================================
+2026-01-14 15:39:11,656 - main - INFO - FastAPI 서버 시작
+2026-01-14 15:39:11,657 - main - INFO - ==================================================
+2026-01-14 15:39:11,657 - main - INFO - 모델 백엔드: ollama
+2026-01-14 15:39:11,661 - main - INFO - Ollama 모델 자동 선택 완료
+2026-01-14 15:39:11,662 - main - INFO - 사용자 데이터베이스 초기화 완료
+2026-01-14 15:39:11,663 - main - INFO - 세션 관리 시작 (만료 시간: 24시간)
+INFO:     Application startup complete.
+2026-01-14 15:39:11,663 - main - INFO - [TTS_PREWARM] Starting prewarm for 35 sentences
+2026-01-14 15:39:11,674 - main - INFO - [TTS_PREWARM] Done warmed=0 skipped=35 failed=0 elapsed=0.0s

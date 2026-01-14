@@ -83,6 +83,11 @@ endblock %} {% block content %}
         </div>
         <p id="storySummary" class="text-sm text-gray-600 mb-6 italic"></p>
 
+        <!-- Story Image -->
+        <div id="storyImageContainer" class="mb-6 hidden">
+          <img id="storyImage" src="" alt="Story illustration" class="w-full rounded-lg shadow-md border border-gray-200">
+        </div>
+
         <!-- Story Content -->
         <div class="bg-white rounded-lg p-6 mb-6 border border-gray-200">
           <p id="storyContent" class="text-base leading-relaxed"></p>
@@ -232,6 +237,17 @@ endblock %} {% block content %}
       document.getElementById("storyLevel").textContent = currentFolktale.level;
       document.getElementById("storySummary").textContent =
         currentFolktale.summary;
+      
+      // Display image if available
+      const imageContainer = document.getElementById("storyImageContainer");
+      if (currentFolktale.image_url) {
+        document.getElementById("storyImage").src = currentFolktale.image_url;
+        document.getElementById("storyImage").alt = currentFolktale.title;
+        imageContainer.classList.remove("hidden");
+      } else {
+        imageContainer.classList.add("hidden");
+      }
+      
       document.getElementById("storyContent").textContent =
         currentFolktale.story;
       document.getElementById("moralLesson").textContent =
