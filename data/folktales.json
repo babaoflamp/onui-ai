@@ -5,7 +5,7 @@
     "titleEn": "Heungbu and Nolbu",
     "story": "옛날에 형 놀부와 동생 흥부가 살았습니다. 놀부는 욕심이 많고 심술이 나빴지만, 흥부는 착하고 정직했습니다. 부모님이 돌아가신 후, 놀부는 재산을 혼자 차지하고 흥부를 쫓아냈습니다. 가난하게 살던 흥부는 어느 날 다친 제비를 구해주었습니다. 이듬해 봄, 그 제비가 박씨를 물고 와서 흥부네 집에 떨어뜨렸습니다. 흥부가 박을 타니 금은보화가 쏟아져 나왔습니다. 이 소식을 들은 놀부는 일부러 제비 다리를 부러뜨렸다가 고쳐주었습니다. 그 제비도 박씨를 물고 왔지만, 놀부가 박을 타자 도깨비와 빚쟁이가 나와 재산을 모두 빼앗아갔습니다. 결국 놀부는 흥부에게 용서를 빌고, 두 형제는 함께 행복하게 살았습니다.",
     "summary": "착한 동생 흥부는 제비를 도와 복을 받고, 욕심 많은 형 놀부는 벌을 받는다는 이야기입니다.",
-    "imagePrompt": "Korean folktale illustration: A poor but kind man (Heungbu) gently tending to an injured swallow with compassionate hands inside a humble traditional Korean wooden house. In the next scene, a swallow carries a gourd seed, and the man opens a magical gourd revealing an abundance of gold, silver treasures and jewels spilling out. Traditional Korean folk art style with warm colors and detailed Korean architecture. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: A poor but kind man (Heungbu) gently tending to an injured swallow with compassionate hands inside a humble traditional Korean wooden house. In the next scene, a swallow carries a gourd seed, and the man opens a magical gourd revealing an abundance of gold, silver treasures and jewels spilling out. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "level": "B1",
     "vocabulary": [
       {
@@ -207,7 +207,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: A clever white rabbit on the back of a turtle traveling towards an underwater palace with bubble effects. Then the rabbit tricks the dragon king, with magical underwater dragon palace filled with coral and sea creatures. Traditional Korean folk art style with underwater blues and purples. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: A clever white rabbit on the back of a turtle traveling towards an underwater palace with bubble effects. Then the rabbit tricks the dragon king, with magical underwater dragon palace filled with coral and sea creatures. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154812.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -313,7 +313,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: Two young sisters ascending to heaven on a magical rope while a fierce tiger tries to climb after them from below. Above them, the sun and moon shine brightly in the sky. Traditional Korean folk art style with celestial glow, stars, and heaven backdrop. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: Two young sisters ascending to heaven on a magical rope while a fierce tiger tries to climb after them from below. Above them, the sun and moon shine brightly in the sky. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154820.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -419,7 +419,7 @@
         "correctAnswer": 1
       }
     ],
-    "imagePrompt": "Korean folktale illustration: A kind girl (Kongji) spinning with a spinning wheel while mice help her, with her late mother's spirit watching over her. Split scene showing her meeting a noble prince on her wedding day. Traditional Korean folk art style with magical helper mice and spiritual light. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: A kind girl (Kongji) spinning with a spinning wheel while mice help her, with her late mother's spirit watching over her. Split scene showing her meeting a noble prince on her wedding day. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154829.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -525,7 +525,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: A beautiful heavenly maiden (fairy) bathing in a stream with other celestial maidens in flowing white robes. A poor woodcutter watches from the forest. Then they are shown together as a married couple with children in their humble home. Traditional Korean folk art style with ethereal glow and celestial elements. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: A beautiful heavenly maiden (fairy) bathing in a stream with other celestial maidens in flowing white robes. A poor woodcutter watches from the forest. Then they are shown together as a married couple with children in their humble home. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154849.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -631,7 +631,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: A poor honest woodcutter loses his axe in a stream, then a magical spirit (immortal sage) emerges from the water holding three axes - golden, silver, and iron. The spirit rewards the honest woodcutter by giving all three axes. Traditional Korean folk art style with water effects and magical glow. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: A poor honest woodcutter loses his axe in a stream, then a magical spirit (immortal sage) emerges from the water holding three axes - golden, silver, and iron. The spirit rewards the honest woodcutter by giving all three axes. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154857.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -737,7 +737,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale humorous illustration: A young daughter-in-law in a traditional Korean house, with a disapproving mother-in-law watching. Show the contrast between awkwardness and eventual acceptance. Traditional Korean folk art style with warm family home interior. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale humorous illustration: A young daughter-in-law in a traditional Korean house, with a disapproving mother-in-law watching. Show the contrast between awkwardness and eventual acceptance. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154907.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -843,7 +843,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: An elderly grandmother cooking red bean porridge (patjuk) in a traditional Korean kitchen with a fierce tiger at the door. Show the clever grandmother outsmarting the hungry tiger with cornfield challenges. Traditional Korean folk art style with warm home interior. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: An elderly grandmother cooking red bean porridge (patjuk) in a traditional Korean kitchen with a fierce tiger at the door. Show the clever grandmother outsmarting the hungry tiger with cornfield challenges. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154915.png",
     "image_model": "gemini-2.5-flash-image"
   },
@@ -1055,7 +1055,7 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: Two devoted brothers helping each other and their families in a humble village setting. Show them caring for each other's children despite their poverty. Then a magical golden tree appears in front of their house as a heavenly reward. Traditional Korean folk art style with family warmth and magical golden glow. No text, no letters, no words, no writing, no signs with text.",
+    "imagePrompt": "Korean folktale illustration: Two devoted brothers helping each other and their families in a humble village setting. Show them caring for each other's children despite their poverty. Then a magical golden tree appears in front of their house as a heavenly reward. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
     "image_url": "/uploads/images/gemini_20260114_154932.png",
     "image_model": "gemini-2.5-flash-image"
   }
