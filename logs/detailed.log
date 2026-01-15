@@ -6,3 +6,265 @@
 2026-01-15 09:53:12,953 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
 2026-01-15 09:53:12,955 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
 2026-01-15 09:53:12,955 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+2026-01-15 10:40:12,212 - main - INFO - [REQUEST] GET / from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,217 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-15 10:40:12,217 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:12,586 - main - INFO - [REQUEST] GET /static/css/components.css from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,589 - main - INFO - [REQUEST] GET /static/img/flags/ko.svg from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,593 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+2026-01-15 10:40:12,595 - main - INFO - [RESPONSE] GET /static/img/flags/ko.svg - Status: 304
+2026-01-15 10:40:12,622 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,624 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 200
+2026-01-15 10:40:12,731 - main - INFO - [REQUEST] GET /static/img/flags/ja.svg from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,732 - main - INFO - [RESPONSE] GET /static/img/flags/ja.svg - Status: 304
+2026-01-15 10:40:12,737 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,738 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+2026-01-15 10:40:12,861 - main - INFO - [REQUEST] GET /static/img/flags/zh.svg from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:12,863 - main - INFO - [RESPONSE] GET /static/img/flags/zh.svg - Status: 304
+2026-01-15 10:40:13,317 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:13,326 - main - INFO - [BODY] {"nickname": "teacher", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:40:13.736Z"}
+2026-01-15 10:40:13,329 - main - INFO - [ACTIVITY] user=teacher action=PAGE_VIEW page=/ ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:13,329 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "", "screenSize": "1707x1067"}
+2026-01-15 10:40:13,330 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:40:16,238 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:16,238 - main - INFO - [BODY] {"nickname": "teacher", "action": "LOGOUT", "page": "/", "details": {}, "timestamp": "2026-01-15T01:40:16.665Z"}
+2026-01-15 10:40:16,239 - main - INFO - [REQUEST] GET / from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:16,243 - main - INFO - [ACTIVITY] user=teacher action=LOGOUT page=/ ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:16,246 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:40:16,247 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-15 10:40:16,247 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:16,896 - main - INFO - [REQUEST] GET /login from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:16,899 - main - INFO - [RESPONSE] GET /login - Status: 200
+2026-01-15 10:40:16,900 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/login ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:27,356 - main - INFO - [REQUEST] POST /api/login from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:27,357 - main - INFO - [BODY] {"nickname": "오누이4", "password": "12341234"}
+2026-01-15 10:40:27,362 - main - INFO - [RESPONSE] POST /api/login - Status: 401
+2026-01-15 10:40:32,802 - main - INFO - [REQUEST] POST /api/login from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:32,803 - main - INFO - [BODY] {"nickname": "오누이3", "password": "12341234"}
+2026-01-15 10:40:32,918 - main - INFO - [LOGIN] user=오누이3 email=onui4@onui.com role=learner ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:32,919 - main - INFO - [RESPONSE] POST /api/login - Status: 200
+2026-01-15 10:40:34,590 - main - INFO - [REQUEST] GET /dashboard from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:34,593 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-15 10:40:34,593 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:35,020 - main - INFO - [REQUEST] GET /static/img/avatar-cute.svg from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:35,022 - main - INFO - [RESPONSE] GET /static/img/avatar-cute.svg - Status: 304
+2026-01-15 10:40:35,177 - main - INFO - [REQUEST] GET /api/attendance/month from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:40:35,177 - main - INFO - [QUERY] {'year': '2026', 'month': '1'}
+2026-01-15 10:40:35,182 - main - INFO - [RESPONSE] GET /api/attendance/month - Status: 200
+2026-01-15 10:40:35,238 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:35,238 - main - INFO - [BODY] {"nickname": "오누이3", "action": "PAGE_VIEW", "page": "/dashboard", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/login", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:40:35.662Z"}
+2026-01-15 10:40:35,241 - main - INFO - [ACTIVITY] user=오누이3 action=PAGE_VIEW page=/dashboard ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:35,241 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/login", "screenSize": "1707x1067"}
+2026-01-15 10:40:35,242 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:40:38,261 - main - INFO - [REQUEST] GET /word-list from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:38,264 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 10:40:38,264 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:38,728 - main - INFO - [REQUEST] GET /api/vocabulary from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:38,754 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+2026-01-15 10:40:38,820 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:38,820 - main - INFO - [BODY] {"nickname": "오누이3", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:40:39.247Z"}
+2026-01-15 10:40:38,823 - main - INFO - [ACTIVITY] user=오누이3 action=PAGE_VIEW page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:38,823 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 10:40:38,824 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:40:39,228 - main - INFO - [REQUEST] GET /api/learning/word-scores from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:40:39,229 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 10:40:39,234 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+2026-01-15 10:40:39,363 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:40:39,369 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+2026-01-15 10:40:39,518 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_111956.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:39,520 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_111956.png - Status: 404
+2026-01-15 10:40:40,718 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:40,719 - main - INFO - [BODY] {"text": "학교"}
+2026-01-15 10:40:40,722 - main - INFO - [TTS] cache=hit text_len=2
+2026-01-15 10:40:40,722 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:40:43,433 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_112023.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:43,435 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_112023.png - Status: 404
+2026-01-15 10:40:44,844 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:44,845 - main - INFO - [BODY] {"text": "친구"}
+2026-01-15 10:40:44,847 - main - INFO - [TTS] cache=hit text_len=2
+2026-01-15 10:40:44,848 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:40:46,962 - main - INFO - [REQUEST] GET /sentence-learning from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:46,965 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-15 10:40:46,965 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:47,323 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:47,326 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+2026-01-15 10:40:47,508 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:47,509 - main - INFO - [BODY] {"nickname": "오누이3", "action": "PAGE_VIEW", "page": "/sentence-learning", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:40:47.880Z"}
+2026-01-15 10:40:47,511 - main - INFO - [ACTIVITY] user=오누이3 action=PAGE_VIEW page=/sentence-learning ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:40:47,512 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}
+2026-01-15 10:40:47,513 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:40:47,543 - main - INFO - [REQUEST] GET /api/sentence-learning/state/오누이3 from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:47,543 - main - INFO - [QUERY] {'scope': 'all'}
+2026-01-15 10:40:47,546 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/오누이3 - Status: 200
+2026-01-15 10:40:47,660 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:47,661 - main - INFO - [BODY] {"user_id": "오누이3", "scope": "all", "current_sentence_id": 1, "current_index": 0, "completed_sentence_ids": []}
+2026-01-15 10:40:47,685 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+2026-01-15 10:40:51,777 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:40:51,778 - main - INFO - [BODY] {"text": "오늘 친구를 만났어요.", "speaker": 0, "tempo": 1, "pitch": 1, "gain": 1}
+2026-01-15 10:40:51,780 - main - INFO - [TTS] cache=hit text_len=12
+2026-01-15 10:40:51,781 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:41:29,415 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:29,415 - main - INFO - [BODY] {"text": "오늘 친구를 만났어요.", "speaker": 0, "tempo": 1, "pitch": 1, "gain": 1}
+2026-01-15 10:41:29,418 - main - INFO - [TTS] cache=hit text_len=12
+2026-01-15 10:41:29,419 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:41:40,891 - main - INFO - [REQUEST] GET /word-list from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:40,894 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 10:41:40,895 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:41:43,529 - main - INFO - [REQUEST] GET /api/vocabulary from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:43,552 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+2026-01-15 10:41:43,620 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:43,620 - main - INFO - [BODY] {"nickname": "오누이3", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:41:44.038Z"}
+2026-01-15 10:41:43,623 - main - INFO - [ACTIVITY] user=오누이3 action=PAGE_VIEW page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:41:43,623 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 10:41:43,624 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:41:46,075 - main - INFO - [REQUEST] GET /api/learning/word-scores from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:41:46,075 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 10:41:46,079 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+2026-01-15 10:41:46,231 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:41:46,235 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+2026-01-15 10:41:46,382 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_111956.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:46,384 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_111956.png - Status: 404
+2026-01-15 10:41:46,502 - main - INFO - [REQUEST] GET /word-list from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:46,505 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 10:41:46,506 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:41:47,436 - main - INFO - [REQUEST] GET /api/vocabulary from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:47,461 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+2026-01-15 10:41:47,559 - main - INFO - [REQUEST] POST /api/log/activity from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:47,559 - main - INFO - [BODY] {"nickname": "오누이3", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T01:41:47.975Z"}
+2026-01-15 10:41:47,561 - main - INFO - [ACTIVITY] user=오누이3 action=PAGE_VIEW page=/word-list ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:41:47,561 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}
+2026-01-15 10:41:47,562 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:41:49,998 - main - INFO - [REQUEST] GET /api/learning/word-scores from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:41:49,998 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 10:41:50,002 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+2026-01-15 10:41:50,162 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: 오누이3 (onui4@onui.com)
+2026-01-15 10:41:50,165 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+2026-01-15 10:41:50,328 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_111956.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:50,331 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_111956.png - Status: 404
+2026-01-15 10:41:51,859 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:51,859 - main - INFO - [BODY] {"text": "학교"}
+2026-01-15 10:41:51,862 - main - INFO - [TTS] cache=hit text_len=2
+2026-01-15 10:41:51,862 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:41:53,322 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_112023.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:53,325 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_112023.png - Status: 404
+2026-01-15 10:41:54,028 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:54,029 - main - INFO - [BODY] {"text": "친구"}
+2026-01-15 10:41:54,031 - main - INFO - [TTS] cache=hit text_len=2
+2026-01-15 10:41:54,032 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:41:55,170 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260107_112134.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:55,172 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260107_112134.png - Status: 404
+2026-01-15 10:41:55,882 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:55,882 - main - INFO - [BODY] {"text": "가족"}
+2026-01-15 10:41:55,885 - main - INFO - [TTS] cache=hit text_len=2
+2026-01-15 10:41:55,886 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:41:56,963 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260109_165651.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:56,965 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260109_165651.png - Status: 304
+2026-01-15 10:41:56,966 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260109_165651.png ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:41:57,633 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:41:57,633 - main - INFO - [BODY] {"text": "선생님"}
+2026-01-15 10:41:57,636 - main - INFO - [TTS] cache=hit text_len=3
+2026-01-15 10:41:57,637 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:42:01,319 - main - INFO - [REQUEST] GET /api/word-images/cache from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:42:01,319 - main - INFO - [QUERY] {'key': 'id:chaek'}
+2026-01-15 10:42:01,321 - main - INFO - [RESPONSE] GET /api/word-images/cache - Status: 200
+2026-01-15 10:42:01,451 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260109_165704.png from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:42:01,454 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260109_165704.png - Status: 200
+2026-01-15 10:42:01,454 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260109_165704.png ip=2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76
+2026-01-15 10:42:02,552 - main - INFO - [REQUEST] POST /api/tts/generate from 2001:2d8:7018:1dfa:684a:d0ff:24b8:6a76 | User: Guest
+2026-01-15 10:42:02,552 - main - INFO - [BODY] {"text": "책"}
+2026-01-15 10:42:06,360 - main - INFO - [TTS] gemini_call_ms=3805.3
+2026-01-15 10:42:06,372 - main - INFO - [TTS] total_ms=3817.4 cached=no bytes=25530
+2026-01-15 10:42:06,373 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-15 10:55:23,528 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:55:23,541 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:55:23,541 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:55:23,766 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-15 10:55:23,768 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+2026-01-15 10:55:23,808 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:23,811 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+2026-01-15 10:55:23,866 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-15 10:55:23,872 - main - INFO - [REQUEST] GET /static/img/onui-logo.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:23,873 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+2026-01-15 10:55:23,876 - main - INFO - [RESPONSE] GET /static/img/onui-logo.svg - Status: 304
+2026-01-15 10:55:24,344 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 10:55:24,345 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-15T01:55:23.607Z"}
+2026-01-15 10:55:24,347 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-15 10:55:24,347 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-15 10:55:24,348 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:55:28,014 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:55:28,017 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:55:28,018 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:55:28,485 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 10:55:28,485 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}, "timestamp": "2026-01-15T01:55:27.748Z"}
+2026-01-15 10:55:28,487 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-15 10:55:28,488 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1920x1080"}
+2026-01-15 10:55:28,488 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 10:55:46,711 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:55:46,714 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:55:46,714 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:55:46,949 - main - INFO - [REQUEST] GET /static/css/components.css from 112.220.79.218 | User: Guest
+2026-01-15 10:55:46,952 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 304
+2026-01-15 10:55:46,983 - main - INFO - [REQUEST] GET /static/img/flags/ko.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:46,985 - main - INFO - [RESPONSE] GET /static/img/flags/ko.svg - Status: 304
+2026-01-15 10:55:46,989 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:46,991 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+2026-01-15 10:55:47,086 - main - INFO - [REQUEST] GET /static/img/flags/ja.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:47,088 - main - INFO - [REQUEST] GET /static/img/flags/zh.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:47,092 - main - INFO - [RESPONSE] GET /static/img/flags/ja.svg - Status: 304
+2026-01-15 10:55:47,093 - main - INFO - [RESPONSE] GET /static/img/flags/zh.svg - Status: 304
+2026-01-15 10:55:47,261 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 112.220.79.218 | User: Guest
+2026-01-15 10:55:47,262 - main - INFO - [REQUEST] GET /static/img/onui-logo.svg from 112.220.79.218 | User: Guest
+2026-01-15 10:55:47,265 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 304
+2026-01-15 10:55:47,266 - main - INFO - [RESPONSE] GET /static/img/onui-logo.svg - Status: 304
+2026-01-15 10:57:32,441 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:57:32,451 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:57:32,452 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:57:41,861 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:57:41,864 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:57:41,865 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:57:45,048 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:57:45,052 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:57:45,052 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:58:26,918 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:58:26,922 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:58:26,922 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:58:41,128 - main - INFO - [REQUEST] GET /api/folktales from 127.0.0.1 | User: Guest
+2026-01-15 10:58:41,137 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-15 10:58:44,016 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:58:44,026 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:58:44,027 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 10:59:14,967 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 10:59:14,985 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 10:59:14,985 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:00:19,518 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:00:19,530 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:00:19,530 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:01:15,159 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:01:15,171 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:01:15,172 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:01:15,673 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:01:15,678 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-15 11:02:09,949 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:09,951 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:02:09,951 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:02:10,409 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:10,412 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-15 11:02:14,171 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:14,175 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:02:14,175 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:02:14,620 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:14,623 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-15 11:02:15,847 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154820.png from 112.220.79.218 | User: Guest
+2026-01-15 11:02:15,849 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154820.png - Status: 304
+2026-01-15 11:02:15,850 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154820.png ip=112.220.79.218
+2026-01-15 11:02:49,415 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:49,423 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:02:49,423 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+2026-01-15 11:02:49,898 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:02:49,902 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+2026-01-15 11:03:09,212 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154829.png from 112.220.79.218 | User: Guest
+2026-01-15 11:03:09,215 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154829.png - Status: 304
+2026-01-15 11:03:09,215 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154829.png ip=112.220.79.218
+2026-01-15 11:03:16,807 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154849.png from 112.220.79.218 | User: Guest
+2026-01-15 11:03:16,810 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 304
+2026-01-15 11:03:16,811 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
