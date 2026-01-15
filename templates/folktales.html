@@ -197,17 +197,17 @@ endblock %} {% block content %}
       try {
         const url = level ? `/api/folktales?level=${level}` : "/api/folktales";
         const response = await fetch(url);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         folktales = data.folktales || [];
       } catch (error) {
         console.error("Failed to load folktales:", error);
         folktales = [];
-        
+
         AlertManager.error(
           "전래동화를 불러오는데 실패했습니다. 페이지를 새로고침해주세요.",
           "로드 실패",
@@ -287,6 +287,7 @@ endblock %} {% block content %}
 
       // Render quiz
       renderQuiz();
+      setupQuizEventDelegation();
 
       // Show reading section
       folktaleList.classList.add("hidden");
@@ -309,9 +310,9 @@ endblock %} {% block content %}
         .map(
           (q, qIndex) => `
         <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4" role="group" aria-labelledby="quiz-question-${qIndex}">
-          <p id="quiz-question-${qIndex}" class="font-semibold text-gray-900 mb-3">${qIndex + 1}. ${
-            q.question
-          }</p>
+          <p id="quiz-question-${qIndex}" class="font-semibold text-gray-900 mb-3">${
+            qIndex + 1
+          }. ${q.question}</p>
           <div class="space-y-2" role="radiogroup" aria-labelledby="quiz-question-${qIndex}">
             ${q.choices
               .map(
@@ -335,14 +336,25 @@ endblock %} {% block content %}
       `
         )
         .join("");
+    }
 
-      // Add change listeners
-      quizContainer.querySelectorAll('input[type="radio"]').forEach((radio) => {
-        radio.addEventListener("change", (e) => {
-          const qIndex = parseInt(e.target.name.replace("q", ""));
-          userAnswers[qIndex] = parseInt(e.target.value);
-        });
-      });
+    // Setup quiz event delegation (runs once)
+    function setupQuizEventDelegation() {
+      const quizContainer = document.getElementById("quizContainer");
+      
+      // Remove old listener if exists
+      quizContainer.removeEventListener("change", handleQuizChange);
+      
+      // Add single delegated listener
+      quizContainer.addEventListener("change", handleQuizChange);
+    }
+
+    // Quiz change handler
+    function handleQuizChange(e) {
+      if (e.target.type === "radio") {
+        const qIndex = parseInt(e.target.name.replace("q", ""));
+        userAnswers[qIndex] = parseInt(e.target.value);
+      }
     }
 
     // Check quiz answers
@@ -412,6 +424,16 @@ endblock %} {% block content %}
           btn.className =
             "level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-purple-500 text-white";
 
+          // Show loading state
+          folktaleList.innerHTML = `
+            <div class="col-span-2 text-center py-12">
+              <div class="inline-flex flex-col items-center gap-3">
+                <div class="w-8 h-8 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+                <p class="text-sm text-gray-600">전래동화를 불러오는 중...</p>
+              </div>
+            </div>
+          `;
+
           // Reload folktales
           await loadFolktales(currentLevel === "all" ? null : currentLevel);
           renderFolktaleList();
@@ -422,6 +444,8 @@ endblock %} {% block content %}
       backBtn.addEventListener("click", () => {
         readingSection.classList.add("hidden");
         folktaleList.classList.remove("hidden");
+        // Maintain filter state by re-rendering current level folktales
+        renderFolktaleList();
       });
 
       // Next story button
@@ -430,11 +454,18 @@ endblock %} {% block content %}
         nextStoryBtn.addEventListener("click", () => {
           if (!currentFolktale) return;
 
-          const currentIndex = folktales.findIndex(
+          // Get current filtered folktales
+          const filteredFolktales = currentLevel === "all"
+            ? folktales
+            : folktales.filter(f => f.level === currentLevel);
+
+          if (filteredFolktales.length === 0) return;
+
+          const currentIndex = filteredFolktales.findIndex(
             (f) => f.id === currentFolktale.id
           );
-          const nextIndex = (currentIndex + 1) % folktales.length;
-          const nextFolktale = folktales[nextIndex];
+          const nextIndex = (currentIndex + 1) % filteredFolktales.length;
+          const nextFolktale = filteredFolktales[nextIndex];
 
           if (nextFolktale) {
             showFolktale(nextFolktale.id);
