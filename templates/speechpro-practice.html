@@ -31,6 +31,26 @@
 
   <!-- 콘텐츠 영역 -->
   <div class="bg-white rounded-2xl p-6 shadow-lg">
+      <!-- Progress Steps -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between max-w-2xl mx-auto">
+          <div class="flex flex-col items-center flex-1">
+            <div class="step-number w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold mb-2" id="step-1">1</div>
+            <span class="text-xs text-gray-600">문장 선택</span>
+          </div>
+          <div class="flex-1 h-1 bg-gray-200" id="step-line-1"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="step-number w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold mb-2" id="step-2">2</div>
+            <span class="text-xs text-gray-600">녹음</span>
+          </div>
+          <div class="flex-1 h-1 bg-gray-200" id="step-line-2"></div>
+          <div class="flex flex-col items-center flex-1">
+            <div class="step-number w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center font-bold mb-2" id="step-3">3</div>
+            <span class="text-xs text-gray-600">평가</span>
+          </div>
+        </div>
+      </div>
+      
       <!-- SpeechPro 장점 모달 -->
       <div
         id="speechpro-advantages-modal"
@@ -204,10 +224,11 @@
               3
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+            <!-- Primary Action Button -->
+            <div class="mb-3">
               <button
                 id="start-recording"
-                class="px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-semibold hover:bg-[#e67a15] transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                class="w-full py-4 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled
                 data-i18n="speechpro.btn_start_record"
               >
@@ -215,14 +236,18 @@
               </button>
               <button
                 id="stop-recording"
-                class="px-6 py-3 bg-red-500 border-2 border-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition flex-1 sm:flex-none hidden"
+                class="w-full py-4 bg-red-500 border-2 border-red-500 text-white rounded-lg font-bold text-lg hover:bg-red-600 hover:shadow-lg transition hidden"
                 data-i18n="speechpro.btn_stop_record"
               >
                 ⏹️ 녹음 중지
               </button>
+            </div>
+            
+            <!-- Secondary Actions -->
+            <div class="flex gap-2">
               <button
                 id="play-recording"
-                class="px-6 py-3 bg-gray-200 border-2 border-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
+                class="flex-1 py-2 bg-gray-200 border border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled
                 data-i18n="speechpro.btn_play"
               >
@@ -1177,6 +1202,9 @@
         visualizer.setAttribute("data-status", "recorded");
         document.getElementById("status-text").textContent = t("speechpro.status_complete", "녹음 완료");
         document.getElementById("waveform").classList.add("hidden");
+        
+        // Progress 업데이트
+        updateProgressStep(3);
 
         // 타이머 중지
         stopTimer();
@@ -2288,6 +2316,7 @@
         // 선택 해제
         appState.selectedSentence = null;
         startButton.disabled = true;
+        updateProgressStep(1);
         return;
       }
 
@@ -2295,6 +2324,7 @@
         const sentence = JSON.parse(select.value);
         appState.selectedSentence = sentence;
         startButton.disabled = false;
+        updateProgressStep(2);
 
         hideError();
       } catch (error) {
@@ -2303,6 +2333,27 @@
         );
         startButton.disabled = true;
       }
+    }
+    
+    // Progress indicator update
+    function updateProgressStep(step) {
+      [1, 2, 3].forEach(i => {
+        const stepEl = document.getElementById(`step-${i}`);
+        const lineEl = document.getElementById(`step-line-${i}`);
+        
+        if (i < step) {
+          stepEl.classList.add('bg-green-500');
+          stepEl.classList.remove('bg-orange-500', 'bg-gray-300');
+          if (lineEl) lineEl.classList.add('bg-green-500');
+        } else if (i === step) {
+          stepEl.classList.add('bg-orange-500');
+          stepEl.classList.remove('bg-green-500', 'bg-gray-300');
+        } else {
+          stepEl.classList.add('bg-gray-300');
+          stepEl.classList.remove('bg-orange-500', 'bg-green-500');
+          if (lineEl) lineEl.classList.remove('bg-green-500');
+        }
+      });
     }
 
     // 학습 진도 기록 및 캐릭터 Pop-Up 표시
