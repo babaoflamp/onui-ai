@@ -197,11 +197,22 @@ endblock %} {% block content %}
       try {
         const url = level ? `/api/folktales?level=${level}` : "/api/folktales";
         const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         folktales = data.folktales || [];
       } catch (error) {
         console.error("Failed to load folktales:", error);
         folktales = [];
+        
+        AlertManager.error(
+          "전래동화를 불러오는데 실패했습니다. 페이지를 새로고침해주세요.",
+          "로드 실패",
+          document.getElementById("alertsContainer")
+        );
       }
     }
 
@@ -230,14 +241,6 @@ endblock %} {% block content %}
       `
         )
         .join("");
-
-      // Add click listeners
-      document.querySelectorAll(".folktale-card").forEach((card) => {
-        card.addEventListener("click", () => {
-          const id = parseInt(card.dataset.id);
-          showFolktale(id);
-        });
-      });
     }
 
     // Show selected folktale
@@ -256,8 +259,9 @@ endblock %} {% block content %}
       // Display image if available
       const imageContainer = document.getElementById("storyImageContainer");
       if (currentFolktale.image_url) {
-        document.getElementById("storyImage").src = currentFolktale.image_url;
-        document.getElementById("storyImage").alt = currentFolktale.title;
+        const storyImage = document.getElementById("storyImage");
+        storyImage.src = currentFolktale.image_url;
+        storyImage.alt = `${currentFolktale.title} - ${currentFolktale.titleEn} 일러스트레이션`;
         imageContainer.classList.remove("hidden");
       } else {
         imageContainer.classList.add("hidden");
@@ -304,16 +308,23 @@ endblock %} {% block content %}
       quizContainer.innerHTML = currentFolktale.questions
         .map(
           (q, qIndex) => `
-        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-          <p class="font-semibold text-gray-900 mb-3">${qIndex + 1}. ${
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4" role="group" aria-labelledby="quiz-question-${qIndex}">
+          <p id="quiz-question-${qIndex}" class="font-semibold text-gray-900 mb-3">${qIndex + 1}. ${
             q.question
           }</p>
-          <div class="space-y-2">
+          <div class="space-y-2" role="radiogroup" aria-labelledby="quiz-question-${qIndex}">
             ${q.choices
               .map(
                 (choice, cIndex) => `
               <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-                <input type="radio" name="q${qIndex}" value="${cIndex}" class="mt-1">
+                <input 
+                  type="radio" 
+                  name="q${qIndex}" 
+                  value="${cIndex}" 
+                  class="mt-1"
+                  id="q${qIndex}-choice${cIndex}"
+                  aria-label="${choice}"
+                >
                 <span class="text-sm text-gray-700">${choice}</span>
               </label>
             `
@@ -379,6 +390,15 @@ endblock %} {% block content %}
 
     // Setup event listeners
     function setupEventListeners() {
+      // Event delegation for folktale cards
+      folktaleList.addEventListener("click", (e) => {
+        const card = e.target.closest(".folktale-card");
+        if (card) {
+          const id = parseInt(card.dataset.id);
+          showFolktale(id);
+        }
+      });
+
       // Level buttons
       levelBtns.forEach((btn) => {
         btn.addEventListener("click", async () => {
