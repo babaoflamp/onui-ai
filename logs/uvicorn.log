@@ -3202,3 +3202,225 @@ INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
 2026-01-14 18:57:04,699 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
 2026-01-14 18:57:04,703 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
 INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 19:02:05,931 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 19:02:05,946 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 19:02:05,947 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 19:02:06,289 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 19:02:06,294 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 19:02:07,128 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-14 19:02:07,130 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
+2026-01-14 19:02:07,131 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 304 Not Modified
+2026-01-14 19:02:40,774 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-14 19:02:40,786 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-14 19:02:40,786 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-14 19:02:41,136 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-14 19:02:41,141 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-14 19:02:50,666 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154915.png from 112.220.79.218 | User: Guest
+2026-01-14 19:02:50,668 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154915.png - Status: 200
+2026-01-14 19:02:50,669 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154915.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154915.png HTTP/1.1" 200 OK
+2026-01-14 19:02:53,738 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154907.png from 112.220.79.218 | User: Guest
+2026-01-14 19:02:53,742 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154907.png - Status: 200
+2026-01-14 19:02:53,742 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154907.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154907.png HTTP/1.1" 200 OK
+2026-01-14 19:42:31,618 - main - INFO - [REQUEST] GET / from 211.231.103.93 | User: Guest
+2026-01-14 19:42:31,624 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 19:42:31,624 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=211.231.103.93
+INFO:     211.231.103.93:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 19:42:35,618 - main - INFO - [REQUEST] GET / from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,621 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 19:42:35,622 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 19:42:35,800 - main - INFO - [REQUEST] GET /static/css/components.css from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,803 - main - INFO - [RESPONSE] GET /static/css/components.css - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/css/components.css HTTP/1.1" 200 OK
+2026-01-14 19:42:35,827 - main - INFO - [REQUEST] GET /static/img/flags/ko.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,829 - main - INFO - [RESPONSE] GET /static/img/flags/ko.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/flags/ko.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:35,835 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,837 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/flags/en.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:35,917 - main - INFO - [REQUEST] GET /static/img/flags/ja.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,919 - main - INFO - [RESPONSE] GET /static/img/flags/ja.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/flags/ja.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:35,927 - main - INFO - [REQUEST] GET /static/img/flags/zh.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:35,929 - main - INFO - [RESPONSE] GET /static/img/flags/zh.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/flags/zh.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:36,002 - main - INFO - [REQUEST] GET /static/js/ui-components.js from 113.198.18.175 | User: Guest
+2026-01-14 19:42:36,003 - main - INFO - [RESPONSE] GET /static/js/ui-components.js - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/js/ui-components.js HTTP/1.1" 200 OK
+2026-01-14 19:42:36,105 - main - INFO - [REQUEST] GET /static/tiger_chatbot.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:36,107 - main - INFO - [RESPONSE] GET /static/tiger_chatbot.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/tiger_chatbot.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:36,197 - main - INFO - [REQUEST] GET /static/img/onui-logo.svg from 113.198.18.175 | User: Guest
+2026-01-14 19:42:36,199 - main - INFO - [RESPONSE] GET /static/img/onui-logo.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/onui-logo.svg HTTP/1.1" 200 OK
+2026-01-14 19:42:36,987 - main - INFO - [REQUEST] GET /static/img/landing/ai-feedback.png from 113.198.18.175 | User: Guest
+2026-01-14 19:42:36,989 - main - INFO - [REQUEST] GET /static/img/landing/history-graph.png from 113.198.18.175 | User: Guest
+2026-01-14 19:42:36,992 - main - INFO - [RESPONSE] GET /static/img/landing/ai-feedback.png - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/landing/ai-feedback.png HTTP/1.1" 200 OK
+2026-01-14 19:42:36,995 - main - INFO - [RESPONSE] GET /static/img/landing/history-graph.png - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/landing/history-graph.png HTTP/1.1" 200 OK
+2026-01-14 19:42:37,448 - main - INFO - [REQUEST] GET /static/favicon.ico from 113.198.18.175 | User: Guest
+2026-01-14 19:42:37,450 - main - INFO - [RESPONSE] GET /static/favicon.ico - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/favicon.ico HTTP/1.1" 200 OK
+2026-01-14 19:42:56,552 - main - INFO - [REQUEST] GET /login from 113.198.18.175 | User: Guest
+2026-01-14 19:42:56,563 - main - INFO - [RESPONSE] GET /login - Status: 200
+2026-01-14 19:42:56,563 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/login ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /login HTTP/1.1" 200 OK
+2026-01-14 19:43:13,297 - main - INFO - [REQUEST] POST /api/login from 113.198.18.175 | User: Guest
+2026-01-14 19:43:13,298 - main - INFO - [BODY] {"nickname": "jmk", "password": "12345678"}
+2026-01-14 19:43:13,305 - main - INFO - [RESPONSE] POST /api/login - Status: 401
+INFO:     113.198.18.175:0 - "POST /api/login HTTP/1.1" 401 Unauthorized
+2026-01-14 19:43:17,712 - main - INFO - [REQUEST] POST /api/login from 113.198.18.175 | User: Guest
+2026-01-14 19:43:17,712 - main - INFO - [BODY] {"nickname": "jmk", "password": "12345678"}
+2026-01-14 19:43:17,716 - main - INFO - [RESPONSE] POST /api/login - Status: 401
+INFO:     113.198.18.175:0 - "POST /api/login HTTP/1.1" 401 Unauthorized
+2026-01-14 19:43:33,078 - main - INFO - [REQUEST] POST /api/login from 113.198.18.175 | User: Guest
+2026-01-14 19:43:33,079 - main - INFO - [BODY] {"nickname": "JMK", "password": "12345678"}
+2026-01-14 19:43:33,083 - main - INFO - [RESPONSE] POST /api/login - Status: 401
+INFO:     113.198.18.175:0 - "POST /api/login HTTP/1.1" 401 Unauthorized
+2026-01-14 19:43:42,190 - main - INFO - [REQUEST] POST /api/login from 113.198.18.175 | User: Guest
+2026-01-14 19:43:42,191 - main - INFO - [BODY] {"nickname": "JMK", "password": "12345678"}
+2026-01-14 19:43:42,194 - main - INFO - [RESPONSE] POST /api/login - Status: 401
+INFO:     113.198.18.175:0 - "POST /api/login HTTP/1.1" 401 Unauthorized
+2026-01-14 19:43:55,307 - main - INFO - [REQUEST] GET / from 113.198.18.175 | User: Guest
+2026-01-14 19:43:55,310 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 19:43:55,310 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 19:44:06,576 - main - INFO - [REQUEST] GET /speechpro-practice from 113.198.18.175 | User: Guest
+2026-01-14 19:44:06,604 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-14 19:44:06,604 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-14 19:44:07,026 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 113.198.18.175 | User: Guest
+2026-01-14 19:44:07,045 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-14 20:08:15,731 - main - INFO - [REQUEST] GET / from 113.198.18.175 | User: Guest
+2026-01-14 20:08:15,736 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 20:08:15,736 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 20:11:30,083 - main - INFO - [REQUEST] GET /dashboard from 113.198.18.175 | User: Guest
+2026-01-14 20:11:30,086 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-14 20:11:30,086 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-14 20:11:30,341 - main - INFO - [REQUEST] GET /static/img/flags/en.svg from 113.198.18.175 | User: Guest
+2026-01-14 20:11:30,344 - main - INFO - [RESPONSE] GET /static/img/flags/en.svg - Status: 304
+INFO:     113.198.18.175:0 - "GET /static/img/flags/en.svg HTTP/1.1" 304 Not Modified
+2026-01-14 20:11:30,375 - main - INFO - [REQUEST] GET /static/img/dashboard/hero-2.jpg from 113.198.18.175 | User: Guest
+2026-01-14 20:11:30,379 - main - INFO - [REQUEST] GET /static/img/avatar-cute.svg from 113.198.18.175 | User: Guest
+2026-01-14 20:11:30,380 - main - INFO - [REQUEST] GET /static/img/dashboard/hero-1.jpg from 113.198.18.175 | User: Guest
+2026-01-14 20:11:30,383 - main - INFO - [RESPONSE] GET /static/img/dashboard/hero-2.jpg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/dashboard/hero-2.jpg HTTP/1.1" 200 OK
+2026-01-14 20:11:30,386 - main - INFO - [RESPONSE] GET /static/img/dashboard/hero-1.jpg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/dashboard/hero-1.jpg HTTP/1.1" 200 OK
+2026-01-14 20:11:30,387 - main - INFO - [RESPONSE] GET /static/img/avatar-cute.svg - Status: 200
+INFO:     113.198.18.175:0 - "GET /static/img/avatar-cute.svg HTTP/1.1" 200 OK
+2026-01-14 20:15:53,130 - main - INFO - [REQUEST] GET /learning from 113.198.18.175 | User: Guest
+2026-01-14 20:15:53,151 - main - INFO - [RESPONSE] GET /learning - Status: 200
+2026-01-14 20:15:53,151 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/learning ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /learning HTTP/1.1" 200 OK
+2026-01-14 20:16:46,502 - main - INFO - [REQUEST] GET / from 113.198.18.175 | User: Guest
+2026-01-14 20:16:46,504 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 20:16:46,505 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 20:18:17,057 - main - INFO - [REQUEST] GET /learning from 113.198.18.175 | User: Guest
+2026-01-14 20:18:17,060 - main - INFO - [RESPONSE] GET /learning - Status: 200
+2026-01-14 20:18:17,061 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/learning ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /learning HTTP/1.1" 200 OK
+2026-01-14 20:18:22,874 - main - INFO - [REQUEST] GET / from 113.198.18.175 | User: Guest
+2026-01-14 20:18:22,877 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-14 20:18:22,877 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET / HTTP/1.1" 200 OK
+2026-01-14 20:18:28,944 - main - INFO - [REQUEST] GET /learning from 113.198.18.175 | User: Guest
+2026-01-14 20:18:28,947 - main - INFO - [RESPONSE] GET /learning - Status: 200
+2026-01-14 20:18:28,947 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/learning ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /learning HTTP/1.1" 200 OK
+2026-01-14 20:19:28,344 - main - INFO - [REQUEST] POST /api/generate-content from 113.198.18.175 | User: Guest
+2026-01-14 20:19:28,344 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundary1bdb1ren42w68hpb; size=453>
+2026-01-14 20:19:34,542 - main - INFO - [RESPONSE] POST /api/generate-content - Status: 200
+INFO:     113.198.18.175:0 - "POST /api/generate-content HTTP/1.1" 200 OK
+2026-01-14 20:20:19,791 - main - INFO - [REQUEST] POST /api/fluency-check from 113.198.18.175 | User: Guest
+2026-01-14 20:20:19,791 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundarydfst8pgzoab7ekbo; size=199>
+2026-01-14 20:20:20,746 - main - INFO - [RESPONSE] POST /api/fluency-check - Status: 200
+INFO:     113.198.18.175:0 - "POST /api/fluency-check HTTP/1.1" 200 OK
+2026-01-14 20:20:36,824 - main - INFO - [REQUEST] POST /api/situational-content from 113.198.18.175 | User: Guest
+2026-01-14 20:20:36,825 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundary5l2ofgoy7i3sll6d; size=350>
+2026-01-14 20:20:45,667 - main - INFO - [RESPONSE] POST /api/situational-content - Status: 200
+INFO:     113.198.18.175:0 - "POST /api/situational-content HTTP/1.1" 200 OK
+2026-01-14 20:23:53,011 - main - INFO - [REQUEST] POST /api/situational-content from 113.198.18.175 | User: Guest
+2026-01-14 20:23:53,011 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundaryrepvd0yrrbclqaj3; size=350>
+2026-01-14 20:24:01,697 - main - INFO - [RESPONSE] POST /api/situational-content - Status: 200
+INFO:     113.198.18.175:0 - "POST /api/situational-content HTTP/1.1" 200 OK
+2026-01-14 20:26:42,298 - main - INFO - [REQUEST] GET /word-list from 113.198.18.175 | User: Guest
+2026-01-14 20:26:42,318 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-14 20:26:42,319 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-14 20:26:42,605 - main - INFO - [REQUEST] GET /api/vocabulary from 113.198.18.175 | User: Guest
+2026-01-14 20:26:42,630 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 20:26:42,833 - main - INFO - [REQUEST] GET /api/word-images/cache from 113.198.18.175 | User: Guest
+2026-01-14 20:26:42,833 - main - INFO - [QUERY] {'key': 'id:hakgyo'}
+2026-01-14 20:26:42,837 - main - INFO - [RESPONSE] GET /api/word-images/cache - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/word-images/cache?key=id%3Ahakgyo HTTP/1.1" 200 OK
+2026-01-14 20:26:42,998 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260109_165045.png from 113.198.18.175 | User: Guest
+2026-01-14 20:26:43,001 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260109_165045.png - Status: 200
+2026-01-14 20:26:43,001 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260109_165045.png ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /uploads/images/gemini_20260109_165045.png HTTP/1.1" 200 OK
+2026-01-14 20:26:45,231 - main - INFO - [REQUEST] GET /sentence-learning from 113.198.18.175 | User: Guest
+2026-01-14 20:26:45,244 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-14 20:26:45,244 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /sentence-learning HTTP/1.1" 200 OK
+2026-01-14 20:26:45,527 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 113.198.18.175 | User: Guest
+2026-01-14 20:26:45,532 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/puzzle/sentences HTTP/1.1" 200 OK
+2026-01-14 20:26:45,630 - main - INFO - [REQUEST] GET /api/sentence-learning/state/anon_41a15c3a-53d5-40b3-b074-e243ea713b6e from 113.198.18.175 | User: Guest
+2026-01-14 20:26:45,630 - main - INFO - [QUERY] {'scope': 'all'}
+2026-01-14 20:26:45,653 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/anon_41a15c3a-53d5-40b3-b074-e243ea713b6e - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/sentence-learning/state/anon_41a15c3a-53d5-40b3-b074-e243ea713b6e?scope=all HTTP/1.1" 200 OK
+2026-01-14 20:26:45,742 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 113.198.18.175 | User: Guest
+2026-01-14 20:26:45,742 - main - INFO - [BODY] {"user_id": "anon_41a15c3a-53d5-40b3-b074-e243ea713b6e", "scope": "all", "current_sentence_id": 1, "current_index": 0, "completed_sentence_ids": []}
+2026-01-14 20:26:45,758 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     113.198.18.175:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-14 20:26:51,798 - main - INFO - [REQUEST] GET /curriculum from 113.198.18.175 | User: Guest
+2026-01-14 20:26:51,810 - main - INFO - [RESPONSE] GET /curriculum - Status: 200
+2026-01-14 20:26:51,810 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/curriculum ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /curriculum HTTP/1.1" 200 OK
+2026-01-14 20:26:52,073 - main - INFO - [REQUEST] GET /api/vocabulary from 113.198.18.175 | User: Guest
+2026-01-14 20:26:52,097 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 20:26:55,319 - main - INFO - [REQUEST] GET /curriculum/intro-basic from 113.198.18.175 | User: Guest
+2026-01-14 20:26:55,320 - main - INFO - [QUERY] {'initial': 'ㄱ'}
+2026-01-14 20:26:55,334 - main - INFO - [RESPONSE] GET /curriculum/intro-basic - Status: 200
+2026-01-14 20:26:55,335 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/curriculum/intro-basic ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /curriculum/intro-basic?initial=%E3%84%B1 HTTP/1.1" 200 OK
+2026-01-14 20:26:55,595 - main - INFO - [REQUEST] GET /api/vocabulary from 113.198.18.175 | User: Guest
+2026-01-14 20:26:55,621 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-14 20:26:57,585 - main - INFO - [REQUEST] POST /api/tts/generate from 113.198.18.175 | User: Guest
+2026-01-14 20:26:57,586 - main - INFO - [BODY] {"text": "ㄱ"}
+2026-01-14 20:27:01,580 - main - INFO - [TTS] gemini_call_ms=3982.8
+2026-01-14 20:27:01,589 - main - INFO - [TTS] total_ms=3992.0 cached=no bytes=12090
+2026-01-14 20:27:01,590 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+2026-01-14 20:27:02,280 - main - INFO - [REQUEST] GET /speechpro-practice from 113.198.18.175 | User: Guest
+2026-01-14 20:27:02,283 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-14 20:27:02,284 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=113.198.18.175
+INFO:     113.198.18.175:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-14 20:27:02,712 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 113.198.18.175 | User: Guest
+2026-01-14 20:27:02,720 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     113.198.18.175:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 07:07:47,059 - main - INFO - [REQUEST] GET /static/favicon.ico from 112.220.79.218 | User: Guest
+2026-01-15 07:07:47,066 - main - INFO - [RESPONSE] GET /static/favicon.ico - Status: 200
+INFO:     112.220.79.218:0 - "GET /static/favicon.ico HTTP/1.1" 200 OK
+2026-01-15 09:53:01,199 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154011.png from 112.220.79.218 | User: Guest
+2026-01-15 09:53:01,203 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154011.png - Status: 304
+2026-01-15 09:53:01,204 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154011.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154011.png HTTP/1.1" 304 Not Modified
+2026-01-15 09:53:12,953 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-15 09:53:12,955 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
+2026-01-15 09:53:12,955 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 304 Not Modified
