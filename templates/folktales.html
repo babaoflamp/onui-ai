@@ -290,9 +290,6 @@ endblock %} {% block content %}
       document.getElementById("quizResult").classList.add("hidden");
       userAnswers = {};
 
-      // Show back button
-      backBtn.classList.remove("hidden");
-
       // Auto scroll to story title
       setTimeout(() => {
         document
@@ -405,9 +402,6 @@ endblock %} {% block content %}
       backBtn.addEventListener("click", () => {
         readingSection.classList.add("hidden");
         folktaleList.classList.remove("hidden");
-        document
-          .getElementById("filterSelect")
-          .parentElement.classList.remove("hidden");
       });
 
       // Next story button
@@ -438,7 +432,6 @@ endblock %} {% block content %}
             "입력 필요",
             document.getElementById("alertsContainer")
           );
-          return;
           return;
         }
         checkQuiz();

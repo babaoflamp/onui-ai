@@ -3776,3 +3776,93 @@ INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154829.png HTT
 2026-01-15 11:03:16,810 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 304
 2026-01-15 11:03:16,811 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
 INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154849.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:04:48,714 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:48,744 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:04:48,744 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-15 11:04:49,229 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:49,233 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-15 11:04:51,295 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:51,298 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:04:51,298 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-15 11:04:51,724 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:51,727 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-15 11:04:56,853 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:56,856 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:04:56,856 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-15 11:04:57,339 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:04:57,344 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-15 11:05:01,669 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:05:01,670 - main - INFO - [QUERY] {'level': 'A1'}
+2026-01-15 11:05:01,673 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales?level=A1 HTTP/1.1" 200 OK
+2026-01-15 11:05:02,455 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:05:02,456 - main - INFO - [QUERY] {'level': 'A2'}
+2026-01-15 11:05:02,459 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales?level=A2 HTTP/1.1" 200 OK
+2026-01-15 11:05:03,001 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:05:03,002 - main - INFO - [QUERY] {'level': 'B1'}
+2026-01-15 11:05:03,005 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales?level=B1 HTTP/1.1" 200 OK
+2026-01-15 11:05:03,549 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:05:03,549 - main - INFO - [QUERY] {'level': 'B2'}
+2026-01-15 11:05:03,552 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales?level=B2 HTTP/1.1" 200 OK
+2026-01-15 11:08:00,547 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:08:00,558 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:08:00,558 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-15 11:08:00,841 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:08:00,846 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-15 11:08:01,065 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:08:01,066 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:08:00.326Z"}
+2026-01-15 11:08:01,068 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-15 11:08:01,068 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-15 11:08:01,069 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:08:02,325 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154011.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:02,328 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154011.png - Status: 304
+2026-01-15 11:08:02,328 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154011.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154011.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:20,700 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_184449.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:20,704 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_184449.png - Status: 304
+2026-01-15 11:08:20,704 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_184449.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_184449.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:29,106 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154820.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:29,108 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154820.png - Status: 304
+2026-01-15 11:08:29,108 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154820.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154820.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:36,319 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154829.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:36,322 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154829.png - Status: 304
+2026-01-15 11:08:36,322 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154829.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154829.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:40,158 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154849.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:40,160 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154849.png - Status: 304
+2026-01-15 11:08:40,161 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154849.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154849.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:47,106 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154857.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:47,108 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154857.png - Status: 304
+2026-01-15 11:08:47,108 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154857.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154857.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:08:51,331 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154907.png from 112.220.79.218 | User: Guest
+2026-01-15 11:08:51,334 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154907.png - Status: 304
+2026-01-15 11:08:51,334 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154907.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154907.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:09:00,507 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154915.png from 112.220.79.218 | User: Guest
+2026-01-15 11:09:00,512 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154915.png - Status: 304
+2026-01-15 11:09:00,512 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154915.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154915.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:09:48,878 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154923.png from 112.220.79.218 | User: Guest
+2026-01-15 11:09:48,881 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154923.png - Status: 200
+2026-01-15 11:09:48,882 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154923.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154923.png HTTP/1.1" 200 OK
+2026-01-15 11:10:23,302 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260114_154932.png from 112.220.79.218 | User: Guest
+2026-01-15 11:10:23,304 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 304
+2026-01-15 11:10:23,305 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154932.png HTTP/1.1" 304 Not Modified
