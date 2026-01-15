@@ -405,7 +405,9 @@ endblock %} {% block content %}
       backBtn.addEventListener("click", () => {
         readingSection.classList.add("hidden");
         folktaleList.classList.remove("hidden");
-        document.getElementById("filterSelect").parentElement.classList.remove("hidden");
+        document
+          .getElementById("filterSelect")
+          .parentElement.classList.remove("hidden");
       });
 
       // Next story button
@@ -413,11 +415,13 @@ endblock %} {% block content %}
       if (nextStoryBtn) {
         nextStoryBtn.addEventListener("click", () => {
           if (!currentFolktale) return;
-          
-          const currentIndex = folktales.findIndex(f => f.id === currentFolktale.id);
+
+          const currentIndex = folktales.findIndex(
+            (f) => f.id === currentFolktale.id
+          );
           const nextIndex = (currentIndex + 1) % folktales.length;
           const nextFolktale = folktales[nextIndex];
-          
+
           if (nextFolktale) {
             showFolktale(nextFolktale.id);
           }
