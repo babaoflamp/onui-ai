@@ -162,7 +162,6 @@
           <div class="flex flex-col sm:flex-row gap-3 mb-4">
             <select
               id="evaluation-text"
-              onchange="selectEvaluationSentence()"
               class="flex-1 px-4 py-3 border-2 border-[var(--accent)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition"
             >
               <option value="" data-i18n="speechpro.select_placeholder">-- 문장 선택 --</option>
@@ -201,7 +200,6 @@
             <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
               <button
                 id="start-recording"
-                onclick="startRecording()"
                 class="px-6 py-3 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-semibold hover:bg-[#e67a15] transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled
                 data-i18n="speechpro.btn_start_record"
@@ -210,7 +208,6 @@
               </button>
               <button
                 id="stop-recording"
-                onclick="stopRecording()"
                 class="px-6 py-3 bg-white border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FFE6BF] transition flex-1 sm:flex-none hidden"
                 data-i18n="speechpro.btn_stop_record"
               >
@@ -218,7 +215,6 @@
               </button>
               <button
                 id="play-recording"
-                onclick="playRecording()"
                 class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg font-semibold hover:bg-[#FF8C1A] hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
                 disabled
                 data-i18n="speechpro.btn_play"
@@ -251,7 +247,6 @@
       <div class="flex flex-col sm:flex-row gap-4 mb-8">
         <button
           id="evaluate-button"
-          onclick="evaluatePronunciation()"
           class="flex-1 px-6 py-4 bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white rounded-lg font-bold text-lg hover:bg-[#e67a15] hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
           data-i18n="speechpro.btn_evaluate"
         >
@@ -284,10 +279,8 @@
                 📊 평가 결과
               </h2>
               <button
+                id="close-results-btn"
                 class="text-gray-500 hover:text-gray-800 text-2xl"
-                onclick="closeResults()"
-                aria-label="닫기"
-              >
                 aria-label="닫기"
               >
                 ✕
@@ -316,12 +309,8 @@
             🤖 AI 종합 평가 결과
           </h2>
           <button
-            onclick="closeAiFeedbackModal()"
+            id="close-ai-feedback-modal-btn"
             class="text-gray-500 hover:text-gray-800 text-2xl"
-            aria-label="닫기"
-          >
-            class="text-gray-500 hover:text-gray-800 text-2xl"
-            onclick="closeAiFeedbackModal()"
             aria-label="닫기"
           >
             ✕
@@ -349,7 +338,6 @@
           <button
             id="ai-feedback-prev"
             class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            onclick="prevAiFeedbackStep()"
             disabled
           >
             이전
@@ -360,7 +348,6 @@
           <button
             id="ai-feedback-next"
             class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            onclick="nextAiFeedbackStep()"
             disabled
           >
             다음
@@ -492,7 +479,6 @@
                 <div class="mt-6 flex justify-center">
                   <button
                     id="ai-feedback-button"
-                    onclick="openAiFeedbackModal()"
                     class="px-8 py-3 rounded-full bg-blue-600 text-white text-sm sm:text-base font-semibold shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     data-i18n="speechpro.btn_ai_result"
                     disabled
@@ -508,14 +494,14 @@
 
           <div class="flex justify-end gap-3">
             <button
-              onclick="closeResults()"
+              id="close-results-btn-2"
               class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
               data-i18n="speechpro.btn_close"
             >
               닫기
             </button>
             <button
-              onclick="resetEvaluation()"
+              id="reset-evaluation-btn"
               class="px-6 py-2 bg-gray-500 text-white rounded-lg font-semibold hover:opacity-90 transition"
               data-i18n="speechpro.btn_reset"
             >
@@ -1281,8 +1267,41 @@
       }
     }
 
+    // ========== Event Listener Setup ==========
+    function setupEventListeners() {
+      // Recording controls
+      document.getElementById('start-recording').addEventListener('click', startRecording);
+      document.getElementById('stop-recording').addEventListener('click', stopRecording);
+      document.getElementById('play-recording').addEventListener('click', playRecording);
+      
+      // Evaluation
+      document.getElementById('evaluation-text').addEventListener('change', selectEvaluationSentence);
+      document.getElementById('evaluate-button').addEventListener('click', evaluatePronunciation);
+      
+      // Modal controls
+      document.getElementById('close-results-btn').addEventListener('click', closeResults);
+      document.getElementById('close-ai-feedback-modal-btn').addEventListener('click', closeAiFeedbackModal);
+      document.getElementById('close-results-btn-2').addEventListener('click', closeResults);
+      document.getElementById('reset-evaluation-btn').addEventListener('click', resetEvaluation);
+      
+      // AI feedback navigation
+      document.getElementById('ai-feedback-prev').addEventListener('click', prevAiFeedbackStep);
+      document.getElementById('ai-feedback-next').addEventListener('click', nextAiFeedbackStep);
+      document.getElementById('ai-feedback-button').addEventListener('click', openAiFeedbackModal);
+      
+      // Character popup
+      document.getElementById('close-character-popup').addEventListener('click', closeCharacterPopup);
+      document.getElementById('character-popup-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'character-popup-modal') {
+          closeCharacterPopup(e);
+        }
+      });
+    }
+
     // 재생 완료 시 버튼 복원
     document.addEventListener("DOMContentLoaded", function () {
+      setupEventListeners();
+      
       const audioPlayback = document.getElementById("audio-playback");
       if (audioPlayback) {
         audioPlayback.addEventListener("ended", function () {
@@ -2484,15 +2503,14 @@
   <div
     id="character-popup-modal"
     class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm"
-    onclick="closeCharacterPopup(event)"
   >
     <div
       class="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full mx-4 relative animate-bounce-in"
       id="character-modal-box"
     >
       <button
+        id="close-character-popup"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
-        onclick="closeCharacterPopup()"
       >
         ×
       </button>
