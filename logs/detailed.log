@@ -601,3 +601,53 @@
 2026-01-15 13:05:11,005 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
 2026-01-15 13:05:11,005 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
 2026-01-15 13:05:11,006 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 13:07:55,375 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,403 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:07:55,404 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:07:55,856 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,863 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2026-01-15 13:07:55,864 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,864 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:07:55.021Z"}
+2026-01-15 13:07:55,866 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:07:55,866 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 13:07:55,867 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 13:08:02,299 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-15 13:08:02,302 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-15 13:08:02,302 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+2026-01-15 13:08:02,808 - main - INFO - [REQUEST] GET /api/attendance/month from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 13:08:02,809 - main - INFO - [QUERY] {'year': '2026', 'month': '1'}
+2026-01-15 13:08:02,813 - main - INFO - [RESPONSE] GET /api/attendance/month - Status: 200
+2026-01-15 13:08:02,897 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:02,897 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/dashboard", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:08:02.060Z"}
+2026-01-15 13:08:02,899 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/dashboard ip=112.220.79.218
+2026-01-15 13:08:02,900 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}
+2026-01-15 13:08:02,900 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 13:08:04,854 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:08:04,858 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:08:04,858 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:08:05,243 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:08:05,251 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2026-01-15 13:08:05,255 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:05,255 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:08:04.418Z"}
+2026-01-15 13:08:05,256 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:08:05,256 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 13:08:05,257 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 13:08:28,098 - main - INFO - [REQUEST] POST /api/speechpro/evaluate from 112.220.79.218 | User: Guest
+2026-01-15 13:08:28,133 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundary2zt13hahs1rioqso; size=67031>
+2026-01-15 13:08:28,253 - main - INFO - [STT] skipped backend=local client=True
+2026-01-15 13:08:29,160 - main - INFO - [RESPONSE] POST /api/speechpro/evaluate - Status: 200
+2026-01-15 13:08:29,318 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:29,319 - main - INFO - [BODY] {"nickname": "student", "action": "PRONUNCIATION_EVAL", "page": "/speechpro-practice", "details": {"score": 88, "text": "{\"id\":1006,\"order\":6,\"sentenceKr\":\"우리 아들은 키가 큰 편이에", "scoreRange": "high"}, "timestamp": "2026-01-15T04:08:28.478Z"}
+2026-01-15 13:08:29,322 - main - INFO - [ACTIVITY] user=student action=PRONUNCIATION_EVAL page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:08:29,322 - main - INFO - [ACTIVITY_DETAILS] {"score": 88, "text": "{\"id\":1006,\"order\":6,\"sentenceKr\":\"우리 아들은 키가 큰 편이에", "scoreRange": "high"}
+2026-01-15 13:08:29,323 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 13:10:03,078 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,111 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:10:03,111 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:10:03,502 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,511 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2026-01-15 13:10:03,513 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,513 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:10:02.669Z"}
+2026-01-15 13:10:03,516 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:10:03,517 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 13:10:03,517 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200

@@ -4213,3 +4213,72 @@ INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
 2026-01-15 13:05:11,005 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
 2026-01-15 13:05:11,006 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
 INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 13:07:55,375 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,403 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:07:55,404 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 13:07:55,856 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,863 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 13:07:55,864 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:07:55,864 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:07:55.021Z"}
+2026-01-15 13:07:55,866 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:07:55,866 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 13:07:55,867 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 13:08:02,299 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-15 13:08:02,302 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-15 13:08:02,302 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-15 13:08:02,808 - main - INFO - [REQUEST] GET /api/attendance/month from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 13:08:02,809 - main - INFO - [QUERY] {'year': '2026', 'month': '1'}
+2026-01-15 13:08:02,813 - main - INFO - [RESPONSE] GET /api/attendance/month - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/attendance/month?year=2026&month=1 HTTP/1.1" 200 OK
+2026-01-15 13:08:02,897 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:02,897 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/dashboard", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:08:02.060Z"}
+2026-01-15 13:08:02,899 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/dashboard ip=112.220.79.218
+2026-01-15 13:08:02,900 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}
+2026-01-15 13:08:02,900 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 13:08:04,854 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:08:04,858 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:08:04,858 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 13:08:05,243 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:08:05,251 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 13:08:05,255 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:05,255 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:08:04.418Z"}
+2026-01-15 13:08:05,256 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:08:05,256 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 13:08:05,257 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 13:08:28,098 - main - INFO - [REQUEST] POST /api/speechpro/evaluate from 112.220.79.218 | User: Guest
+2026-01-15 13:08:28,133 - main - INFO - [BODY] <omitted binary payload; content-type=multipart/form-data; boundary=----webkitformboundary2zt13hahs1rioqso; size=67031>
+2026-01-15 13:08:28,253 - main - INFO - [STT] skipped backend=local client=True
+2026-01-15 13:08:29,160 - main - INFO - [RESPONSE] POST /api/speechpro/evaluate - Status: 200
+[Score] Audio size: 107598 bytes, Base64 size: 143464, Text: 우리 아들은 키가 큰 편이에요.
+[Score] URL: http://112.220.79.222:33005/speechpro/scorejson, Request ID: preset_preset_613be87f
+[Score] Sending payload with FST length: 11824
+[Score] Response status: 200 (attempt 1/3)
+[Score] Response data: {'id': 'preset_preset_613be87f', 'error code': 0, 'result': {'fluency': {'articulation length': 2.2, 'articulation rate': 5.455, 'correct syllable count': 9, 'correct word count': 4, 'duration': 3.34, 'end': 2.8, 'raw_pause_diff': [], 'sil count': 3, 'sil count between sentences': 0, 'sil count between words': 1, 'sil error rate between sentences': 0.0, 'sil error rate within sentence': 0.0, 'sil_r_within sentence': [], 'sil_t_within sentence': [0, 19, 0, 0], 'speech rate': 3.593, 'start': 0.6, 'syllable count': 12, 'user_sil_error': [], 'word count': 5}, 'quality': {'sentences': [{'score': 99.52, 'text': '!SIL', 'time duration': 0.6, 'time start': 0.0, 'words': []}, {'score': 87.9, 'text': '우리 아들은 키가 큰 편이에요', 'time duration': 2.2, 'time start': 0.6, 'words': [{'score': 82.225, 'syll': [{'phones': [{'intensity': 85.528, 'pitch': 0.02, 'score': 77.922, 'stress': 0, 'symbol': 'ㅜ', 'text': 'uu', 'time duration': 0.13, 'time start': 0.6}], 'score': 77.922, 'text': '우', 'time duration': 0.13, 'time start': 0.6}, {'phones': [{'intensity': 89.695, 'pitch': 0.084, 'score': 97.412, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.06, 'time start': 0.73}, {'intensity': 98.791, 'pitch': 0.108, 'score': 75.643, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.09, 'time start': 0.79}], 'score': 86.528, 'text': '리', 'time duration': 0.15, 'time start': 0.73}], 'text': '우리', 'time duration': 0.28, 'time start': 0.6}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 0.88}, {'score': 79.19, 'syll': [{'phones': [{'intensity': 104.197, 'pitch': -0.12, 'score': 76.085, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.1, 'time start': 0.88}], 'score': 76.085, 'text': '아', 'time duration': 0.1, 'time start': 0.88}, {'phones': [{'intensity': 86.006, 'pitch': -0.127, 'score': 94.666, 'stress': 0, 'symbol': 'ㄷ', 'text': 't0', 'time duration': 0.11, 'time start': 0.98}, {'intensity': 94.819, 'pitch': -0.085, 'score': 95.301, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.08, 'time start': 1.09}], 'score': 94.984, 'text': '드', 'time duration': 0.19, 'time start': 0.98}, {'phones': [{'intensity': 83.815, 'pitch': 0.002, 'score': 73.237, 'stress': 0, 'symbol': 'ㄹ', 'text': 'rr', 'time duration': 0.08, 'time start': 1.17}, {'intensity': 90.046, 'pitch': 0.017, 'score': 55.997, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.07, 'time start': 1.25}, {'intensity': 84.554, 'pitch': -0.048, 'score': 70.27, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nf', 'time duration': 0.1, 'time start': 1.32}], 'score': 66.501, 'text': '른', 'time duration': 0.25, 'time start': 1.17}], 'text': '아들은', 'time duration': 0.54, 'time start': 0.88}, {'score': 94.539, 'syll': [{'phones': [{'intensity': 72.278, 'pitch': 0.038, 'score': 94.539, 'stress': 0, 'symbol': '', 'text': 'sil', 'time duration': 0.19, 'time start': 1.42}], 'score': 94.539, 'text': '!SIL', 'time duration': 0.19, 'time start': 1.42}], 'text': '!SIL', 'time duration': 0.19, 'time start': 1.42}, {'score': 91.903, 'syll': [{'phones': [{'intensity': 72.084, 'pitch': -0.018, 'score': 93.788, 'stress': 0, 'symbol': 'ㅋ', 'text': 'kh', 'time duration': 0.1, 'time start': 1.61}, {'intensity': 105.755, 'pitch': -0.005, 'score': 93.149, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.03, 'time start': 1.71}], 'score': 93.468, 'text': '키', 'time duration': 0.13, 'time start': 1.61}, {'phones': [{'intensity': 98.617, 'pitch': 0.263, 'score': 83.864, 'stress': 0, 'symbol': 'ㄱ', 'text': 'k0', 'time duration': 0.1, 'time start': 1.74}, {'intensity': 93.924, 'pitch': 0.472, 'score': 96.81, 'stress': 0, 'symbol': 'ㅏ', 'text': 'aa', 'time duration': 0.09, 'time start': 1.84}], 'score': 90.337, 'text': '가', 'time duration': 0.19, 'time start': 1.74}], 'text': '키가', 'time duration': 0.32, 'time start': 1.61}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 1.93}, {'score': 83.463, 'syll': [{'phones': [{'intensity': 81.283, 'pitch': 0.446, 'score': 88.326, 'stress': 0, 'symbol': 'ㅋ', 'text': 'kh', 'time duration': 0.09, 'time start': 1.93}, {'intensity': 94.926, 'pitch': 0.533, 'score': 67.391, 'stress': 0, 'symbol': 'ㅡ', 'text': 'xx', 'time duration': 0.04, 'time start': 2.02}, {'intensity': 89.031, 'pitch': 0.395, 'score': 94.672, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nf', 'time duration': 0.05, 'time start': 2.06}], 'score': 83.463, 'text': '큰', 'time duration': 0.18, 'time start': 1.93}], 'text': '큰', 'time duration': 0.18, 'time start': 1.93}, {'score': 0.0, 'syll': [], 'text': '!SIL', 'time duration': 0.0, 'time start': 2.11}, {'score': 96.08, 'syll': [{'phones': [{'intensity': 92.651, 'pitch': 0.163, 'score': 94.659, 'stress': 0, 'symbol': 'ㅍ', 'text': 'ph', 'time duration': 0.12, 'time start': 2.11}, {'intensity': 99.439, 'pitch': 0.421, 'score': 94.388, 'stress': 0, 'symbol': 'ㅕ', 'text': 'yv', 'time duration': 0.08, 'time start': 2.23}], 'score': 94.524, 'text': '펴', 'time duration': 0.2, 'time start': 2.11}, {'phones': [{'intensity': 89.675, 'pitch': 0.173, 'score': 92.64, 'stress': 0, 'symbol': 'ㄴ', 'text': 'nn', 'time duration': 0.07, 'time start': 2.31}, {'intensity': 87.939, 'pitch': -0.305, 'score': 90.333, 'stress': 0, 'symbol': 'ㅣ', 'text': 'ii', 'time duration': 0.15, 'time start': 2.38}], 'score': 91.487, 'text': '니', 'time duration': 0.22, 'time start': 2.31}, {'phones': [{'intensity': 90.781, 'pitch': -0.323, 'score': 98.308, 'stress': 0, 'symbol': 'ㅔ', 'text': 'ee', 'time duration': 0.13, 'time start': 2.53}], 'score': 98.308, 'text': '에', 'time duration': 0.13, 'time start': 2.53}, {'phones': [{'intensity': 94.469, 'pitch': -0.112, 'score': 100.0, 'stress': 0, 'symbol': 'ㅛ', 'text': 'yo', 'time duration': 0.14, 'time start': 2.66}], 'score': 100.0, 'text': '요', 'time duration': 0.14, 'time start': 2.66}], 'text': '편이에요', 'time duration': 0.69, 'time start': 2.11}]}, {'score': 94.535, 'text': '!SIL', 'time duration': 0.54, 'time start': 2.8, 'words': []}]}, 'settings': {'bias fluent': 80.0, 'bias learner': 65.0, 'bias natural': 90.0, 'correct threshold': 80.0, 'silence threshold': 0.0, 'silence threshold between sentence': 0.03, 'silence threshold within sentence': 0.03}}}
+INFO:     112.220.79.218:0 - "POST /api/speechpro/evaluate HTTP/1.1" 200 OK
+2026-01-15 13:08:29,318 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:08:29,319 - main - INFO - [BODY] {"nickname": "student", "action": "PRONUNCIATION_EVAL", "page": "/speechpro-practice", "details": {"score": 88, "text": "{\"id\":1006,\"order\":6,\"sentenceKr\":\"우리 아들은 키가 큰 편이에", "scoreRange": "high"}, "timestamp": "2026-01-15T04:08:28.478Z"}
+2026-01-15 13:08:29,322 - main - INFO - [ACTIVITY] user=student action=PRONUNCIATION_EVAL page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:08:29,322 - main - INFO - [ACTIVITY_DETAILS] {"score": 88, "text": "{\"id\":1006,\"order\":6,\"sentenceKr\":\"우리 아들은 키가 큰 편이에", "scoreRange": "high"}
+2026-01-15 13:08:29,323 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 13:10:03,078 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,111 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 13:10:03,111 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 13:10:03,502 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,511 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 13:10:03,513 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 13:10:03,513 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T04:10:02.669Z"}
+2026-01-15 13:10:03,516 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 13:10:03,517 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 13:10:03,517 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
