@@ -264,20 +264,30 @@
       <div
         id="results-modal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="results-modal-title"
       >
         <div
           class="relative w-full max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+          role="document"
         >
           <div
             class="sticky top-0 z-10 -mx-8 -mt-8 px-8 pt-2 pb-2 bg-white/95 backdrop-blur border-b border-gray-100"
           >
             <div class="flex items-center justify-between">
-              <h2 class="text-2xl font-bold text-[var(--text-main)] m-0" data-i18n="speechpro.results_title">
+              <h2 
+                id="results-modal-title"
+                class="text-2xl font-bold text-[var(--text-main)] m-0" 
+                data-i18n="speechpro.results_title"
+              >
                 📊 평가 결과
               </h2>
               <button
                 class="text-gray-500 hover:text-gray-800 text-2xl"
                 onclick="closeResults()"
+                aria-label="닫기"
+              >
                 aria-label="닫기"
               >
                 ✕
@@ -289,15 +299,27 @@
     <div
       id="ai-feedback-modal"
       class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ai-feedback-modal-title"
     >
       <div
         class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+        role="document"
       >
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-2xl font-bold text-[var(--text-main)]" data-i18n="speechpro.ai_modal_title">
+          <h2 
+            id="ai-feedback-modal-title"
+            class="text-2xl font-bold text-[var(--text-main)]" 
+            data-i18n="speechpro.ai_modal_title"
+          >
             🤖 AI 종합 평가 결과
           </h2>
           <button
+            onclick="closeAiFeedbackModal()"
+            class="text-gray-500 hover:text-gray-800 text-2xl"
+            aria-label="닫기"
+          >
             class="text-gray-500 hover:text-gray-800 text-2xl"
             onclick="closeAiFeedbackModal()"
             aria-label="닫기"
@@ -1081,18 +1103,36 @@
       return parts.join("\n");
     }
 
-    // 전역 변수
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let recordingStartTime = null;
-    let recordingTimer = null;
-    let selectedSentence = null;
-    let aiFeedbackSteps = [];
-    let aiFeedbackStepIndex = 0;
-    let latestAiFeedbackText = "";
-    let latestAiFeedbackScore = 0;
-    let currentBlobUrl = null; // Blob URL 메모리 관리용
-    let evaluationTimeoutId = null; // 타임아웃 중복 방지용
+    // 전역 상태 관리 객체
+    const appState = {
+      mediaRecorder: null,
+      recordedChunks: [],
+      recordingStartTime: null,
+      recordingTimer: null,
+      selectedSentence: null,
+      aiFeedbackSteps: [],
+      aiFeedbackStepIndex: 0,
+      latestAiFeedbackText: "",
+      latestAiFeedbackScore: 0,
+      currentBlobUrl: null,
+      evaluationTimeoutId: null,
+      
+      // 상태 초기화 메서드
+      reset() {
+        if (this.currentBlobUrl) {
+          URL.revokeObjectURL(this.currentBlobUrl);
+        }
+        if (this.evaluationTimeoutId) {
+          clearTimeout(this.evaluationTimeoutId);
+        }
+        this.mediaRecorder = null;
+        this.recordedChunks = [];
+        this.recordingStartTime = null;
+        this.recordingTimer = null;
+        this.currentBlobUrl = null;
+        this.evaluationTimeoutId = null;
+      }
+    };
 
     // 녹음 시작
     async function startRecording() {
@@ -1123,31 +1163,31 @@
             countdownDisplay.classList.add("hidden");
 
             // 실제 녹음 시작
-            mediaRecorder = new MediaRecorder(stream);
-            recordedChunks = [];
-            recordingStartTime = Date.now();
+            appState.mediaRecorder = new MediaRecorder(stream);
+            appState.recordedChunks = [];
+            appState.recordingStartTime = Date.now();
 
-            mediaRecorder.ondataavailable = (event) => {
-              recordedChunks.push(event.data);
+            appState.mediaRecorder.ondataavailable = (event) => {
+              appState.recordedChunks.push(event.data);
             };
 
-            mediaRecorder.onstop = () => {
+            appState.mediaRecorder.onstop = () => {
               // 기존 Blob URL이 있으면 해제
-              if (currentBlobUrl) {
-                URL.revokeObjectURL(currentBlobUrl);
-                currentBlobUrl = null;
+              if (appState.currentBlobUrl) {
+                URL.revokeObjectURL(appState.currentBlobUrl);
+                appState.currentBlobUrl = null;
               }
               
-              const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
-              currentBlobUrl = URL.createObjectURL(audioBlob);
-              document.getElementById("audio-playback").src = currentBlobUrl;
+              const audioBlob = new Blob(appState.recordedChunks, { type: "audio/wav" });
+              appState.currentBlobUrl = URL.createObjectURL(audioBlob);
+              document.getElementById("audio-playback").src = appState.currentBlobUrl;
               document
                 .getElementById("playback-section")
                 .classList.remove("hidden");
               document.getElementById("evaluate-button").disabled = false;
             };
 
-            mediaRecorder.start();
+            appState.mediaRecorder.start();
 
             // UI 업데이트
             document.getElementById("stop-recording").classList.remove("hidden");
@@ -1176,9 +1216,9 @@
 
     // 녹음 중지
     function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state !== "inactive") {
-        mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+      if (appState.mediaRecorder && appState.mediaRecorder.state !== "inactive") {
+        appState.mediaRecorder.stop();
+        appState.mediaRecorder.stream.getTracks().forEach((track) => track.stop());
 
         // UI 업데이트
         document.getElementById("start-recording").classList.remove("hidden");
@@ -1198,14 +1238,14 @@
     // 녹음 초기화
     function clearRecording() {
       // Blob URL 해제
-      if (currentBlobUrl) {
-        URL.revokeObjectURL(currentBlobUrl);
-        currentBlobUrl = null;
+      if (appState.currentBlobUrl) {
+        URL.revokeObjectURL(appState.currentBlobUrl);
+        appState.currentBlobUrl = null;
       }
       
-      mediaRecorder = null;
-      recordedChunks = [];
-      recordingStartTime = null;
+      appState.mediaRecorder = null;
+      appState.recordedChunks = [];
+      appState.recordingStartTime = null;
 
       document.getElementById("audio-playback").src = "";
       document.getElementById("playback-section").classList.add("hidden");
@@ -1276,9 +1316,9 @@
     async function evaluatePronunciation() {
       let text = "";
 
-      // selectedSentence에서 문장 가져오기
-      if (selectedSentence) {
-        text = selectedSentence.sentenceKr || selectedSentence.korean || "";
+      // appState.selectedSentence에서 문장 가져오기
+      if (appState.selectedSentence) {
+        text = appState.selectedSentence.sentenceKr || appState.selectedSentence.korean || "";
       }
 
       if (!text) {
@@ -1298,14 +1338,14 @@
       hideError();
 
       // 기존 타임아웃이 있으면 취소
-      if (evaluationTimeoutId) {
-        clearTimeout(evaluationTimeoutId);
-        evaluationTimeoutId = null;
+      if (appState.evaluationTimeoutId) {
+        clearTimeout(appState.evaluationTimeoutId);
+        appState.evaluationTimeoutId = null;
       }
 
       const controller = new AbortController();
       const timeoutMs = 25000;
-      evaluationTimeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      appState.evaluationTimeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
         const aiButton = document.getElementById("ai-feedback-button");
@@ -1323,14 +1363,14 @@
 
         // 프리셋 문장인 경우 사전 계산 정보 전송
         if (
-          selectedSentence &&
-          selectedSentence.syll_ltrs &&
-          selectedSentence.syll_phns &&
-          selectedSentence.fst
+          appState.selectedSentence &&
+          appState.selectedSentence.syll_ltrs &&
+          appState.selectedSentence.syll_phns &&
+          appState.selectedSentence.fst
         ) {
-          formData.append("syll_ltrs", selectedSentence.syll_ltrs);
-          formData.append("syll_phns", selectedSentence.syll_phns);
-          formData.append("fst", selectedSentence.fst);
+          formData.append("syll_ltrs", appState.selectedSentence.syll_ltrs);
+          formData.append("syll_phns", appState.selectedSentence.syll_phns);
+          formData.append("fst", appState.selectedSentence.fst);
         }
 
         // API 호출
@@ -1397,9 +1437,9 @@
           );
         }
       } finally {
-        if (evaluationTimeoutId) {
-          clearTimeout(evaluationTimeoutId);
-          evaluationTimeoutId = null;
+        if (appState.evaluationTimeoutId) {
+          clearTimeout(appState.evaluationTimeoutId);
+          appState.evaluationTimeoutId = null;
         }
         hideLoading();
       }
@@ -1635,7 +1675,7 @@
 
       // 테스트한 문장 표시
       const testedSentence =
-        selectedSentence?.sentenceKr || selectedSentence?.korean || text;
+        appState.selectedSentence?.sentenceKr || appState.selectedSentence?.korean || text;
       document.getElementById("feedback-tested-sentence").textContent =
         testedSentence;
 
@@ -2081,7 +2121,7 @@
       closeAiFeedbackModal();
       document.getElementById("evaluation-text").value = "안녕하세요";
       document.getElementById("sentence-select").value = "";
-      selectedSentence = null;
+      appState.selectedSentence = null;
       const aiButton = document.getElementById("ai-feedback-button");
       if (aiButton) aiButton.disabled = true;
       document.getElementById("sentence-info-section").classList.add("hidden");
@@ -2202,14 +2242,14 @@
 
       if (!select.value) {
         // 선택 해제
-        selectedSentence = null;
+        appState.selectedSentence = null;
         startButton.disabled = true;
         return;
       }
 
       try {
         const sentence = JSON.parse(select.value);
-        selectedSentence = sentence;
+        appState.selectedSentence = sentence;
         startButton.disabled = false;
 
         hideError();

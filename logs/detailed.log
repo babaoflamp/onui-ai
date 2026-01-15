@@ -559,3 +559,13 @@
 2026-01-15 12:40:07,343 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
 2026-01-15 12:40:07,343 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
 2026-01-15 12:40:07,343 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+2026-01-15 12:50:46,493 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 12:50:46,527 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 12:50:46,527 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+2026-01-15 12:50:46,964 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 12:50:46,972 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+2026-01-15 12:50:46,974 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:50:46,974 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:50:46.125Z"}
+2026-01-15 12:50:46,977 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 12:50:46,977 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 12:50:46,977 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
