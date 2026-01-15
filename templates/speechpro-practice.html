@@ -1091,6 +1091,8 @@
     let aiFeedbackStepIndex = 0;
     let latestAiFeedbackText = "";
     let latestAiFeedbackScore = 0;
+    let currentBlobUrl = null; // Blob URL 메모리 관리용
+    let evaluationTimeoutId = null; // 타임아웃 중복 방지용
 
     // 녹음 시작
     async function startRecording() {
@@ -1130,9 +1132,15 @@
             };
 
             mediaRecorder.onstop = () => {
+              // 기존 Blob URL이 있으면 해제
+              if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+              }
+              
               const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
-              const audioUrl = URL.createObjectURL(audioBlob);
-              document.getElementById("audio-playback").src = audioUrl;
+              currentBlobUrl = URL.createObjectURL(audioBlob);
+              document.getElementById("audio-playback").src = currentBlobUrl;
               document
                 .getElementById("playback-section")
                 .classList.remove("hidden");
@@ -1189,6 +1197,12 @@
 
     // 녹음 초기화
     function clearRecording() {
+      // Blob URL 해제
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+        currentBlobUrl = null;
+      }
+      
       mediaRecorder = null;
       recordedChunks = [];
       recordingStartTime = null;
@@ -1283,9 +1297,15 @@
       showLoading(t("speechpro.msg.loading_eval", "발음 정확도 분석 중입니다..."));
       hideError();
 
+      // 기존 타임아웃이 있으면 취소
+      if (evaluationTimeoutId) {
+        clearTimeout(evaluationTimeoutId);
+        evaluationTimeoutId = null;
+      }
+
       const controller = new AbortController();
       const timeoutMs = 25000;
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      evaluationTimeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
       try {
         const aiButton = document.getElementById("ai-feedback-button");
@@ -1323,7 +1343,7 @@
         // 강건한 에러 처리: 비-JSON/빈 응답 대응
         if (!response.ok) {
           const errorText = await response.text();
-          let errorMsg = "평가 실패";
+          let errorMsg = t("speechpro.msg.eval_failed", "평가 실패");
           try {
             const errJson = errorText ? JSON.parse(errorText) : null;
             if (errJson && (errJson.error || errJson.message)) {
@@ -1337,7 +1357,7 @@
 
           if (response.status >= 500) {
             throw new Error(
-              `${errorMsg}\n\n💡 문장이 너무 길거나 복잡할 수 있습니다. 더 짧은 문장으로 나누어 시도해보세요.`
+              `${errorMsg}\n\n${t("speechpro.msg.sentence_too_long", "💡 문장이 너무 길거나 복잡할 수 있습니다. 더 짧은 문장으로 나누어 시도해보세요.")}`
             );
           }
           throw new Error(errorMsg);
@@ -1349,10 +1369,13 @@
         try {
           result = okText ? JSON.parse(okText) : null;
         } catch (parseErr) {
-          throw new Error(`서버 응답이 JSON이 아닙니다: ${okText?.slice(0, 200) || "빈 응답"}`);
+          throw new Error(
+            t("speechpro.msg.invalid_json", "서버 응답이 JSON이 아닙니다") + 
+            `: ${okText?.slice(0, 200) || t("speechpro.msg.empty_response", "빈 응답")}`
+          );
         }
         if (!result) {
-          throw new Error("서버로부터 유효한 응답을 받지 못했습니다.");
+          throw new Error(t("speechpro.msg.no_valid_response", "서버로부터 유효한 응답을 받지 못했습니다."));
         }
 
       if (result.success) {
@@ -1374,7 +1397,10 @@
           );
         }
       } finally {
-        clearTimeout(timeoutId);
+        if (evaluationTimeoutId) {
+          clearTimeout(evaluationTimeoutId);
+          evaluationTimeoutId = null;
+        }
         hideLoading();
       }
     }

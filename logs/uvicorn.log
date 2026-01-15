@@ -3866,3 +3866,295 @@ INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154923.png HTT
 2026-01-15 11:10:23,304 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260114_154932.png - Status: 304
 2026-01-15 11:10:23,305 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260114_154932.png ip=112.220.79.218
 INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260114_154932.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:21:55,933 - main - INFO - [REQUEST] GET /folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:21:55,947 - main - INFO - [RESPONSE] GET /folktales - Status: 200
+2026-01-15 11:21:55,947 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/folktales ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /folktales HTTP/1.1" 200 OK
+2026-01-15 11:21:56,229 - main - INFO - [REQUEST] GET /api/folktales from 112.220.79.218 | User: Guest
+2026-01-15 11:21:56,234 - main - INFO - [RESPONSE] GET /api/folktales - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/folktales HTTP/1.1" 200 OK
+2026-01-15 11:21:56,380 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:21:56,381 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/folktales", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:21:55.609Z"}
+2026-01-15 11:21:56,384 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/folktales ip=112.220.79.218
+2026-01-15 11:21:56,384 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-15 11:21:56,385 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:21:58,825 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-15 11:21:58,828 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-15 11:21:58,828 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-15 11:21:59,145 - main - INFO - [REQUEST] GET /static/img/avatar-cute.svg from 112.220.79.218 | User: Guest
+2026-01-15 11:21:59,148 - main - INFO - [RESPONSE] GET /static/img/avatar-cute.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/avatar-cute.svg HTTP/1.1" 304 Not Modified
+2026-01-15 11:21:59,467 - main - INFO - [REQUEST] GET /api/attendance/month from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 11:21:59,468 - main - INFO - [QUERY] {'year': '2026', 'month': '1'}
+2026-01-15 11:21:59,472 - main - INFO - [RESPONSE] GET /api/attendance/month - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/attendance/month?year=2026&month=1 HTTP/1.1" 200 OK
+2026-01-15 11:21:59,565 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:21:59,565 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/dashboard", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/folktales", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:21:58.795Z"}
+2026-01-15 11:21:59,568 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/dashboard ip=112.220.79.218
+2026-01-15 11:21:59,568 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/folktales", "screenSize": "1707x1067"}
+2026-01-15 11:21:59,569 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:21:59,572 - main - INFO - [REQUEST] GET /static/img/paw.svg from 112.220.79.218 | User: Guest
+2026-01-15 11:21:59,573 - main - INFO - [RESPONSE] GET /static/img/paw.svg - Status: 304
+INFO:     112.220.79.218:0 - "GET /static/img/paw.svg HTTP/1.1" 304 Not Modified
+2026-01-15 11:22:05,546 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 11:22:05,550 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 11:22:05,550 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 11:22:06,053 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 11:22:06,062 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 11:22:06,080 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:06,080 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:05.309Z"}
+2026-01-15 11:22:06,082 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 11:22:06,083 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 11:22:06,083 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:08,166 - main - INFO - [REQUEST] GET /word-list from 112.220.79.218 | User: Guest
+2026-01-15 11:22:08,169 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 11:22:08,170 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-15 11:22:08,486 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-15 11:22:08,512 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-15 11:22:08,615 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:08,616 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:07.845Z"}
+2026-01-15 11:22:08,618 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/word-list ip=112.220.79.218
+2026-01-15 11:22:08,618 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}
+2026-01-15 11:22:08,619 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:08,661 - main - INFO - [REQUEST] GET /api/learning/word-scores from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 11:22:08,662 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 11:22:08,665 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores?limit=10 HTTP/1.1" 200 OK
+2026-01-15 11:22:08,764 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 11:22:08,767 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores/recent HTTP/1.1" 200 OK
+2026-01-15 11:22:09,054 - main - INFO - [REQUEST] GET /uploads/images/gemini_20260109_165115.png from 112.220.79.218 | User: Guest
+2026-01-15 11:22:09,056 - main - INFO - [RESPONSE] GET /uploads/images/gemini_20260109_165115.png - Status: 304
+2026-01-15 11:22:09,056 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/uploads/images/gemini_20260109_165115.png ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /uploads/images/gemini_20260109_165115.png HTTP/1.1" 304 Not Modified
+2026-01-15 11:22:11,123 - main - INFO - [REQUEST] GET /sentence-learning from 112.220.79.218 | User: Guest
+2026-01-15 11:22:11,126 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-15 11:22:11,127 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /sentence-learning HTTP/1.1" 200 OK
+2026-01-15 11:22:11,439 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 112.220.79.218 | User: Guest
+2026-01-15 11:22:11,440 - main - INFO - [QUERY] {'level': 'A1'}
+2026-01-15 11:22:11,443 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/puzzle/sentences?level=A1 HTTP/1.1" 200 OK
+2026-01-15 11:22:11,527 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:11,528 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/sentence-learning", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:10.757Z"}
+2026-01-15 11:22:11,530 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/sentence-learning ip=112.220.79.218
+2026-01-15 11:22:11,531 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}
+2026-01-15 11:22:11,531 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:11,536 - main - INFO - [REQUEST] GET /api/sentence-learning/state/student from 112.220.79.218 | User: Guest
+2026-01-15 11:22:11,536 - main - INFO - [QUERY] {'scope': 'A1'}
+2026-01-15 11:22:11,539 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/student - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/sentence-learning/state/student?scope=A1 HTTP/1.1" 200 OK
+2026-01-15 11:22:11,637 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-15 11:22:11,638 - main - INFO - [BODY] {"user_id": "student", "scope": "A1", "current_sentence_id": 6, "current_index": 4, "completed_sentence_ids": [1, 2, 3, 5]}
+2026-01-15 11:22:11,660 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-15 11:22:12,581 - main - INFO - [REQUEST] GET /curriculum from 112.220.79.218 | User: Guest
+2026-01-15 11:22:12,584 - main - INFO - [RESPONSE] GET /curriculum - Status: 200
+2026-01-15 11:22:12,584 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/curriculum ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /curriculum HTTP/1.1" 200 OK
+2026-01-15 11:22:12,846 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-15 11:22:12,873 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-15 11:22:12,940 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:12,941 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/curriculum", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:12.166Z"}
+2026-01-15 11:22:12,943 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/curriculum ip=112.220.79.218
+2026-01-15 11:22:12,943 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 11:22:12,944 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:14,193 - main - INFO - [REQUEST] GET /sentence-learning from 112.220.79.218 | User: Guest
+2026-01-15 11:22:14,195 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-15 11:22:14,196 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /sentence-learning HTTP/1.1" 200 OK
+2026-01-15 11:22:14,454 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 112.220.79.218 | User: Guest
+2026-01-15 11:22:14,454 - main - INFO - [QUERY] {'level': 'A1'}
+2026-01-15 11:22:14,457 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/puzzle/sentences?level=A1 HTTP/1.1" 200 OK
+2026-01-15 11:22:14,554 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:14,554 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/sentence-learning", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/curriculum", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:13.774Z"}
+2026-01-15 11:22:14,555 - main - INFO - [REQUEST] GET /api/sentence-learning/state/student from 112.220.79.218 | User: Guest
+2026-01-15 11:22:14,556 - main - INFO - [QUERY] {'scope': 'A1'}
+2026-01-15 11:22:14,560 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/student - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/sentence-learning/state/student?scope=A1 HTTP/1.1" 200 OK
+2026-01-15 11:22:14,561 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/sentence-learning ip=112.220.79.218
+2026-01-15 11:22:14,562 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/curriculum", "screenSize": "1707x1067"}
+2026-01-15 11:22:14,563 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:14,648 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-15 11:22:14,648 - main - INFO - [BODY] {"user_id": "student", "scope": "A1", "current_sentence_id": 6, "current_index": 4, "completed_sentence_ids": [1, 2, 3, 5]}
+2026-01-15 11:22:14,671 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-15 11:22:24,018 - main - INFO - [REQUEST] GET /word-list from 112.220.79.218 | User: Guest
+2026-01-15 11:22:24,023 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 11:22:24,023 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-15 11:22:24,321 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-15 11:22:24,345 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-15 11:22:24,528 - main - INFO - [REQUEST] GET /api/learning/word-scores from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 11:22:24,529 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 11:22:24,533 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:22:24,534 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:22:23.671Z"}
+2026-01-15 11:22:24,534 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores?limit=10 HTTP/1.1" 200 OK
+2026-01-15 11:22:24,537 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/word-list ip=112.220.79.218
+2026-01-15 11:22:24,538 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 11:22:24,538 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:22:24,640 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 11:22:24,644 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores/recent HTTP/1.1" 200 OK
+2026-01-15 11:26:59,399 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2026-01-15 11:26:59,402 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-15 11:26:59,403 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+2026-01-15 11:26:59,987 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:26:59,988 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:26:59.208Z"}
+2026-01-15 11:26:59,990 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/ ip=112.220.79.218
+2026-01-15 11:26:59,990 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}
+2026-01-15 11:26:59,991 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 11:27:06,770 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 11:27:06,773 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 11:27:06,774 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 11:27:07,149 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 11:27:07,157 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 11:27:07,184 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 11:27:07,185 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T02:27:06.381Z"}
+2026-01-15 11:27:07,187 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 11:27:07,187 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-15 11:27:07,188 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:29,060 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 12:36:29,067 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 12:36:29,067 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 12:36:29,542 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 12:36:29,550 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 12:36:29,577 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:29,578 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:28.725Z"}
+2026-01-15 12:36:29,580 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 12:36:29,580 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-15 12:36:29,581 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:29,983 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
+2026-01-15 12:36:29,987 - main - INFO - [RESPONSE] GET / - Status: 200
+2026-01-15 12:36:29,987 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET / HTTP/1.1" 200 OK
+2026-01-15 12:36:30,380 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:30,381 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:29.547Z"}
+2026-01-15 12:36:30,383 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/ ip=112.220.79.218
+2026-01-15 12:36:30,383 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}
+2026-01-15 12:36:30,384 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:32,228 - main - INFO - [REQUEST] GET /dashboard from 112.220.79.218 | User: Guest
+2026-01-15 12:36:32,232 - main - INFO - [RESPONSE] GET /dashboard - Status: 200
+2026-01-15 12:36:32,232 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/dashboard ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /dashboard HTTP/1.1" 200 OK
+2026-01-15 12:36:32,690 - main - INFO - [REQUEST] GET /api/attendance/month from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 12:36:32,690 - main - INFO - [QUERY] {'year': '2026', 'month': '1'}
+2026-01-15 12:36:32,694 - main - INFO - [RESPONSE] GET /api/attendance/month - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/attendance/month?year=2026&month=1 HTTP/1.1" 200 OK
+2026-01-15 12:36:32,789 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:32,790 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/dashboard", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:31.965Z"}
+2026-01-15 12:36:32,792 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/dashboard ip=112.220.79.218
+2026-01-15 12:36:32,792 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/", "screenSize": "1707x1067"}
+2026-01-15 12:36:32,793 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:34,394 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 12:36:34,398 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 12:36:34,398 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 12:36:34,821 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 12:36:34,829 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 12:36:34,857 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:34,857 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:34.008Z"}
+2026-01-15 12:36:34,859 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 12:36:34,860 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/dashboard", "screenSize": "1707x1067"}
+2026-01-15 12:36:34,860 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:37,584 - main - INFO - [REQUEST] GET /word-list from 112.220.79.218 | User: Guest
+2026-01-15 12:36:37,587 - main - INFO - [RESPONSE] GET /word-list - Status: 200
+2026-01-15 12:36:37,588 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/word-list ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /word-list HTTP/1.1" 200 OK
+2026-01-15 12:36:37,917 - main - INFO - [REQUEST] GET /api/vocabulary from 112.220.79.218 | User: Guest
+2026-01-15 12:36:37,943 - main - INFO - [RESPONSE] GET /api/vocabulary - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/vocabulary HTTP/1.1" 200 OK
+2026-01-15 12:36:38,025 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:38,025 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/word-list", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:37.198Z"}
+2026-01-15 12:36:38,028 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/word-list ip=112.220.79.218
+2026-01-15 12:36:38,029 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/speechpro-practice", "screenSize": "1707x1067"}
+2026-01-15 12:36:38,030 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:38,087 - main - INFO - [REQUEST] GET /api/learning/word-scores from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 12:36:38,087 - main - INFO - [QUERY] {'limit': '10'}
+2026-01-15 12:36:38,091 - main - INFO - [RESPONSE] GET /api/learning/word-scores - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores?limit=10 HTTP/1.1" 200 OK
+2026-01-15 12:36:38,193 - main - INFO - [REQUEST] GET /api/learning/word-scores/recent from 112.220.79.218 | User: student (student@onui.local)
+2026-01-15 12:36:38,196 - main - INFO - [RESPONSE] GET /api/learning/word-scores/recent - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/learning/word-scores/recent HTTP/1.1" 200 OK
+2026-01-15 12:36:39,710 - main - INFO - [REQUEST] GET /sentence-learning from 112.220.79.218 | User: Guest
+2026-01-15 12:36:39,713 - main - INFO - [RESPONSE] GET /sentence-learning - Status: 200
+2026-01-15 12:36:39,714 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/sentence-learning ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /sentence-learning HTTP/1.1" 200 OK
+2026-01-15 12:36:40,014 - main - INFO - [REQUEST] GET /api/puzzle/sentences from 112.220.79.218 | User: Guest
+2026-01-15 12:36:40,014 - main - INFO - [QUERY] {'level': 'A1'}
+2026-01-15 12:36:40,017 - main - INFO - [RESPONSE] GET /api/puzzle/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/puzzle/sentences?level=A1 HTTP/1.1" 200 OK
+2026-01-15 12:36:40,171 - main - INFO - [REQUEST] GET /api/sentence-learning/state/student from 112.220.79.218 | User: Guest
+2026-01-15 12:36:40,171 - main - INFO - [QUERY] {'scope': 'A1'}
+2026-01-15 12:36:40,174 - main - INFO - [RESPONSE] GET /api/sentence-learning/state/student - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/sentence-learning/state/student?scope=A1 HTTP/1.1" 200 OK
+2026-01-15 12:36:40,176 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:36:40,177 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/sentence-learning", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:36:39.351Z"}
+2026-01-15 12:36:40,179 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/sentence-learning ip=112.220.79.218
+2026-01-15 12:36:40,179 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/word-list", "screenSize": "1707x1067"}
+2026-01-15 12:36:40,180 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK
+2026-01-15 12:36:40,258 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-15 12:36:40,259 - main - INFO - [BODY] {"user_id": "student", "scope": "A1", "current_sentence_id": 6, "current_index": 4, "completed_sentence_ids": [1, 2, 3, 5]}
+2026-01-15 12:36:40,275 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-15 12:36:42,850 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-15 12:36:42,850 - main - INFO - [BODY] {"user_id": "student", "scope": "A1", "current_sentence_id": 6, "current_index": 4, "completed_sentence_ids": [1, 2, 3, 5, 6]}
+2026-01-15 12:36:42,873 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-15 12:36:42,961 - main - INFO - [REQUEST] POST /api/learning/sentence-learned from 112.220.79.218 | User: Guest
+2026-01-15 12:36:42,962 - main - INFO - [BODY] {"user_id": "student", "count": 1}
+2026-01-15 12:36:43,034 - main - INFO - [RESPONSE] POST /api/learning/sentence-learned - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/learning/sentence-learned HTTP/1.1" 200 OK
+2026-01-15 12:36:43,130 - main - INFO - [REQUEST] POST /api/sentence-learning/state from 112.220.79.218 | User: Guest
+2026-01-15 12:36:43,130 - main - INFO - [BODY] {"user_id": "student", "scope": "A1", "current_sentence_id": 7, "current_index": 5, "completed_sentence_ids": [1, 2, 3, 5, 6]}
+2026-01-15 12:36:43,145 - main - INFO - [RESPONSE] POST /api/sentence-learning/state - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/sentence-learning/state HTTP/1.1" 200 OK
+2026-01-15 12:36:44,206 - main - INFO - [REQUEST] POST /api/tts/generate from 112.220.79.218 | User: Guest
+2026-01-15 12:36:44,206 - main - INFO - [BODY] {"text": "커피 한 잔 주세요.", "speaker": 0, "tempo": 1, "pitch": 1, "gain": 1}
+2026-01-15 12:36:44,209 - main - INFO - [TTS] cache=hit text_len=11
+2026-01-15 12:36:44,209 - main - INFO - [RESPONSE] POST /api/tts/generate - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/tts/generate HTTP/1.1" 200 OK
+2026-01-15 12:40:06,911 - main - INFO - [REQUEST] GET /speechpro-practice from 112.220.79.218 | User: Guest
+2026-01-15 12:40:06,914 - main - INFO - [RESPONSE] GET /speechpro-practice - Status: 200
+2026-01-15 12:40:06,915 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/speechpro-practice ip=112.220.79.218
+INFO:     112.220.79.218:0 - "GET /speechpro-practice HTTP/1.1" 200 OK
+2026-01-15 12:40:07,328 - main - INFO - [REQUEST] GET /api/speechpro/sentences from 112.220.79.218 | User: Guest
+2026-01-15 12:40:07,337 - main - INFO - [RESPONSE] GET /api/speechpro/sentences - Status: 200
+INFO:     112.220.79.218:0 - "GET /api/speechpro/sentences HTTP/1.1" 200 OK
+2026-01-15 12:40:07,341 - main - INFO - [REQUEST] POST /api/log/activity from 112.220.79.218 | User: Guest
+2026-01-15 12:40:07,341 - main - INFO - [BODY] {"nickname": "student", "action": "PAGE_VIEW", "page": "/speechpro-practice", "details": {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}, "timestamp": "2026-01-15T03:40:06.502Z"}
+2026-01-15 12:40:07,343 - main - INFO - [ACTIVITY] user=student action=PAGE_VIEW page=/speechpro-practice ip=112.220.79.218
+2026-01-15 12:40:07,343 - main - INFO - [ACTIVITY_DETAILS] {"isGuest": false, "referrer": "https://mediazen.ngrok.app/sentence-learning", "screenSize": "1707x1067"}
+2026-01-15 12:40:07,343 - main - INFO - [RESPONSE] POST /api/log/activity - Status: 200
+INFO:     112.220.79.218:0 - "POST /api/log/activity HTTP/1.1" 200 OK

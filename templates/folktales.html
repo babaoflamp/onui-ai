@@ -341,10 +341,10 @@ endblock %} {% block content %}
     // Setup quiz event delegation (runs once)
     function setupQuizEventDelegation() {
       const quizContainer = document.getElementById("quizContainer");
-      
+
       // Remove old listener if exists
       quizContainer.removeEventListener("change", handleQuizChange);
-      
+
       // Add single delegated listener
       quizContainer.addEventListener("change", handleQuizChange);
     }
@@ -455,9 +455,10 @@ endblock %} {% block content %}
           if (!currentFolktale) return;
 
           // Get current filtered folktales
-          const filteredFolktales = currentLevel === "all"
-            ? folktales
-            : folktales.filter(f => f.level === currentLevel);
+          const filteredFolktales =
+            currentLevel === "all"
+              ? folktales
+              : folktales.filter((f) => f.level === currentLevel);
 
           if (filteredFolktales.length === 0) return;
 
