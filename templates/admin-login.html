@@ -96,7 +96,7 @@ endblock %} {% block content %}
       } else if (!FormValidator.isValidEmail(emailInput.value)) {
         FormValidator.showFieldError(
           emailInput,
-          "유효한 이메일을 입력해주세요."
+          "유효한 이메일을 입력해주세요.",
         );
         hasErrors = true;
       }
@@ -107,11 +107,7 @@ endblock %} {% block content %}
       }
 
       if (hasErrors) {
-        AlertManager.error(
-          "입력 정보를 확인해주세요.",
-          "유효성 검사 오류",
-          alertsContainer
-        );
+        ToastManager.error("입력 정보를 확인해주세요.");
         return;
       }
 
@@ -162,11 +158,7 @@ endblock %} {% block content %}
       } catch (err) {
         LoadingManager.clearButtonLoading(adminLoginBtn);
         console.error(err);
-        AlertManager.error(
-          err.message || "로그인에 실패했습니다.",
-          "로그인 오류",
-          alertsContainer
-        );
+        ToastManager.error(err.message || "로그인에 실패했습니다.");
       }
     });
   })();

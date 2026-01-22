@@ -295,11 +295,11 @@ endblock %} {% block content %}
       document.getElementById("quizResult").classList.add("hidden");
       userAnswers = {};
 
-      // Auto scroll to story title
+      // Auto scroll to reading section top (with slight offset)
       setTimeout(() => {
-        document
-          .getElementById("storyTitle")
-          .scrollIntoView({ behavior: "smooth", block: "start" });
+        const rect = readingSection.getBoundingClientRect();
+        const scrollTop = window.scrollY + rect.top - 50;
+        window.scrollTo({ top: scrollTop, behavior: "smooth" });
       }, 100);
     }
 

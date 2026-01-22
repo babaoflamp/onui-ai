@@ -20,9 +20,7 @@ if pgrep -f "uvicorn main:app" > /dev/null; then
     pkill -f "uvicorn main:app"
     echo -e "${GREEN}✓ uvicorn 프로세스 종료됨${NC}"
 else
-    echo -e "${YELLOW}• uvicorn 프로세스 없음${NC}"하양 줄 5개
-파란 캔톤(canton) 영역
-페이지를 새로고침하면 깔끔한 미국 국기가 보일 겁니다! 🇺🇸
+    echo -e "${YELLOW}• uvicorn 프로세스 없음${NC}"
 fi
 
 # ngrok 프로세스 종료

@@ -8,7 +8,7 @@ import hmac
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from functools import lru_cache
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from pathlib import Path
 from datetime import datetime
 import threading
@@ -39,6 +39,20 @@ try:
 except ImportError:
     GENAI_AVAILABLE = False
     genai = None
+
+try:
+    from google.cloud import speech
+    GOOGLE_SPEECH_AVAILABLE = True
+except ImportError:
+    GOOGLE_SPEECH_AVAILABLE = False
+    speech = None
+
+try:
+    from google.cloud import texttospeech
+    GOOGLE_TTS_AVAILABLE = True
+except ImportError:
+    GOOGLE_TTS_AVAILABLE = False
+    texttospeech = None
 
 # SpeechPro 서비스 임포트
 from backend.services.speechpro_service import (
@@ -155,6 +169,31 @@ gemini_client = None
 if GEMINI_API_KEY and GENAI_AVAILABLE:
     gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
+# Initialize Google Cloud Speech client if available
+google_speech_client = None
+_google_speech_client_initialized = False
+
+def _get_google_speech_client():
+    """Lazy initialization of Google Cloud Speech client"""
+    global google_speech_client, _google_speech_client_initialized
+    
+    if _google_speech_client_initialized:
+        return google_speech_client
+    
+    _google_speech_client_initialized = True
+    
+    if not GOOGLE_SPEECH_AVAILABLE:
+        logger.warning("[Google STT] google-cloud-speech package not installed")
+        return None
+    
+    try:
+        google_speech_client = speech.SpeechClient()
+        logger.info("[Google STT] Client initialized successfully")
+        return google_speech_client
+    except Exception as e:
+        logger.warning("[Google STT] Failed to initialize client: %s (requires GOOGLE_APPLICATION_CREDENTIALS)", e)
+        return None
+
 # Romanization mode: 'force' = always replace pronunciation with romanizer output;
 # 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
 ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -173,6 +212,11 @@ OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
 OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "wav")
 GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", GEMINI_MODEL)
 GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
+GOOGLE_TTS_LANGUAGE = os.getenv("GOOGLE_TTS_LANGUAGE", "en-US")
+GOOGLE_TTS_VOICE = os.getenv("GOOGLE_TTS_VOICE", "en-US-Standard-C")
+GOOGLE_TTS_AUDIO_ENCODING = os.getenv("GOOGLE_TTS_AUDIO_ENCODING", "MP3")
+GOOGLE_TTS_SPEAKING_RATE = float(os.getenv("GOOGLE_TTS_SPEAKING_RATE", "1.0"))
+GOOGLE_TTS_PITCH = float(os.getenv("GOOGLE_TTS_PITCH", "0.0"))
 TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
 TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
 TTS_PREWARM_ON_STARTUP = os.getenv("TTS_PREWARM_ON_STARTUP", "").lower() in ("1", "true", "yes")
@@ -686,6 +730,77 @@ def _call_gemini_tts_api(text: str, model: str = None) -> dict:
     raise RuntimeError(str(last_error) if last_error else "Gemini TTS failed")
 
 
+# Google TTS (Cloud Text-to-Speech)
+_google_tts_client = None
+_google_tts_client_initialized = False
+
+
+def _get_google_tts_client():
+    global _google_tts_client, _google_tts_client_initialized
+    if _google_tts_client_initialized:
+        return _google_tts_client
+    _google_tts_client_initialized = True
+    if not GOOGLE_TTS_AVAILABLE:
+        logger.warning("[Google TTS] google-cloud-texttospeech not installed")
+        return None
+    try:
+        _google_tts_client = texttospeech.TextToSpeechClient()
+        logger.info("[Google TTS] Client initialized")
+        return _google_tts_client
+    except Exception as e:
+        logger.warning("[Google TTS] Failed to initialize client: %s", e)
+        return None
+
+
+def _call_google_tts_api(
+    text: str,
+    language_code: str = None,
+    voice_name: str = None,
+    speaking_rate: float = None,
+    pitch: float = None,
+    audio_encoding: str = None,
+) -> dict:
+    if not GOOGLE_TTS_AVAILABLE:
+        raise RuntimeError("google-cloud-texttospeech not installed")
+
+    client = _get_google_tts_client()
+    if client is None:
+        raise RuntimeError("Google TTS client not initialized (check credentials)")
+
+    lc = language_code or GOOGLE_TTS_LANGUAGE
+    vn = voice_name or GOOGLE_TTS_VOICE
+    rate = speaking_rate if speaking_rate is not None else GOOGLE_TTS_SPEAKING_RATE
+    pt = pitch if pitch is not None else GOOGLE_TTS_PITCH
+    encoding = (audio_encoding or GOOGLE_TTS_AUDIO_ENCODING or "MP3").upper()
+
+    audio_enum = texttospeech.AudioEncoding.MP3 if encoding == "MP3" else texttospeech.AudioEncoding.LINEAR16
+    media_type = "audio/mpeg" if audio_enum == texttospeech.AudioEncoding.MP3 else "audio/wav"
+
+    synthesis_input = texttospeech.SynthesisInput(text=text)
+    voice_params = texttospeech.VoiceSelectionParams(language_code=lc, name=vn)
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=audio_enum,
+        speaking_rate=max(0.25, min(4.0, rate)),
+        pitch=max(-20.0, min(20.0, pt)),
+    )
+
+    response = client.synthesize_speech(
+        input=synthesis_input,
+        voice=voice_params,
+        audio_config=audio_config,
+    )
+
+    audio_bytes = response.audio_content
+    if not audio_bytes:
+        raise RuntimeError("Google TTS returned empty audio")
+
+    if audio_enum == texttospeech.AudioEncoding.LINEAR16:
+        audio_bytes = _pcm16_to_wav(audio_bytes, sample_rate=24000, channels=1)
+        media_type = "audio/wav"
+
+    return {"audio_data": audio_bytes, "content_type": media_type}
+
+
 def get_mztts_server_info() -> dict:
     """Get MzTTS server information (version, speakers, sampling rate, etc.)"""
     try:
@@ -868,12 +983,12 @@ def _ensure_rag_tables(conn):
     conn.commit()
 
 
-def _rag_chunk_text(text: str, max_chars: int = 700) -> list[str]:
+def _rag_chunk_text(text: str, max_chars: int = 700) -> List[str]:
     cleaned = (text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
     if not cleaned:
         return []
     parts = [p.strip() for p in re.split(r"\n{2,}", cleaned) if p.strip()]
-    chunks: list[str] = []
+    chunks: List[str] = []
     buf = ""
     for part in parts:
         if not buf:
@@ -887,7 +1002,7 @@ def _rag_chunk_text(text: str, max_chars: int = 700) -> list[str]:
     if buf:
         chunks.append(buf)
     # fallback for very long single blocks
-    final_chunks: list[str] = []
+    final_chunks: List[str] = []
     for c in chunks:
         if len(c) <= max_chars:
             final_chunks.append(c)
@@ -911,7 +1026,7 @@ def _rag_get_settings(conn) -> dict:
     }
 
 
-def _rag_search(conn, query: str, top_k: int = 5) -> list[dict]:
+def _rag_search(conn, query: str, top_k: int = 5) -> List[Dict]:
     q = (query or "").strip()
     if not q:
         return []
@@ -1561,6 +1676,13 @@ app.state.openai_tts_voice = OPENAI_TTS_VOICE
 app.state.openai_tts_format = OPENAI_TTS_FORMAT
 app.state.gemini_tts_model = GEMINI_TTS_MODEL
 app.state.gemini_tts_mime = GEMINI_TTS_MIME
+app.state.call_google_tts_api = _call_google_tts_api
+app.state.google_tts_language = GOOGLE_TTS_LANGUAGE
+app.state.google_tts_voice = GOOGLE_TTS_VOICE
+app.state.google_tts_audio_encoding = GOOGLE_TTS_AUDIO_ENCODING
+app.state.google_speech_available = GOOGLE_SPEECH_AVAILABLE
+app.state.get_google_speech_client = _get_google_speech_client
+app.state.google_speech_module = speech
 app.state.get_mztts_server_info = get_mztts_server_info
 app.state.call_mztts_api = _call_mztts_api
 app.state.call_gemini_tts_api = _call_gemini_tts_api
@@ -2063,8 +2185,8 @@ def signup_page(request: Request):
 
 @app.get("/stt-api-test")
 def stt_api_test_page(request: Request):
-    """STT API 테스트 페이지 (disabled)"""
-    return JSONResponse(status_code=404, content={"error": "Not found"})
+    """STT API 다중 테스트 페이지"""
+    return templates.TemplateResponse("stt-multi-test.html", {"request": request})
 
 @app.get("/api-test")
 def api_test_page(request: Request):
@@ -2503,7 +2625,7 @@ async def admin_summary(request: Request):
         "stats": stats,
     }
 
-def _read_last_log_lines(path: Path, limit: int = 50000) -> list[str]:
+def _read_last_log_lines(path: Path, limit: int = 50000) -> List[str]:
     if limit <= 0:
         return []
     if not path.exists():
@@ -2536,7 +2658,7 @@ def _extract_log_timestamp(line: str) -> str:
         return ""
 
 
-def _last_activity_from_logs(nicknames: list[str], limit: int = 50000) -> dict[str, dict]:
+def _last_activity_from_logs(nicknames: List[str], limit: int = 50000) -> Dict[str, Dict]:
     log_file = Path("logs/detailed.log")
     recent_lines = _read_last_log_lines(log_file, limit=limit)
     wanted = {n for n in (nicknames or []) if n}
@@ -2545,7 +2667,7 @@ def _last_activity_from_logs(nicknames: list[str], limit: int = 50000) -> dict[s
 
     remaining_login = set(wanted)
     remaining_page = set(wanted)
-    result: dict[str, dict] = {n: {} for n in wanted}
+    result: Dict[str, Dict] = {n: {} for n in wanted}
 
     for line in reversed(recent_lines):
         if remaining_login and "[LOGIN]" in line:
@@ -4033,10 +4155,13 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
 
     file_location = f"temp_{file.filename}"
 
-    # OpenAI-based Whisper STT is disabled when OpenAI integration is commented out.
+    # STT backend pre-checks
     if STT_BACKEND == "openai":
         if client is None:
             return JSONResponse(status_code=501, content={"error": "OpenAI STT is not configured"})
+    elif STT_BACKEND == "google":
+        # Google STT will be attempted after writing the file
+        pass
     else:
         # Try local STT if configured
         local_stt = os.getenv("LOCAL_STT", "").lower()
@@ -4084,7 +4209,7 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
                     return JSONResponse(status_code=413, content={"error": "File too large"})
                 buffer.write(chunk)
 
-        # 2. STT (OpenAI Whisper)
+        # 2. STT (OpenAI Whisper or Google Cloud)
         if STT_BACKEND == "openai":
             audio_file = open(file_location, "rb")
             transcript = client.audio.transcriptions.create(
@@ -4095,6 +4220,36 @@ async def pronunciation_check(target_text: str = Form(...), file: UploadFile = F
             user_said = getattr(transcript, "text", None) or transcript.get("text") if isinstance(transcript, dict) else None
             if user_said is None:
                 user_said = ""
+        elif STT_BACKEND == "google":
+            google_client = _get_google_speech_client()
+            if not GOOGLE_SPEECH_AVAILABLE or google_client is None:
+                return JSONResponse(status_code=501, content={"error": "Google Cloud STT not configured or credentials missing"})
+            try:
+                google_tmp = file_location + ".g.wav"
+                _ensure_wav_16k_mono(file_location, google_tmp)
+                with open(google_tmp, "rb") as gfile:
+                    g_audio = gfile.read()
+                audio = speech.RecognitionAudio(content=g_audio)
+                config = speech.RecognitionConfig(
+                    encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+                    sample_rate_hertz=16000,
+                    language_code="ko-KR",
+                    max_alternatives=1,
+                )
+                response = google_client.recognize(config=config, audio=audio)
+                if response.results:
+                    for result in response.results:
+                        if result.alternatives:
+                            user_said = result.alternatives[0].transcript
+                            break
+                if user_said is None:
+                    user_said = ""
+            finally:
+                try:
+                    if os.path.exists(google_tmp):
+                        os.remove(google_tmp)
+                except Exception:
+                    pass
 
         # 3. 유사도 검사 (간단한 MVP용 알고리즘)
         matcher = SequenceMatcher(None, target_text.replace(" ", ""), user_said.replace(" ", ""))
@@ -5004,6 +5159,128 @@ async def stt_whisper(
     except Exception as err:
         logger.warning("[STT] whisper failed: %s", err)
         return JSONResponse(status_code=500, content={"error": "whisper stt failed", "details": str(err)})
+    finally:
+        try:
+            await file.close()
+        except Exception:
+            pass
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+
+
+@app.post("/api/stt/google")
+async def stt_google(
+    file: UploadFile = File(...),
+    language: str = Form("ko-KR"),
+):
+    """Google Cloud Speech-to-Text STT."""
+    google_client = _get_google_speech_client()
+    
+    if not GOOGLE_SPEECH_AVAILABLE or google_client is None:
+        return JSONResponse(
+            status_code=501,
+            content={"error": "Google Cloud Speech-to-Text is not configured or credentials not found"}
+        )
+
+    allowed_types = {
+        "audio/wav",
+        "audio/x-wav",
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/webm",
+        "audio/ogg",
+        "audio/mp4",
+        "audio/x-m4a",
+        "audio/flac",
+    }
+
+    if file.content_type and file.content_type not in allowed_types:
+        return JSONResponse(status_code=415, content={"error": "Unsupported media type"})
+
+    tmp_path = None
+    original_name = file.filename or ""
+    _, ext = os.path.splitext(original_name)
+    ext = ext.lower()
+    if not ext:
+        if file.content_type == "audio/webm":
+            ext = ".webm"
+        elif file.content_type in ("audio/mpeg", "audio/mp3"):
+            ext = ".mp3"
+        elif file.content_type in ("audio/ogg", "audio/oga"):
+            ext = ".ogg"
+        elif file.content_type in ("audio/mp4", "audio/x-m4a"):
+            ext = ".m4a"
+        elif file.content_type == "audio/flac":
+            ext = ".flac"
+        else:
+            ext = ".wav"
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=str(APP_TMP_DIR)) as tmp:
+            tmp_path = tmp.name
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                tmp.write(chunk)
+
+        file_size = os.path.getsize(tmp_path)
+        if file_size < 512:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "audio too short",
+                    "details": f"file size {file_size} bytes",
+                },
+            )
+
+        # Read audio file and send to Google Cloud Speech-to-Text
+        with open(tmp_path, "rb") as audio_file:
+            content = audio_file.read()
+
+        audio = speech.RecognitionAudio(content=content)
+        config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=16000,
+            language_code=language or "ko-KR",
+            max_alternatives=1,
+        )
+
+        response = google_client.recognize(config=config, audio=audio)
+
+        # Extract transcribed text from response
+        text = ""
+        if response.results:
+            for result in response.results:
+                if result.alternatives:
+                    text += result.alternatives[0].transcript + " "
+        
+        text = text.strip()
+        
+        if not text:
+            return JSONResponse(
+                content={
+                    "text": "",
+                    "warning": "no speech detected",
+                    "info": {
+                        "filename": original_name,
+                        "content_type": file.content_type,
+                        "size_bytes": file_size,
+                    },
+                }
+            )
+        
+        return JSONResponse(content={"text": text})
+
+    except Exception as err:
+        logger.warning("[STT] Google Speech failed: %s", err)
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Google Speech-to-Text failed", "details": str(err)}
+        )
     finally:
         try:
             await file.close()

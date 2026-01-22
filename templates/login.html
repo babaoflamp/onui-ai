@@ -129,11 +129,7 @@ endblock %} {% block content %}
       }
 
       if (hasErrors) {
-        AlertManager.error(
-          "입력 정보를 확인해주세요.",
-          "유효성 검사 오류",
-          alertsContainer
-        );
+        ToastManager.error("입력 정보를 확인해주세요.");
         return;
       }
 
@@ -191,11 +187,7 @@ endblock %} {% block content %}
       } catch (err) {
         console.error("로그인 오류:", err);
         LoadingManager.clearButtonLoading(loginBtn);
-        AlertManager.error(
-          err.message || "로그인 중 오류가 발생했습니다.",
-          "로그인 실패",
-          alertsContainer
-        );
+        ToastManager.error(err.message || "로그인 중 오류가 발생했습니다.");
       }
     });
   })();

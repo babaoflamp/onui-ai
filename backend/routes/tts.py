@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import time
+from typing import Optional
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, Response
@@ -16,6 +17,8 @@ class TTSRequest(BaseModel):
     tempo: float = 1.0
     pitch: float = 1.0
     gain: float = 1.0
+    language_code: Optional[str] = None
+    voice: Optional[str] = None
 
 
 def _get_state(request: Request, name: str):
@@ -41,6 +44,15 @@ async def get_tts_info(request: Request):
                 "backend": "gemini",
                 "model": _get_state(request, "gemini_tts_model"),
                 "format": _get_state(request, "gemini_tts_mime"),
+            }
+        )
+    if tts_backend == "google":
+        return JSONResponse(
+            content={
+                "backend": "google",
+                "language": _get_state(request, "google_tts_language"),
+                "voice": _get_state(request, "google_tts_voice"),
+                "encoding": _get_state(request, "google_tts_audio_encoding"),
             }
         )
 
@@ -109,6 +121,29 @@ async def generate_tts(request: Request, payload: TTSRequest):
                 headers={
                     "Content-Disposition": f'attachment; filename="tts_{filename_hash}.{openai_format}"'
                 },
+            )
+
+        if tts_backend == "google":
+            call_google = _get_state(request, "call_google_tts_api")
+            google_lang = payload.language_code or _get_state(request, "google_tts_language")
+            google_voice = payload.voice or _get_state(request, "google_tts_voice")
+            if not callable(call_google):
+                raise RuntimeError("Google TTS is not configured")
+
+            result = call_google(
+                text=text,
+                language_code=google_lang,
+                voice_name=google_voice,
+                speaking_rate=payload.tempo,
+                pitch=payload.pitch,
+            )
+
+            content_type = result.get("content_type") or "application/octet-stream"
+            ext = "mp3" if content_type == "audio/mpeg" else "wav"
+            return Response(
+                content=result["audio_data"],
+                media_type=content_type,
+                headers={"Content-Disposition": f'attachment; filename="tts_{filename_hash}.{ext}"'},
             )
 
         if tts_backend == "gemini":

@@ -254,9 +254,11 @@ async def speechpro_evaluate(
     ollama_model = _get_state(request, "ollama_model")
     gemini_model = _get_state(request, "gemini_model")
     openai_model = _get_state(request, "openai_model")
-    stt_backend = _get_state(request, "stt_backend")
     stt_client = _get_state(request, "openai_client")
     app_tmp_dir = _get_state(request, "app_tmp_dir")
+    google_speech_available = _get_state(request, "google_speech_available")
+    get_google_speech_client = _get_state(request, "get_google_speech_client")
+    google_speech_module = _get_state(request, "google_speech_module")
 
     convert_audio = _get_state(request, "convert_audio_bytes_to_wav16")
     find_preset = _get_state(request, "find_precomputed_sentence")
@@ -280,7 +282,9 @@ async def speechpro_evaluate(
             return JSONResponse(status_code=400, content={"error": f"audio convert failed: {conv_err}"})
 
         recognized_text = None
-        if stt_backend == "openai" and stt_client:
+
+        # 1) OpenAI Whisper
+        if stt_client:
             logger.info("[STT] backend=openai whisper-1 start")
             tmp_path = None
             try:
@@ -309,8 +313,34 @@ async def speechpro_evaluate(
                         os.remove(tmp_path)
                     except Exception:
                         pass
-        else:
-            logger.info("[STT] skipped backend=%s client=%s", stt_backend, bool(stt_client))
+
+        # 2) Google STT fallback
+        if recognized_text is None and google_speech_available and callable(get_google_speech_client) and google_speech_module:
+            try:
+                google_client = get_google_speech_client()
+            except Exception as stt_err:
+                logger.warning("[STT] backend=google client init failed: %s", stt_err)
+                google_client = None
+
+            if google_client:
+                try:
+                    audio = google_speech_module.RecognitionAudio(content=audio_content)
+                    config = google_speech_module.RecognitionConfig(
+                        encoding=google_speech_module.RecognitionConfig.AudioEncoding.LINEAR16,
+                        sample_rate_hertz=16000,
+                        language_code="ko-KR",
+                        max_alternatives=1,
+                    )
+                    response = google_client.recognize(config=config, audio=audio)
+                    for result in response.results:
+                        if result.alternatives:
+                            recognized_text = result.alternatives[0].transcript
+                            break
+                    logger.info("[STT] backend=google success=%s", bool(recognized_text))
+                except Exception as stt_err:
+                    logger.warning("[STT] backend=google failed: %s", stt_err)
+            else:
+                logger.info("[STT] backend=google skipped (no client)")
 
         # 1) 요청에 사전 계산 정보가 함께 왔다면 그대로 사용
         pre_syll_ltrs = syll_ltrs.strip() if syll_ltrs else None

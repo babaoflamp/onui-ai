@@ -8,6 +8,8 @@ requests
 jinja2
 vosk
 google-generativeai
+google-cloud-speech
+google-cloud-texttospeech
 websockets
 pydub
 aiohttp
