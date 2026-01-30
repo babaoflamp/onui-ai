@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
@@ -20,6 +22,7 @@ def sentence_learning_general_page(request: Request):
 @router.get("/api/sentence-learning/state/{user_id}")
 async def get_sentence_learning_state(request: Request, user_id: str, scope: str = "all"):
     """문장 학습(일반) 마지막 상태 조회"""
+    logger.info(f"[API_CALL] user_id={user_id} endpoint={request.url.path} method={request.method} params={dict(request.query_params)}")
     try:
         learning_service = getattr(request.app.state, "learning_service", None)
         if learning_service is None:
@@ -37,6 +40,7 @@ async def update_sentence_learning_state(request: Request):
     try:
         data = await request.json()
         user_id = data.get("user_id", "anonymous")
+        logger.info(f"[API_CALL] user_id={user_id} endpoint={request.url.path} method={request.method} params={data}")
         scope = data.get("scope", "all")
         current_sentence_id = data.get("current_sentence_id")
         current_index = data.get("current_index", 0)

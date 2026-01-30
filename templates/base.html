@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -65,7 +65,7 @@
             event.preventDefault();
           }
         },
-        true
+        true,
       );
 
       // Also suppress unhandled promise rejections for storage errors
@@ -93,16 +93,32 @@
 
       html,
       body {
-        font-family: "Pretendard", "Noto Sans KR", "Noto Sans JP",
-          "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
-          "PingFang SC", "Microsoft YaHei", "Noto Sans", Arial, sans-serif,
-          "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+        font-family:
+          "Pretendard",
+          "Noto Sans KR",
+          "Noto Sans JP",
+          "Noto Sans SC",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          "Hiragino Sans",
+          "Hiragino Kaku Gothic ProN",
+          "PingFang SC",
+          "Microsoft YaHei",
+          "Noto Sans",
+          Arial,
+          sans-serif,
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Noto Color Emoji";
       }
 
       body {
         min-height: 100vh;
-        background: radial-gradient(circle at 0% 0%, #fff7db, transparent 50%),
+        background:
+          radial-gradient(circle at 0% 0%, #fff7db, transparent 50%),
           radial-gradient(circle at 100% 100%, #e0e7ff, transparent 50%),
           linear-gradient(135deg, var(--bg1), var(--bg2));
         color: var(--text-main);
@@ -296,6 +312,7 @@
                       >AI 발음 종합 평가 테스트</span
                     ></a
                   >
+                  <a href="/speechpro-batch">🎛️ 배치 발음 평가</a>
                 </div>
               </div>
 
@@ -513,28 +530,48 @@
                 <span class="hidden sm:inline">▾</span>
               </button>
               <div class="dropdown-content hidden" id="lang-menu">
-                <a href="#" onclick="setAppLang('ko'); return false;"
+                <a
+                  href="#"
+                  onclick="
+                    setAppLang('ko');
+                    return false;
+                  "
                   ><img
                     src="/static/img/flags/ko.svg"
                     alt="한국어"
                     class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
                   />한국어</a
                 >
-                <a href="#" onclick="setAppLang('en'); return false;"
+                <a
+                  href="#"
+                  onclick="
+                    setAppLang('en');
+                    return false;
+                  "
                   ><img
                     src="/static/img/flags/en.svg"
                     alt="English"
                     class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
                   />English</a
                 >
-                <a href="#" onclick="setAppLang('ja'); return false;"
+                <a
+                  href="#"
+                  onclick="
+                    setAppLang('ja');
+                    return false;
+                  "
                   ><img
                     src="/static/img/flags/ja.svg"
                     alt="日本語"
                     class="inline-block w-5 h-5 mr-2 align-[-3px] rounded-sm"
                   />日本語</a
                 >
-                <a href="#" onclick="setAppLang('zh'); return false;"
+                <a
+                  href="#"
+                  onclick="
+                    setAppLang('zh');
+                    return false;
+                  "
                   ><img
                     src="/static/img/flags/zh.svg"
                     alt="中文"
@@ -604,6 +641,11 @@
               href="/speechpro-practice"
               class="block pl-4 py-1 text-sm text-gray-700"
               >🎤 AI 발음 분석</a
+            >
+            <a
+              href="/speechpro-batch"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >🎛️ 배치 발음 평가</a
             >
             <a
               href="/pronunciation-rules"
@@ -1093,7 +1135,7 @@
             </button>
             <button
               onclick="closeMail()"
-              class="flex-1 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+              class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium transition-all"
             >
               닫기
             </button>
@@ -1287,7 +1329,7 @@
           if (krdictMethod)
             localStorage.setItem(
               "krdict-widget-method",
-              krdictMethod.value || ""
+              krdictMethod.value || "",
             );
           if (krdictNum)
             localStorage.setItem("krdict-widget-num", krdictNum.value || "10");
@@ -1330,20 +1372,20 @@
           .map((sense) => {
             const order = sense.sense_order ? `${sense.sense_order}. ` : "";
             return `<li class="text-sm text-gray-700 leading-relaxed">${escapeHtml(
-              `${order}${sense.definition || ""}`.trim()
+              `${order}${sense.definition || ""}`.trim(),
             )}</li>`;
           })
           .join("");
 
         const example = item.example
           ? `<p class="text-xs text-gray-600 mt-2">용례: ${escapeHtml(
-              item.example
+              item.example,
             )}</p>`
           : "";
 
         const link = item.link
           ? `<a href="${escapeHtml(
-              item.link
+              item.link,
             )}" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold">사전 상세 보기 →</a>`
           : "";
 
@@ -1438,7 +1480,7 @@
             const channel = payload.channel || {};
             const items = Array.isArray(payload.items) ? payload.items : [];
             setKrdictStatus(
-              `총 ${channel.total || 0}건 중 ${items.length}건 표시`
+              `총 ${channel.total || 0}건 중 ${items.length}건 표시`,
             );
 
             if (!items.length) {
@@ -1498,7 +1540,7 @@
       const chatbotInput = document.getElementById("chatbot-input");
       const chatbotSend = document.getElementById("chatbot-send");
       const chatbotModelSelect = document.getElementById(
-        "chatbot-model-select"
+        "chatbot-model-select",
       );
 
       // Load model preference from localStorage
@@ -1559,7 +1601,7 @@
           <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]">
             <p class="text-sm text-gray-800">${escapeHtml(text).replace(
               /\n/g,
-              "<br>"
+              "<br>",
             )}</p>
           </div>
         `;
@@ -1626,7 +1668,7 @@
             {
               messageLength: message.length,
               messagePreview: message.substring(0, 30),
-            }
+            },
           );
         }
 
@@ -1773,14 +1815,14 @@
         const adminContentLink = document.getElementById("admin-content-link");
         const adminMediaLink = document.getElementById("admin-media-link");
         const mobileAdminContentLink = document.getElementById(
-          "mobile-admin-content-link"
+          "mobile-admin-content-link",
         );
         const mobileAdminMediaLink = document.getElementById(
-          "mobile-admin-media-link"
+          "mobile-admin-media-link",
         );
         const userDisplay = document.getElementById("user-display");
         const mobileUserDisplay = document.getElementById(
-          "mobile-user-display"
+          "mobile-user-display",
         );
         const logoutBtn = document.getElementById("logout-btn");
         const mobileUserMenu = document.getElementById("mobile-user-menu");
@@ -2065,7 +2107,7 @@
         const table = Object.assign(
           {},
           (window.GLOBAL_I18N && window.GLOBAL_I18N[lang]) || {},
-          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {}
+          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {},
         );
         return table[key] ?? fallback;
       };
@@ -2082,7 +2124,7 @@
         const table = Object.assign(
           {},
           (window.GLOBAL_I18N && window.GLOBAL_I18N[lang]) || {},
-          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {}
+          (window.PAGE_I18N && window.PAGE_I18N[lang]) || {},
         );
         if (!Object.keys(table).length) return;
         document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -2252,7 +2294,7 @@
             addMailNotification(
               "🎉 환영합니다!",
               `${nickname}님, 오누이 한국어에 오신 것을 환영합니다! AI와 함께 발음·유창성 연습을 바로 시작해보세요.`,
-              "👋"
+              "👋",
             );
             // 학습자만 캐릭터 팝업을 표시합니다
             const role =
@@ -2502,7 +2544,7 @@
               </div>
             </div>
           </div>
-        `
+        `,
           )
           .join("");
       }
@@ -2572,7 +2614,7 @@
         addMailNotification(
           "학습 완료 축하!",
           "30분 학습을 완료했습니다! 성공입니다! 🎉",
-          "🏆"
+          "🏆",
         );
       };
     </script>

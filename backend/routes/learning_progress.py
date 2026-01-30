@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
@@ -15,6 +17,7 @@ async def record_pronunciation_completed(request: Request):
     try:
         data = await request.json()
         user_id = data.get("user_id", "anonymous")
+        logger.info(f"[API_CALL] user_id={user_id} endpoint={request.url.path} method={request.method} params={data}")
         score = int(data.get("score", 0))
 
         learning_service = _get_state(request, "learning_service")
@@ -34,6 +37,7 @@ async def record_sentence_learned(request: Request):
     try:
         data = await request.json()
         user_id = data.get("user_id", "anonymous")
+        logger.info(f"[API_CALL] user_id={user_id} endpoint={request.url.path} method={request.method} params={data}")
         count = data.get("count", 1)
 
         learning_service = _get_state(request, "learning_service")

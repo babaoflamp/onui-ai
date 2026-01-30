@@ -1,0 +1,320 @@
+{% extends "base.html" %} {% block title %}SpeechPro 배치 발음 평가{% endblock
+%} {% block content %}
+<div id="alertsContainer"></div>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
+    >
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      ONUI · 배치 발음 평가
+    </div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      다량 음성 파일 배치 평가
+    </h1>
+    <p class="text-sm text-gray-600">
+      여러 개의 음성 파일을 업로드하여 한 번에 발음을 평가하세요.
+    </p>
+  </div>
+
+  <!-- Uploader -->
+  <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+    <div
+      id="dropZone"
+      class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center text-gray-600 hover:border-blue-400 hover:bg-blue-50/30 cursor-pointer transition"
+    >
+      <div class="text-4xl mb-2">⬆️</div>
+      <p class="text-sm">
+        여기에 파일을 드래그하거나 클릭해서 선택하세요 (WAV/WEBM, 파일당 5MB
+        이하, 데모용 최대 3개)
+      </p>
+      <input
+        id="fileInput"
+        type="file"
+        accept="audio/*"
+        multiple
+        class="hidden"
+      />
+    </div>
+
+    <div class="mt-4 flex items-center gap-3">
+      <input
+        id="bulkText"
+        type="text"
+        placeholder="선택한 모든 파일에 공통으로 적용할 문장 (선택)"
+        class="flex-1 px-3 py-2 border rounded-lg text-sm"
+      />
+      <button
+        id="applyBulkText"
+        class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-900"
+      >
+        전체에 적용
+      </button>
+    </div>
+  </div>
+
+  <!-- File list -->
+  <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-900">파일 목록</h2>
+      <div class="text-xs text-gray-500" id="fileCount">0개 선택됨</div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-gray-700 border-b">
+            <th class="py-2 pr-3">파일명</th>
+            <th class="py-2 pr-3">평가할 문장</th>
+            <th class="py-2 text-right">작업</th>
+          </tr>
+        </thead>
+        <tbody id="fileRows" class="divide-y"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex flex-wrap gap-3 mb-6">
+    <button
+      id="startEval"
+      class="px-5 py-3 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600 transition shadow"
+    >
+      배치 평가 시작
+    </button>
+    <label class="flex items-center gap-2 text-sm text-gray-700">
+      <input id="includeAi" type="checkbox" class="rounded" />
+      AI 피드백 포함 (시간 추가 소요)
+    </label>
+    <div id="statusText" class="text-sm text-gray-600"></div>
+  </div>
+
+  <!-- Results -->
+  <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-900">결과</h2>
+      <div class="flex gap-2 text-sm">
+        <button
+          id="viewSimple"
+          class="px-3 py-1 rounded-lg bg-gray-900 text-white"
+        >
+          단순 보기
+        </button>
+        <button
+          id="viewDetailed"
+          class="px-3 py-1 rounded-lg bg-gray-100 text-gray-700"
+        >
+          상세 보기
+        </button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" id="resultsTable">
+        <thead>
+          <tr class="text-left text-gray-700 border-b">
+            <th class="py-2 pr-3">파일명</th>
+            <th class="py-2 pr-3">점수</th>
+            <th class="py-2 pr-3">상태</th>
+            <th class="py-2 pr-3">메시지</th>
+            <th class="py-2 pr-3 detailed-col">상세</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody" class="divide-y"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const dropZone = document.getElementById("dropZone");
+  const fileRows = document.getElementById("fileRows");
+  const fileCount = document.getElementById("fileCount");
+  const bulkText = document.getElementById("bulkText");
+  const applyBulkText = document.getElementById("applyBulkText");
+  const startEval = document.getElementById("startEval");
+  const includeAi = document.getElementById("includeAi");
+  const statusText = document.getElementById("statusText");
+  const resultsBody = document.getElementById("resultsBody");
+  const viewSimple = document.getElementById("viewSimple");
+  const viewDetailed = document.getElementById("viewDetailed");
+  const detailedCols = () =>
+    document.querySelectorAll(".detailed-col, .detailed-cell");
+
+  const MAX_FILES = 3;
+
+  let filesState = [];
+  let simpleView = true;
+
+  function humanize(name) {
+    return (name || "").replace(/\.[^.]+$/, "").replace(/[._-]+/g, " ");
+  }
+
+  function renderFiles() {
+    fileRows.innerHTML = "";
+    filesState.forEach((item, idx) => {
+      const tr = document.createElement("tr");
+      tr.className = "align-top";
+      tr.innerHTML = `
+        <td class="py-2 pr-3 whitespace-nowrap text-gray-800">${item.file.name}</td>
+        <td class="py-2 pr-3 w-full">
+          <input data-idx="${idx}" type="text" value="${item.text || ""}" class="w-full px-3 py-2 border rounded-lg text-sm file-text" />
+        </td>
+        <td class="py-2 text-right">
+          <button data-idx="${idx}" class="text-sm text-red-600 hover:text-red-700 remove-btn">삭제</button>
+        </td>`;
+      fileRows.appendChild(tr);
+    });
+    fileCount.textContent = `${filesState.length}개 선택됨`;
+  }
+
+  function addFiles(list) {
+    const arr = Array.from(list || []);
+    arr.forEach((f) => {
+      if (filesState.length >= MAX_FILES) {
+        statusText.textContent = `데모 모드에서는 최대 ${MAX_FILES}개까지 업로드할 수 있습니다.`;
+        return;
+      }
+      filesState.push({ file: f, text: humanize(f.name) });
+    });
+    renderFiles();
+  }
+
+  dropZone.addEventListener("click", () => fileInput.click());
+  dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("border-blue-400", "bg-blue-50/30");
+  });
+  dropZone.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("border-blue-400", "bg-blue-50/30");
+  });
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("border-blue-400", "bg-blue-50/30");
+    addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener("change", (e) => addFiles(e.target.files));
+
+  fileRows.addEventListener("input", (e) => {
+    if (e.target.classList.contains("file-text")) {
+      const idx = Number(e.target.getAttribute("data-idx"));
+      if (!Number.isNaN(idx)) {
+        filesState[idx].text = e.target.value;
+      }
+    }
+  });
+  fileRows.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-btn")) {
+      const idx = Number(e.target.getAttribute("data-idx"));
+      filesState.splice(idx, 1);
+      renderFiles();
+    }
+  });
+
+  applyBulkText.addEventListener("click", () => {
+    const val = (bulkText.value || "").trim();
+    if (!val) return;
+    filesState = filesState.map((item) => ({ ...item, text: val }));
+    renderFiles();
+  });
+
+  function setView(simple) {
+    simpleView = simple;
+    detailedCols().forEach((el) => {
+      el.classList.toggle("hidden", simpleView);
+    });
+    if (simpleView) {
+      viewSimple.className = "px-3 py-1 rounded-lg bg-gray-900 text-white";
+      viewDetailed.className = "px-3 py-1 rounded-lg bg-gray-100 text-gray-700";
+    } else {
+      viewSimple.className = "px-3 py-1 rounded-lg bg-gray-100 text-gray-700";
+      viewDetailed.className = "px-3 py-1 rounded-lg bg-gray-900 text-white";
+    }
+  }
+  viewSimple.addEventListener("click", () => setView(true));
+  viewDetailed.addEventListener("click", () => setView(false));
+
+  async function startEvaluation() {
+    if (!filesState.length) {
+      statusText.textContent = "파일을 추가해주세요.";
+      return;
+    }
+
+    if (filesState.length > MAX_FILES) {
+      statusText.textContent = `데모 모드에서는 최대 ${MAX_FILES}개까지 업로드할 수 있습니다.`;
+      return;
+    }
+
+    const missing = filesState.find((f) => !f.text || !f.text.trim());
+    if (missing) {
+      statusText.textContent = "모든 파일에 문장을 입력해주세요.";
+      return;
+    }
+
+    statusText.textContent = "업로드 및 평가 중...";
+    startEval.disabled = true;
+
+    const formData = new FormData();
+    const textMap = filesState.map((f) => ({
+      filename: f.file.name,
+      text: f.text,
+    }));
+    formData.append("text_map", JSON.stringify(textMap));
+    formData.append(
+      "include_ai_feedback",
+      includeAi.checked ? "true" : "false",
+    );
+    filesState.forEach((f) => formData.append("files", f.file, f.file.name));
+
+    try {
+      const res = await fetch("/api/speechpro/batch-evaluate", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "서버 오류");
+      renderResults(data.items || []);
+      statusText.textContent = `처리됨: ${data.processed || 0}, 성공: ${data.succeeded || 0}, 실패: ${data.failed || 0}`;
+    } catch (err) {
+      statusText.textContent = `오류: ${err.message}`;
+    } finally {
+      startEval.disabled = false;
+    }
+  }
+
+  function renderResults(items) {
+    resultsBody.innerHTML = "";
+    items.forEach((item) => {
+      const tr = document.createElement("tr");
+      const success = item.success === true;
+      const score =
+        typeof item.overall_score === "number"
+          ? Math.round(item.overall_score)
+          : "-";
+      const msg = item.error || (success ? "성공" : "실패") || "";
+      const detailSafe = JSON.stringify(item.score || {}, null, 2).slice(
+        0,
+        2000,
+      );
+      tr.innerHTML = `
+        <td class="py-2 pr-3 text-gray-800">${item.filename || "-"}</td>
+        <td class="py-2 pr-3 font-semibold ${success ? "text-green-700" : "text-gray-500"}">${score}</td>
+        <td class="py-2 pr-3">
+          <span class="px-2 py-1 text-xs rounded-full ${success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}">
+            ${success ? "성공" : "실패"}
+          </span>
+        </td>
+        <td class="py-2 pr-3 text-gray-600">${msg}</td>
+        <td class="py-2 pr-3 detailed-col">
+          <pre class="detailed-cell whitespace-pre-wrap text-xs bg-gray-50 border rounded p-2 max-h-48 overflow-auto">${detailSafe}</pre>
+        </td>`;
+      resultsBody.appendChild(tr);
+    });
+    setView(simpleView);
+  }
+
+  startEval.addEventListener("click", startEvaluation);
+  setView(true);
+</script>
+{% endblock %}

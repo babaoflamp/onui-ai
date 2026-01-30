@@ -80,6 +80,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
     Returns an audio file response (wav/mp3 depending on backend).
     """
     logger = _get_state(request, "logger") or logging.getLogger(__name__)
+    logger.info(f"[API_CALL] endpoint={request.url.path} method={request.method} params={{'text': payload.text, 'speaker': payload.speaker, 'tempo': payload.tempo, 'pitch': payload.pitch, 'gain': payload.gain, 'language_code': payload.language_code, 'voice': payload.voice}}")
     tts_backend = _get_state(request, "tts_backend")
 
     try:

@@ -1,7 +1,14 @@
+import logging
+logger = logging.getLogger(__name__)
 import os
 import tempfile
 import time
-from typing import Any, Dict, Optional
+import uuid
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional, List
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, File, Form, Request, UploadFile
 from fastapi.responses import JSONResponse
@@ -20,6 +27,24 @@ from backend.services.speechpro_service import (
 
 router = APIRouter()
 
+AUDIO_UPLOAD_DIR = Path("uploads/audio")
+
+
+def _ensure_audio_upload_dir() -> Path:
+    AUDIO_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    return AUDIO_UPLOAD_DIR
+
+
+def _cleanup_old_audio_uploads(upload_dir: Path, days: int = 30) -> None:
+    """Delete audio/metadata files older than the retention window."""
+    cutoff = time.time() - days * 86400
+    for path in upload_dir.glob("*"):
+        try:
+            if path.is_file() and path.stat().st_mtime < cutoff:
+                path.unlink()
+        except Exception:
+            continue
+
 
 class SpeechProFeedbackRequest(BaseModel):
     text: str
@@ -33,10 +58,20 @@ def _get_state(request: Request, name: str):
 @router.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
     """SpeechPro 발음 정확도 평가"""
+    logger.info(f"[API_CALL] endpoint={request.url.path} method={request.method} params={dict(request.query_params)}")
     templates = _get_state(request, "templates")
     if templates is None:
         return JSONResponse(status_code=500, content={"error": "Templates not configured"})
     return templates.TemplateResponse("speechpro-practice.html", {"request": request})
+
+
+@router.get("/speechpro-batch")
+def speechpro_batch_page(request: Request):
+    """SpeechPro 다중 파일 배치 평가 페이지"""
+    templates = _get_state(request, "templates")
+    if templates is None:
+        return JSONResponse(status_code=500, content={"error": "Templates not configured"})
+    return templates.TemplateResponse("speechpro-batch.html", {"request": request})
 
 
 # ==========================================
@@ -191,6 +226,7 @@ async def speechpro_score(
     Score JSON API - 발음 평가
     사용자의 음성 데이터를 전송하여 발음 정확도를 평가합니다.
     """
+    logger.info(f"[API_CALL] endpoint={request.url.path} method={request.method} params={{'text': text, 'syll_ltrs': syll_ltrs, 'syll_phns': syll_phns, 'fst': fst, 'audio_filename': audio.filename}}")
     try:
         audio_content_raw = await audio.read()
         if not audio_content_raw:
@@ -268,6 +304,9 @@ async def speechpro_evaluate(
         return JSONResponse(status_code=500, content={"error": "SpeechPro helpers not configured", "success": False})
 
     try:
+        upload_dir = _ensure_audio_upload_dir()
+        _cleanup_old_audio_uploads(upload_dir, days=30)
+
         audio_content_raw = await audio.read()
         text = text.strip()
 
@@ -275,6 +314,23 @@ async def speechpro_evaluate(
             return JSONResponse(status_code=400, content={"error": "text is required"})
         if not audio_content_raw:
             return JSONResponse(status_code=400, content={"error": "audio file is required"})
+
+        saved_audio_path = None
+        saved_meta_path = None
+        try:
+            ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+            ext = os.path.splitext(audio.filename or "")[1].lower()
+            if not ext or len(ext) > 6 or not ext.startswith("."):
+                ext = ".wav"
+            safe_name = f"{ts}_{uuid.uuid4().hex}{ext}"
+            saved_audio_path = upload_dir / safe_name
+            with open(saved_audio_path, "wb") as f:
+                f.write(audio_content_raw)
+        except Exception as save_err:
+            saved_audio_path = None
+            saved_meta_path = None
+            if logger:
+                logger.warning("[SpeechPro] failed to persist upload: %s", save_err)
 
         try:
             audio_content = convert_audio(audio_content_raw)
@@ -361,7 +417,6 @@ async def speechpro_evaluate(
 
         if preset and preset.get("fst"):
             # scorejson은 id 캐시 가능성이 있어 고정 id 반복 사용을 피함
-            import uuid
 
             preset_id = str(preset.get("id") or "preset").strip() or "preset"
             request_id = f"preset_{preset_id}_{uuid.uuid4().hex[:8]}"
@@ -422,6 +477,34 @@ async def speechpro_evaluate(
                 response_data["recognized_text"] = recognized_text
             if ai_feedback:
                 response_data["ai_feedback"] = ai_feedback
+
+            try:
+                if saved_audio_path:
+                    saved_meta_path = saved_audio_path.with_suffix(".json")
+                    meta = {
+                        "created_at": datetime.utcnow().isoformat() + "Z",
+                        "text": text,
+                        "recognized_text": recognized_text,
+                        "saved_audio": str(saved_audio_path),
+                        "include_ai_feedback": include_ai_feedback,
+                        "ai_feedback_present": bool(ai_feedback),
+                        "overall_score": response_data.get("overall_score"),
+                        "success": True,
+                        "source": response_data.get("source"),
+                        "request_id": response_data.get("model", {}).get("id"),
+                    }
+                    with open(saved_meta_path, "w", encoding="utf-8") as mf:
+                        import json
+
+                        json.dump(meta, mf, ensure_ascii=False, indent=2)
+                if saved_audio_path:
+                    response_data["saved_audio_path"] = str(saved_audio_path)
+                if saved_meta_path:
+                    response_data["metadata_path"] = str(saved_meta_path)
+            except Exception as meta_err:
+                if logger:
+                    logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
+
             return JSONResponse(content=response_data)
 
         # 2) 프리셋이 없으면 기존 전체 워크플로우 수행
@@ -441,6 +524,33 @@ async def speechpro_evaluate(
                     result["ai_feedback"] = ai_feedback
             except Exception as fb_err:
                 logger.warning("[Evaluate] AI feedback failed (full workflow): %s", fb_err)
+
+        try:
+            if saved_audio_path:
+                saved_meta_path = saved_audio_path.with_suffix(".json")
+                meta = {
+                    "created_at": datetime.utcnow().isoformat() + "Z",
+                    "text": text,
+                    "recognized_text": recognized_text,
+                    "saved_audio": str(saved_audio_path),
+                    "include_ai_feedback": include_ai_feedback,
+                    "ai_feedback_present": bool(result.get("ai_feedback")),
+                    "overall_score": result.get("overall_score"),
+                    "success": bool(result.get("success")),
+                    "source": result.get("source"),
+                    "request_id": result.get("model", {}).get("id") or result.get("score", {}).get("id"),
+                }
+                with open(saved_meta_path, "w", encoding="utf-8") as mf:
+                    import json
+
+                    json.dump(meta, mf, ensure_ascii=False, indent=2)
+            if saved_audio_path:
+                result["saved_audio_path"] = str(saved_audio_path)
+            if saved_meta_path:
+                result["metadata_path"] = str(saved_meta_path)
+        except Exception as meta_err:
+            if logger:
+                logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
 
         return JSONResponse(content=result)
 
@@ -482,4 +592,206 @@ async def speechpro_feedback(request: Request, payload: SpeechProFeedbackRequest
             status_code=500,
             content={"error": f"AI feedback failed: {str(e)}", "success": False},
         )
+
+
+@router.post("/api/speechpro/batch-evaluate")
+async def speechpro_batch_evaluate(
+    request: Request,
+    files: List[UploadFile] = File(...),
+    text_map: str = Form(""),
+    include_ai_feedback: bool = Form(False),
+):
+    """다량의 음성 파일을 배치로 평가"""
+
+    def _parse_bool(value: Any, default: bool = False) -> bool:
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+    include_ai_feedback_flag = _parse_bool(include_ai_feedback, False)
+
+    # 텍스트 매핑 파싱
+    # text_map 확장: 파일별 text, syll_ltrs, syll_phns, fst 지원
+    preset_lookup: Dict[str, Dict[str, str]] = {}
+    if text_map:
+        try:
+            import json
+            parsed = json.loads(text_map)
+            if isinstance(parsed, list):
+                for item in parsed:
+                    if isinstance(item, dict):
+                        fname = (item.get("filename") or "").strip()
+                        txt = (item.get("text") or "").strip()
+                        syll_ltrs = (item.get("syll_ltrs") or "").strip()
+                        syll_phns = (item.get("syll_phns") or "").strip()
+                        fst = (item.get("fst") or "").strip()
+                        if fname and txt:
+                            preset_lookup[fname] = {
+                                "text": txt,
+                                "syll_ltrs": syll_ltrs,
+                                "syll_phns": syll_phns,
+                                "fst": fst,
+                            }
+            elif isinstance(parsed, dict):
+                for fname, val in parsed.items():
+                    if fname and val:
+                        if isinstance(val, dict):
+                            preset_lookup[str(fname)] = {
+                                "text": val.get("text", ""),
+                                "syll_ltrs": val.get("syll_ltrs", ""),
+                                "syll_phns": val.get("syll_phns", ""),
+                                "fst": val.get("fst", ""),
+                            }
+                        else:
+                            preset_lookup[str(fname)] = {"text": str(val), "syll_ltrs": "", "syll_phns": "", "fst": ""}
+        except Exception:
+            return JSONResponse(status_code=400, content={"error": "text_map must be valid JSON"})
+
+    if not files:
+        return JSONResponse(status_code=400, content={"error": "files are required"})
+
+    max_files = 3
+    if len(files) > max_files:
+        return JSONResponse(status_code=400, content={"error": f"too many files (demo limit {max_files})"})
+
+    max_size_bytes = 5 * 1024 * 1024  # 5MB per file
+    max_total_bytes = 50 * 1024 * 1024  # 50MB overall guard
+    total_bytes = 0
+    allowed_mimes = {"audio/wav", "audio/webm", "audio/mpeg", "audio/mp3", "audio/ogg", "audio/x-wav"}
+    allowed_exts = {".wav", ".webm", ".mp3", ".ogg", ".mpeg"}
+    results = []
+    success_count = 0
+
+    generate_feedback = _get_state(request, "generate_pronunciation_feedback")
+    model_backend = _get_state(request, "model_backend")
+
+    import logging
+    logger = logging.getLogger("batch-evaluate")
+    for upload in files:
+        filename = upload.filename or "unnamed"
+        entry: Dict[str, Any] = {"filename": filename}
+
+
+        try:
+            audio_bytes = await upload.read()
+            logger.info(f"[BATCH] 파일 업로드: {filename}, 크기: {len(audio_bytes) if audio_bytes else 0} bytes")
+            if not audio_bytes:
+                entry.update({"success": False, "error": "empty file"})
+                logger.error(f"[BATCH] 파일 비어있음: {filename}")
+                results.append(entry)
+                continue
+
+            if len(audio_bytes) > max_size_bytes:
+                entry.update({"success": False, "error": "file too large (max 5MB)"})
+                logger.error(f"[BATCH] 파일 용량 초과: {filename}")
+                results.append(entry)
+                continue
+
+            total_bytes += len(audio_bytes)
+            if total_bytes > max_total_bytes:
+                entry.update({"success": False, "error": "total upload size exceeds 50MB"})
+                logger.error(f"[BATCH] 전체 업로드 용량 초과: {filename}")
+                results.append(entry)
+                continue
+
+            mime_ok = (upload.content_type or "").split(";")[0].strip() in allowed_mimes
+            ext_ok = any(filename.lower().endswith(ext) for ext in allowed_exts)
+            if not (mime_ok or ext_ok):
+                entry.update({"success": False, "error": "unsupported audio format"})
+                logger.error(f"[BATCH] 지원하지 않는 포맷: {filename}, content_type={upload.content_type}")
+                results.append(entry)
+                continue
+
+            # 파일별 프리셋 정보 추출
+            preset_info = preset_lookup.get(filename, {})
+            text = preset_info.get("text", "").strip()
+            syll_ltrs = preset_info.get("syll_ltrs", "").strip()
+            syll_phns = preset_info.get("syll_phns", "").strip()
+            fst = preset_info.get("fst", "").strip()
+            logger.info(f"[BATCH] 평가 문장: {text} (파일: {filename}), syll_ltrs: {syll_ltrs}, syll_phns: {syll_phns}, fst: {fst}")
+            if not text:
+                entry.update({"success": False, "error": "text is required for each file"})
+                logger.error(f"[BATCH] 문장 미입력: {filename}")
+                results.append(entry)
+                continue
+
+            # 프리셋 정보가 모두 있으면 call_speechpro_score 사용, 아니면 전체 워크플로우
+            loop = asyncio.get_event_loop()
+            if syll_ltrs and syll_phns and fst:
+                from backend.services.speechpro_service import call_speechpro_score
+                def run_score():
+                    return call_speechpro_score(
+                        text=text,
+                        syll_ltrs=syll_ltrs,
+                        syll_phns=syll_phns,
+                        fst=fst,
+                        audio_data=audio_bytes,
+                        request_id=None,
+                    ).to_dict()
+                with ThreadPoolExecutor() as executor:
+                    workflow_result = await loop.run_in_executor(executor, run_score)
+                logger.info(f"[BATCH] call_speechpro_score 결과: {filename}, 결과: {workflow_result}")
+            else:
+                with ThreadPoolExecutor() as executor:
+                    workflow_result = await loop.run_in_executor(
+                        executor,
+                        speechpro_full_workflow,
+                        text,
+                        audio_bytes
+                    )
+                logger.info(f"[BATCH] 워크플로우 결과: {filename}, 결과: {workflow_result}")
+            entry.update({
+                "success": bool(workflow_result.get("success", True)),
+                "overall_score": workflow_result.get("overall_score", 0),
+                "score": workflow_result.get("score", {}),
+                "text": text,
+                "syll_ltrs": syll_ltrs,
+                "syll_phns": syll_phns,
+                "fst": fst,
+            })
+
+            if include_ai_feedback_flag and entry["success"] and callable(generate_feedback) and model_backend in ("ollama", "openai", "gemini"):
+                try:
+                    score_dict = entry.get("score") or {}
+                    score_result = ScoreResult(
+                        score=float(score_dict.get("score", 0) or 0),
+                        details=score_dict.get("details", {}),
+                        error_code=int(score_dict.get("error_code", 0) or 0),
+                    )
+                    ai_feedback = await generate_feedback(text, score_result)
+                    if ai_feedback:
+                        entry["ai_feedback"] = ai_feedback
+                    logger.info(f"[BATCH] AI 피드백 생성 성공: {filename}")
+                except Exception as fb_err:
+                    entry["ai_feedback_error"] = str(fb_err)
+                    logger.error(f"[BATCH] AI 피드백 생성 실패: {filename}, 에러: {fb_err}")
+
+            success_count += 1 if entry.get("success") else 0
+
+        except ValueError as ve:
+            entry.update({"success": False, "error": f"Invalid input: {str(ve)}"})
+            logger.error(f"[BATCH] 입력 값 오류: {filename}, 에러: {ve}")
+        except RuntimeError as re:
+            entry.update({"success": False, "error": f"API call failed: {str(re)}"})
+            logger.error(f"[BATCH] API 호출 실패: {filename}, 에러: {re}")
+        except Exception as e:
+            import traceback
+            error_detail = f"{str(e)}\n{traceback.format_exc()}"
+            print(f"[BATCH_ERROR] File: {filename}, Error: {error_detail}")
+            logger.error(f"[BATCH] 처리 실패: {filename}, 에러: {error_detail}")
+            entry.update({"success": False, "error": f"Processing failed: {str(e)}"})
+
+        results.append(entry)
+
+    return JSONResponse(
+        content={
+            "items": results,
+            "success": success_count == len(results),
+            "processed": len(results),
+            "succeeded": success_count,
+            "failed": len(results) - success_count,
+        }
+    )
 

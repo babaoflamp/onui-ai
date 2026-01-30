@@ -83,3 +83,11 @@ static/img/
 dist/
 build/
 *.egg-info/
+
+# Backup and Large Files
+Backup/
+Python-3.12.2/
+Python-3.12.2.tgz
+ngrok
+data/tts_cache/
+uploads/audio/
