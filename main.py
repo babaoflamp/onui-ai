@@ -4878,11 +4878,6 @@ async def stt_scorefile(
         return JSONResponse(status_code=500, content={"error": f"Proxy failed: {str(e)}"})
 
 
-@app.get("/chatbot")
-def chatbot_page(request: Request):
-    """AI 챗봇 페이지"""
-    return templates.TemplateResponse("chatbot.html", {"request": request})
-
 
 @app.get("/pricing")
 def pricing_page(request: Request):

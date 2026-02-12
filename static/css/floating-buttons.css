@@ -1,0 +1,76 @@
+/* Floating Buttons (Mail, Dictionary) Expansion */
+#floating-buttons-container .group #expanded-floating-buttons {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: all 0.3s ease-out;
+}
+
+#floating-buttons-container .group:hover #expanded-floating-buttons {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Ensure the floating windows (Dictionary, Mail) remain above other content */
+#krdict-window {
+  z-index: 51 !important; /* Higher than #floating-buttons-container (z-50) */
+}
+
+#mail-dropdown {
+  z-index: 51 !important;
+}
+
+#mail-modal {
+  z-index: 1000 !important; /* Mail Modal is always highest */
+}
+
+#chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+  background: #fb923c;
+  border-radius: 10px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}
+
+.typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #fb923c;
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}

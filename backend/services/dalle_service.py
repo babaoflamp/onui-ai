@@ -426,14 +426,43 @@ def enhance_prompt_for_korean_learning(
 async def translate_korean_to_english_prompt(korean_text: str) -> str:
     """
     한국어 텍스트를 DALL-E용 영어 프롬프트로 번역
-    (현재는 단순히 한국어를 그대로 사용하지만, 추후 번역 API 연동 가능)
+    OpenAI GPT-4o-mini를 사용하여 번역 수행
 
     Args:
         korean_text: 한국어 텍스트
 
     Returns:
-        영어 프롬프트 (현재는 한국어 그대로 반환)
+        영어 프롬프트
     """
-    # TODO: 실제 번역 API 연동 시 구현
-    # 현재는 DALL-E가 한국어도 어느 정도 이해하므로 그대로 전달
-    return korean_text
+    if not OPENAI_API_KEY:
+        logger.warning("OPENAI_API_KEY not set, skipping translation.")
+        return korean_text
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        
+        # GPT-4o-mini 모델 사용 (기본값 설정이 없으면 하드코딩)
+        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(
+            None,
+            lambda: client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that translates Korean text into descriptive English prompts suitable for DALL-E image generation. Focus on visual details. Output only the translated English text."},
+                    {"role": "user", "content": korean_text}
+                ],
+                temperature=0.7,
+                max_tokens=200
+            )
+        )
+        
+        english_prompt = response.choices[0].message.content.strip()
+        logger.info(f"Translated prompt: '{korean_text}' -> '{english_prompt}'")
+        return english_prompt
+
+    except Exception as e:
+        logger.error(f"Translation failed: {e}")
+        return korean_text

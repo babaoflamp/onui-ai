@@ -88,8 +88,8 @@ fi
 # 로그 디렉토리 생성
 mkdir -p logs
 
-# ngrok 시작 (고정 도메인 사용)
-nohup ./ngrok http --domain=mediazen.ngrok.app 9000 > logs/ngrok.log 2>&1 &
+# ngrok 시작 (멀티 터널 구성)
+nohup ./ngrok start --all --config /home/scottk/.config/ngrok/ngrok.yml > logs/ngrok.log 2>&1 &
 NGROK_PID=$!
 
 # ngrok이 시작될 때까지 대기
@@ -99,6 +99,7 @@ sleep 3
 if pgrep -f "ngrok" > /dev/null; then
     echo -e "${GREEN}✓ ngrok 터널 시작됨 (PID: $NGROK_PID)${NC}"
     echo -e "${GREEN}  → https://mediazen.ngrok.app${NC}"
+    echo -e "${GREEN}  → https://mz-lms.ngrok.app${NC}"
     echo -e "${GREEN}  → Dashboard: http://localhost:4040${NC}"
 else
     echo -e "${RED}✗ ngrok 터널 시작 실패${NC}"
@@ -114,6 +115,7 @@ echo ""
 echo -e "${YELLOW}접속 URL:${NC}"
 echo -e "  • 로컬: ${GREEN}http://localhost:9000${NC}"
 echo -e "  • 외부: ${GREEN}https://mediazen.ngrok.app${NC}"
+echo -e "  • Moodle: ${GREEN}https://mz-lms.ngrok.app${NC}"
 echo ""
 echo -e "${YELLOW}모니터링:${NC}"
 echo -e "  • ngrok 대시보드: ${GREEN}http://localhost:4040${NC}"

@@ -1,0 +1,391 @@
+<div
+  id="floating-buttons-container"
+  class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
+>
+  <div class="relative flex flex-col items-end group">
+    <!-- Chatbot Button (Main button to trigger expansion) -->
+    <button
+      id="chatbot-toggle"
+      class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group-hover:scale-110"
+      aria-label="챗봇"
+      title="챗봇"
+    >
+      <img
+        src="/static/tiger_chatbot.svg"
+        alt="호랑이 챗봇"
+        class="w-12 h-12"
+      />
+    </button>
+
+    <!-- Expanded Buttons (initially hidden, show on chatbot-toggle hover) -->
+    <div
+      id="expanded-floating-buttons"
+      class="flex flex-col items-end gap-4 absolute bottom-full right-0 mb-4 opacity-0 scale-y-0 transform origin-bottom transition-all duration-300 group-hover:opacity-100 group-hover:scale-y-100"
+    >
+      <!-- Mail Button -->
+      <button
+        id="mail-toggle"
+        class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-blue-400 relative"
+        onclick="toggleMailNotification()"
+        aria-label="메일함"
+        title="메일함"
+      >
+        <span class="text-4xl leading-none select-none" aria-hidden="true"
+          >📬</span
+        >
+        <span
+          id="mail-badge-float"
+          class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-bold animate-pulse"
+          style="display: none"
+        >
+          1
+        </span>
+      </button>
+
+      <!-- Dictionary Button -->
+      <button
+        id="krdict-toggle"
+        type="button"
+        class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-emerald-400"
+        aria-label="사전 검색"
+        title="사전 검색"
+      >
+        <span class="text-4xl leading-none select-none" aria-hidden="true"
+          >📖</span
+        >
+      </button>
+    </div>
+  </div>
+
+  <!-- Dictionary Window (remains independent) -->
+  <div
+    id="krdict-window"
+    class="hidden absolute right-0 bottom-[calc(100%+0.75rem)] w-96 h-[520px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+    style="max-width: calc(100vw - 2rem); z-index: 49"
+  >
+    <!-- Header -->
+    <div
+      class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-lg" aria-hidden="true">📖</span>
+        <div class="font-semibold">사전 검색</div>
+      </div>
+      <button
+        id="krdict-close"
+        type="button"
+        class="text-white hover:bg-white/20 rounded-full p-1"
+        aria-label="닫기"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search -->
+    <form
+      id="krdict-widget-form"
+      class="p-3 bg-white border-b border-gray-200 flex flex-col gap-2"
+    >
+      <div class="flex gap-2">
+        <input
+          type="text"
+          id="krdict-widget-query"
+          placeholder="예) 나무, 나무라다"
+          class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          autocomplete="off"
+        />
+        <button
+          id="krdict-widget-submit"
+          type="submit"
+          class="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
+        >
+          검색
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div>
+          <label for="krdict-widget-part" class="sr-only">검색 대상</label>
+          <select
+            id="krdict-widget-part"
+            class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+          >
+            <option value="">전체</option>
+            <option value="word">어휘</option>
+            <option value="ip">관용구/속담</option>
+            <option value="dfn">뜻풀이</option>
+            <option value="exam">용례</option>
+          </select>
+        </div>
+        <div>
+          <label for="krdict-widget-method" class="sr-only">검색 방식</label>
+          <select
+            id="krdict-widget-method"
+            class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+          >
+            <option value="">일치</option>
+            <option value="include">포함</option>
+            <option value="start">시작</option>
+            <option value="end">끝</option>
+          </select>
+        </div>
+        <div>
+          <label for="krdict-widget-num" class="sr-only">출력 건수</label>
+          <select
+            id="krdict-widget-num"
+            class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
+          >
+            <option value="10">10개</option>
+            <option value="20">20개</option>
+            <option value="30">30개</option>
+          </select>
+        </div>
+      </div>
+    </form>
+    <div
+      id="krdict-widget-status"
+      class="px-4 py-2 text-xs text-gray-600 bg-gray-50 hidden"
+    ></div>
+
+    <!-- Results -->
+    <div
+      id="krdict-widget-results"
+      class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
+    >
+      <div class="text-sm text-gray-500">
+        검색어를 입력하고 Enter를 눌러보세요.
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div
+      class="p-3 border-t border-gray-200 bg-white flex items-center justify-between"
+    >
+      <a
+        href="/krdict"
+        class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold"
+      >
+        전체 페이지로 열기 →
+      </a>
+      <div class="text-[11px] text-gray-400">한국어기초사전(Open API)</div>
+    </div>
+  </div>
+
+  <!-- Mail Dropdown (remains independent in its behavior, only its position changes) -->
+  <div
+    id="mail-dropdown"
+    class="hidden absolute right-0 bottom-[calc(100%+0.75rem)] w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50"
+    style="z-index: 48"
+  >
+    <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+      <h3 class="font-bold text-gray-900">📬 메일함</h3>
+      <button
+        onclick="toggleMailNotification()"
+        class="text-gray-400 hover:text-gray-600 transition-colors p-1"
+        title="닫기"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+    <div id="mail-list" class="max-h-80 overflow-y-auto">
+      <div class="p-4 text-center text-gray-500 text-sm">
+        새 메일이 없습니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- Mail Modal Popup (remains independent) -->
+  <div
+    id="mail-modal"
+    class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4 backdrop-blur-sm"
+    onclick="closeMail()"
+  >
+    <div
+      class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div
+        class="flex items-center justify-between p-6 border-b border-gray-200"
+      >
+        <div class="flex items-center gap-3 flex-1">
+          <span id="mail-modal-icon" class="text-3xl">📌</span>
+          <h2
+            id="mail-modal-title"
+            class="text-xl font-bold text-gray-900 truncate"
+          >
+            메일 제목
+          </h2>
+        </div>
+        <button
+          onclick="closeMail()"
+          class="text-gray-400 hover:text-gray-600 transition-colors p-1"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="p-6 max-h-[400px] overflow-y-auto">
+        <p
+          id="mail-modal-message"
+          class="text-gray-700 leading-relaxed whitespace-pre-wrap"
+        >
+          메일 내용
+        </p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-6 border-t border-gray-200 flex justify-end">
+        <button
+          onclick="closeMail()"
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          확인
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chatbot Window (Initially hidden) -->
+      <div
+    id="chatbot-window"
+    class="hidden fixed bottom-6 right-6 w-[400px] h-[650px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-[49]"
+    <!-- Header -->
+    <div
+      class="bg-gradient-to-r from-orange-500 to-pink-500 text-white p-4 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-2">
+        <img
+          src="/static/tiger_chatbot.svg"
+          alt="호랑이 챗봇"
+          class="w-8 h-8"
+        />
+        <div class="font-semibold">AI 한국어 호랭이 튜터</div>
+      </div>
+      <button
+        id="chatbot-close"
+        type="button"
+        class="text-white hover:bg-white/20 rounded-full p-1"
+        aria-label="닫기"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="bg-white flex-1 overflow-hidden flex flex-col">
+      <!-- Chat Messages -->
+      <div
+        id="chat-messages"
+        class="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-orange-50/30 to-white"
+      >
+        <!-- Welcome Message -->
+        <div class="flex items-start space-x-3">
+          <div class="flex-shrink-0">
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center text-white font-bold"
+            >
+              AI
+            </div>
+          </div>
+          <div class="flex-1">
+            <div
+              class="bg-white rounded-2xl rounded-tl-sm p-3 shadow-sm border border-gray-100"
+            >
+              <p class="text-gray-800">
+                안녕하세요! 👋<br />
+                저는 한국어 학습을 도와드리는 AI 튜터입니다.<br />
+                발음, 문법, 단어, 문화 등 무엇이든 편하게 질문해주세요!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="border-t border-gray-200 p-3 bg-white">
+        <div class="flex space-x-2">
+          <input
+            type="text"
+            id="user-input"
+            placeholder="메시지를 입력하세요..."
+            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            autocomplete="off"
+          />
+          <button
+            id="send-button"
+            class="px-4 py-2 text-sm bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white font-semibold rounded-full hover:bg-[#e67a15] focus:outline-none focus:ring-2 focus:ring-[#FF8C1A] focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            전송
+          </button>
+        </div>
+        <div class="mt-1 flex flex-wrap gap-1">
+          <button
+            class="suggestion-btn px-3 py-1 text-xs bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
+          >
+            발음 연습 방법 알려줘
+          </button>
+          <button
+            class="suggestion-btn px-3 py-1 text-xs bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
+          >
+            받침 발음이 어려워요
+          </button>
+          <button
+            class="suggestion-btn px-3 py-1 text-xs bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-full hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
+          >
+            존댓말 사용법
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

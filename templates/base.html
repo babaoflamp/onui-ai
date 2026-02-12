@@ -26,6 +26,7 @@
 
     <!-- 공통 UI 컴포넌트 CSS -->
     <link rel="stylesheet" href="/static/css/components.css" />
+    <link rel="stylesheet" href="/static/css/floating-buttons.css" />
 
     <script>
       // Suppress Tailwind CDN warning in console
@@ -241,7 +242,9 @@
       /* Embedded mode: hide global chrome when inside iframe or embed=1 */
       .embedded nav,
       .embedded footer,
-      .embedded #chatbot-widget {
+      .embedded #mail-modal,
+      .embedded #krdict-window,
+      .embedded #floating-buttons-container {
         display: none !important;
       }
       .embedded main {
@@ -854,43 +857,35 @@
     <!-- Main Content -->
     <main class="py-6">{% block content %}{% endblock %}</main>
 
-    <!-- Floating Chatbot & Mail Widget -->
+    <!-- Floating Buttons (Chatbot, Mail, Dictionary) -->
+    {% include "components/floating-buttons.html" %}
+
+    <!-- Mail Modal Popup (remains independent) -->
     <div
-      id="chatbot-widget"
-      class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
+      id="mail-modal"
+      class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4 backdrop-blur-sm"
+      onclick="closeMail()"
     >
-      <!-- Dictionary Button -->
-      <button
-        id="krdict-toggle"
-        type="button"
-        class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-emerald-400"
-        aria-label="사전 검색"
-        title="사전 검색"
-      >
-        <span class="text-4xl leading-none select-none" aria-hidden="true"
-          >📖</span
-        >
-      </button>
-
-      <!-- Dictionary Window -->
       <div
-        id="krdict-window"
-        class="hidden absolute right-0 bottom-[calc(100%+0.75rem)] w-96 h-[520px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-        style="max-width: calc(100vw - 2rem)"
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+        onclick="event.stopPropagation()"
       >
-        <!-- Header -->
+        <!-- Modal Header -->
         <div
-          class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 flex items-center justify-between"
+          class="flex items-center justify-between p-6 border-b border-gray-200"
         >
-          <div class="flex items-center gap-2">
-            <span class="text-lg" aria-hidden="true">📖</span>
-            <div class="font-semibold">사전 검색</div>
+          <div class="flex items-center gap-3 flex-1">
+            <span id="mail-modal-icon" class="text-3xl">📌</span>
+            <h2
+              id="mail-modal-title"
+              class="text-xl font-bold text-gray-900 truncate"
+            >
+              메일 제목
+            </h2>
           </div>
           <button
-            id="krdict-close"
-            type="button"
-            class="text-white hover:bg-white/20 rounded-full p-1"
-            aria-label="닫기"
+            onclick="closeMail()"
+            class="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
             <svg
               class="w-6 h-6"
@@ -908,330 +903,24 @@
           </button>
         </div>
 
-        <!-- Search -->
-        <form
-          id="krdict-widget-form"
-          class="p-3 bg-white border-b border-gray-200 flex flex-col gap-2"
-        >
-          <div class="flex gap-2">
-            <input
-              type="text"
-              id="krdict-widget-query"
-              placeholder="예) 나무, 나무라다"
-              class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400"
-              autocomplete="off"
-            />
-            <button
-              id="krdict-widget-submit"
-              type="submit"
-              class="px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
-            >
-              검색
-            </button>
-          </div>
-
-          <div class="grid grid-cols-3 gap-2">
-            <div>
-              <label for="krdict-widget-part" class="sr-only">검색 대상</label>
-              <select
-                id="krdict-widget-part"
-                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
-              >
-                <option value="">전체</option>
-                <option value="word">어휘</option>
-                <option value="ip">관용구/속담</option>
-                <option value="dfn">뜻풀이</option>
-                <option value="exam">용례</option>
-              </select>
-            </div>
-            <div>
-              <label for="krdict-widget-method" class="sr-only"
-                >검색 방식</label
-              >
-              <select
-                id="krdict-widget-method"
-                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
-              >
-                <option value="">일치</option>
-                <option value="include">포함</option>
-                <option value="start">시작</option>
-                <option value="end">끝</option>
-              </select>
-            </div>
-            <div>
-              <label for="krdict-widget-num" class="sr-only">출력 건수</label>
-              <select
-                id="krdict-widget-num"
-                class="w-full rounded-xl border border-gray-200 px-2 py-2 text-xs bg-white"
-              >
-                <option value="10">10개</option>
-                <option value="20">20개</option>
-                <option value="30">30개</option>
-              </select>
-            </div>
-          </div>
-        </form>
-        <div
-          id="krdict-widget-status"
-          class="px-4 py-2 text-xs text-gray-600 bg-gray-50 hidden"
-        ></div>
-
-        <!-- Results -->
-        <div
-          id="krdict-widget-results"
-          class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
-        >
-          <div class="text-sm text-gray-500">
-            검색어를 입력하고 Enter를 눌러보세요.
-          </div>
+        <!-- Modal Content -->
+        <div class="p-6 max-h-[400px] overflow-y-auto">
+          <p
+            id="mail-modal-message"
+            class="text-gray-700 leading-relaxed whitespace-pre-wrap"
+          >
+            메일 내용
+          </p>
         </div>
 
-        <!-- Footer -->
-        <div
-          class="p-3 border-t border-gray-200 bg-white flex items-center justify-between"
-        >
-          <a
-            href="/krdict"
-            class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold"
-          >
-            전체 페이지로 열기 →
-          </a>
-          <div class="text-[11px] text-gray-400">한국어기초사전(Open API)</div>
-        </div>
-      </div>
-
-      <div class="relative flex flex-col items-end">
-        <!-- Mail Button -->
-        <button
-          id="mail-toggle"
-          class="w-16 h-16 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110 border-2 border-blue-400 relative"
-          onclick="toggleMailNotification()"
-        >
-          <span class="text-4xl leading-none select-none" aria-hidden="true"
-            >📬</span
-          >
-          <span
-            id="mail-badge-float"
-            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-bold animate-pulse"
-            style="display: none"
-          >
-            1
-          </span>
-        </button>
-
-        <!-- Mail Dropdown -->
-        <div
-          id="mail-dropdown"
-          class="hidden absolute right-0 bottom-[calc(100%+0.75rem)] w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 z-50"
-        >
-          <div
-            class="p-4 border-b border-gray-200 flex items-center justify-between"
-          >
-            <h3 class="font-bold text-gray-900">📬 메일함</h3>
-            <button
-              onclick="toggleMailNotification()"
-              class="text-gray-400 hover:text-gray-600 transition-colors p-1"
-              title="닫기"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-          </div>
-          <div id="mail-list" class="max-h-80 overflow-y-auto">
-            <div class="p-4 text-center text-gray-500 text-sm">
-              새 메일이 없습니다.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat Button -->
-      <button
-        id="chatbot-toggle"
-        class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
-      >
-        <img
-          src="/static/tiger_chatbot.svg"
-          alt="호랑이 챗봇"
-          class="w-12 h-12"
-        />
-      </button>
-
-      <!-- Mail Modal Popup -->
-      <div
-        id="mail-modal"
-        class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4 backdrop-blur-sm"
-        onclick="closeMail()"
-      >
-        <div
-          class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
-          onclick="event.stopPropagation()"
-        >
-          <!-- Modal Header -->
-          <div
-            class="flex items-center justify-between p-6 border-b border-gray-200"
-          >
-            <div class="flex items-center gap-3 flex-1">
-              <span id="mail-modal-icon" class="text-3xl">📌</span>
-              <h2
-                id="mail-modal-title"
-                class="text-xl font-bold text-gray-900 truncate"
-              >
-                메일 제목
-              </h2>
-            </div>
-            <button
-              onclick="closeMail()"
-              class="text-gray-400 hover:text-gray-600 transition-colors p-1"
-            >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Modal Content -->
-          <div class="p-6 max-h-[400px] overflow-y-auto">
-            <p
-              id="mail-modal-message"
-              class="text-gray-700 leading-relaxed whitespace-pre-wrap"
-            >
-              메일 내용
-            </p>
-            <p id="mail-modal-timestamp" class="text-gray-400 text-sm mt-4">
-              시간
-            </p>
-          </div>
-
-          <!-- Modal Footer -->
-          <div class="flex gap-3 p-6 border-t border-gray-200">
-            <button
-              id="mail-delete-btn"
-              onclick="deleteCurrentMail()"
-              class="flex-1 px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-medium transition-colors"
-            >
-              삭제
-            </button>
-            <button
-              onclick="closeMail()"
-              class="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium transition-all"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chat Window -->
-      <div
-        id="chatbot-window"
-        class="hidden absolute bottom-24 right-0 w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-        style="max-width: calc(100vw - 2rem)"
-      >
-        <!-- Header -->
-        <div
-          class="bg-gradient-to-r from-orange-500 to-pink-500 text-white p-4 flex items-center justify-between"
-        >
-          <div class="flex items-center space-x-2">
-            <div
-              class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center p-2"
-            >
-              <img
-                src="/static/tiger_chatbot.svg"
-                alt="호랑이"
-                class="w-full h-full"
-              />
-            </div>
-            <div>
-              <div class="font-semibold">AI 한국어 튜터</div>
-              <div class="text-xs opacity-90">온라인</div>
-            </div>
-          </div>
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-gray-200 flex justify-end">
           <button
-            id="chatbot-close"
-            class="text-white hover:bg-white/20 rounded-full p-1"
+            onclick="closeMail()"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
           >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
+            확인
           </button>
-        </div>
-
-        <!-- Messages -->
-        <div
-          id="chatbot-messages"
-          class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
-        >
-          <div class="flex items-start space-x-2">
-            <div
-              class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1"
-            >
-              <img
-                src="/static/tiger_chatbot.svg"
-                alt="호랑이"
-                class="w-full h-full"
-              />
-            </div>
-            <div
-              class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]"
-            >
-              <p class="text-sm text-gray-800">
-                어흥! 🐯<br />호랑이가 한국어 학습을 도와드릴게요!<br />무엇을
-                도와드릴까요?
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Input -->
-        <div class="border-t border-gray-200 bg-white">
-          <!-- Input Field -->
-          <div class="flex space-x-2 p-3">
-            <input
-              type="text"
-              id="chatbot-input"
-              placeholder="메시지를 입력하세요..."
-              class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500"
-              autocomplete="off"
-            />
-            <button
-              id="chatbot-send"
-              class="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white text-sm font-medium rounded-full hover:from-orange-600 hover:to-pink-600 focus:outline-none disabled:opacity-50"
-            >
-              전송
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -1390,19 +1079,19 @@
           : "";
 
         return `
-	          <article class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-	            <div class="flex items-start justify-between gap-3">
-	              <div class="min-w-0">
-	                <div class="text-lg font-bold text-gray-900 truncate">${word}</div>
-	                <div class="text-xs text-gray-500 mt-1">${pronunciation}</div>
-	              </div>
-	              <div class="flex flex-wrap gap-2 justify-end">${tags}</div>
-	            </div>
-	            ${senseList ? `<ul class="mt-3 space-y-1">${senseList}</ul>` : ""}
-	            ${example}
-	            <div class="mt-3">${link}</div>
-	          </article>
-	        `;
+           <article class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
+             <div class="flex items-start justify-between gap-3">
+               <div class="min-w-0">
+                 <div class="text-lg font-bold text-gray-900 truncate">${word}</div>
+                 <div class="text-xs text-gray-500 mt-1">${pronunciation}</div>
+               </div>
+               <div class="flex flex-wrap gap-2 justify-end">${tags}</div>
+             </div>
+             ${senseList ? `<ul class="mt-3 space-y-1">${senseList}</ul>` : ""}
+             ${example}
+             <div class="mt-3">${link}</div>
+           </article>
+         `;
       }
 
       async function fetchKrdictResults(query) {
@@ -1538,7 +1227,6 @@
       const chatbotClose = document.getElementById("chatbot-close");
       const chatbotMessages = document.getElementById("chatbot-messages");
       const chatbotInput = document.getElementById("chatbot-input");
-      const chatbotSend = document.getElementById("chatbot-send");
       const chatbotModelSelect = document.getElementById(
         "chatbot-model-select",
       );
@@ -1651,7 +1339,6 @@
 
         addChatbotUserMessage(message);
         chatbotInput.value = "";
-        chatbotSend.disabled = true;
         if (chatbotModelSelect) {
           chatbotModelSelect.disabled = true;
         }
@@ -1697,7 +1384,6 @@
           removeChatbotTyping();
           addChatbotAIMessage("네트워크 오류가 발생했습니다.");
         } finally {
-          chatbotSend.disabled = false;
           if (chatbotModelSelect) {
             chatbotModelSelect.disabled = false;
           }
@@ -1706,7 +1392,6 @@
       }
 
       // Event listeners
-      chatbotSend.addEventListener("click", () => {
         sendChatbotMessage(chatbotInput.value);
       });
 
@@ -1983,12 +1668,12 @@
           "nav.admin_content": "AI教材生成",
           "nav.admin_media": "AI画像生成",
           "nav.help": "ヘルプ",
-          "nav.help_channel": "1:1 お問い合わせ",
-          "nav.ai_tools": "AI 学習ツール",
-          "nav.content_generation": "カスタム教材",
-          "auth.login": "ログイン",
-          "auth.signup": "新規登録",
-          "auth.logout": "ログアウト",
+          "nav.help_channel": "Support",
+          "nav.ai_tools": "AI Tools",
+          "nav.content_generation": "Textbook",
+          "auth.login": "Login",
+          "auth.signup": "Sign Up",
+          "auth.logout": "Logout",
         },
         zh: {
           "nav.home": "首页",
@@ -2019,7 +1704,7 @@
           "nav.admin_content": "AI 内容生成",
           "nav.admin_media": "AI 图片生成",
           "nav.help": "帮助",
-          "nav.help_channel": "1对1 咨询渠道",
+          "nav.help_channel": "Support",
           "nav.ai_tools": "AI 学习工具",
           "nav.content_generation": "定制教材",
           "auth.login": "登录",
@@ -2444,7 +2129,7 @@
           ],
           messages_i18n: {
             ja: [
-              "30分で覚えた単語が5つだけだよ。こんなに遅いと捕まえちゃうぞ!!",
+              "30분で覚えた単語が5つだけだよ。こんな에 빠르게 가다간捕まえちゃうぞ!!",
               "ガオー！もう少し早くしない？",
               "一人で休んでないで頑張れ！ガオー！🐯",
             ],
@@ -2501,67 +2186,29 @@
 
       function toggleMailNotification() {
         const dropdown = document.getElementById("mail-dropdown");
-        dropdown.classList.toggle("hidden");
-      }
-
-      function addMailNotification(title, message, icon = "📌") {
-        mailCount++;
-        document.getElementById("mail-badge-float").style.display = "flex";
-        document.getElementById("mail-badge-float").textContent = mailCount;
-
-        const mailItem = {
-          id: Date.now(),
-          title: title,
-          message: message,
-          icon: icon,
-          timestamp: new Date().toLocaleString("ko-KR"),
-        };
-        mailData.unshift(mailItem);
-
-        renderMailList();
-        return mailItem.id;
-      }
-
-      function renderMailList() {
-        const mailList = document.getElementById("mail-list");
-
-        if (mailData.length === 0) {
-          mailList.innerHTML =
-            '<div class="p-4 text-center text-gray-500 text-sm">새 메일이 없습니다.</div>';
-          return;
+        if (dropdown) {
+          dropdown.classList.toggle("hidden");
+          if (!dropdown.classList.contains("hidden")) {
+            // Optionally fetch new mails or mark as read when opened
+            console.log("Mail dropdown opened");
+          }
         }
-
-        mailList.innerHTML = mailData
-          .map(
-            (mail) => `
-          <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition" onclick="openMail(${mail.id})">
-            <div class="flex items-start gap-3">
-              <span class="text-2xl flex-shrink-0">${mail.icon}</span>
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-gray-900 text-sm truncate">${mail.title}</p>
-                <p class="text-gray-600 text-xs mt-1 line-clamp-2">${mail.message}</p>
-                <p class="text-gray-400 text-xs mt-2">${mail.timestamp}</p>
-              </div>
-            </div>
-          </div>
-        `,
-          )
-          .join("");
       }
 
-      function openMail(mailId) {
-        const mail = mailData.find((m) => m.id === mailId);
-        if (mail) {
-          currentOpenMailId = mailId;
-          document.getElementById("mail-modal-icon").textContent = mail.icon;
-          document.getElementById("mail-modal-title").textContent = mail.title;
-          document.getElementById("mail-modal-message").textContent =
-            mail.message;
-          document.getElementById("mail-modal-timestamp").textContent =
-            mail.timestamp;
-          document.getElementById("mail-modal").classList.remove("hidden");
-          document.body.style.overflow = "hidden";
+      function closeMail() {
+        const modal = document.getElementById("mail-modal");
+        if (modal) {
+          modal.classList.add("hidden");
         }
+      }
+
+      function openMail(icon, title, message) {
+        const modal = document.getElementById("mail-modal");
+        if (!modal) return;
+        document.getElementById("mail-modal-icon").textContent = icon;
+        document.getElementById("mail-modal-title").textContent = title;
+        document.getElementById("mail-modal-message").textContent = message;
+        modal.classList.remove("hidden");
       }
 
       function closeMail() {
@@ -2623,6 +2270,9 @@
     <script src="/static/js/ui-components.js"></script>
 
     {% block extra_js %}{% endblock %}
+
+    <!-- Floating Buttons JavaScript (Dictionary and Chatbot) -->
+    <script src="/static/js/floating-buttons.js"></script>
 
     <!-- 캐릭터 팝업 컴포넌트 -->
     {% include 'components/character-popup.html' %}
