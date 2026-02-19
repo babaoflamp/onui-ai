@@ -1,7 +1,0 @@
-2026-02-12 10:50:19,485 - main - INFO - [REQUEST] GET / from 112.220.79.218 | User: Guest
-2026-02-12 10:50:19,492 - main - INFO - [RESPONSE] GET / - Status: 200
-2026-02-12 10:50:19,492 - main - INFO - [PAGE_VIEW] user=Guest email= role= page=/ ip=112.220.79.218
-2026-02-12 10:50:20,955 - main - INFO - [REQUEST] GET /static/css/floating-buttons.css from 112.220.79.218 | User: Guest
-2026-02-12 10:50:20,956 - main - INFO - [RESPONSE] GET /static/css/floating-buttons.css - Status: 304
-2026-02-12 10:50:22,735 - main - INFO - [REQUEST] GET /static/js/floating-buttons.js from 112.220.79.218 | User: Guest
-2026-02-12 10:50:22,737 - main - INFO - [RESPONSE] GET /static/js/floating-buttons.js - Status: 304

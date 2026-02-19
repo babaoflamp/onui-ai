@@ -84,10 +84,23 @@ dist/
 build/
 *.egg-info/
 
+# Node modules and lock files
+node_modules/
+package-lock.json
+
 # Backup and Large Files
 Backup/
 Python-3.12.2/
 Python-3.12.2.tgz
 ngrok
+
+# Runtime data and caches
 data/tts_cache/
+data/tmp/
 uploads/audio/
+
+# Root-level database files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
