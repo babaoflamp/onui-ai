@@ -2,11 +2,11 @@
   id="floating-buttons-container"
   class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
 >
-  <div class="relative flex flex-col items-end group">
+  <div class="relative flex flex-col items-end">
     <!-- Chatbot Button (Main button to trigger expansion) -->
     <button
       id="chatbot-toggle"
-      class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group-hover:scale-110"
+      class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hover:scale-110"
       aria-label="챗봇"
       title="챗봇"
     >
@@ -20,7 +20,7 @@
     <!-- Expanded Buttons (initially hidden, show on chatbot-toggle hover) -->
     <div
       id="expanded-floating-buttons"
-      class="flex flex-col items-end gap-4 absolute bottom-full right-0 mb-4 opacity-0 scale-y-0 transform origin-bottom transition-all duration-300 group-hover:opacity-100 group-hover:scale-y-100"
+      class="flex flex-col items-end gap-4 absolute bottom-full right-0 mb-4"
     >
       <!-- Mail Button -->
       <button
@@ -284,9 +284,10 @@
   </div>
 
   <!-- Chatbot Window (Initially hidden) -->
-      <div
+  <div
     id="chatbot-window"
     class="hidden fixed bottom-6 right-6 w-[400px] h-[650px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-[49]"
+  >
     <!-- Header -->
     <div
       class="bg-gradient-to-r from-orange-500 to-pink-500 text-white p-4 flex items-center justify-between"

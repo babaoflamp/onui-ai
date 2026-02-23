@@ -6,6 +6,115 @@ endblock %} {% block content %}
   #fun-stories-track::-webkit-scrollbar {
     display: none;
   }
+
+  /* === Micro-interaction: Animated Progress Bars === */
+  .score-progress-bar {
+    height: 8px;
+    border-radius: 9999px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .score-progress-bar .fill {
+    height: 100%;
+    border-radius: 9999px;
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+  }
+
+  .score-progress-bar .fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .score-value {
+    transition: opacity 0.3s;
+  }
+
+  .score-value.counting {
+    opacity: 0.7;
+  }
+
+  /* === Dynamic Card Highlighting === */
+  .card-recommended {
+    border-color: #FF8C1A !important;
+    box-shadow: 0 0 0 1px #FF8C1A, 0 0 16px rgba(255, 140, 26, 0.15) !important;
+    position: relative;
+    animation: card-glow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes card-glow {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 1px #FF8C1A, 0 0 12px rgba(255, 140, 26, 0.1);
+    }
+
+    50% {
+      box-shadow: 0 0 0 2px #FF8C1A, 0 0 20px rgba(255, 140, 26, 0.25);
+    }
+  }
+
+  .badge-recommended {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: linear-gradient(135deg, #FF8C1A, #FF6B00);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(255, 107, 0, 0.3);
+    animation: badge-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes badge-pop {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .card-slide-up {
+    animation: slide-up 0.4s ease-out;
+  }
+
+  @keyframes slide-up {
+    0% {
+      transform: translateY(12px);
+      opacity: 0.6;
+    }
+
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 </style>
 <script>
   window.PAGE_I18N = {
@@ -61,6 +170,10 @@ endblock %} {% block content %}
       "dash.stories.dictation": "받아쓰기",
       "dash.stories.daily": "오늘의 표현",
       "dash.stories.vocab": "단어 꽃밭",
+      "dash.usp.1": "⚙️ 단순한 인식이 아닙니다. 당신의 조음(Articulation) 데이터를 딥러닝으로 튜닝합니다.",
+      "dash.usp.2": "🏆 SpeechPro 92점의 비밀, 리듬과 호흡까지 짚어내는 AI 1:1 밀착 코칭.",
+      "dash.usp.3": "🌡️ 한국어의 온도를 맞추다. AI 발음 평가부터 전래동화 학습까지, 끊김 없는 언어 몰입.",
+      "dash.usp.4": "📡 Native의 주파수에 도달하는 가장 빠른 경로, 오누이 AI 가이던스.",
     },
     ja: {
       __title__: "学習ダッシュボード - ONUI",
@@ -114,6 +227,10 @@ endblock %} {% block content %}
       "dash.stories.dictation": "書き取り",
       "dash.stories.daily": "今日の表現",
       "dash.stories.vocab": "単語ガーデン",
+      "dash.usp.1": "⚙️ 単なる認識ではありません。あなたの調音データをディープラーニングでチューニング。",
+      "dash.usp.2": "🏆 SpeechPro 92点の秘密、リズムと呼吸まで把握するAI 1:1密着コーチング。",
+      "dash.usp.3": "🌡️ 韓国語の温度を合わせる。AI発音評価から昔話学習まで、途切れのない言語没入。",
+      "dash.usp.4": "📡 Nativeの周波数に到達する最速の経路、Onui AIガイダンス。",
     },
     zh: {
       __title__: "学习仪表盘 - ONUI",
@@ -167,6 +284,10 @@ endblock %} {% block content %}
       "dash.stories.dictation": "听写",
       "dash.stories.daily": "今日表达",
       "dash.stories.vocab": "单词花园",
+      "dash.usp.1": "⚙️ 不只是简单识别。用深度学习精调你的发音(Articulation)数据。",
+      "dash.usp.2": "🏆 SpeechPro 92分的秘密，连节奏和呼吸都能捕捉的AI 1:1贴身辅导。",
+      "dash.usp.3": "🌡️ 对齐韩语的温度。从AI发音评测到民间故事学习，无缝语言沉浸。",
+      "dash.usp.4": "📡 到达Native频率的最短路径，ONUI AI引导。",
     },
     en: {
       __title__: "Learning Dashboard - ONUI Korean",
@@ -221,116 +342,117 @@ endblock %} {% block content %}
       "dash.stories.dictation": "Dictation",
       "dash.stories.daily": "Daily Expression",
       "dash.stories.vocab": "Vocabulary Garden",
+      "dash.usp.1": "⚙️ Beyond recognition. We fine-tune your Articulation data with deep learning.",
+      "dash.usp.2": "🏆 The secret behind SpeechPro 92 — AI 1:1 coaching that reads rhythm & breath.",
+      "dash.usp.3": "🌡️ Feel the temperature of Korean. Seamless immersion from AI to folktales.",
+      "dash.usp.4": "📡 Fastest path to native frequency — ONUI AI Guidance.",
     },
   };
 </script>
 <div id="alertsContainer"></div>
 <div class="max-w-6xl mx-auto px-4 space-y-8">
+  <!-- USP Rotating Ticker -->
+  <div
+    class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white px-5 py-3 shadow-lg">
+    <div id="uspTicker" class="relative h-6 overflow-hidden">
+      <div
+        class="usp-line absolute inset-0 flex items-center justify-center text-sm font-medium tracking-wide opacity-100 transition-all duration-500"
+        data-i18n="dash.usp.1">
+        ⚙️ 단순한 인식이 아닙니다. 당신의 조음(Articulation) 데이터를 딥러닝으로 튜닝합니다.
+      </div>
+      <div
+        class="usp-line absolute inset-0 flex items-center justify-center text-sm font-medium tracking-wide opacity-0 translate-y-full transition-all duration-500"
+        data-i18n="dash.usp.2">
+        🏆 SpeechPro 92점의 비밀, 리듬과 호흡까지 짚어내는 AI 1:1 밀착 코칭.
+      </div>
+      <div
+        class="usp-line absolute inset-0 flex items-center justify-center text-sm font-medium tracking-wide opacity-0 translate-y-full transition-all duration-500"
+        data-i18n="dash.usp.3">
+        🌡️ 한국어의 온도를 맞추다. AI 발음 평가부터 전래동화 학습까지, 끊김 없는 언어 몰입.
+      </div>
+      <div
+        class="usp-line absolute inset-0 flex items-center justify-center text-sm font-medium tracking-wide opacity-0 translate-y-full transition-all duration-500"
+        data-i18n="dash.usp.4">
+        📡 Native의 주파수에 도달하는 가장 빠른 경로, 오누이 AI 가이던스.
+      </div>
+    </div>
+    <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1.5">
+      <span class="usp-dot w-1.5 h-1.5 rounded-full bg-white opacity-100 transition-opacity"></span>
+      <span class="usp-dot w-1.5 h-1.5 rounded-full bg-white opacity-30 transition-opacity"></span>
+      <span class="usp-dot w-1.5 h-1.5 rounded-full bg-white opacity-30 transition-opacity"></span>
+      <span class="usp-dot w-1.5 h-1.5 rounded-full bg-white opacity-30 transition-opacity"></span>
+    </div>
+  </div>
+
   <div class="flex items-center justify-between"></div>
 
   <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6">
     <div class="space-y-6">
       <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div
-          class="relative overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm"
-        >
-          <img
-            src="/static/img/dashboard/hero-1.jpg"
-            alt="정확한 발음 평가"
-            class="h-48 w-full object-cover"
-          />
+        <div class="relative overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+          <img src="/static/img/dashboard/hero-1.jpg" alt="정확한 발음 평가" class="h-48 w-full object-cover" />
           <div class="p-4">
-            <h2
-              class="text-lg font-semibold text-gray-900"
-              data-i18n="dash.hero1.title"
-            >
+            <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.hero1.title">
               정확한 발음 평가로 한국어 실력 완성!
             </h2>
             <p class="text-sm text-gray-600 mt-1" data-i18n="dash.hero1.desc">
               발음 학습 종합평가를 통해 발음 수준 향상!
             </p>
-            <a
-              href="/speechpro-practice"
+            <a href="/speechpro-practice"
               class="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-orange-600"
-              data-i18n="dash.hero1.link"
-              >발음 학습 종합평가 하러 가기 →</a
-            >
+              data-i18n="dash.hero1.link">발음 학습 종합평가 하러 가기 →</a>
           </div>
         </div>
-        <div
-          class="relative overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm"
-        >
-          <img
-            src="/static/img/dashboard/hero-2.jpg"
-            alt="단계별 학습"
-            class="h-48 w-full object-cover"
-          />
+        <div class="relative overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+          <img src="/static/img/dashboard/hero-2.jpg" alt="단계별 학습" class="h-48 w-full object-cover" />
           <div class="p-4">
-            <h2
-              class="text-lg font-semibold text-gray-900"
-              data-i18n="dash.hero2.title"
-            >
+            <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.hero2.title">
               단계별 학습을 통해 유창성 기르기!
             </h2>
             <p class="text-sm text-gray-600 mt-1" data-i18n="dash.hero2.desc">
               단계별 한국어 유창성 평가를 통해 발음 수준 향상!
             </p>
-            <a
-              href="/curriculum"
-              class="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-orange-600"
-              data-i18n="dash.hero2.link"
-              >단계별 학습 하러 가기 →</a
-            >
+            <a href="/curriculum" class="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-orange-600"
+              data-i18n="dash.hero2.link">단계별 학습 하러 가기 →</a>
           </div>
         </div>
         <div class="rounded-3xl border border-blue-100 bg-white shadow-sm p-5">
           <div class="flex items-center justify-between">
-            <div
-              class="text-sm font-semibold text-blue-700"
-              data-i18n="dash.sample.title"
-            >
+            <div class="text-sm font-semibold text-blue-700" data-i18n="dash.sample.title">
               최근 발음 평가
             </div>
-            <span class="text-xs text-gray-400" data-i18n="dash.sample.badge"
-              >샘플</span
-            >
+            <span class="text-xs text-gray-400" data-i18n="dash.sample.badge">샘플</span>
           </div>
           <div class="mt-3 grid grid-cols-2 gap-3">
             <div class="rounded-2xl bg-blue-50 px-3 py-2">
               <p class="text-xs text-blue-700 font-semibold">SpeechPro</p>
-              <p class="text-2xl font-bold text-blue-800 mt-1">92점</p>
-              <p
-                class="text-xs text-blue-700 mt-1"
-                data-i18n="dash.sample.speechpro.label"
-              >
-                발음 정확도
-              </p>
+              <div class="flex items-baseline gap-1 mt-1">
+                <p id="scoreSpPro" class="text-2xl font-bold text-blue-800 score-value" data-target="92">0점</p>
+              </div>
+              <div class="score-progress-bar bg-blue-200 mt-1.5">
+                <div id="barSpPro" class="fill bg-gradient-to-r from-blue-400 to-blue-600"></div>
+              </div>
+              <p class="text-xs text-blue-700 mt-1" data-i18n="dash.sample.speechpro.label">발음 정확도</p>
             </div>
             <div class="rounded-2xl bg-emerald-50 px-3 py-2">
               <p class="text-xs text-emerald-700 font-semibold">FluencyPro</p>
-              <p class="text-2xl font-bold text-emerald-800 mt-1">88%</p>
-              <p
-                class="text-xs text-emerald-700 mt-1"
-                data-i18n="dash.sample.fluency.label"
-              >
-                유창성 정확도
-              </p>
+              <div class="flex items-baseline gap-1 mt-1">
+                <p id="scoreFluency" class="text-2xl font-bold text-emerald-800 score-value" data-target="88">0%</p>
+              </div>
+              <div class="score-progress-bar bg-emerald-200 mt-1.5">
+                <div id="barFluency" class="fill bg-gradient-to-r from-emerald-400 to-emerald-600"></div>
+              </div>
+              <p class="text-xs text-emerald-700 mt-1" data-i18n="dash.sample.fluency.label">유창성 정확도</p>
             </div>
           </div>
           <div class="mt-4">
             <p class="text-xs text-gray-500" data-i18n="dash.sample.recent">
               최근 문장
             </p>
-            <p
-              class="text-sm font-semibold text-gray-900 mt-1"
-              data-i18n="dash.sample.sentence"
-            >
+            <p class="text-sm font-semibold text-gray-900 mt-1" data-i18n="dash.sample.sentence">
               “저는 한국어 발음을 연습하고 있어요.”
             </p>
-            <p
-              class="text-xs text-gray-500 mt-1"
-              data-i18n="dash.sample.feedback"
-            >
+            <p class="text-xs text-gray-500 mt-1" data-i18n="dash.sample.feedback">
               피드백: 자음 발음이 명확합니다. 호흡 리듬을 조금 더 안정적으로
               유지해보세요.
             </p>
@@ -340,70 +462,42 @@ endblock %} {% block content %}
 
       <section class="space-y-3">
         <div class="flex items-center justify-between">
-          <h2
-            class="text-lg font-semibold text-gray-900"
-            data-i18n="dash.section.pron"
-          >
+          <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.section.pron">
             발음 학습
           </h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div
-            class="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex items-center gap-4"
-          >
+          <div class="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex items-center gap-4">
             <div
-              class="w-24 h-16 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-xl"
-            >
+              class="w-24 h-16 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-xl">
               🎧
             </div>
             <div>
-              <p
-                class="font-semibold text-gray-900"
-                data-i18n="dash.pron.card1.title"
-              >
+              <p class="font-semibold text-gray-900" data-i18n="dash.pron.card1.title">
                 단계별 발음 학습 하러 가기
               </p>
-              <p
-                class="text-xs text-gray-500 mt-1"
-                data-i18n="dash.pron.card1.desc"
-              >
+              <p class="text-xs text-gray-500 mt-1" data-i18n="dash.pron.card1.desc">
                 발음 단계별 집중 연습
               </p>
-              <a
-                href="/curriculum"
-                class="inline-flex items-center gap-1 text-xs text-orange-600 font-semibold mt-2"
-                data-i18n="dash.common.cta"
-                >바로가기 →</a
-              >
+              <a href="/curriculum" class="inline-flex items-center gap-1 text-xs text-orange-600 font-semibold mt-2"
+                data-i18n="dash.common.cta">바로가기 →</a>
             </div>
           </div>
-          <div
-            class="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex items-center gap-4"
-          >
+          <div class="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex items-center gap-4">
             <div
-              class="w-24 h-16 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-xl"
-            >
+              class="w-24 h-16 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-xl">
               🎤
             </div>
             <div>
-              <p
-                class="font-semibold text-gray-900"
-                data-i18n="dash.pron.card2.title"
-              >
+              <p class="font-semibold text-gray-900" data-i18n="dash.pron.card2.title">
                 발음 규칙 학습 하러 가기
               </p>
-              <p
-                class="text-xs text-gray-500 mt-1"
-                data-i18n="dash.pron.card2.desc"
-              >
+              <p class="text-xs text-gray-500 mt-1" data-i18n="dash.pron.card2.desc">
                 규칙을 보고 바로 적용
               </p>
-              <a
-                href="/pronunciation-rules"
+              <a href="/pronunciation-rules"
                 class="inline-flex items-center gap-1 text-xs text-orange-600 font-semibold mt-2"
-                data-i18n="dash.common.cta"
-                >바로가기 →</a
-              >
+                data-i18n="dash.common.cta">바로가기 →</a>
             </div>
           </div>
         </div>
@@ -411,62 +505,36 @@ endblock %} {% block content %}
 
       <section class="space-y-3">
         <div class="flex items-center justify-between">
-          <h2
-            class="text-lg font-semibold text-gray-900"
-            data-i18n="dash.section.ai"
-          >
+          <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.section.ai">
             AI 학습
           </h2>
         </div>
-        <div
-          id="ai-learning-track"
-          class="grid grid-cols-2 sm:grid-cols-4 gap-3"
-        >
-          <a
-            href="/content-generation"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+        <div id="ai-learning-track" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a href="/content-generation"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <div class="text-2xl">📘</div>
-            <p
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.ai.card.textbook"
-            >
+            <p class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.ai.card.textbook">
               맞춤형 교재 생성
             </p>
           </a>
-          <a
-            href="/speechpro-practice"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/speechpro-practice"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <div class="text-2xl">🎙️</div>
-            <p
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.ai.card.pron"
-            >
+            <p class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.ai.card.pron">
               발음 검사
             </p>
           </a>
-          <a
-            href="/sentence-learning"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/sentence-learning"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <div class="text-2xl">🧠</div>
-            <p
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.ai.card.reading"
-            >
+            <p class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.ai.card.reading">
               문장 학습
             </p>
           </a>
-          <a
-            href="/listening-dictation"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/listening-dictation"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <div class="text-2xl">🎧</div>
-            <p
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.ai.card.dictation"
-            >
+            <p class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.ai.card.dictation">
               받아쓰기
             </p>
           </a>
@@ -475,135 +543,79 @@ endblock %} {% block content %}
 
       <section class="space-y-3">
         <div class="flex items-center justify-between">
-          <h2
-            class="text-lg font-semibold text-gray-900"
-            data-i18n="dash.section.games"
-          >
+          <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.section.games">
             재미있는 놀이
           </h2>
         </div>
         <div id="fun-games-track" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <a
-            href="/word-matching-game"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/word-matching-game"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">🧩</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.games.wordmatch"
-              >단어맞추기 게임</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
+              data-i18n="dash.games.wordmatch">단어맞추기 게임</span>
           </a>
-          <a
-            href="/synonym-antonym-game"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/synonym-antonym-game"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">📝</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.games.synant"
-              >동의어/반의어 찾기</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
+              data-i18n="dash.games.synant">동의어/반의어 찾기</span>
           </a>
-          <a
-            href="/initial-quiz"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/initial-quiz"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">🧠</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.games.initial"
-              >초성 퀴즈</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.games.initial">초성
+              퀴즈</span>
           </a>
-          <a
-            href="/card-matching-game"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/card-matching-game"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">🃏</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.games.cardmatch"
-              >카드 짝맞추기</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
+              data-i18n="dash.games.cardmatch">카드 짝맞추기</span>
           </a>
         </div>
       </section>
 
       <section class="space-y-3">
         <div class="flex items-center justify-between">
-          <h2
-            class="text-lg font-semibold text-gray-900"
-            data-i18n="dash.section.stories"
-          >
+          <h2 class="text-lg font-semibold text-gray-900" data-i18n="dash.section.stories">
             재미있는 이야기
           </h2>
         </div>
-        <div
-          id="fun-stories-track"
-          class="grid grid-cols-2 sm:grid-cols-4 gap-3"
-        >
-          <a
-            href="/folktales"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+        <div id="fun-stories-track" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <a href="/folktales"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">📖</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.stories.folktales"
-              >전래동화</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
+              data-i18n="dash.stories.folktales">전래동화</span>
           </a>
-          <a
-            href="/cultural-expressions"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/cultural-expressions"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">🎨</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.stories.culture"
-              >문화 표현 학습</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
+              data-i18n="dash.stories.culture">문화 표현 학습</span>
           </a>
-          <a
-            href="/daily-expression"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/daily-expression"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">💬</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.stories.daily"
-              >오늘의 표현</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.stories.daily">오늘의
+              표현</span>
           </a>
-          <a
-            href="/vocab-garden"
-            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5"
-          >
+          <a href="/vocab-garden"
+            class="h-24 rounded-2xl border border-gray-100 bg-white shadow-sm p-3 text-center hover:border-orange-200 transition flex flex-col items-center justify-center gap-1.5">
             <span class="text-2xl">🌱</span>
-            <span
-              class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug"
-              data-i18n="dash.stories.vocab"
-              >단어 꽃밭</span
-            >
+            <span class="text-xs sm:text-sm font-semibold text-gray-900 leading-snug" data-i18n="dash.stories.vocab">단어
+              꽃밭</span>
           </a>
         </div>
       </section>
     </div>
 
     <aside class="space-y-4">
-      <div
-        class="rounded-3xl border border-gray-100 bg-white shadow-sm p-5 space-y-4"
-      >
+      <div class="rounded-3xl border border-gray-100 bg-white shadow-sm p-5 space-y-4">
         <div class="flex items-center gap-3">
           <div
-            class="w-12 h-12 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center overflow-hidden"
-          >
-            <img
-              src="/static/img/avatar-cute.svg"
-              alt="avatar"
-              class="w-10 h-10"
-            />
+            class="w-12 h-12 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center overflow-hidden">
+            <img src="/static/img/avatar-cute.svg" alt="avatar" class="w-10 h-10" />
           </div>
           <div>
             <p class="text-sm text-gray-500" data-i18n="dash.profile.role">
@@ -614,23 +626,16 @@ endblock %} {% block content %}
             </p>
           </div>
         </div>
-        <div
-          class="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3"
-        >
+        <div class="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
           <div>
-            <p
-              class="text-xs text-orange-700 font-semibold"
-              data-i18n="dash.profile.points"
-            >
+            <p class="text-xs text-orange-700 font-semibold" data-i18n="dash.profile.points">
               보유 포인트
             </p>
             <p class="text-xl font-bold text-orange-700">
               <span id="dashboardPoints">200</span> P
             </p>
           </div>
-          <div
-            class="px-3 py-1 rounded-full bg-white text-orange-700 text-xs font-semibold border border-orange-200"
-          >
+          <div class="px-3 py-1 rounded-full bg-white text-orange-700 text-xs font-semibold border border-orange-200">
             Level 1
           </div>
         </div>
@@ -649,69 +654,45 @@ endblock %} {% block content %}
         </div>
       </div>
 
-      <div
-        class="rounded-3xl border border-gray-100 bg-white shadow-sm p-5 space-y-4"
-      >
+      <div class="rounded-3xl border border-gray-100 bg-white shadow-sm p-5 space-y-4">
         <div class="flex items-center justify-between">
-          <p
-            class="text-sm font-semibold text-gray-900"
-            data-i18n="dash.attendance.title"
-          >
+          <p class="text-sm font-semibold text-gray-900" data-i18n="dash.attendance.title">
             출석 체크
           </p>
         </div>
-        <button
-          id="attendance-check-btn"
-          type="button"
-          onclick="checkInAttendance()"
-          class="w-full px-3 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition"
-        >
+        <button id="attendance-check-btn" type="button" onclick="checkInAttendance()"
+          class="w-full px-3 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition">
           오늘 출석 체크
         </button>
         <div id="attendance-streak" class="text-xs text-gray-600">
           연속 출석 0일
         </div>
         <div class="flex items-center justify-between px-2">
-          <button
-            type="button"
-            onclick="moveAttendanceMonth(-1)"
+          <button type="button" onclick="moveAttendanceMonth(-1)"
             class="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:text-orange-600 hover:border-orange-200 transition flex items-center justify-center text-lg"
-            aria-label="이전 달"
-          >
+            aria-label="이전 달">
             ‹
           </button>
-          <span
-            id="dashboard-calendar-label"
-            class="text-sm font-semibold text-gray-700"
-            >2025년 12월</span
-          >
-          <button
-            type="button"
-            onclick="moveAttendanceMonth(1)"
+          <span id="dashboard-calendar-label" class="text-sm font-semibold text-gray-700">2025년 12월</span>
+          <button type="button" onclick="moveAttendanceMonth(1)"
             class="w-8 h-8 rounded-full border border-gray-200 text-gray-500 hover:text-orange-600 hover:border-orange-200 transition flex items-center justify-center text-lg"
-            aria-label="다음 달"
-          >
+            aria-label="다음 달">
             ›
           </button>
         </div>
         <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
-          <span>MON</span><span>TUE</span><span>WED</span><span>THU</span
-          ><span>FRI</span><span class="text-sky-500">SAT</span
-          ><span class="text-red-500">SUN</span>
+          <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span
+            class="text-sky-500">SAT</span><span class="text-red-500">SUN</span>
         </div>
-        <div
-          id="dashboard-calendar-grid"
-          class="grid grid-cols-7 gap-x-1 gap-y-2 text-center text-xs"
-        ></div>
+        <div id="dashboard-calendar-grid" class="grid grid-cols-7 gap-x-1 gap-y-2 text-center text-xs"></div>
       </div>
     </aside>
   </div>
 </div>
 
-<div
-  id="attendance-toast"
-  class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition"
-></div>
+<div id="attendance-toast"
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-4 py-2 rounded-full shadow-lg opacity-0 pointer-events-none transition">
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -725,7 +706,123 @@ endblock %} {% block content %}
     if (nicknameEl) nicknameEl.textContent = nickname;
     if (pointsEl) pointsEl.textContent = points.toLocaleString("ko-KR");
     initAttendanceCalendar();
+
+    // === Micro-interaction: Animate score bars & count-up ===
+    setTimeout(() => animateScores(), 400);
+
+    // === Dynamic personalization: Highlight & reorder cards ===
+    setTimeout(() => applyDynamicPersonalization(), 200);
   });
+
+  // ── Score Animation ──
+  function animateScores() {
+    animateScore('scoreSpPro', 'barSpPro', '점');
+    animateScore('scoreFluency', 'barFluency', '%');
+  }
+
+  function animateScore(scoreId, barId, suffix) {
+    const scoreEl = document.getElementById(scoreId);
+    const barEl = document.getElementById(barId);
+    if (!scoreEl || !barEl) return;
+
+    const target = parseInt(scoreEl.getAttribute('data-target') || '0', 10);
+    scoreEl.classList.add('counting');
+
+    // Animate the progress bar fill
+    requestAnimationFrame(() => {
+      barEl.style.width = target + '%';
+    });
+
+    // Count-up animation
+    const duration = 1200;
+    const start = performance.now();
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutQuart
+      const eased = 1 - Math.pow(1 - progress, 4);
+      const current = Math.round(eased * target);
+      scoreEl.textContent = current + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        scoreEl.textContent = target + suffix;
+        scoreEl.classList.remove('counting');
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ── Dynamic Personalization ──
+  function applyDynamicPersonalization() {
+    // Read AI feedback data from localStorage (set by pronunciation pages)
+    const feedbackRaw = localStorage.getItem('ai_pronunciation_feedback');
+    let weakAreas = [];
+    try {
+      if (feedbackRaw) {
+        const feedback = JSON.parse(feedbackRaw);
+        weakAreas = feedback.weakAreas || feedback.weak_areas || [];
+      }
+    } catch (e) { /* ignore parse errors */ }
+
+    // If no stored feedback, use sample weak areas to demo the feature
+    if (!weakAreas.length) {
+      weakAreas = ['pronunciation', 'consonant'];
+    }
+
+    // Mapping: weak area keywords → card selectors and sections
+    const areaToCards = {
+      pronunciation: { section: 'pron', selector: 'a[href="/curriculum"]', label: '발음 연습 추천' },
+      consonant: { section: 'pron', selector: 'a[href="/pronunciation-rules"]', label: '자음 규칙 추천' },
+      vowel: { section: 'pron', selector: 'a[href="/pronunciation-rules"]', label: '모음 규칙 추천' },
+      fluency: { section: 'pron', selector: 'a[href="/curriculum"]', label: '유창성 추천' },
+      vocabulary: { section: 'stories', selector: 'a[href="/vocab-garden"]', label: '어휘 추천' },
+      listening: { section: 'ai', selector: 'a[href="/listening-dictation"]', label: '듣기 추천' },
+      reading: { section: 'ai', selector: 'a[href="/sentence-learning"]', label: '읽기 추천' },
+    };
+
+    // Highlight matching cards
+    weakAreas.forEach(area => {
+      const mapping = areaToCards[area.toLowerCase()];
+      if (!mapping) return;
+
+      const card = document.querySelector(mapping.selector);
+      if (!card) return;
+
+      // Add highlight glow
+      card.classList.add('card-recommended', 'card-slide-up');
+      card.style.position = 'relative';
+
+      // Add "추천" badge
+      if (!card.querySelector('.badge-recommended')) {
+        const badge = document.createElement('span');
+        badge.className = 'badge-recommended';
+        badge.textContent = '⭐ ' + mapping.label;
+        card.appendChild(badge);
+      }
+
+      // Move highlighted card to the front of its grid parent
+      const parent = card.parentElement;
+      if (parent && parent.firstElementChild !== card) {
+        parent.insertBefore(card, parent.firstElementChild);
+      }
+    });
+
+    // Also reorder sections — if weak area maps to 'pron', keep it first (already first).
+    // If weak areas relate to AI section, promote it above games/stories.
+    const sectionPriorities = weakAreas.map(a => (areaToCards[a.toLowerCase()] || {}).section).filter(Boolean);
+    if (sectionPriorities.includes('ai')) {
+      const mainContainer = document.querySelector('.space-y-6');
+      if (mainContainer) {
+        const sections = Array.from(mainContainer.querySelectorAll(':scope > section'));
+        const aiSection = sections.find(s => s.querySelector('#ai-learning-track'));
+        const pronSection = sections[1]; // pronunciation section is index 1 (after hero)
+        if (aiSection && pronSection && aiSection !== pronSection.nextElementSibling) {
+          mainContainer.insertBefore(aiSection, pronSection.nextElementSibling);
+        }
+      }
+    }
+  }
 
   function showAttendanceToast(message) {
     const toast = document.getElementById("attendance-toast");
@@ -738,6 +835,25 @@ endblock %} {% block content %}
       toast.classList.remove("opacity-100");
     }, 2000);
   }
+
+  // ── USP Ticker Rotation ──
+  (function initUspTicker() {
+    const lines = document.querySelectorAll('#uspTicker .usp-line');
+    const dots = document.querySelectorAll('.usp-dot');
+    if (!lines.length) return;
+    let idx = 0;
+    setInterval(() => {
+      lines[idx].classList.remove('opacity-100');
+      lines[idx].classList.add('opacity-0', 'translate-y-full');
+      dots[idx].classList.remove('opacity-100');
+      dots[idx].classList.add('opacity-30');
+      idx = (idx + 1) % lines.length;
+      lines[idx].classList.remove('opacity-0', 'translate-y-full');
+      lines[idx].classList.add('opacity-100');
+      dots[idx].classList.remove('opacity-30');
+      dots[idx].classList.add('opacity-100');
+    }, 4000);
+  })();
 
   let attendanceYear = null;
   let attendanceMonth = null;
@@ -854,9 +970,9 @@ endblock %} {% block content %}
         const error = await res.json().catch(() => ({}));
         throw new Error(
           error.detail ||
-            (typeof t === "function"
-              ? t("dash.attendance.error", "출석 체크에 실패했습니다.")
-              : "출석 체크에 실패했습니다.")
+          (typeof t === "function"
+            ? t("dash.attendance.error", "출석 체크에 실패했습니다.")
+            : "출석 체크에 실패했습니다.")
         );
       }
       const data = await res.json();
@@ -876,9 +992,9 @@ endblock %} {% block content %}
           const mailBodyTpl =
             typeof t === "function"
               ? t(
-                  "dash.attendance.mail.body",
-                  `${nickname}님, 오늘 출석이 완료되었습니다! 연속 출석을 이어가 보세요.`
-                )
+                "dash.attendance.mail.body",
+                `${nickname}님, 오늘 출석이 완료되었습니다! 연속 출석을 이어가 보세요.`
+              )
               : `${nickname}님, 오늘 출석이 완료되었습니다! 연속 출석을 이어가 보세요.`;
           const mailBody = mailBodyTpl.replace("{nickname}", nickname);
           const mailId = addMailNotification(mailTitle, mailBody, "📅");
@@ -890,9 +1006,9 @@ endblock %} {% block content %}
         showAttendanceToast(
           typeof t === "function"
             ? t(
-                "dash.attendance.toast.already",
-                "이미 오늘 출석을 완료했습니다."
-              )
+              "dash.attendance.toast.already",
+              "이미 오늘 출석을 완료했습니다."
+            )
             : "이미 오늘 출석을 완료했습니다."
         );
       }
@@ -901,9 +1017,9 @@ endblock %} {% block content %}
       const alertsContainer = document.getElementById("alertsContainer");
       AlertManager.error(
         err.message ||
-          (typeof t === "function"
-            ? t("dash.attendance.error", "출석 체크에 실패했습니다.")
-            : "출석 체크에 실패했습니다."),
+        (typeof t === "function"
+          ? t("dash.attendance.error", "출석 체크에 실패했습니다.")
+          : "출석 체크에 실패했습니다."),
         "출석 오류",
         alertsContainer
       );
@@ -943,8 +1059,8 @@ endblock %} {% block content %}
         dayOfWeek === 6
           ? "text-sky-500"
           : dayOfWeek === 0
-          ? "text-red-500"
-          : "text-gray-800";
+            ? "text-red-500"
+            : "text-gray-800";
       const isAttended = attendedDays.has(day);
       if (isToday && isAttended) {
         span.className = `inline-flex items-center justify-center h-7 w-7 ${weekendClass}`;

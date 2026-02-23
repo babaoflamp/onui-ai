@@ -247,6 +247,7 @@
       .embedded #floating-buttons-container {
         display: none !important;
       }
+
       .embedded main {
         padding-top: 0 !important;
       }
@@ -256,6 +257,7 @@
 
     {% block extra_css %}{% endblock %}
   </head>
+
   <body class="bg-gray-100">
     <script>
       // Mark document as embedded if loaded in iframe or with embed=1
@@ -315,30 +317,21 @@
                       >AI 발음 종합 평가 테스트</span
                     ></a
                   >
-                  <a href="/speechpro-batch">🎛️ 배치 발음 평가</a>
+                  <div class="border-t border-gray-200 my-2"></div>
+                  <a href="/sentence-evaluation">🧑‍🎓 <span>AI 자율학습</span></a>
                 </div>
               </div>
 
               <!-- AI 학습 -->
-              <div
-                class="dropdown inline-flex items-center"
-                id="learning-dropdown"
-              >
+              <div class="dropdown inline-flex items-center">
                 <button
                   class="nav-link inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 whitespace-nowrap"
                 >
                   <span data-i18n="nav.ai_learning">AI 학습</span> ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/word-list"
-                    >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
-                  >
-                  <a href="/sentence-learning"
-                    >🧾
-                    <span data-i18n="nav.sentence_learning">문장 학습</span></a
-                  >
-                  <a href="/curriculum"
-                    >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
+                  <a href="/ai-video-learning"
+                    >📹 <span data-i18n="nav.ai_video">AI 동영상 강의</span></a
                   >
                 </div>
               </div>
@@ -401,13 +394,13 @@
                   <span data-i18n="nav.basic">기초 학습</span> ▾
                 </button>
                 <div class="dropdown-content">
-                  <a href="/pronunciation-stages"
-                    >🔤
-                    <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
-                  >
                   <a href="/pronunciation-rules"
                     >📖
                     <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
+                  >
+                  <a href="/sentence-learning"
+                    >🧾
+                    <span data-i18n="nav.sentence_learning">문장 학습</span></a
                   >
                 </div>
               </div>
@@ -677,17 +670,6 @@
               class="block pl-4 py-1 text-sm text-gray-700"
               >📝 <span data-i18n="nav.content_generation">맞춤형 교재</span></a
             >
-            <a href="/word-list" class="block pl-4 py-1 text-sm text-gray-700"
-              >📚 <span data-i18n="nav.word_list">학습 단어 목록</span></a
-            >
-            <a
-              href="/sentence-learning"
-              class="block pl-4 py-1 text-sm text-gray-700"
-              >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
-            >
-            <a href="/curriculum" class="block pl-4 py-1 text-sm text-gray-700"
-              >🎯 <span data-i18n="nav.curriculum">발음 교정</span></a
-            >
           </div>
 
           <!-- 활동하기 -->
@@ -749,14 +731,14 @@
               <span data-i18n="nav.basic">기초 학습</span>
             </div>
             <a
-              href="/pronunciation-stages"
-              class="block pl-4 py-1 text-sm text-gray-700"
-              >🔤 <span data-i18n="nav.basic_jamo">자음모음 배우기</span></a
-            >
-            <a
               href="/pronunciation-rules"
               class="block pl-4 py-1 text-sm text-gray-700"
               >📖 <span data-i18n="nav.basic_rules">발음규칙 학습</span></a
+            >
+            <a
+              href="/sentence-learning"
+              class="block pl-4 py-1 text-sm text-gray-700"
+              >🧾 <span data-i18n="nav.sentence_learning">문장 학습</span></a
             >
           </div>
 
@@ -967,6 +949,7 @@
         100% {
           transform: translateY(0);
         }
+
         30% {
           transform: translateY(-8px);
         }
@@ -977,6 +960,7 @@
           width: calc(100vw - 2rem);
           right: 1rem;
         }
+
         #krdict-window {
           width: calc(100vw - 2rem);
           right: 1rem;
@@ -1068,30 +1052,30 @@
 
         const example = item.example
           ? `<p class="text-xs text-gray-600 mt-2">용례: ${escapeHtml(
-              item.example,
-            )}</p>`
+            item.example,
+          )}</p>`
           : "";
 
         const link = item.link
           ? `<a href="${escapeHtml(
-              item.link,
-            )}" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold">사전 상세 보기 →</a>`
+            item.link,
+          )}" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-700 hover:text-emerald-600 font-semibold">사전 상세 보기 →</a>`
           : "";
 
         return `
-           <article class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-             <div class="flex items-start justify-between gap-3">
-               <div class="min-w-0">
-                 <div class="text-lg font-bold text-gray-900 truncate">${word}</div>
-                 <div class="text-xs text-gray-500 mt-1">${pronunciation}</div>
+             <article class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
+               <div class="flex items-start justify-between gap-3">
+                 <div class="min-w-0">
+                   <div class="text-lg font-bold text-gray-900 truncate">${word}</div>
+                   <div class="text-xs text-gray-500 mt-1">${pronunciation}</div>
+                 </div>
+                 <div class="flex flex-wrap gap-2 justify-end">${tags}</div>
                </div>
-               <div class="flex flex-wrap gap-2 justify-end">${tags}</div>
-             </div>
-             ${senseList ? `<ul class="mt-3 space-y-1">${senseList}</ul>` : ""}
-             ${example}
-             <div class="mt-3">${link}</div>
-           </article>
-         `;
+               ${senseList ? `<ul class="mt-3 space-y-1">${senseList}</ul>` : ""}
+               ${example}
+               <div class="mt-3">${link}</div>
+             </article>
+           `;
       }
 
       async function fetchKrdictResults(query) {
@@ -1270,10 +1254,10 @@
         const messageDiv = document.createElement("div");
         messageDiv.className = "flex items-start space-x-2 justify-end";
         messageDiv.innerHTML = `
-          <div class="bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg rounded-tr-sm p-3 shadow-sm max-w-[80%]">
-            <p class="text-sm text-white">${escapeHtml(text)}</p>
-          </div>
-        `;
+            <div class="bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg rounded-tr-sm p-3 shadow-sm max-w-[80%]">
+              <p class="text-sm text-white">${escapeHtml(text)}</p>
+            </div>
+          `;
         chatbotMessages.appendChild(messageDiv);
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
       }
@@ -1283,16 +1267,16 @@
         const messageDiv = document.createElement("div");
         messageDiv.className = "flex items-start space-x-2";
         messageDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1">
-            <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
-          </div>
-          <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]">
-            <p class="text-sm text-gray-800">${escapeHtml(text).replace(
-              /\n/g,
-              "<br>",
-            )}</p>
-          </div>
-        `;
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1">
+              <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
+            </div>
+            <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm max-w-[80%]">
+              <p class="text-sm text-gray-800">${escapeHtml(text).replace(
+          /\n/g,
+          "<br>",
+        )}</p>
+            </div>
+          `;
         chatbotMessages.appendChild(messageDiv);
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
       }
@@ -1303,17 +1287,17 @@
         typingDiv.id = "chatbot-typing-indicator";
         typingDiv.className = "flex items-start space-x-2";
         typingDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1 animate-bounce">
-            <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
-          </div>
-          <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm">
-            <div class="chatbot-typing">
-              <span></span>
-              <span></span>
-              <span></span>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-400 flex items-center justify-center flex-shrink-0 p-1 animate-bounce">
+              <img src="/static/tiger_chatbot.svg" alt="호랑이" class="w-full h-full" />
             </div>
-          </div>
-        `;
+            <div class="bg-white rounded-lg rounded-tl-sm p-3 shadow-sm">
+              <div class="chatbot-typing">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          `;
         chatbotMessages.appendChild(typingDiv);
         chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
       }
@@ -1392,8 +1376,8 @@
       }
 
       // Event listeners
-        sendChatbotMessage(chatbotInput.value);
-      });
+      sendChatbotMessage(chatbotInput.value);
+        });
 
       chatbotInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
@@ -1425,7 +1409,7 @@
             <p class="font-semibold text-gray-900">미디어젠(주)</p>
             <p>
               본사 : 경기도 성남시 분당구 판교역로 230 (삼평동) · R&amp;D센터 :
-              서울시 강서구 마곡중앙 12로 31(마곡동)
+              서울시 강서구 마곡중앙 12로 31(마곡동) 미디어젠 R&D 센터
             </p>
             <p>
               대표번호 : 02-6429-7100 · FAX : 02-6429-7188 · 영업(AUTO) :
@@ -2058,11 +2042,13 @@
           transform: scale(0.7);
           opacity: 0;
         }
+
         100% {
           transform: scale(1);
           opacity: 1;
         }
       }
+
       .animate-bounce-in {
         animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }

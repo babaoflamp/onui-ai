@@ -65,6 +65,16 @@ def speechpro_practice_page(request: Request):
     return templates.TemplateResponse("speechpro-practice.html", {"request": request})
 
 
+@router.get("/speechpro-practice-words")
+def speechpro_practice_words_page(request: Request):
+    """SpeechPro 단어 발음 연습 페이지"""
+    logger.info(f"[API_CALL] endpoint={request.url.path} method={request.method} params={dict(request.query_params)}")
+    templates = _get_state(request, "templates")
+    if templates is None:
+        return JSONResponse(status_code=500, content={"error": "Templates not configured"})
+    return templates.TemplateResponse("speechpro-word-practice.html", {"request": request})
+
+
 @router.get("/speechpro-batch")
 def speechpro_batch_page(request: Request):
     """SpeechPro 다중 파일 배치 평가 페이지"""

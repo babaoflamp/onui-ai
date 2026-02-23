@@ -27,6 +27,7 @@ endblock %} {% block extra_css %}
     #contentResult .dialogue-text {
       line-height: 1.35;
     }
+
     #modelTestResult,
     #modelTestResult p {
       line-height: 1.45;
@@ -38,8 +39,7 @@ endblock %} {% block extra_css %}
   <!-- Header -->
   <div class="mb-8">
     <div
-      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
-    >
+      class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
       <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
       ONUI · AI 학습 도구
     </div>
@@ -54,39 +54,24 @@ endblock %} {% block extra_css %}
 
   <div class="bg-white rounded-2xl p-6 shadow-lg">
     <!-- Content Generation Section -->
-    <section
-      class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
-    >
-      <h2
-        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
-      >
+    <section class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+      <h2 class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
         <span class="text-2xl">🎯</span>
         설정
       </h2>
 
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-4"
-      >
-        <input
-          id="topic"
-          type="text"
-          placeholder="관심 주제 (예: 김치)"
-          value="김치"
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
+        <input id="topic" type="text" placeholder="관심 주제 (예: 김치)" value="김치"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-2"
-          onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
-        />
-        <select
-          id="level"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
-        >
+          onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }" />
+        <select id="level"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1">
           <option value="초급">초급</option>
           <option value="중급" selected>중급</option>
           <option value="고급">고급</option>
         </select>
-        <select
-          id="modelSelect"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
-        >
+        <select id="modelSelect"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1">
           <option value="gemini-2.5-flash" data-backend="gemini">
             Gemini Flash
           </option>
@@ -94,79 +79,62 @@ endblock %} {% block extra_css %}
             EXAONE 3.5
           </option>
         </select>
-        <button
-          id="generateBtn"
-          onclick="toggleGeneration()"
-          class="bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white px-6 py-2 rounded-lg hover:bg-[#e67a15] transition-all shadow-md font-semibold lg:col-span-1"
-        >
+        <button id="generateBtn" onclick="toggleGeneration()"
+          class="bg-[#FF8C1A] border-2 border-[#FF8C1A] text-white px-6 py-2 rounded-lg hover:bg-[#e67a15] transition-all shadow-md font-semibold lg:col-span-1">
           🪄 생성하기
         </button>
       </div>
-      </div>
-
-      <div
-        id="contentResult"
-        class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"
-      ></div>
-    </section>
-
-    <!-- Model Test Section -->
-    <section
-      class="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
-    >
-      <h2
-        class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2"
-      >
-        <span class="text-2xl">💬</span>
-        AI와 대화해보기
-      </h2>
-      <p class="text-sm text-gray-600 mb-4">
-        생성된 교재에 대해 자유롭게 질문하세요
-      </p>
-      <div class="flex gap-2">
-        <input
-          id="testPrompt"
-          type="text"
-          class="flex-1 border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-          placeholder="AI에게 물어보고 싶은 것을 자유롭게 입력해 보세요 😊"
-          onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }"
-        />
-        <button
-          onclick="testModel()"
-          class="bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 px-6 py-2 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
-        >
-          ✨ 물어보기
-        </button>
-      </div>
-      <div
-        id="modelTestResult"
-        class="mt-3 p-4 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"
-      ></div>
-    </section>
-
-    <!-- Tips Section -->
-    <section class="p-6 bg-gray-50 rounded-xl border border-gray-200">
-      <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 팁</div>
-      <div class="text-xs text-gray-700 space-y-1">
-        <p>
-          • <strong>주제 선택</strong>: 음식, 일상, 문화 등 어떤 주제든
-          가능합니다
-        </p>
-        <p>
-          • <strong>레벨 조정</strong>: 초급, 중급, 고급 중 자신의 수준에 맞는
-          레벨을 선택하세요
-        </p>
-        <p>
-          • <strong>모델 선택</strong>: Gemini Flash는 빠른 응답, EXAONE은
-          자세한 설명을 제공합니다
-        </p>
-        <p>
-          • <strong>AI와 대화</strong>: 생성된 교재에 대해 질문하면 더 깊이 있는
-          학습이 가능합니다
-        </p>
-      </div>
-    </section>
   </div>
+
+  <div id="contentResult" class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"></div>
+  </section>
+
+  <!-- Model Test Section -->
+  <section class="mb-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+    <h2 class="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+      <span class="text-2xl">💬</span>
+      AI와 대화해보기
+    </h2>
+    <p class="text-sm text-gray-600 mb-4">
+      생성된 교재에 대해 자유롭게 질문하세요
+    </p>
+    <div class="flex gap-2">
+      <input id="testPrompt" type="text"
+        class="flex-1 border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+        placeholder="AI에게 물어보고 싶은 것을 자유롭게 입력해 보세요 😊"
+        onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }" />
+      <button onclick="testModel()"
+        class="bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 px-6 py-2 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold">
+        ✨ 물어보기
+      </button>
+    </div>
+    <div id="modelTestResult"
+      class="mt-3 p-4 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"></div>
+  </section>
+
+  <!-- Tips Section -->
+  <section class="p-6 bg-gray-50 rounded-xl border border-gray-200">
+    <div class="text-sm font-semibold text-gray-900 mb-2">💡 사용 팁</div>
+    <div class="text-xs text-gray-700 space-y-1">
+      <p>
+        • <strong>주제 선택</strong>: 음식, 일상, 문화 등 어떤 주제든
+        가능합니다
+      </p>
+      <p>
+        • <strong>레벨 조정</strong>: 초급, 중급, 고급 중 자신의 수준에 맞는
+        레벨을 선택하세요
+      </p>
+      <p>
+        • <strong>모델 선택</strong>: Gemini Flash는 빠른 응답, EXAONE은
+        자세한 설명을 제공합니다
+      </p>
+      <p>
+        • <strong>AI와 대화</strong>: 생성된 교재에 대해 질문하면 더 깊이 있는
+        학습이 가능합니다
+      </p>
+    </div>
+  </section>
+</div>
 </div>
 
 <script>
@@ -324,7 +292,7 @@ endblock %} {% block extra_css %}
         try {
           const parsed = tryParseCandidate(s);
           if (parsed) return normalizeParsed(parsed);
-        } catch (e) {}
+        } catch (e) { }
 
         try {
           const m = s.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
@@ -332,9 +300,9 @@ endblock %} {% block extra_css %}
             try {
               const parsed = tryParseCandidate(m[1].trim());
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         try {
           const m2 = s.match(/\{[\s\S]*"dialogue"[\s\S]*"vocabulary"[\s\S]*\}/);
@@ -348,9 +316,9 @@ endblock %} {% block extra_css %}
               const parsed =
                 tryParseCandidate(repaired) || tryParseCandidate(cand);
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         try {
           const first = s.indexOf("{");
@@ -365,9 +333,9 @@ endblock %} {% block extra_css %}
               const parsed =
                 tryParseCandidate(repaired) || tryParseCandidate(cand);
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         return null;
       }
@@ -498,17 +466,15 @@ endblock %} {% block extra_css %}
             <div class="flex items-start gap-3">
               <span class="text-2xl">${avatarEmoji}</span>
               <div class="flex-1">
-                <p class="font-semibold ${speakerColor} text-sm mb-1">${
-          d.speaker
-        }</p>
+                <p class="font-semibold ${speakerColor} text-sm mb-1">${d.speaker
+          }</p>
                 <p class="text-gray-900 font-medium dialogue-text">${d.text}</p>
-                ${
-                  pron
-                    ? `<div class="mt-2 flex items-center gap-2 text-gray-500 text-xs italic"><button onclick="speakText('${jsEsc(
-                        d.text
-                      )}')" class="text-sm px-2 py-1 bg-gray-100 rounded">🔊</button><span class="pronunciation-text"> ${pron}</span></div>`
-                    : ""
-                }
+                ${pron
+            ? `<div class="mt-2 flex items-center gap-2 text-gray-500 text-xs italic"><button onclick="speakText('${jsEsc(
+              d.text
+            )}')" class="text-sm px-2 py-1 bg-gray-100 rounded">🔊</button><span class="pronunciation-text"> ${pron}</span></div>`
+            : ""
+          }
               </div>
             </div>
           </div>
@@ -553,10 +519,7 @@ endblock %} {% block extra_css %}
           <!-- Action Buttons -->
           <div class="flex gap-2 items-center pt-2">
             <div class="flex items-center gap-2 mr-2">
-              <label for="voiceSelect" class="text-xs text-gray-600">스피커 선택</label>
-              <select id="voiceSelect" class="text-sm border border-gray-200 rounded px-2 py-1 bg-white">
-                <option value="0">(스피커 불러오는 중...)</option>
-              </select>
+              <span id="ttsBackendBadge" class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">🔊 TTS 로딩중...</span>
             </div>
             <button
               id="dialogueSpeakBtn"
@@ -573,7 +536,7 @@ endblock %} {% block extra_css %}
       resultDiv.innerHTML = html;
 
       updateGenerateButtonState(false);
-      populateVoiceList();
+      loadTtsBackendInfo();
     } catch (error) {
       if (error.name === "AbortError") {
         return;
@@ -592,9 +555,7 @@ endblock %} {% block extra_css %}
   let currentAudio = null;
 
   function getSelectedSpeaker() {
-    const sel = document.getElementById("voiceSelect");
-    const val = sel ? Number(sel.value) : 0;
-    return Number.isFinite(val) ? val : 0;
+    return 0;
   }
 
   function setSpeakButtonState(active) {
@@ -633,7 +594,7 @@ endblock %} {% block extra_css %}
   async function playTTS(text) {
     if (!text) return;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     try {
       const speaker = getSelectedSpeaker();
       const response = await fetch("/api/tts/generate", {
@@ -715,7 +676,7 @@ endblock %} {% block extra_css %}
           try {
             el.innerHTML = DOMPurify.sanitize(marked.parse(emojiDecorated));
             return;
-          } catch (e) {}
+          } catch (e) { }
         }
         el.textContent = emojiDecorated;
       }
@@ -734,71 +695,30 @@ endblock %} {% block extra_css %}
     }
   }
 
-  // Populate MzTTS speaker list
-  async function populateVoiceList() {
-    const sel = document.getElementById("voiceSelect");
-    if (!sel) return;
-    sel.innerHTML = '<option value="0">(스피커 불러오는 중...)</option>';
+  // Load TTS backend info from server and display in the badge
+  async function loadTtsBackendInfo() {
+    const badge = document.getElementById("ttsBackendBadge");
+    if (!badge) return;
     try {
       const res = await fetch("/api/tts/info");
-      if (!res.ok) throw new Error("TTS 정보를 불러오지 못했습니다.");
+      if (!res.ok) throw new Error("TTS info unavailable");
       const info = await res.json();
-      const speakersRaw = info.speakers || info.speaker || info.voice || [];
-      const speakers = [];
-
-      if (Array.isArray(speakersRaw)) {
-        speakersRaw.forEach((item, idx) => {
-          if (typeof item === "number") {
-            speakers.push({ id: item, label: `Speaker ${item}` });
-          } else if (typeof item === "string") {
-            speakers.push({ id: idx, label: item });
-          } else if (item && typeof item === "object") {
-            const id =
-              item.id ?? item.speaker_id ?? item.index ?? item.value ?? idx;
-            const label =
-              item.name ??
-              item.label ??
-              item.title ??
-              `Speaker ${id}`;
-            speakers.push({ id, label });
-          }
-        });
-      } else if (speakersRaw && typeof speakersRaw === "object") {
-        Object.entries(speakersRaw).forEach(([key, value]) => {
-          const id = Number(key);
-          const label = typeof value === "string" ? value : `Speaker ${key}`;
-          speakers.push({ id: Number.isFinite(id) ? id : key, label });
-        });
-      }
-
-      const stored = Number(localStorage.getItem("mztts_speaker") || "0");
-      const current = Number.isFinite(stored) ? stored : 0;
-
-      sel.innerHTML = "";
-      if (!speakers.length) {
-        const fallback = document.createElement("option");
-        fallback.value = "0";
-        fallback.innerText = "Speaker 0";
-        sel.appendChild(fallback);
-      } else {
-        speakers.forEach((sp) => {
-          const o = document.createElement("option");
-          o.value = String(sp.id);
-          o.innerText = sp.label;
-          if (Number(sp.id) === current) o.selected = true;
-          sel.appendChild(o);
-        });
-      }
-    } catch (err) {
-      console.warn("Failed to load MzTTS speakers:", err);
-      sel.innerHTML = '<option value="0">Speaker 0</option>';
+      const backendLabels = {
+        gemini: "Gemini TTS",
+        openai: "OpenAI TTS",
+        google: "Google Cloud TTS",
+        mztts: "MzTTS 한국어",
+      };
+      const label = backendLabels[info.backend] || info.backend || "서버 TTS";
+      const detail = info.model || info.voice || "";
+      badge.textContent = `🔊 ${label}${detail ? " · " + detail : ""}`;
+      badge.classList.remove("bg-gray-100", "text-gray-500");
+      badge.classList.add("bg-green-100", "text-green-700");
+    } catch (e) {
+      badge.textContent = "🔇 TTS 연결 실패";
+      badge.classList.remove("bg-green-100", "text-green-700");
+      badge.classList.add("bg-red-100", "text-red-600");
     }
-
-    sel.addEventListener("change", () => {
-      try {
-        localStorage.setItem("mztts_speaker", sel.value || "0");
-      } catch (e) {}
-    });
   }
 
   // Update button state
@@ -855,7 +775,6 @@ endblock %} {% block extra_css %}
 
   window.addEventListener("DOMContentLoaded", () => {
     setupGenerateButton();
-    populateVoiceList();
 
     setTimeout(() => {
       const btn = document.getElementById("generateBtn");

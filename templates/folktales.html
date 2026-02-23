@@ -6,8 +6,7 @@ endblock %} {% block content %}
     <!-- Header -->
     <header class="mb-6">
       <div
-        class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold mb-2"
-      >
+        class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold mb-2">
         <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
         ONUI · 재미있는 이야기
       </div>
@@ -26,34 +25,28 @@ endblock %} {% block content %}
         난이도 선택
       </label>
       <div class="flex gap-2 flex-wrap">
-        <button
-          class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-purple-500 text-white"
-          data-level="all"
-        >
+        <button class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-purple-500 text-white"
+          data-level="all">
           전체
         </button>
         <button
           class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
-          data-level="A1"
-        >
+          data-level="A1">
           A1 (초급)
         </button>
         <button
           class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
-          data-level="A2"
-        >
+          data-level="A2">
           A2
         </button>
         <button
           class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
-          data-level="B1"
-        >
+          data-level="B1">
           B1 (중급)
         </button>
         <button
           class="level-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200"
-          data-level="B2"
-        >
+          data-level="B2">
           B2
         </button>
       </div>
@@ -67,38 +60,45 @@ endblock %} {% block content %}
     <!-- Reading Section (hidden initially) -->
     <div id="readingSection" class="hidden">
       <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
-        <h2 id="storyTitle" class="text-2xl font-bold text-gray-900 mb-2"></h2>
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <h2 id="storyTitle" class="text-2xl font-bold text-gray-900"></h2>
+          <button id="ttsStoryBtn"
+            class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors shadow-sm"
+            title="이야기 전체 듣기">
+            🔊 이야기 듣기
+          </button>
+        </div>
         <p id="storyTitleEn" class="text-sm text-gray-500 mb-4"></p>
         <div class="mb-4">
-          <span
-            id="storyLevel"
-            class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold"
-          ></span>
+          <span id="storyLevel"
+            class="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold"></span>
         </div>
         <p id="storySummary" class="text-sm text-gray-600 mb-6 italic"></p>
 
         <!-- Story Image -->
         <div id="storyImageContainer" class="mb-6 hidden">
-          <img
-            id="storyImage"
-            src=""
-            alt="Story illustration"
-            class="w-full rounded-lg shadow-md border border-gray-200"
-          />
+          <img id="storyImage" src="" alt="Story illustration"
+            class="w-full rounded-lg shadow-md border border-gray-200" />
         </div>
 
         <!-- Story Content -->
         <div class="bg-white rounded-lg p-6 mb-6 border border-gray-200">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-gray-500">📖 본문</span>
+            <button id="ttsContentBtn"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-100 text-orange-700 text-xs font-semibold hover:bg-orange-200 transition-colors"
+              title="본문 듣기">
+              ▶ 듣기
+            </button>
+          </div>
           <p id="storyContent" class="text-base leading-relaxed"></p>
         </div>
 
         <!-- Vocabulary -->
         <div class="mb-6">
-          <h3 class="text-lg font-bold text-gray-800 mb-3">📚 주요 어휘</h3>
-          <div
-            id="vocabularyList"
-            class="grid grid-cols-2 md:grid-cols-3 gap-3"
-          ></div>
+          <h3 class="text-lg font-bold text-gray-800 mb-3">📚 주요 어휘 <span class="text-xs font-normal text-gray-500">·
+              클릭하면 발음을 들을 수 있어요</span></h3>
+          <div id="vocabularyList" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
         </div>
 
         <!-- Moral Lesson -->
@@ -116,31 +116,22 @@ endblock %} {% block content %}
         </div>
 
         <!-- Submit Button -->
-        <button
-          id="submitQuiz"
-          class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors"
-        >
+        <button id="submitQuiz"
+          class="w-full bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
           정답 확인하기
         </button>
 
         <!-- Result -->
-        <div
-          id="quizResult"
-          class="hidden mt-6 p-4 rounded-lg text-center"
-        ></div>
+        <div id="quizResult" class="hidden mt-6 p-4 rounded-lg text-center"></div>
 
         <!-- Navigation Buttons -->
         <div class="flex gap-3 mt-6">
-          <button
-            id="backBtn"
-            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
-          >
+          <button id="backBtn"
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900 px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
             ← 목록으로
           </button>
-          <button
-            id="nextStoryBtn"
-            class="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
-          >
+          <button id="nextStoryBtn"
+            class="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
             다음 이야기 →
           </button>
         </div>
@@ -153,9 +144,7 @@ endblock %} {% block content %}
       <ul class="space-y-2 text-sm text-gray-700">
         <li class="flex items-start gap-2">
           <span class="text-purple-500 mt-0.5">•</span>
-          <span
-            >먼저 전체 이야기를 읽고, 모르는 단어는 어휘 목록을 참고하세요</span
-          >
+          <span>먼저 전체 이야기를 읽고, 모르는 단어는 어휘 목록을 참고하세요</span>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-purple-500 mt-0.5">•</span>
@@ -277,9 +266,12 @@ endblock %} {% block content %}
       vocabularyList.innerHTML = currentFolktale.vocabulary
         .map(
           (vocab) => `
-        <div class="bg-white border border-gray-200 rounded-lg p-3">
-          <div class="font-bold text-gray-900 text-sm">${vocab.word}</div>
-          <div class="text-xs text-gray-600">${vocab.meaning}</div>
+        <div class="bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-between gap-2 hover:border-orange-300 transition-colors cursor-pointer vocab-tts-card" data-word="${vocab.word}">
+          <div>
+            <div class="font-bold text-gray-900 text-sm">${vocab.word}</div>
+            <div class="text-xs text-gray-600">${vocab.meaning}</div>
+          </div>
+          <button class="vocab-tts-btn shrink-0 w-7 h-7 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center hover:bg-orange-200 transition-colors text-xs" title="${vocab.word} 듣기" data-word="${vocab.word}">🔊</button>
         </div>
       `
         )
@@ -310,9 +302,8 @@ endblock %} {% block content %}
         .map(
           (q, qIndex) => `
         <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4" role="group" aria-labelledby="quiz-question-${qIndex}">
-          <p id="quiz-question-${qIndex}" class="font-semibold text-gray-900 mb-3">${
-            qIndex + 1
-          }. ${q.question}</p>
+          <p id="quiz-question-${qIndex}" class="font-semibold text-gray-900 mb-3">${qIndex + 1
+            }. ${q.question}</p>
           <div class="space-y-2" role="radiogroup" aria-labelledby="quiz-question-${qIndex}">
             ${q.choices
               .map(
@@ -489,6 +480,151 @@ endblock %} {% block content %}
         checkQuiz();
       });
     }
+
+    // ── TTS Playback with Cache & Stop ──
+    let currentAudio = null;
+    let currentPlayingBtn = null;
+    let currentOriginalHTML = '';
+    const ttsCache = new Map(); // text → Blob
+
+    function stopCurrentAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+      }
+      if (currentPlayingBtn) {
+        currentPlayingBtn.disabled = false;
+        currentPlayingBtn.classList.remove('opacity-70');
+        currentPlayingBtn.innerHTML = currentOriginalHTML;
+        currentPlayingBtn = null;
+        currentOriginalHTML = '';
+      }
+    }
+
+    function startPlayback(blob, triggerBtn, originalHTML) {
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+      currentPlayingBtn = triggerBtn;
+      currentOriginalHTML = originalHTML;
+      audio.volume = 1.0;
+
+      if (triggerBtn) {
+        triggerBtn.disabled = false; // keep enabled so user can click to stop
+        triggerBtn.classList.add('opacity-70');
+        triggerBtn.innerHTML = '⏹ 정지';
+      }
+
+      audio.play().catch(err => console.error('TTS 재생 오류:', err));
+      audio.addEventListener('ended', () => {
+        URL.revokeObjectURL(url);
+        currentAudio = null;
+        if (triggerBtn) {
+          triggerBtn.classList.remove('opacity-70');
+          triggerBtn.innerHTML = originalHTML;
+        }
+        currentPlayingBtn = null;
+        currentOriginalHTML = '';
+      });
+    }
+
+    async function playTTS(text, triggerBtn) {
+      if (!text) return;
+
+      const originalHTML = triggerBtn ? triggerBtn.innerHTML : '';
+
+      // If this button is currently playing → stop it
+      if (currentAudio && currentPlayingBtn === triggerBtn) {
+        stopCurrentAudio();
+        return;
+      }
+
+      // Stop any other playing audio
+      stopCurrentAudio();
+
+      // Check cache first — play instantly without API call
+      if (ttsCache.has(text)) {
+        console.log('[TTS] 캐시 히트:', text.substring(0, 30) + '...');
+        startPlayback(ttsCache.get(text), triggerBtn, originalHTML);
+        return;
+      }
+
+      // Cache miss — call API
+      console.log('[TTS] 캐시 미스, API 호출:', text.substring(0, 30) + '...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      try {
+        if (triggerBtn) {
+          triggerBtn.disabled = true;
+          triggerBtn.classList.add('opacity-70');
+          triggerBtn.innerHTML = '⏳ 생성 중...';
+        }
+
+        const fetchWithRetry = async (retries) => {
+          let lastErr = null;
+          for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+              const response = await fetch('/api/tts/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text }),
+                signal: controller.signal,
+              });
+              if (!response.ok) throw new Error('TTS 생성 실패');
+              return response.blob();
+            } catch (err) {
+              lastErr = err;
+              if (attempt >= retries) break;
+              await new Promise(r => setTimeout(r, 500));
+            }
+          }
+          throw lastErr;
+        };
+
+        const blob = await fetchWithRetry(1);
+
+        // Store in cache for future use
+        ttsCache.set(text, blob);
+
+        startPlayback(blob, triggerBtn, originalHTML);
+      } catch (err) {
+        console.error('TTS 오류:', err);
+      } finally {
+        clearTimeout(timeoutId);
+        if (triggerBtn && !currentAudio) {
+          triggerBtn.disabled = false;
+          triggerBtn.classList.remove('opacity-70');
+          triggerBtn.innerHTML = originalHTML;
+        }
+      }
+    }
+
+    // TTS button event listeners
+    document.getElementById('ttsStoryBtn').addEventListener('click', function () {
+      if (!currentFolktale) return;
+      const fullText = currentFolktale.story;
+      playTTS(fullText, this);
+    });
+
+    document.getElementById('ttsContentBtn').addEventListener('click', function () {
+      if (!currentFolktale) return;
+      playTTS(currentFolktale.story, this);
+    });
+
+    // Vocabulary TTS (event delegation)
+    document.getElementById('vocabularyList').addEventListener('click', function (e) {
+      const btn = e.target.closest('.vocab-tts-btn');
+      const card = e.target.closest('.vocab-tts-card');
+      const target = btn || card;
+      if (!target) return;
+      const word = target.dataset.word;
+      if (word) {
+        const actualBtn = btn || target.querySelector('.vocab-tts-btn');
+        playTTS(word, actualBtn);
+      }
+    });
 
     // Start
     init();

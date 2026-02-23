@@ -4,7 +4,11 @@
     "text": "오늘 친구를 만났어요.",
     "level": "A1",
     "category": "일상",
-    "words": ["오늘", "친구를", "만났어요."],
+    "words": [
+      "오늘",
+      "친구를",
+      "만났어요."
+    ],
     "translation": "I met a friend today.",
     "hint": "친구와 만난 사실을 말할 때 쓰는 표현입니다.",
     "situation": "상황: 오늘 있었던 일을 말하기"
@@ -14,7 +18,12 @@
     "text": "저는 한국어를 공부하고 있어요.",
     "level": "A1",
     "category": "학습",
-    "words": ["저는", "한국어를", "공부하고", "있어요."],
+    "words": [
+      "저는",
+      "한국어를",
+      "공부하고",
+      "있어요."
+    ],
     "translation": "I am studying Korean.",
     "hint": "-고 있다 표현(진행형)을 연습해 보세요.",
     "situation": "상황: 자기소개 / 근황 말하기"
@@ -24,7 +33,13 @@
     "text": "주말에 가족과 함께 식사를 했어요.",
     "level": "A1",
     "category": "가족",
-    "words": ["주말에", "가족과", "함께", "식사를", "했어요."],
+    "words": [
+      "주말에",
+      "가족과",
+      "함께",
+      "식사를",
+      "했어요."
+    ],
     "translation": "I had a meal with my family on the weekend.",
     "hint": "언제 / 누구와 / 무엇을 했는지 어순을 생각해 보세요.",
     "situation": "상황: 주말에 한 일 이야기"
@@ -34,7 +49,14 @@
     "text": "시간이 되시면 같이 전시회를 보러 가실래요?",
     "level": "B1",
     "category": "약속",
-    "words": ["시간이", "되시면", "같이", "전시회를", "보러", "가실래요?"],
+    "words": [
+      "시간이",
+      "되시면",
+      "같이",
+      "전시회를",
+      "보러",
+      "가실래요?"
+    ],
     "translation": "If you have time, would you like to go to an exhibition together?",
     "hint": "공손하게 제안할 때 쓰는 표현입니다.",
     "situation": "상황: 약속 잡기 / 초대하기"
@@ -44,7 +66,12 @@
     "text": "내일 날씨가 좋을 거예요.",
     "level": "A1",
     "category": "날씨",
-    "words": ["내일", "날씨가", "좋을", "거예요."],
+    "words": [
+      "내일",
+      "날씨가",
+      "좋을",
+      "거예요."
+    ],
     "translation": "The weather will be nice tomorrow.",
     "hint": "미래를 나타내는 -을 거예요 표현입니다.",
     "situation": "상황: 날씨 이야기하기"
@@ -54,7 +81,13 @@
     "text": "저는 매일 아침 7시에 일어나요.",
     "level": "A1",
     "category": "일상",
-    "words": ["저는", "매일", "아침", "7시에", "일어나요."],
+    "words": [
+      "저는",
+      "매일",
+      "아침",
+      "7시에",
+      "일어나요."
+    ],
     "translation": "I wake up at 7 AM every morning.",
     "hint": "일상적인 습관을 말할 때 쓰는 표현입니다.",
     "situation": "상황: 일상 루틴 설명하기"
@@ -64,7 +97,12 @@
     "text": "커피 한 잔 주세요.",
     "level": "A1",
     "category": "음식",
-    "words": ["커피", "한", "잔", "주세요."],
+    "words": [
+      "커피",
+      "한",
+      "잔",
+      "주세요."
+    ],
     "translation": "Please give me a cup of coffee.",
     "hint": "주문할 때 쓰는 기본 표현입니다.",
     "situation": "상황: 카페에서 주문하기"
@@ -74,7 +112,11 @@
     "text": "학교가 집에서 가까워요.",
     "level": "A1",
     "category": "장소",
-    "words": ["학교가", "집에서", "가까워요."],
+    "words": [
+      "학교가",
+      "집에서",
+      "가까워요."
+    ],
     "translation": "The school is close to home.",
     "hint": "거리를 나타내는 표현입니다.",
     "situation": "상황: 위치 설명하기"
@@ -84,7 +126,13 @@
     "text": "저는 음악을 듣는 것을 좋아해요.",
     "level": "A2",
     "category": "취미",
-    "words": ["저는", "음악을", "듣는", "것을", "좋아해요."],
+    "words": [
+      "저는",
+      "음악을",
+      "듣는",
+      "것을",
+      "좋아해요."
+    ],
     "translation": "I like listening to music.",
     "hint": "-는 것을 좋아하다 표현을 연습해 보세요.",
     "situation": "상황: 취미 말하기"
@@ -94,7 +142,12 @@
     "text": "오늘은 바람이 많이 불어요.",
     "level": "A1",
     "category": "날씨",
-    "words": ["오늘은", "바람이", "많이", "불어요."],
+    "words": [
+      "오늘은",
+      "바람이",
+      "많이",
+      "불어요."
+    ],
     "translation": "It's very windy today.",
     "hint": "날씨 상태를 표현하는 문장입니다.",
     "situation": "상황: 날씨 묘사하기"
@@ -104,7 +157,13 @@
     "text": "저는 한국 드라마를 자주 봐요.",
     "level": "A1",
     "category": "취미",
-    "words": ["저는", "한국", "드라마를", "자주", "봐요."],
+    "words": [
+      "저는",
+      "한국",
+      "드라마를",
+      "자주",
+      "봐요."
+    ],
     "translation": "I often watch Korean dramas.",
     "hint": "빈도를 나타내는 '자주'를 사용합니다.",
     "situation": "상황: 취미와 관심사 이야기하기"
@@ -114,7 +173,12 @@
     "text": "지하철을 타고 회사에 가요.",
     "level": "A1",
     "category": "교통",
-    "words": ["지하철을", "타고", "회사에", "가요."],
+    "words": [
+      "지하철을",
+      "타고",
+      "회사에",
+      "가요."
+    ],
     "translation": "I go to the company by subway.",
     "hint": "교통수단을 말할 때 '-을/를 타고' 표현을 씁니다.",
     "situation": "상황: 통근 방법 설명하기"
@@ -124,7 +188,13 @@
     "text": "어제 친구 생일 파티에 갔어요.",
     "level": "A1",
     "category": "일상",
-    "words": ["어제", "친구", "생일", "파티에", "갔어요."],
+    "words": [
+      "어제",
+      "친구",
+      "생일",
+      "파티에",
+      "갔어요."
+    ],
     "translation": "I went to a friend's birthday party yesterday.",
     "hint": "과거형 -았/었어요를 사용합니다.",
     "situation": "상황: 지난 일 이야기하기"
@@ -134,7 +204,12 @@
     "text": "한국 음식이 맵지만 맛있어요.",
     "level": "A2",
     "category": "음식",
-    "words": ["한국", "음식이", "맵지만", "맛있어요."],
+    "words": [
+      "한국",
+      "음식이",
+      "맵지만",
+      "맛있어요."
+    ],
     "translation": "Korean food is spicy but delicious.",
     "hint": "-지만 표현으로 대조를 나타냅니다.",
     "situation": "상황: 음식 맛 표현하기"
@@ -144,7 +219,11 @@
     "text": "도서관에서 책을 빌렸어요.",
     "level": "A1",
     "category": "일상",
-    "words": ["도서관에서", "책을", "빌렸어요."],
+    "words": [
+      "도서관에서",
+      "책을",
+      "빌렸어요."
+    ],
     "translation": "I borrowed a book from the library.",
     "hint": "장소에서 무언가를 했다는 표현입니다.",
     "situation": "상황: 도서관 이용하기"
@@ -154,7 +233,12 @@
     "text": "주말에 뭐 할 거예요?",
     "level": "A1",
     "category": "계획",
-    "words": ["주말에", "뭐", "할", "거예요?"],
+    "words": [
+      "주말에",
+      "뭐",
+      "할",
+      "거예요?"
+    ],
     "translation": "What are you going to do on the weekend?",
     "hint": "미래 계획을 물어보는 표현입니다.",
     "situation": "상황: 주말 계획 묻기"
@@ -164,7 +248,12 @@
     "text": "저는 아침마다 운동을 해요.",
     "level": "A1",
     "category": "건강",
-    "words": ["저는", "아침마다", "운동을", "해요."],
+    "words": [
+      "저는",
+      "아침마다",
+      "운동을",
+      "해요."
+    ],
     "translation": "I exercise every morning.",
     "hint": "'마다'는 '매번, 모든'이라는 뜻입니다.",
     "situation": "상황: 운동 습관 말하기"
@@ -174,7 +263,12 @@
     "text": "이 가방이 너무 비싸요.",
     "level": "A1",
     "category": "쇼핑",
-    "words": ["이", "가방이", "너무", "비싸요."],
+    "words": [
+      "이",
+      "가방이",
+      "너무",
+      "비싸요."
+    ],
     "translation": "This bag is too expensive.",
     "hint": "'너무'는 정도가 지나칠 때 사용합니다.",
     "situation": "상황: 쇼핑하면서 가격 말하기"
@@ -184,7 +278,13 @@
     "text": "저는 피자보다 치킨을 더 좋아해요.",
     "level": "A2",
     "category": "음식",
-    "words": ["저는", "피자보다", "치킨을", "더", "좋아해요."],
+    "words": [
+      "저는",
+      "피자보다",
+      "치킨을",
+      "더",
+      "좋아해요."
+    ],
     "translation": "I like chicken more than pizza.",
     "hint": "비교 표현 '-보다 더'를 사용합니다.",
     "situation": "상황: 선호도 비교하기"
@@ -194,7 +294,13 @@
     "text": "방학 때 고향에 갈 예정이에요.",
     "level": "A2",
     "category": "계획",
-    "words": ["방학", "때", "고향에", "갈", "예정이에요."],
+    "words": [
+      "방학",
+      "때",
+      "고향에",
+      "갈",
+      "예정이에요."
+    ],
     "translation": "I'm planning to go to my hometown during the vacation.",
     "hint": "'-을/를 예정이다' 표현으로 계획을 말합니다.",
     "situation": "상황: 방학 계획 이야기하기"
@@ -204,7 +310,12 @@
     "text": "감기에 걸려서 병원에 갔어요.",
     "level": "A2",
     "category": "건강",
-    "words": ["감기에", "걸려서", "병원에", "갔어요."],
+    "words": [
+      "감기에",
+      "걸려서",
+      "병원에",
+      "갔어요."
+    ],
     "translation": "I went to the hospital because I caught a cold.",
     "hint": "'-아서/어서'는 이유를 나타냅니다.",
     "situation": "상황: 아픈 이유 설명하기"
@@ -214,7 +325,12 @@
     "text": "한국어 공부가 어렵지만 재미있어요.",
     "level": "A2",
     "category": "학습",
-    "words": ["한국어", "공부가", "어렵지만", "재미있어요."],
+    "words": [
+      "한국어",
+      "공부가",
+      "어렵지만",
+      "재미있어요."
+    ],
     "translation": "Korean study is difficult but fun.",
     "hint": "대조를 나타내는 '-지만'을 사용합니다.",
     "situation": "상황: 학습 경험 말하기"
@@ -224,7 +340,13 @@
     "text": "내일 친구를 만나러 서울에 가요.",
     "level": "A2",
     "category": "약속",
-    "words": ["내일", "친구를", "만나러", "서울에", "가요."],
+    "words": [
+      "내일",
+      "친구를",
+      "만나러",
+      "서울에",
+      "가요."
+    ],
     "translation": "I'm going to Seoul tomorrow to meet a friend.",
     "hint": "목적을 나타내는 '-러'를 사용합니다.",
     "situation": "상황: 약속과 계획 말하기"
@@ -234,7 +356,12 @@
     "text": "요즘 날씨가 점점 추워져요.",
     "level": "A2",
     "category": "날씨",
-    "words": ["요즘", "날씨가", "점점", "추워져요."],
+    "words": [
+      "요즘",
+      "날씨가",
+      "점점",
+      "추워져요."
+    ],
     "translation": "The weather is getting colder these days.",
     "hint": "'점점'은 서서히 변화함을 나타냅니다.",
     "situation": "상황: 날씨 변화 말하기"
@@ -244,7 +371,13 @@
     "text": "이 영화를 본 적이 있어요.",
     "level": "A2",
     "category": "경험",
-    "words": ["이", "영화를", "본", "적이", "있어요."],
+    "words": [
+      "이",
+      "영화를",
+      "본",
+      "적이",
+      "있어요."
+    ],
     "translation": "I have seen this movie before.",
     "hint": "경험을 나타내는 '-은/ㄴ 적이 있다' 표현입니다.",
     "situation": "상황: 과거 경험 말하기"
@@ -254,7 +387,13 @@
     "text": "저는 요리하는 것을 배우고 싶어요.",
     "level": "A2",
     "category": "희망",
-    "words": ["저는", "요리하는", "것을", "배우고", "싶어요."],
+    "words": [
+      "저는",
+      "요리하는",
+      "것을",
+      "배우고",
+      "싶어요."
+    ],
     "translation": "I want to learn how to cook.",
     "hint": "희망을 나타내는 '-고 싶다' 표현입니다.",
     "situation": "상황: 배우고 싶은 것 말하기"
@@ -264,7 +403,12 @@
     "text": "늦어서 택시를 타야 돼요.",
     "level": "A2",
     "category": "교통",
-    "words": ["늦어서", "택시를", "타야", "돼요."],
+    "words": [
+      "늦어서",
+      "택시를",
+      "타야",
+      "돼요."
+    ],
     "translation": "I'm late, so I have to take a taxi.",
     "hint": "필요성을 나타내는 '-아야/어야 되다' 표현입니다.",
     "situation": "상황: 급한 상황 설명하기"
@@ -274,7 +418,13 @@
     "text": "한국에 온 지 1년이 됐어요.",
     "level": "B1",
     "category": "경험",
-    "words": ["한국에", "온", "지", "1년이", "됐어요."],
+    "words": [
+      "한국에",
+      "온",
+      "지",
+      "1년이",
+      "됐어요."
+    ],
     "translation": "It has been one year since I came to Korea.",
     "hint": "'-은/ㄴ 지'는 시간의 경과를 나타냅니다.",
     "situation": "상황: 거주 기간 말하기"
@@ -284,7 +434,12 @@
     "text": "비가 올 것 같아요.",
     "level": "A2",
     "category": "날씨",
-    "words": ["비가", "올", "것", "같아요."],
+    "words": [
+      "비가",
+      "올",
+      "것",
+      "같아요."
+    ],
     "translation": "It looks like it's going to rain.",
     "hint": "추측을 나타내는 '-을/ㄹ 것 같다' 표현입니다.",
     "situation": "상황: 날씨 예측하기"
@@ -294,7 +449,12 @@
     "text": "한국 친구가 생겨서 기뻐요.",
     "level": "A2",
     "category": "감정",
-    "words": ["한국", "친구가", "생겨서", "기뻐요."],
+    "words": [
+      "한국",
+      "친구가",
+      "생겨서",
+      "기뻐요."
+    ],
     "translation": "I'm happy because I made a Korean friend.",
     "hint": "감정과 이유를 함께 표현합니다.",
     "situation": "상황: 기쁜 일 말하기"
@@ -304,7 +464,12 @@
     "text": "주말에는 보통 집에서 쉬어요.",
     "level": "A1",
     "category": "일상",
-    "words": ["주말에는", "보통", "집에서", "쉬어요."],
+    "words": [
+      "주말에는",
+      "보통",
+      "집에서",
+      "쉬어요."
+    ],
     "translation": "I usually rest at home on weekends.",
     "hint": "'보통'은 일반적인 습관을 말할 때 씁니다.",
     "situation": "상황: 주말 루틴 설명하기"
@@ -314,7 +479,14 @@
     "text": "이 식당은 음식이 맛있고 값도 싸요.",
     "level": "A2",
     "category": "음식",
-    "words": ["이", "식당은", "음식이", "맛있고", "값도", "싸요."],
+    "words": [
+      "이",
+      "식당은",
+      "음식이",
+      "맛있고",
+      "값도",
+      "싸요."
+    ],
     "translation": "This restaurant has delicious food and is also cheap.",
     "hint": "'-고'는 두 가지 사실을 연결할 때 씁니다.",
     "situation": "상황: 식당 추천하기"
@@ -324,7 +496,14 @@
     "text": "저는 아직 한글을 잘 못 읽어요.",
     "level": "A1",
     "category": "학습",
-    "words": ["저는", "아직", "한글을", "잘", "못", "읽어요."],
+    "words": [
+      "저는",
+      "아직",
+      "한글을",
+      "잘",
+      "못",
+      "읽어요."
+    ],
     "translation": "I still can't read Hangeul well.",
     "hint": "'아직'은 현재까지도 그 상태임을 나타냅니다.",
     "situation": "상황: 학습 수준 말하기"
@@ -334,7 +513,12 @@
     "text": "공원에서 산책하면서 음악을 들어요.",
     "level": "A2",
     "category": "취미",
-    "words": ["공원에서", "산책하면서", "음악을", "들어요."],
+    "words": [
+      "공원에서",
+      "산책하면서",
+      "음악을",
+      "들어요."
+    ],
     "translation": "I listen to music while walking in the park.",
     "hint": "동시 동작을 나타내는 '-면서'를 사용합니다.",
     "situation": "상황: 동시에 하는 활동 말하기"
@@ -344,9 +528,1015 @@
     "text": "이번 주는 일이 많아서 바빠요.",
     "level": "A2",
     "category": "일",
-    "words": ["이번", "주는", "일이", "많아서", "바빠요."],
+    "words": [
+      "이번",
+      "주는",
+      "일이",
+      "많아서",
+      "바빠요."
+    ],
     "translation": "I'm busy this week because I have a lot of work.",
     "hint": "이유를 설명하는 '-아서/어서' 표현입니다.",
     "situation": "상황: 바쁜 이유 설명하기"
+  },
+  {
+    "id": 36,
+    "text": "이름이 뭐예요?",
+    "level": "A1",
+    "category": "소개",
+    "words": [
+      "이름이",
+      "뭐예요?"
+    ],
+    "translation": "What is your name?",
+    "hint": "상대방의 이름을 물어볼 때 사용합니다.",
+    "situation": "상황: 처음 만난 사람에게 이름 묻기"
+  },
+  {
+    "id": 37,
+    "text": "만나서 반가워요.",
+    "level": "A1",
+    "category": "인사",
+    "words": [
+      "만나서",
+      "반가워요."
+    ],
+    "translation": "Nice to meet you.",
+    "hint": "첫 만남에서 인사를 나눌 때 씁니다.",
+    "situation": "상황: 소개 후 인사하기"
+  },
+  {
+    "id": 38,
+    "text": "화장실이 어디예요?",
+    "level": "A1",
+    "category": "장소",
+    "words": [
+      "화장실이",
+      "어디예요?"
+    ],
+    "translation": "Where is the restroom?",
+    "hint": "장소를 물어볼 때 '어디예요?'를 사용합니다.",
+    "situation": "상황: 길이나 장소 묻기"
+  },
+  {
+    "id": 39,
+    "text": "이거 얼마예요?",
+    "level": "A1",
+    "category": "쇼핑",
+    "words": [
+      "이거",
+      "얼마예요?"
+    ],
+    "translation": "How much is this?",
+    "hint": "물건의 가격을 물어볼 때 씁니다.",
+    "situation": "상황: 물건 가격 묻기"
+  },
+  {
+    "id": 40,
+    "text": "물 좀 주세요.",
+    "level": "A1",
+    "category": "식당",
+    "words": [
+      "물",
+      "좀",
+      "주세요."
+    ],
+    "translation": "Please give me some water.",
+    "hint": "무언가를 요청할 때 '주세요'를 사용합니다.",
+    "situation": "상황: 식당에서 물 요청하기"
+  },
+  {
+    "id": 41,
+    "text": "도와주세요.",
+    "level": "A1",
+    "category": "요청",
+    "words": [
+      "도와주세요."
+    ],
+    "translation": "Please help me.",
+    "hint": "도움이 필요할 때 쓰는 표현입니다.",
+    "situation": "상황: 긴급한 도움 요청"
+  },
+  {
+    "id": 42,
+    "text": "미안합니다.",
+    "level": "A1",
+    "category": "사과",
+    "words": [
+      "미안합니다."
+    ],
+    "translation": "I am sorry.",
+    "hint": "사과할 때 쓰는 정중한 표현입니다.",
+    "situation": "상황: 실수했을 때 사과하기"
+  },
+  {
+    "id": 43,
+    "text": "감사합니다.",
+    "level": "A1",
+    "category": "감사",
+    "words": [
+      "감사합니다."
+    ],
+    "translation": "Thank you.",
+    "hint": "고마움을 표시할 때 씁니다.",
+    "situation": "상황: 고마움을 표현하기"
+  },
+  {
+    "id": 44,
+    "text": "안녕히 가세요.",
+    "level": "A1",
+    "category": "작별",
+    "words": [
+      "안녕히",
+      "가세요."
+    ],
+    "translation": "Goodbye (to someone leaving).",
+    "hint": "떠나는 사람에게 하는 작별 인사입니다.",
+    "situation": "상황: 헤어질 때 인사하기"
+  },
+  {
+    "id": 45,
+    "text": "저는 학생이에요.",
+    "level": "A1",
+    "category": "소개",
+    "words": [
+      "저는",
+      "학생이에요."
+    ],
+    "translation": "I am a student.",
+    "hint": "직업이나 신분을 말할 때 '-이에요/예요'를 씁니다.",
+    "situation": "상황: 자기 직업 소개하기"
+  },
+  {
+    "id": 46,
+    "text": "어디에 살아요?",
+    "level": "A1",
+    "category": "거주",
+    "words": [
+      "어디에",
+      "살아요?"
+    ],
+    "translation": "Where do you live?",
+    "hint": "사는 곳을 물어볼 때 씁니다.",
+    "situation": "상황: 거주지 묻기"
+  },
+  {
+    "id": 47,
+    "text": "한국 음식을 좋아해요.",
+    "level": "A1",
+    "category": "취향",
+    "words": [
+      "한국",
+      "음식을",
+      "좋아해요."
+    ],
+    "translation": "I like Korean food.",
+    "hint": "좋아하는 것을 말할 때 '좋아해요'를 씁니다.",
+    "situation": "상황: 음식 취향 말하기"
+  },
+  {
+    "id": 48,
+    "text": "영화 보러 가요.",
+    "level": "A1",
+    "category": "제안",
+    "words": [
+      "영화",
+      "보러",
+      "가요."
+    ],
+    "translation": "Let's go see a movie.",
+    "hint": "함께 무언가를 하자고 제안할 때 '-아요/어요'를 쓸 수 있습니다.",
+    "situation": "상황: 활동 제안하기"
+  },
+  {
+    "id": 49,
+    "text": "몇 시예요?",
+    "level": "A1",
+    "category": "시간",
+    "words": [
+      "몇",
+      "시예요?"
+    ],
+    "translation": "What time is it?",
+    "hint": "시간을 물어보는 기본 표현입니다.",
+    "situation": "상황: 시간 묻기"
+  },
+  {
+    "id": 50,
+    "text": "오늘 며칠이에요?",
+    "level": "A1",
+    "category": "날짜",
+    "words": [
+      "오늘",
+      "며칠이에요?"
+    ],
+    "translation": "What date is it today?",
+    "hint": "날짜를 물어볼 때 씁니다.",
+    "situation": "상황: 날짜 확인하기"
+  },
+  {
+    "id": 51,
+    "text": "날씨가 아주 좋아요.",
+    "level": "A1",
+    "category": "날씨",
+    "words": [
+      "날씨가",
+      "아주",
+      "좋아요."
+    ],
+    "translation": "The weather is very good.",
+    "hint": "날씨 상태를 긍정적으로 묘사합니다.",
+    "situation": "상황: 날씨 이야기하기"
+  },
+  {
+    "id": 52,
+    "text": "배가 고파요.",
+    "level": "A1",
+    "category": "상태",
+    "words": [
+      "배가",
+      "고파요."
+    ],
+    "translation": "I am hungry.",
+    "hint": "배고픈 상태를 표현합니다.",
+    "situation": "상황: 식사 전 상태 말하기"
+  },
+  {
+    "id": 53,
+    "text": "머리가 아파요.",
+    "level": "A1",
+    "category": "건강",
+    "words": [
+      "머리가",
+      "아파요."
+    ],
+    "translation": "I have a headache.",
+    "hint": "아픈 부위 뒤에 '-이/가 아파요'를 씁니다.",
+    "situation": "상황: 통증 호소하기"
+  },
+  {
+    "id": 54,
+    "text": "택시를 불러 주세요.",
+    "level": "A1",
+    "category": "교통",
+    "words": [
+      "택시를",
+      "불러",
+      "주세요."
+    ],
+    "translation": "Please call a taxi for me.",
+    "hint": "다른 사람에게 부탁할 때 '-아/어 주세요'를 씁니다.",
+    "situation": "상황: 택시 호출 부탁하기"
+  },
+  {
+    "id": 55,
+    "text": "사진을 찍어 주세요.",
+    "level": "A1",
+    "category": "요청",
+    "words": [
+      "사진을",
+      "찍어",
+      "주세요."
+    ],
+    "translation": "Please take a picture of me.",
+    "hint": "사진 촬영을 부탁할 때 씁니다.",
+    "situation": "상황: 사진 촬영 부탁하기"
+  },
+  {
+    "id": 56,
+    "text": "이건 무슨 뜻이에요?",
+    "level": "A1",
+    "category": "질문",
+    "words": [
+      "이건",
+      "무슨",
+      "뜻이에요?"
+    ],
+    "translation": "What does this mean?",
+    "hint": "모르는 단어나 문장의 의미를 물을 때 씁니다.",
+    "situation": "상황: 의미 질문하기"
+  },
+  {
+    "id": 57,
+    "text": "다시 말해 주세요.",
+    "level": "A1",
+    "category": "요청",
+    "words": [
+      "다시",
+      "말해",
+      "주세요."
+    ],
+    "translation": "Please say it again.",
+    "hint": "잘 못 들었을 때 다시 말해달라고 요청합니다.",
+    "situation": "상황: 다시 듣기 요청"
+  },
+  {
+    "id": 58,
+    "text": "저는 주말에 등산을 했어요.",
+    "level": "A2",
+    "category": "취미",
+    "words": [
+      "저는",
+      "주말에",
+      "등산을",
+      "했어요."
+    ],
+    "translation": "I went hiking on the weekend.",
+    "hint": "과거의 활동을 설명합니다.",
+    "situation": "상황: 주말 활동 이야기"
+  },
+  {
+    "id": 59,
+    "text": "이번 휴가에 제주도에 갈 거예요.",
+    "level": "A2",
+    "category": "계획",
+    "words": [
+      "이번",
+      "휴가에",
+      "제주도에",
+      "갈",
+      "거예요."
+    ],
+    "translation": "I am going to Jeju Island for this vacation.",
+    "hint": "미래의 계획을 '-을 거예요'로 표현합니다.",
+    "situation": "상황: 휴가 계획 말하기"
+  },
+  {
+    "id": 60,
+    "text": "한국어를 배운 지 6개월 됐어요.",
+    "level": "A2",
+    "category": "기간",
+    "words": [
+      "한국어를",
+      "배운",
+      "지",
+      "6개월",
+      "됐어요."
+    ],
+    "translation": "It has been 6 months since I started learning Korean.",
+    "hint": "'-은 지 ... 되다'는 기간을 나타냅니다.",
+    "situation": "상황: 학습 기간 설명하기"
+  },
+  {
+    "id": 61,
+    "text": "이 옷은 좀 큰 것 같아요.",
+    "level": "A2",
+    "category": "쇼핑",
+    "words": [
+      "이",
+      "옷은",
+      "좀",
+      "큰",
+      "것",
+      "같아요."
+    ],
+    "translation": "I think this cloth is a bit big.",
+    "hint": "추측이나 의견을 말할 때 '-것 같아요'를 씁니다.",
+    "situation": "상황: 옷 사이즈 확인하기"
+  },
+  {
+    "id": 62,
+    "text": "매운 음식을 잘 못 먹어요.",
+    "level": "A2",
+    "category": "식습관",
+    "words": [
+      "매운",
+      "음식을",
+      "잘",
+      "못",
+      "먹어요."
+    ],
+    "translation": "I can't eat spicy food very well.",
+    "hint": "능력의 부족을 '못'으로 표현합니다.",
+    "situation": "상황: 식성 설명하기"
+  },
+  {
+    "id": 63,
+    "text": "시간이 있으면 커피 한잔할까요?",
+    "level": "A2",
+    "category": "제안",
+    "words": [
+      "시간이",
+      "있으면",
+      "커피",
+      "한잔할까요?"
+    ],
+    "translation": "If you have time, shall we have a cup of coffee?",
+    "hint": "'-을까요?'는 상대방의 의향을 물으며 제안합니다.",
+    "situation": "상황: 커피 약속 제안하기"
+  },
+  {
+    "id": 64,
+    "text": "어제 늦게 자서 피곤해요.",
+    "level": "A2",
+    "category": "이유",
+    "words": [
+      "어제",
+      "늦게",
+      "자서",
+      "피곤해요."
+    ],
+    "translation": "I am tired because I went to bed late yesterday.",
+    "hint": "'-아서/어서'로 이유를 설명합니다.",
+    "situation": "상황: 컨디션 설명하기"
+  },
+  {
+    "id": 65,
+    "text": "지하철역에서 내려서 걸어오세요.",
+    "level": "A2",
+    "category": "길안내",
+    "words": [
+      "지하철역에서",
+      "내려서",
+      "걸어오세요."
+    ],
+    "translation": "Get off at the subway station and walk here.",
+    "hint": "연속된 동작을 '-어서'로 연결합니다.",
+    "situation": "상황: 오시는 길 안내하기"
+  },
+  {
+    "id": 66,
+    "text": "생일 선물로 무엇을 받고 싶어요?",
+    "level": "A2",
+    "category": "질문",
+    "words": [
+      "생일",
+      "선물로",
+      "무엇을",
+      "받고",
+      "싶어요?"
+    ],
+    "translation": "What do you want to get for your birthday present?",
+    "hint": "원하는 것을 물을 때 '-고 싶어요?'를 씁니다.",
+    "situation": "상황: 원하는 선물 묻기"
+  },
+  {
+    "id": 67,
+    "text": "비가 오니까 우산을 챙기세요.",
+    "level": "A2",
+    "category": "권유",
+    "words": [
+      "비가",
+      "오니까",
+      "우산을",
+      "챙기세요."
+    ],
+    "translation": "It's raining, so take an umbrella.",
+    "hint": "이유를 나타내는 '-니까'와 명령/권유를 함께 씁니다.",
+    "situation": "상황: 외출 시 당부하기"
+  },
+  {
+    "id": 68,
+    "text": "한국 드라마는 재미있고 감동적이에요.",
+    "level": "A2",
+    "category": "감상",
+    "words": [
+      "한국",
+      "드라마는",
+      "재미있고",
+      "감동적이에요."
+    ],
+    "translation": "Korean dramas are fun and touching.",
+    "hint": "두 가지 특징을 '-고'로 연결합니다.",
+    "situation": "상황: 드라마 감상평 말하기"
+  },
+  {
+    "id": 69,
+    "text": "저는 커피보다 차를 더 좋아해요.",
+    "level": "A2",
+    "category": "비교",
+    "words": [
+      "저는",
+      "커피보다",
+      "차를",
+      "더",
+      "좋아해요."
+    ],
+    "translation": "I prefer tea over coffee.",
+    "hint": "비교 대상 뒤에 '-보다'를 붙입니다.",
+    "situation": "상황: 기호 비교하기"
+  },
+  {
+    "id": 70,
+    "text": "주말에는 집에서 청소를 해요.",
+    "level": "A2",
+    "category": "일상",
+    "words": [
+      "주말에는",
+      "집에서",
+      "청소를",
+      "해요."
+    ],
+    "translation": "I clean the house on weekends.",
+    "hint": "반복되는 일상을 표현합니다.",
+    "situation": "상황: 주말 습관 말하기"
+  },
+  {
+    "id": 71,
+    "text": "친구들과 노래방에 가서 노래를 불렀어요.",
+    "level": "A2",
+    "category": "여가",
+    "words": [
+      "친구들과",
+      "노래방에",
+      "가서",
+      "노래를",
+      "불렀어요."
+    ],
+    "translation": "I went to a karaoke with friends and sang songs.",
+    "hint": "장소 이동 후 행동을 '-가서'로 표현합니다.",
+    "situation": "상황: 지난 여가 활동 말하기"
+  },
+  {
+    "id": 72,
+    "text": "감기에 걸리지 않게 조심하세요.",
+    "level": "A2",
+    "category": "당부",
+    "words": [
+      "감기에",
+      "걸리지",
+      "않게",
+      "조심하세요."
+    ],
+    "translation": "Be careful not to catch a cold.",
+    "hint": "'-지 않게'는 부정의 목적이나 상태를 나타냅니다.",
+    "situation": "상황: 건강 유의 당부하기"
+  },
+  {
+    "id": 73,
+    "text": "떡볶이는 한국의 대표적인 간식이에요.",
+    "level": "A2",
+    "category": "설명",
+    "words": [
+      "떡볶이는",
+      "한국의",
+      "대표적인",
+      "간식이에요."
+    ],
+    "translation": "Tteokbokki is a representative Korean snack.",
+    "hint": "대표적인 것을 소개할 때 쓰는 표현입니다.",
+    "situation": "상황: 한국 음식 소개하기"
+  },
+  {
+    "id": 74,
+    "text": "약속 시간에 늦어서 죄송합니다.",
+    "level": "A2",
+    "category": "사과",
+    "words": [
+      "약속",
+      "시간에",
+      "늦어서",
+      "죄송합니다."
+    ],
+    "translation": "I am sorry for being late for the appointment.",
+    "hint": "늦은 이유를 밝히며 사과합니다.",
+    "situation": "상황: 지각했을 때 사과"
+  },
+  {
+    "id": 75,
+    "text": "내일 저녁에 시간 괜찮으세요?",
+    "level": "A2",
+    "category": "약속",
+    "words": [
+      "내일",
+      "저녁에",
+      "시간",
+      "괜찮으세요?"
+    ],
+    "translation": "Are you free tomorrow evening?",
+    "hint": "상대방의 시간을 정중하게 물어봅니다.",
+    "situation": "상황: 약속 시간 확인하기"
+  },
+  {
+    "id": 76,
+    "text": "저는 나중에 선생님이 되고 싶어요.",
+    "level": "A2",
+    "category": "장래희망",
+    "words": [
+      "저는",
+      "나중에",
+      "선생님이",
+      "되고",
+      "싶어요."
+    ],
+    "translation": "I want to become a teacher later.",
+    "hint": "되고 싶은 모습을 '-이/가 되다'로 표현합니다.",
+    "situation": "상황: 꿈 이야기하기"
+  },
+  {
+    "id": 77,
+    "text": "창문을 열어도 될까요?",
+    "level": "A2",
+    "category": "허락",
+    "words": [
+      "창문을",
+      "열어도",
+      "될까요?"
+    ],
+    "translation": "May I open the window?",
+    "hint": "허락을 구할 때 '-어도 되다'를 씁니다.",
+    "situation": "상황: 행동에 대한 허락 구하기"
+  },
+  {
+    "id": 78,
+    "text": "이 버스는 시청으로 가나요?",
+    "level": "A2",
+    "category": "교통",
+    "words": [
+      "이",
+      "버스는",
+      "시청으로",
+      "가나요?"
+    ],
+    "translation": "Does this bus go to City Hall?",
+    "hint": "목적지를 확인할 때 사용합니다.",
+    "situation": "상황: 버스 노선 확인하기"
+  },
+  {
+    "id": 79,
+    "text": "숙제를 다 하고 나서 놀 거예요.",
+    "level": "A2",
+    "category": "순서",
+    "words": [
+      "숙제를",
+      "다",
+      "하고",
+      "나서",
+      "놀",
+      "거예요."
+    ],
+    "translation": "I will play after checking my homework.",
+    "hint": "행동의 순서를 '-고 나서'로 표현합니다.",
+    "situation": "상황: 할 일의 순서 말하기"
+  },
+  {
+    "id": 80,
+    "text": "한국의 여름은 덥고 습기가 많아요.",
+    "level": "B1",
+    "category": "날씨",
+    "words": [
+      "한국의",
+      "여름은",
+      "덥고",
+      "습기가",
+      "많아요."
+    ],
+    "translation": "Korean summer is hot and humid.",
+    "hint": "계절의 특징을 구체적으로 묘사합니다.",
+    "situation": "상황: 기후 설명하기"
+  },
+  {
+    "id": 81,
+    "text": "스트레스를 받을 때는 매운 음식을 먹어요.",
+    "level": "B1",
+    "category": "해소법",
+    "words": [
+      "스트레스를",
+      "받을",
+      "때는",
+      "매운",
+      "음식을",
+      "먹어요."
+    ],
+    "translation": "I eat spicy food when I am stressed.",
+    "hint": "'-을 때'는 특정한 상황이나 시간을 나타냅니다.",
+    "situation": "상황: 스트레스 해소 방법 말하기"
+  },
+  {
+    "id": 82,
+    "text": "어제 본 영화는 기대했던 것보다 재미없었어요.",
+    "level": "B1",
+    "category": "평가",
+    "words": [
+      "어제",
+      "본",
+      "영화는",
+      "기대했던",
+      "것보다",
+      "재미없었어요."
+    ],
+    "translation": "The movie I saw yesterday was less interesting than I expected.",
+    "hint": "기대와 실제를 비교하여 평가합니다.",
+    "situation": "상황: 영화 관람 후기"
+  },
+  {
+    "id": 83,
+    "text": "건강을 위해서 매일 운동을 하려고 노력해요.",
+    "level": "B1",
+    "category": "노력",
+    "words": [
+      "건강을",
+      "위해서",
+      "매일",
+      "운동을",
+      "하려고",
+      "노력해요."
+    ],
+    "translation": "I try to exercise every day for my health.",
+    "hint": "목적을 나타내는 '-기 위해서'를 사용합니다.",
+    "situation": "상황: 건강 관리 노력 설명하기"
+  },
+  {
+    "id": 84,
+    "text": "친구가 약속을 어겨서 기분이 나빴어요.",
+    "level": "B1",
+    "category": "감정",
+    "words": [
+      "친구가",
+      "약속을",
+      "어겨서",
+      "기분이",
+      "나빴어요."
+    ],
+    "translation": "I felt bad because my friend broke the promise.",
+    "hint": "감정의 원인을 구체적으로 설명합니다.",
+    "situation": "상황: 기분이 상한 이유 말하기"
+  },
+  {
+    "id": 85,
+    "text": "한국어를 공부하면 한국 문화를 더 잘 이해할 수 있어요.",
+    "level": "B1",
+    "category": "가정",
+    "words": [
+      "한국어를",
+      "공부하면",
+      "한국",
+      "문화를",
+      "더",
+      "잘",
+      "이해할",
+      "수",
+      "있어요."
+    ],
+    "translation": "If you study Korean, you can understand Korean culture better.",
+    "hint": "조건과 결과를 '-면'으로 연결합니다.",
+    "situation": "상황: 언어 학습의 장점 설명"
+  },
+  {
+    "id": 86,
+    "text": "저는 환경 문제에 관심이 많아서 봉사 활동을 해요.",
+    "level": "B1",
+    "category": "관심사",
+    "words": [
+      "저는",
+      "환경",
+      "문제에",
+      "관심이",
+      "많아서",
+      "봉사",
+      "활동을",
+      "해요."
+    ],
+    "translation": "I volunteer because I am very interested in environmental issues.",
+    "hint": "관심사와 그에 따른 행동을 설명합니다.",
+    "situation": "상황: 봉사 활동 이유 설명"
+  },
+  {
+    "id": 87,
+    "text": "실수하는 것을 두려워하지 말고 많이 연습하세요.",
+    "level": "B1",
+    "category": "조언",
+    "words": [
+      "실수하는",
+      "것을",
+      "두려워하지",
+      "말고",
+      "많이",
+      "연습하세요."
+    ],
+    "translation": "Don't be afraid of making mistakes and practice a lot.",
+    "hint": "'-지 말고'를 사용하여 금지와 권유를 동시에 합니다.",
+    "situation": "상황: 학습자에게 조언하기"
+  },
+  {
+    "id": 88,
+    "text": "이 책은 한국의 역사에 대해 쉽게 설명하고 있어요.",
+    "level": "B1",
+    "category": "설명",
+    "words": [
+      "이",
+      "책은",
+      "한국의",
+      "역사에",
+      "대해",
+      "쉽게",
+      "설명하고",
+      "있어요."
+    ],
+    "translation": "This book explains Korean history easily.",
+    "hint": "무엇에 '대해' 설명하는지 표현합니다.",
+    "situation": "상황: 책 내용 소개하기"
+  },
+  {
+    "id": 89,
+    "text": "성공하기 위해서는 꾸준히 노력하는 것이 중요해요.",
+    "level": "B1",
+    "category": "가치관",
+    "words": [
+      "성공하기",
+      "위해서는",
+      "꾸준히",
+      "노력하는",
+      "것이",
+      "중요해요."
+    ],
+    "translation": "Consistent effort is important for success.",
+    "hint": "중요하다고 생각하는 가치를 설명합니다.",
+    "situation": "상황: 성공의 비결 이야기하기"
+  },
+  {
+    "id": 90,
+    "text": "여행을 통해 새로운 사람들을 만나는 것은 즐거운 일이에요.",
+    "level": "B1",
+    "category": "경험",
+    "words": [
+      "여행을",
+      "통해",
+      "새로운",
+      "사람들을",
+      "만나는",
+      "것은",
+      "즐거운",
+      "일이에요."
+    ],
+    "translation": "Meeting new people through travel is a pleasant thing.",
+    "hint": "경험을 통해 얻는 즐거움을 표현합니다.",
+    "situation": "상황: 여행의 즐거움 말하기"
+  },
+  {
+    "id": 91,
+    "text": "요즘에는 인터넷으로 물건을 사는 사람들이 많아졌어요.",
+    "level": "B1",
+    "category": "현상",
+    "words": [
+      "요즘에는",
+      "인터넷으로",
+      "물건을",
+      "사는",
+      "사람들이",
+      "많아졌어요."
+    ],
+    "translation": "Nowadays, more people are buying things online.",
+    "hint": "변화하는 사회 현상을 '-아/어 지다'로 표현합니다.",
+    "situation": "상황: 쇼핑 트렌드 설명하기"
+  },
+  {
+    "id": 92,
+    "text": "제 꿈은 전 세계를 여행하며 다양한 문화를 체험하는 거예요.",
+    "level": "B1",
+    "category": "꿈",
+    "words": [
+      "제",
+      "꿈은",
+      "전",
+      "세계를",
+      "여행하며",
+      "다양한",
+      "문화를",
+      "체험하는",
+      "거예요."
+    ],
+    "translation": "My dream is to travel the world and experience diverse cultures.",
+    "hint": "'-며'를 사용하여 두 가지 동작을 동시에 설명합니다.",
+    "situation": "상황: 장래 희망 설명하기"
+  },
+  {
+    "id": 93,
+    "text": "회의 준비를 하느라 밤을 꼬박 새웠어요.",
+    "level": "B1",
+    "category": "상황",
+    "words": [
+      "회의",
+      "준비를",
+      "하느라",
+      "밤을",
+      "꼬박",
+      "새웠어요."
+    ],
+    "translation": "I stayed up all night preparing for the meeting.",
+    "hint": "이유나 원인을 나타내는 '-느라'를 사용합니다.",
+    "situation": "상황: 피곤한 이유 설명"
+  },
+  {
+    "id": 94,
+    "text": "친구에게 들은 이야기가 사실인지 확인해 봐야겠어요.",
+    "level": "B1",
+    "category": "확인",
+    "words": [
+      "친구에게",
+      "들은",
+      "이야기가",
+      "사실인지",
+      "확인해",
+      "봐야겠어요."
+    ],
+    "translation": "I need to check if the story I heard from my friend is true.",
+    "hint": "확인이 필요함을 '-아/어 봐야겠다'로 표현합니다.",
+    "situation": "상황: 사실 확인 필요성 말하기"
+  },
+  {
+    "id": 95,
+    "text": "날씨가 추워지니 따뜻한 옷을 입고 다니세요.",
+    "level": "B1",
+    "category": "조언",
+    "words": [
+      "날씨가",
+      "추워지니",
+      "따뜻한",
+      "옷을",
+      "입고",
+      "다니세요."
+    ],
+    "translation": "It is getting cold, so please wear warm clothes.",
+    "hint": "상황 변화에 따른 조언을 합니다.",
+    "situation": "상황: 날씨에 맞는 옷차림 권유"
+  },
+  {
+    "id": 96,
+    "text": "한국어 실력을 늘리려면 한국 사람들과 많이 대화해야 해요.",
+    "level": "B1",
+    "category": "방법",
+    "words": [
+      "한국어",
+      "실력을",
+      "늘리려면",
+      "한국",
+      "사람들과",
+      "많이",
+      "대화해야",
+      "해요."
+    ],
+    "translation": "To improve your Korean skills, you need to talk a lot with Korean people.",
+    "hint": "목적을 이루기 위한 방법을 '-으려면'으로 설명합니다.",
+    "situation": "상황: 학습 방법 조언하기"
+  },
+  {
+    "id": 97,
+    "text": "저는 어렸을 때 피아니스트가 되는 것이 꿈이었어요.",
+    "level": "B1",
+    "category": "과거",
+    "words": [
+      "저는",
+      "어렸을",
+      "때",
+      "피아니스트가",
+      "되는",
+      "것이",
+      "꿈이었어요."
+    ],
+    "translation": "My dream was to become a pianist when I was young.",
+    "hint": "과거의 꿈을 회상하며 말합니다.",
+    "situation": "상황: 어릴 적 꿈 이야기"
+  },
+  {
+    "id": 98,
+    "text": "문제가 생기면 언제든지 저에게 연락해 주세요.",
+    "level": "B1",
+    "category": "부탁",
+    "words": [
+      "문제가",
+      "생기면",
+      "언제든지",
+      "저에게",
+      "연락해",
+      "주세요."
+    ],
+    "translation": "If you have any problems, please contact me anytime.",
+    "hint": "가정적인 상황에 대해 도움을 주겠다고 제안합니다.",
+    "situation": "상황: 도움이 필요할 때 연락 권유"
+  },
+  {
+    "id": 99,
+    "text": "이번 프로젝트가 성공적으로 끝나서 정말 기뻐요.",
+    "level": "B1",
+    "category": "성취",
+    "words": [
+      "이번",
+      "프로젝트가",
+      "성공적으로",
+      "끝나서",
+      "정말",
+      "기뻐요."
+    ],
+    "translation": "I am really happy that this project ended successfully.",
+    "hint": "성취감과 그 이유를 표현합니다.",
+    "situation": "상황: 프로젝트 완료 후 소감"
+  },
+  {
+    "id": 100,
+    "text": "앞으로도 계속 한국어를 열심히 공부할 생각이에요.",
+    "level": "B1",
+    "category": "다짐",
+    "words": [
+      "앞으로도",
+      "계속",
+      "한국어를",
+      "열심히",
+      "공부할",
+      "생각이에요."
+    ],
+    "translation": "I plan to continue studying Korean hard in the future.",
+    "hint": "미래의 다짐이나 계획을 '-을 생각이다'로 표현합니다.",
+    "situation": "상황: 앞으로의 계획 말하기"
   }
 ]

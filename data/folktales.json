@@ -102,7 +102,7 @@
         "correctAnswer": 2
       }
     ],
-    "image_url": "/uploads/images/gemini_20260114_154011.png",
+    "image_url": "/uploads/images/heungbu_nolbu.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -208,7 +208,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: A clever white rabbit on the back of a turtle traveling towards an underwater palace with bubble effects. Then the rabbit tricks the dragon king, with magical underwater dragon palace filled with coral and sea creatures. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_184449.png",
+    "image_url": "/uploads/images/rabbit_turtle.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -314,7 +314,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: Two young sisters ascending to heaven on a magical rope while a fierce tiger tries to climb after them from below. Above them, the sun and moon shine brightly in the sky. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154820.png",
+    "image_url": "/uploads/images/sun_moon_siblings.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -420,7 +420,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: A kind girl (Kongji) spinning with a spinning wheel while mice help her, with her late mother's spirit watching over her. Split scene showing her meeting a noble prince on her wedding day. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154829.png",
+    "image_url": "/uploads/images/kongjwi_patjwi.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -526,7 +526,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: A beautiful heavenly maiden (fairy) bathing in a stream with other celestial maidens in flowing white robes. A poor woodcutter watches from the forest. Then they are shown together as a married couple with children in their humble home. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154849.png",
+    "image_url": "/uploads/images/fairy_woodcutter.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -632,7 +632,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: A poor honest woodcutter loses his axe in a stream, then a magical spirit (immortal sage) emerges from the water holding three axes - golden, silver, and iron. The spirit rewards the honest woodcutter by giving all three axes. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154857.png",
+    "image_url": "/uploads/images/golden_silver_axe.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -738,7 +738,7 @@
       }
     ],
     "imagePrompt": "Korean folktale humorous illustration: A young daughter-in-law in a traditional Korean house, with a disapproving mother-in-law watching. Show the contrast between awkwardness and eventual acceptance. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154907.png",
+    "image_url": "/uploads/images/daughter_in_law_fart.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -844,7 +844,7 @@
       }
     ],
     "imagePrompt": "Korean folktale illustration: An elderly grandmother cooking red bean porridge (patjuk) in a traditional Korean kitchen with a fierce tiger at the door. Show the clever grandmother outsmarting the hungry tiger with cornfield challenges. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154915.png",
+    "image_url": "/uploads/images/red_bean_porridge_tiger.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -949,8 +949,8 @@
         "correctAnswer": 1
       }
     ],
-    "imagePrompt": "Korean historical folktale illustration: A beautiful Goguryeo princess meeting a poor and foolish man (Ondal) in a village. Show his transformation from fool to great general in armor. Traditional Korean historical art style with ancient palace and military elements. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154923.png",
+    "imagePrompt": "Korean folktale illustration: A beautiful Goguryeo princess and a humble man (Ondal) standing together in a peaceful nature setting near a small cottage. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
+    "image_url": "/uploads/images/ondal_pyeonggang.png",
     "image_model": "gemini-2.5-flash-image"
   },
   {
@@ -1055,8 +1055,8 @@
         "correctAnswer": 2
       }
     ],
-    "imagePrompt": "Korean folktale illustration: Two devoted brothers helping each other and their families in a humble village setting. Show them caring for each other's children despite their poverty. Then a magical golden tree appears in front of their house as a heavenly reward. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
-    "image_url": "/uploads/images/gemini_20260114_154932.png",
+    "imagePrompt": "Korean folktale illustration: Two adult male brothers carrying heavy straw sacks of harvested rice on their backs using traditional A-frame carriers (jige) at night under the moonlight. They are meeting each other on a path between rice fields and look surprised and happy. Modern watercolor illustration style, soft and flowing colors, educational and beautiful, perfect for international audiences. No text, no letters, no words, no writing, no signs with text.",
+    "image_url": "/uploads/images/good_brothers_v2.png",
     "image_model": "gemini-2.5-flash-image"
   }
 ]

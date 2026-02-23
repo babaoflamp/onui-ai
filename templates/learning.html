@@ -40,11 +40,13 @@ endblock %} {% block content %}
           // Send mail after 30 minutes of study
           if (studyTimeMinutes >= 30 && !hasSent30MinMail) {
             hasSent30MinMail = true;
-            addMailNotification(
-              "🎓 30분 학습 완료!",
-              `축하합니다! 30분 동안 ${studiedSentences}개의 문장을 학습하셨습니다. 꾸준한 학습이 실력 향상의 지름길입니다!`,
-              "⏰"
-            );
+            if (typeof addMailNotification === "function") {
+              addMailNotification(
+                "🎓 30분 학습 완료!",
+                `축하합니다! 30분 동안 ${studiedSentences}개의 문장을 학습하셨습니다. 꾸준한 학습이 실력 향상의 지름길입니다!`,
+                "⏰"
+              );
+            }
           }
         }, 60000); // Check every minute
       }
@@ -59,22 +61,26 @@ endblock %} {% block content %}
       );
 
       // Send mail on every sentence completion
-      addMailNotification(
-        "✨ 문장 학습 완료!",
-        `${studiedSentences}개 문장을 학습했습니다. 계속 이 페이스를 유지하세요!`,
-        "📝"
-      );
+      if (typeof addMailNotification === "function") {
+        addMailNotification(
+          "✨ 문장 학습 완료!",
+          `${studiedSentences}개 문장을 학습했습니다. 계속 이 페이스를 유지하세요!`,
+          "📝"
+        );
+      }
     }
 
     // Track score achievement
     function onScoreAchieved(score) {
       if (score >= 80 && !hasAchievedScore) {
         hasAchievedScore = true;
-        addMailNotification(
-          "🏆 높은 점수 달성!",
-          `${score}점을 달성하셨습니다! 정말 훌륭합니다! 이 기세를 이어가세요!`,
-          "🌟"
-        );
+        if (typeof addMailNotification === "function") {
+          addMailNotification(
+            "🏆 높은 점수 달성!",
+            `${score}점을 달성하셨습니다! 정말 훌륭합니다! 이 기세를 이어가세요!`,
+            "🌟"
+          );
+        }
       }
     }
 
@@ -131,6 +137,7 @@ endblock %} {% block content %}
       #contentResult .dialogue-text {
         line-height: 1.35;
       }
+
       #modelTestResult,
       #modelTestResult p {
         line-height: 1.45;
@@ -141,61 +148,42 @@ endblock %} {% block content %}
     <!-- Header -->
     <header class="mb-6">
       <div
-        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2"
-      >
+        class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
         <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
         ONUI · AI 학습 도구
       </div>
       <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        <img
-          src="https://twemoji.maxcdn.com/v/latest/svg/1f1f0-1f1f7.svg"
-          alt="🇰🇷"
-          class="inline-block w-6 h-6 mr-2 align-middle"
-        />오누이 AI 학습 플랫폼
+        <img src="https://twemoji.maxcdn.com/v/latest/svg/1f1f0-1f1f7.svg" alt="🇰🇷"
+          class="inline-block w-6 h-6 mr-2 align-middle" />오누이 AI 학습 플랫폼
       </h1>
       <p class="text-sm text-gray-600">AI를 활용한 맞춤형 한국어 학습 경험</p>
     </header>
 
     <!-- 1. Content Generation Section -->
-    <section
-      class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
-    >
+    <section class="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <span class="text-2xl">📚</span>
           1. 맞춤형 교재 생성
         </h2>
-        <a
-          href="/content-generation"
-          class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
-        >
+        <a href="/content-generation"
+          class="text-sm px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition">
           전체 보기 →
         </a>
       </div>
 
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-3"
-      >
-        <input
-          id="topic"
-          type="text"
-          placeholder="관심 주제 (예: K-POP, 음식, 여행)"
-          value="한국 여행"
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 mb-3">
+        <input id="topic" type="text" placeholder="관심 주제 (예: K-POP, 음식, 여행)" value="한국 여행"
           class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm lg:col-span-2"
-          onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }"
-        />
-        <select
-          id="level"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
-        >
+          onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }" />
+        <select id="level"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1">
           <option value="초급">초급</option>
           <option value="중급" selected>중급</option>
           <option value="고급">고급</option>
         </select>
-        <select
-          id="modelSelect"
-          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1"
-        >
+        <select id="modelSelect"
+          class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm lg:col-span-1">
           <option value="exaone3.5:2.4b" data-backend="ollama" selected>
             EXAONE 3.5
           </option>
@@ -203,51 +191,34 @@ endblock %} {% block content %}
             Gemini Flash
           </option>
         </select>
-        <button
-          id="generateBtn"
-          onclick="toggleGeneration()"
-          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg transition-all shadow-md text-sm font-medium lg:col-span-1"
-        >
+        <button id="generateBtn" onclick="toggleGeneration()"
+          class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg transition-all shadow-md text-sm font-medium lg:col-span-1">
           🪄 생성하기
         </button>
       </div>
 
-      <div
-        id="contentResult"
-        class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"
-      ></div>
+      <div id="contentResult" class="bg-white p-4 rounded-lg shadow-sm hidden border border-gray-200"></div>
 
       <!-- Model Test Section -->
       <div class="mt-4 pt-4 border-t border-blue-200">
-        <label class="text-xs font-semibold text-gray-700 mb-2 block"
-          >💬 AI와 대화해보기</label
-        >
+        <label class="text-xs font-semibold text-gray-700 mb-2 block">💬 AI와 대화해보기</label>
         <div class="grid grid-cols-6 gap-2">
-          <input
-            id="testPrompt"
-            type="text"
+          <input id="testPrompt" type="text"
             class="col-span-5 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
             placeholder="AI에게 물어보고 싶은 것을 자유롭게 입력해 보세요 😊"
-            onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }"
-          />
-          <button
-            onclick="testModel()"
-            class="col-span-1 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm"
-          >
+            onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }" />
+          <button onclick="testModel()"
+            class="col-span-1 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors text-sm">
             ✨ 물어보기
           </button>
         </div>
-        <div
-          id="modelTestResult"
-          class="mt-2 p-3 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"
-        ></div>
+        <div id="modelTestResult"
+          class="mt-2 p-3 bg-gray-50 rounded-lg text-sm hidden prose max-w-full border border-gray-200"></div>
       </div>
     </section>
 
     <!-- 2. Essay Test Section -->
-    <section
-      class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200"
-    >
+    <section class="mb-6 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <span class="text-2xl">✍️</span>
@@ -256,49 +227,35 @@ endblock %} {% block content %}
       </div>
 
       <div class="bg-white p-4 rounded-lg shadow-sm">
-        <textarea
-          id="fluencyInput"
-          placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
-          class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
-        ></textarea>
+        <textarea id="fluencyInput" placeholder="오늘 기분이 어떤지 한국어로 써보세요..."
+          class="w-full border border-gray-300 p-3 rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"></textarea>
 
-        <button
-          onclick="checkFluency()"
-          class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium"
-        >
+        <button onclick="checkFluency()"
+          class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-medium">
           제출 및 채점
         </button>
 
-        <div
-          id="fluencyResult"
-          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
-        ></div>
+        <div id="fluencyResult" class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"></div>
       </div>
     </section>
 
     <!-- 3. Situational Content Section -->
-    <section
-      class="mb-6 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
-    >
+    <section class="mb-6 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <span class="text-2xl">🎭</span>
           3. 상황별 컨텐츠 생성
         </h2>
-        <a
-          href="/media-generation"
-          class="text-sm px-3 py-1 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition"
-        >
+        <a href="/media-generation"
+          class="text-sm px-3 py-1 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition">
           전체 보기 →
         </a>
       </div>
 
       <div class="bg-white p-4 rounded-lg shadow-sm">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
-          <select
-            id="situation"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
-          >
+          <select id="situation"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
             <option value="">상황을 선택해주세요</option>
             <option value="카페">☕ 카페에서 주문하기</option>
             <option value="식당">🍽️ 식당에서 예약하기</option>
@@ -307,27 +264,20 @@ endblock %} {% block content %}
             <option value="여행">✈️ 여행 계획하기</option>
             <option value="면접">💼 면접 준비하기</option>
           </select>
-          <select
-            id="situationLevel"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-          >
+          <select id="situationLevel"
+            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm">
             <option value="초급">초급</option>
             <option value="중급" selected>중급</option>
             <option value="고급">고급</option>
           </select>
         </div>
 
-        <button
-          onclick="generateSituationalContent()"
-          class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium"
-        >
+        <button onclick="generateSituationalContent()"
+          class="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-pink-700 transition-all shadow-md hover:shadow-lg font-medium">
           컨텐츠 생성
         </button>
 
-        <div
-          id="situationalResult"
-          class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"
-        ></div>
+        <div id="situationalResult" class="mt-3 p-4 rounded-lg bg-white hidden border border-gray-200 shadow-sm"></div>
       </div>
     </section>
 
@@ -361,18 +311,10 @@ endblock %} {% block content %}
 </div>
 
 <!-- SpeechPro 결과 모달 -->
-<div
-  id="speechpro-modal"
-  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
->
-  <div
-    class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
-  >
-    <button
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
-      onclick="closeSpeechProModal()"
-      aria-label="닫기"
-    >
+<div id="speechpro-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+  <div class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8">
+    <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl" onclick="closeSpeechProModal()"
+      aria-label="닫기">
       ✕
     </button>
 
@@ -386,20 +328,15 @@ endblock %} {% block content %}
           <div class="text-6xl font-bold text-blue-600 mb-2">
             <span id="sp-overall-score">0</span>/100
           </div>
-          <p
-            id="sp-score-feedback"
-            class="text-lg text-gray-600 font-semibold"
-          ></p>
+          <p id="sp-score-feedback" class="text-lg text-gray-600 font-semibold"></p>
         </div>
 
         <!-- 점수 게이지 -->
         <div class="mt-6">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-            <div
-              id="sp-score-bar"
+            <div id="sp-score-bar"
               class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full transition-all duration-500"
-              style="width: 0%"
-            ></div>
+              style="width: 0%"></div>
           </div>
         </div>
       </div>
@@ -414,26 +351,18 @@ endblock %} {% block content %}
     </div>
 
     <!-- AI 피드백 섹션 -->
-    <div
-      id="sp-ai-feedback-section"
-      class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden"
-    >
+    <div id="sp-ai-feedback-section" class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 hidden">
       <h3 class="text-lg font-semibold text-blue-900 mb-3">
         🤖 AI 개선 피드백
       </h3>
-      <div
-        id="sp-ai-feedback-content"
-        class="text-blue-800 whitespace-pre-wrap"
-      >
+      <div id="sp-ai-feedback-content" class="text-blue-800 whitespace-pre-wrap">
         <!-- 동적으로 생성됨 -->
       </div>
     </div>
 
     <div class="flex justify-end gap-3">
-      <button
-        onclick="closeSpeechProModal()"
-        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-      >
+      <button onclick="closeSpeechProModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
         닫기
       </button>
     </div>
@@ -607,7 +536,7 @@ endblock %} {% block content %}
         try {
           const parsed = tryParseCandidate(s);
           if (parsed) return normalizeParsed(parsed);
-        } catch (e) {}
+        } catch (e) { }
 
         // 2) fenced JSON (```json ... ```)
         try {
@@ -616,9 +545,9 @@ endblock %} {% block content %}
             try {
               const parsed = tryParseCandidate(m[1].trim());
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         // 3) find first {...} that contains both keys
         try {
@@ -635,9 +564,9 @@ endblock %} {% block content %}
               const parsed =
                 tryParseCandidate(repaired) || tryParseCandidate(cand);
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         // 4) as a last resort, try extracting from first/last brace
         try {
@@ -653,9 +582,9 @@ endblock %} {% block content %}
               const parsed =
                 tryParseCandidate(repaired) || tryParseCandidate(cand);
               if (parsed) return normalizeParsed(parsed);
-            } catch (e) {}
+            } catch (e) { }
           }
-        } catch (e) {}
+        } catch (e) { }
 
         return null;
       }
@@ -778,17 +707,15 @@ endblock %} {% block content %}
           <div class="flex items-start gap-3">
             <span class="text-2xl">${avatarEmoji}</span>
             <div class="flex-1">
-              <p class="font-semibold ${speakerColor} text-sm mb-1">${
-          d.speaker
-        }</p>
+              <p class="font-semibold ${speakerColor} text-sm mb-1">${d.speaker
+          }</p>
               <p class="text-gray-900 font-medium dialogue-text">${d.text}</p>
-              ${
-                pron
-                  ? `<div class="mt-2 flex items-center gap-2 text-gray-500 text-xs italic"><button onclick="speakText('${jsEsc(
-                      d.text
-                    )}')" class="text-sm px-2 py-1 bg-gray-100 rounded">🔊</button><span class="pronunciation-text"> ${pron}</span></div>`
-                  : ""
-              }
+              ${pron
+            ? `<div class="mt-2 flex items-center gap-2 text-gray-500 text-xs italic"><button onclick="speakText('${jsEsc(
+              d.text
+            )}')" class="text-sm px-2 py-1 bg-gray-100 rounded">🔊</button><span class="pronunciation-text"> ${pron}</span></div>`
+            : ""
+          }
             </div>
           </div>
         </div>
@@ -834,12 +761,9 @@ endblock %} {% block content %}
         <!-- Action Buttons -->
         <div class="flex gap-2 items-center pt-2">
           <div class="flex items-center gap-2 mr-2">
-            <label for="voiceSelect" class="text-xs text-gray-600">음성 선택</label>
-            <select id="voiceSelect" class="text-sm border border-gray-200 rounded px-2 py-1 bg-white">
-              <option value="">(목소리 불러오는 중...)</option>
-            </select>
+            <span id="ttsBackendBadge" class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">🔊 TTS 로딩중...</span>
           </div>
-          <button onclick="speakDialogue()" class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all text-sm font-medium flex items-center justify-center gap-2">
+          <button id="speakDialogueBtn" onclick="speakDialogue()" class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all text-sm font-medium flex items-center justify-center gap-2">
             <span>🔊</span>
             대화 읽어주기
           </button>
@@ -871,6 +795,9 @@ endblock %} {% block content %}
 
       resultDiv.innerHTML = html;
 
+      // Load TTS backend info for the badge
+      loadTtsBackendInfo();
+
       // Track sentence completion and send mail
       if (jsonObj.dialogue && jsonObj.dialogue.length > 0) {
         onSentenceCompleted();
@@ -893,10 +820,31 @@ endblock %} {% block content %}
     }
   }
 
-  // Speak a given string using Web Speech API
-  function speakText(txt) {
-    console.warn("Browser TTS is disabled.");
-    return;
+  // Speak a given string using server TTS API
+  let _ttsPlaying = false;
+  let _ttsAudio = null;
+
+  async function speakText(txt) {
+    if (!txt || _ttsPlaying) return;
+    _ttsPlaying = true;
+    try {
+      const res = await fetch("/api/tts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: txt }),
+      });
+      if (!res.ok) throw new Error("TTS 생성 실패");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      if (_ttsAudio) { _ttsAudio.pause(); URL.revokeObjectURL(_ttsAudio.src); }
+      _ttsAudio = new Audio(url);
+      _ttsAudio.onended = () => { _ttsPlaying = false; URL.revokeObjectURL(url); };
+      _ttsAudio.onerror = () => { _ttsPlaying = false; URL.revokeObjectURL(url); };
+      await _ttsAudio.play();
+    } catch (e) {
+      console.error("TTS error:", e);
+      _ttsPlaying = false;
+    }
   }
 
   // Test model
@@ -979,7 +927,6 @@ endblock %} {% block content %}
   // On DOMContentLoaded, setup generate button behavior
   window.addEventListener("DOMContentLoaded", () => {
     setupGenerateButton();
-    populateVoiceList();
 
     // Force update after a short delay to ensure DOM is fully ready
     setTimeout(() => {
@@ -993,59 +940,30 @@ endblock %} {% block content %}
     }, 100);
   });
 
-  // Populate voice select and persist choice in localStorage
-  function populateVoiceList() {
-    const sel = document.getElementById("voiceSelect");
-    if (!sel) return;
-    if (!("speechSynthesis" in window)) {
-      sel.innerHTML = '<option value="">음성 지원 불가</option>';
-      return;
+  // Load TTS backend info from server and display in the badge
+  async function loadTtsBackendInfo() {
+    const badge = document.getElementById("ttsBackendBadge");
+    if (!badge) return;
+    try {
+      const res = await fetch("/api/tts/info");
+      if (!res.ok) throw new Error("TTS info unavailable");
+      const info = await res.json();
+      const backendLabels = {
+        gemini: "Gemini TTS",
+        openai: "OpenAI TTS",
+        google: "Google Cloud TTS",
+        mztts: "MzTTS 한국어",
+      };
+      const label = backendLabels[info.backend] || info.backend || "서버 TTS";
+      const detail = info.model || info.voice || "";
+      badge.textContent = `🔊 ${label}${detail ? " · " + detail : ""}`;
+      badge.classList.remove("bg-gray-100", "text-gray-500");
+      badge.classList.add("bg-green-100", "text-green-700");
+    } catch (e) {
+      badge.textContent = "🔇 TTS 연결 실패";
+      badge.classList.remove("bg-green-100", "text-green-700");
+      badge.classList.add("bg-red-100", "text-red-600");
     }
-
-    function refresh() {
-      const voices = window.speechSynthesis.getVoices() || [];
-      // prefer showing Korean voices first
-      voices.sort((a, b) => {
-        const aKo = (a.lang || "").toLowerCase().startsWith("ko");
-        const bKo = (b.lang || "").toLowerCase().startsWith("ko");
-        if (aKo === bKo) return (a.name || "").localeCompare(b.name || "");
-        return aKo ? -1 : 1;
-      });
-
-      let current = "";
-      try {
-        current = localStorage.getItem("onui_voice") || "";
-      } catch (e) {
-        // localStorage not available, skip
-      }
-
-      sel.innerHTML = "";
-      const emptyOpt = document.createElement("option");
-      emptyOpt.value = "";
-      emptyOpt.innerText = "(시스템 기본 음성)";
-      sel.appendChild(emptyOpt);
-
-      voices.forEach((v) => {
-        const o = document.createElement("option");
-        // store by name|lang to avoid duplicates
-        o.value = `${v.name}||${v.lang}`;
-        o.innerText = `${v.name} (${v.lang})`;
-        if (o.value === current) o.selected = true;
-        sel.appendChild(o);
-      });
-    }
-
-    // try to refresh now and again when voices change
-    refresh();
-    window.speechSynthesis.onvoiceschanged = refresh;
-
-    sel.addEventListener("change", () => {
-      try {
-        localStorage.setItem("onui_voice", sel.value || "");
-      } catch (e) {
-        // localStorage not available, skip
-      }
-    });
   }
 
   // Enable/disable the Generate button based on topic input
@@ -1218,16 +1136,51 @@ endblock %} {% block content %}
 
   // 2. Essay test functions (placeholder - recording logic removed)
 
-  // Speak a given string using Web Speech API (used by per-item buttons)
-  function speakText(txt) {
-    console.warn("Browser TTS is disabled.");
-    return;
+  // speakText is defined above (server TTS version)
+
+  // Speak the whole dialogue sequence using server TTS
+  async function speakDialogue() {
+    const items = document.querySelectorAll("#contentResult .dialogue-item");
+    if (!items.length) return;
+
+    const btn = document.getElementById("speakDialogueBtn");
+    if (btn) { btn.disabled = true; btn.innerHTML = "<span>⏳</span> 재생 중..."; }
+
+    for (const item of items) {
+      const text = item.getAttribute("data-text");
+      if (!text) continue;
+      try {
+        await speakTextAndWait(text);
+        // Small pause between dialogue lines
+        await new Promise(r => setTimeout(r, 300));
+      } catch (e) {
+        console.error("Dialogue TTS error:", e);
+      }
+    }
+
+    if (btn) { btn.disabled = false; btn.innerHTML = "<span>🔊</span> 대화 읽어주기"; }
   }
 
-  // Speak the whole dialogue sequence; prefers pronunciation if present
-  function speakDialogue() {
-    console.warn("Browser TTS is disabled.");
-    return;
+  // Helper: speak text and return a promise that resolves when audio finishes
+  function speakTextAndWait(txt) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await fetch("/api/tts/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: txt }),
+        });
+        if (!res.ok) { resolve(); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => { URL.revokeObjectURL(url); resolve(); };
+        audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
+        await audio.play();
+      } catch (e) {
+        resolve();
+      }
+    });
   }
 
   // Helper: Practice vocabulary (copy to pronunciation section)
@@ -1277,20 +1230,18 @@ endblock %} {% block content %}
             <p class="text-xs text-gray-600 mb-1">점수:</p>
             <p class="text-2xl font-bold text-${scoreColor}-700">${score}점</p>
           </div>
-          ${
-            json.corrected
-              ? '<div class="p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">교정된 문장:</p><p class="text-sm text-green-700 font-medium">' +
-                json.corrected +
-                "</p></div>"
-              : ""
-          }
-          ${
-            json.feedback
-              ? '<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">피드백:</p><p class="text-sm text-gray-900">' +
-                json.feedback +
-                "</p></div>"
-              : ""
-          }
+          ${json.corrected
+          ? '<div class="p-3 bg-green-50 border border-green-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">교정된 문장:</p><p class="text-sm text-green-700 font-medium">' +
+          json.corrected +
+          "</p></div>"
+          : ""
+        }
+          ${json.feedback
+          ? '<div class="p-3 bg-gray-50 border border-gray-200 rounded-lg"><p class="text-xs text-gray-600 mb-1">피드백:</p><p class="text-sm text-gray-900">' +
+          json.feedback +
+          "</p></div>"
+          : ""
+        }
         </div>
       `;
     }
@@ -1311,13 +1262,16 @@ endblock %} {% block content %}
     resultDiv.innerHTML =
       '<div class="flex items-center gap-3"><div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div><span class="text-sm text-gray-600">컨텐츠 생성 중...</span></div>';
 
+    const modelSelect = document.getElementById("modelSelect");
+    const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+    const selectedBackend = selectedOption.getAttribute("data-backend");
+    const selectedModel = selectedOption.value;
+
     const formData = new FormData();
     formData.append("situation", situation);
     formData.append("level", level);
-    formData.append(
-      "model",
-      document.getElementById("modelSelect").value || "llama2"
-    );
+    if (selectedModel) formData.append("model", selectedModel);
+    if (selectedBackend) formData.append("backend", selectedBackend);
 
     try {
       const res = await fetch("/api/situational-content", {
@@ -1330,10 +1284,10 @@ endblock %} {% block content %}
         resultDiv.innerHTML = `
           <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
             <p class="text-red-700 font-semibold text-sm">⚠️ 오류</p>
-            <p class="text-red-600 text-xs mt-1">${data.error}</p>
+            <p class="text-red-600 text-xs mt-1">${data.error}${data.details ? ': ' + data.details : ''}</p>
           </div>
         `;
-      } else {
+      } else if (data.situation_description || data.key_expressions || data.example_dialogue || data.vocabulary) {
         let html = '<div class="space-y-3">';
 
         // 상황 설명
@@ -1353,20 +1307,18 @@ endblock %} {% block content %}
               <p class="text-xs text-gray-600 font-semibold mb-2">💬 주요 표현</p>
               <div class="space-y-2">
                 ${data.key_expressions
-                  .map(
-                    (expr) => `
+              .map(
+                (expr) => `
                   <div class="p-2 bg-purple-50 rounded">
-                    <p class="text-sm font-medium text-gray-900">${
-                      expr.korean
-                    }</p>
-                    <p class="text-xs text-gray-600 italic">${
-                      expr.romanization || ""
-                    }</p>
+                    <p class="text-sm font-medium text-gray-900">${expr.korean
+                  }</p>
+                    <p class="text-xs text-gray-600 italic">${expr.romanization || ""
+                  }</p>
                     <p class="text-xs text-gray-700 mt-1">📝 ${expr.meaning}</p>
                   </div>
                 `
-                  )
-                  .join("")}
+              )
+              .join("")}
               </div>
             </div>
           `;
@@ -1379,18 +1331,16 @@ endblock %} {% block content %}
               <p class="text-xs text-gray-600 font-semibold mb-2">🎭 예시 대화</p>
               <div class="space-y-2 text-sm">
                 ${data.example_dialogue
-                  .map(
-                    (turn) => `
-                  <div class="p-2 ${
-                    turn.role === "A" ? "bg-blue-50 ml-2" : "bg-gray-50 mr-2"
+              .map(
+                (turn) => `
+                  <div class="p-2 ${turn.role === "A" ? "bg-blue-50 ml-2" : "bg-gray-50 mr-2"
                   } rounded">
-                    <p class="font-medium text-gray-900">${turn.role}: ${
-                      turn.text
-                    }</p>
+                    <p class="font-medium text-gray-900">${turn.role}: ${turn.text
+                  }</p>
                   </div>
                 `
-                  )
-                  .join("")}
+              )
+              .join("")}
               </div>
             </div>
           `;
@@ -1403,14 +1353,14 @@ endblock %} {% block content %}
               <p class="text-xs text-gray-600 font-semibold mb-2">📚 관련 어휘</p>
               <div class="flex flex-wrap gap-2">
                 ${data.vocabulary
-                  .map(
-                    (word) => `
+              .map(
+                (word) => `
                   <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
                     ${word}
                   </span>
                 `
-                  )
-                  .join("")}
+              )
+              .join("")}
               </div>
             </div>
           `;
@@ -1418,6 +1368,20 @@ endblock %} {% block content %}
 
         html += "</div>";
         resultDiv.innerHTML = html;
+      } else if (data.text) {
+        // Fallback: server returned raw text (parse failed)
+        resultDiv.innerHTML = `
+          <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-yellow-700 font-semibold text-sm mb-2">📝 AI 응답 (원본)</p>
+            <pre class="whitespace-pre-wrap text-xs text-gray-800">${data.text}</pre>
+          </div>
+        `;
+      } else {
+        resultDiv.innerHTML = `
+          <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+            <p class="text-gray-600 text-sm">응답을 처리할 수 없습니다.</p>
+          </div>
+        `;
       }
     } catch (error) {
       resultDiv.innerHTML = `

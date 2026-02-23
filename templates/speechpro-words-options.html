@@ -1,0 +1,6 @@
+<!-- 초급 1~고급 2까지 각 200개씩 총 1,200개 단어 예시 -->
+<!-- 실제 단어는 data/pronunciation-words.json 등에서 추출 가능 -->
+{# 이 파일은 자동 생성된 단어 옵션 예시입니다. #} {% for level in ['초급
+1','초급 2','중급 1','중급 2','고급 1','고급 2'] %} {% for i in range(1,201) %}
+<option value="{{ level }}-{{ i }}">{{ level }} 단어 {{ i }}</option>
+{% endfor %} {% endfor %}

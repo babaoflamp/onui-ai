@@ -4049,7 +4049,7 @@ async def fluency_check(user_text: str = Form(...)):
 # 3-2. 상황별 컨텐츠 생성 API
 # ==========================================
 @app.post("/api/situational-content")
-async def situational_content(situation: str = Form(...), level: str = Form(...), model: str = Form(...)):
+async def situational_content(situation: str = Form(...), level: str = Form(...), model: str = Form(None), backend: str = Form(None)):
     """
     상황(예: 카페, 식당, 병원)과 난이도를 입력받아 
     상황에 맞는 표현, 대화, 어휘를 생성합니다.
@@ -4065,30 +4065,58 @@ async def situational_content(situation: str = Form(...), level: str = Form(...)
     
     situation_desc = situation_prompts.get(situation, situation)
     
-    prompt = f"""
-    한국어 학습자를 위한 상황별 학습 컨텐츠를 생성해주세요.
+    prompt = f"""한국어 학습자를 위한 상황별 학습 컨텐츠를 생성해주세요.
+
+상황: {situation_desc}
+난이도: {level}
+
+다음 정보를 JSON 형식으로 제공해주세요:
+{{
+    "situation_description": "상황에 대한 설명",
+    "key_expressions": [
+        {{"korean": "네, 잠깐만요.", "romanization": "Ne, jamkkanman yo.", "meaning": "Yes, wait a moment"}},
+        {{"korean": "감사합니다.", "romanization": "Gamsahamnida.", "meaning": "Thank you"}}
+    ],
+    "example_dialogue": [
+        {{"role": "A", "text": "안녕하세요! 무엇을 도와드릴까요?"}},
+        {{"role": "B", "text": "아이스 아메리카노 한 잔 주세요."}}
+    ],
+    "vocabulary": ["단어1", "단어2", "단어3"]
+}}
+
+중요: 응답은 반드시 하나의 JSON 객체만 포함된 코드 블럭(```json ... ```)으로 정확하게 반환하세요. 추가 설명이나 여분의 텍스트는 포함하지 마세요."""
     
-    상황: {situation_desc}
-    난이도: {level}
-    
-    다음 정보를 JSON 형식으로 제공해주세요:
-    {{
-        "situation_description": "상황에 대한 설명",
-        "key_expressions": [
-            {{"korean": "네, 잠깐만요.", "romanization": "Ne, jamskkaman yo.", "meaning": "Yes, wait a moment"}},
-            ...
-        ],
-        "example_dialogue": [
-            {{"role": "A", "text": "안녕하세요! 무엇을 도와드릴까요?"}},
-            {{"role": "B", "text": "아이스 아메리카노 한 잔 주세요."}},
-            ...
-        ],
-        "vocabulary": ["단어1", "단어2", ...]
-    }}
-    """
+    # Determine which backend to use (respect frontend selection)
+    selected_backend = backend or MODEL_BACKEND
     
     try:
-        if MODEL_BACKEND == "ollama":
+        if selected_backend == "gemini":
+            if not GEMINI_API_KEY:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            
+            gemini_model_name = model or GEMINI_MODEL
+            url = f"https://generativelanguage.googleapis.com/v1/models/{gemini_model_name}:generateContent?key={GEMINI_API_KEY}"
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}]
+            }
+            
+            resp = requests.post(url, json=payload, timeout=60)
+            resp.raise_for_status()
+            result = resp.json()
+            
+            out = ""
+            if "candidates" in result and len(result["candidates"]) > 0:
+                parts = result["candidates"][0].get("content", {}).get("parts", [])
+                for part in parts:
+                    out += part.get("text", "")
+            
+            parsed = _parse_model_output(out)
+            if parsed is not None:
+                return JSONResponse(content=parsed)
+            # Fallback: return raw text so frontend can display something
+            return JSONResponse(content={"text": out})
+        
+        elif selected_backend == "ollama":
             payload = {"model": model or OLLAMA_MODEL, "prompt": prompt}
             resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, stream=True, timeout=60)
             if resp.status_code != 200:
@@ -4108,26 +4136,11 @@ async def situational_content(situation: str = Form(...), level: str = Form(...)
             parsed = _parse_model_output(out)
             if parsed is not None:
                 return JSONResponse(content=parsed)
-            return JSONResponse(content={"error": "Failed to parse response"})
-        
-        elif MODEL_BACKEND == "gemini":
-            if not GEMINI_API_KEY:
-                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
-            
-            import google.generativeai as genai
-            genai.configure(api_key=GEMINI_API_KEY)
-            gemini_model = genai.GenerativeModel(GEMINI_MODEL)
-            
-            response = gemini_model.generate_content(prompt)
-            out = response.text
-            
-            parsed = _parse_model_output(out)
-            if parsed is not None:
-                return JSONResponse(content=parsed)
-            return JSONResponse(content={"error": "Failed to parse response"})
+            # Fallback: return raw text so frontend can display something
+            return JSONResponse(content={"text": out})
         
         else:
-            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+            return JSONResponse(status_code=501, content={"error": f"Backend '{selected_backend}' not configured"})
     
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": "situational-content failed", "details": str(e)})
@@ -5693,6 +5706,14 @@ async def generate_music(request: Request):
                 "message": f"음악 생성 중 오류 발생: {str(e)}"
             }
         )
+
+@app.get("/ai-video-learning")
+def ai_video_learning(request: Request):
+    return templates.TemplateResponse("ai-video-learning.html", {"request": request})
+
+@app.get("/components/video-01")
+def component_video_01(request: Request):
+    return templates.TemplateResponse("Video_01.html", {"request": request})
 
 if __name__ == "__main__":
     logger.info("Uvicorn 서버 시작: 0.0.0.0:9000")

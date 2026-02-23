@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}문장 학습(일반) | 오누이 한국어{% endblock %}
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-10">
+<div class="max-w-7xl mx-auto px-4 py-10">
   <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
     <div>
       <h1 class="text-3xl font-bold text-gray-900">문장 학습(일반)</h1>
@@ -11,10 +11,7 @@
     </div>
     <div class="flex items-center gap-2">
       <label for="levelSelect" class="text-xs font-semibold text-gray-500">레벨</label>
-      <select
-        id="levelSelect"
-        class="rounded-xl border border-gray-200 px-3 py-2 text-sm bg-white"
-      >
+      <select id="levelSelect" class="rounded-xl border border-gray-200 px-3 py-2 text-sm bg-white">
         <option value="all">전체</option>
         <option value="A1">A1</option>
         <option value="A2">A2</option>
@@ -31,11 +28,7 @@
     <section class="lg:col-span-4 bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold text-gray-900">마지막 학습 상태</h2>
-        <button
-          id="resetProgressBtn"
-          type="button"
-          class="text-xs font-semibold text-red-600 hover:text-red-500"
-        >
+        <button id="resetProgressBtn" type="button" class="text-xs font-semibold text-red-600 hover:text-red-500">
           초기화
         </button>
       </div>
@@ -60,77 +53,50 @@
           <div id="lastUpdatedAt" class="mt-2 text-[11px] text-gray-500">-</div>
         </div>
 
-        <div class="rounded-xl bg-gray-50 border border-gray-200 p-4">
-          <div class="text-xs font-semibold text-gray-500">바로가기</div>
-          <div class="mt-3 flex flex-wrap gap-2">
-            <a
-              href="/krdict"
-              class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-100"
-            >
-              📖 사전
-            </a>
-            <a
-              href="/sentence-evaluation"
-              class="px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-semibold hover:bg-gray-100"
-            >
-              🎙️ 문장 발음 평가
-            </a>
-          </div>
-        </div>
+
       </div>
     </section>
 
     <!-- Main -->
     <section class="lg:col-span-8 bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <span id="sentenceLevelChip" class="px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold">-</span>
-            <span id="sentenceCategoryChip" class="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">-</span>
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <span id="sentenceLevelChip"
+              class="px-2 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-semibold">-</span>
+            <span id="sentenceCategoryChip"
+              class="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold">-</span>
+            <p id="sentenceIndexLabel" class="text-xs text-gray-500 ml-1">-</p>
           </div>
-          <h2 id="sentenceText" class="mt-3 text-2xl font-extrabold text-gray-900 leading-snug break-words">-</h2>
-          <p id="sentenceIndexLabel" class="mt-2 text-xs text-gray-500">-</p>
+          <div class="flex items-center gap-2 flex-shrink-0 whitespace-nowrap">
+            <button id="listenBtn" type="button"
+              class="px-4 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 text-sm font-semibold transition disabled:opacity-60"
+              disabled>
+              🔊 들어보기
+            </button>
+            <button id="markLearnedBtn" type="button"
+              class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
+              disabled>
+              ✅ 학습 완료
+            </button>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <button
-            id="listenBtn"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 text-sm font-semibold transition disabled:opacity-60"
-            disabled
-          >
-            🔊 들어보기
-          </button>
-          <button
-            id="markLearnedBtn"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition disabled:opacity-60"
-            disabled
-          >
-            ✅ 학습 완료
-          </button>
-        </div>
+
+        <h2 id="sentenceText" class="text-3xl font-extrabold text-gray-900 leading-relaxed break-keep tracking-tight">-
+        </h2>
       </div>
 
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <button
-          id="toggleTranslationBtn"
-          type="button"
-          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
-        >
+        <button id="toggleTranslationBtn" type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition">
           해석 숨기기
         </button>
-        <button
-          id="toggleHintBtn"
-          type="button"
-          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
-        >
+        <button id="toggleHintBtn" type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition">
           힌트 숨기기
         </button>
-        <button
-          id="toggleSituationBtn"
-          type="button"
-          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition"
-        >
+        <button id="toggleSituationBtn" type="button"
+          class="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 text-sm font-semibold hover:bg-gray-100 transition">
           상황 숨기기
         </button>
       </div>
@@ -151,21 +117,13 @@
       </div>
 
       <div class="mt-7 flex items-center justify-between gap-3">
-        <button
-          id="prevBtn"
-          type="button"
-          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold"
-          disabled
-        >
+        <button id="prevBtn" type="button"
+          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold" disabled>
           ← 이전
         </button>
         <div id="toast" class="text-xs text-gray-500"></div>
-        <button
-          id="nextBtn"
-          type="button"
-          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold"
-          disabled
-        >
+        <button id="nextBtn" type="button"
+          class="px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-sm font-semibold" disabled>
           다음 →
         </button>
       </div>
@@ -367,17 +325,17 @@
         currentAudio.pause();
         currentAudio.currentTime = 0;
       }
-    } catch (_) {}
+    } catch (_) { }
     currentAudio = null;
     if (currentAudioUrl) {
       try {
         URL.revokeObjectURL(currentAudioUrl);
-      } catch (_) {}
+      } catch (_) { }
     }
     currentAudioUrl = null;
     try {
       if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
-    } catch (_) {}
+    } catch (_) { }
   }
 
   async function playSentenceAudio(text) {
@@ -448,7 +406,7 @@
         speechSynthesis.speak(utter);
         return;
       }
-    } catch (_) {}
+    } catch (_) { }
 
     if (listenBtn) {
       listenBtn.disabled = false;
