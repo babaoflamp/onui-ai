@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 동영상 학습</title>
+    <style>
+      :root {
+        --bg1: #f8fafc;
+        --bg2: #f1f5f9;
+        --card: #ffffff;
+        --card2: #f8fafc;
+        --line: #e2e8f0;
+        --text: #1e293b;
+        --muted: #475569;
+        --muted2: #64748b;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --radius: 20px;
+        --radius2: 16px;
+        --accent: #2563eb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family:
+          "Pretendard",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 0% 0%, #eff6ff, transparent 50%),
+          radial-gradient(circle at 100% 0%, #faf5ff, transparent 50%),
+          var(--bg1);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 38px 20px 80px;
+      }
+      header {
+        padding: 10px 6px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .title {
+        margin: 0;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        font-size: clamp(28px, 4vw, 46px);
+        line-height: 1.12;
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+      }
+      .pill {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      }
+      .pill strong {
+        font-size: 13px;
+        color: var(--text);
+      }
+      .pill span {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      input[type="search"] {
+        width: min(360px, 100%);
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--text);
+        padding: 10px 16px;
+        outline: none;
+        font-size: 13px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      }
+      input[type="search"]::placeholder {
+        color: var(--muted2);
+      }
+      .btn {
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--text);
+        border-radius: 14px;
+        padding: 10px 16px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.1s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        background: #f8fafc;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      }
+      .btn.primary {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+      }
+      .btn.primary:hover {
+        background: #1d4ed8;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 24px;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .cardHeader {
+        padding: 24px 24px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .wkTitle {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+      }
+      .wkMeta {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .toc {
+        padding: 0 24px 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .toc a {
+        text-decoration: none;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        color: var(--text);
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .toc a:hover {
+        background: #e2e8f0;
+        border-color: var(--muted2);
+        transform: translateY(-1px);
+      }
+      .divider {
+        height: 1px;
+        background: var(--line);
+        margin: 0 24px;
+      }
+      .sectionDivider {
+        height: 1px;
+        background: var(--line);
+        margin: 24px 24px 0;
+      }
+      .lesson {
+        padding: 24px;
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 24px;
+      }
+      @media (max-width: 920px) {
+        .lesson {
+          grid-template-columns: 1fr;
+        }
+      }
+      .videoBox {
+        border-radius: var(--radius2);
+        border: 1px solid var(--line);
+        background: #f8fafc;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+      }
+      .videoTop {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        padding: 16px 16px 12px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      }
+      .badge small {
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .fileTag {
+        font-size: 12px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 50ch;
+      }
+      video {
+        width: 100%;
+        height: auto;
+        display: block;
+        background: #000;
+      }
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .panel {
+        border-radius: var(--radius2);
+        border: 1px solid var(--line);
+        background: #f8fafc;
+        padding: 16px;
+      }
+      .panel h4 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .panel p,
+      .panel ul {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .panel p {
+        white-space: pre-wrap;
+      }
+      .quiz {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .q {
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        padding: 14px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      }
+      .q label {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #1e293b;
+      }
+      .q input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #f8fafc;
+        color: var(--text);
+        padding: 10px 12px;
+        outline: none;
+        font-size: 13px;
+        transition: border-color 0.2s ease;
+      }
+      .q input:focus {
+        border-color: var(--accent);
+      }
+      .q input::placeholder {
+        color: var(--muted2);
+      }
+      .q .hint {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        font-style: italic;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .hidden {
+        display: none !important;
+      }
+      .note {
+        margin-top: 32px;
+        padding: 0 8px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+      }
+      .kbd {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        color: #475569;
+        display: inline-block;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header>
+        <h1 class="title">AI 동영상 학습</h1>
+        <p class="subtitle">
+          (파일명 예: <span class="kbd">level1_week1_1st.mp4</span>)
+        </p>
+
+        <div class="topbar">
+          <div class="pill">
+            <strong>파일 위치</strong>
+            <span>HTML과 동일 폴더</span>
+          </div>
+
+          <div class="topbar" style="gap: 10px">
+            <input
+              type="search"
+              id="search"
+              placeholder="예: 1주차, 2교시, week3, 요약..."
+            />
+            <button class="btn primary" id="topBtn">맨 위로</button>
+            <button class="btn" id="clearBtn">검색 초기화</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 주차별 학습 내용(목차) -->
+      <section class="card" id="tocCard">
+        <div class="cardHeader">
+          <div>
+            <h2 class="wkTitle">주차별 학습 내용</h2>
+            <div class="wkMeta">
+              원하는 주차/교시를 클릭하면 해당 영상 섹션으로 이동합니다.
+            </div>
+          </div>
+          <div class="pill">
+            <strong>Level 1</strong>
+            <span class="muted">총 5개 영상</span>
+          </div>
+        </div>
+        <div class="toc">
+          <a href="#week1_1st">1주차 1교시</a>
+          <a href="#week1_2nd">1주차 2교시</a>
+          <a href="#week2_1st">2주차 1교시</a>
+          <a href="#week2_2nd">2주차 2교시</a>
+          <a href="#week3_1st">3주차 1교시</a>
+        </div>
+      </section>
+
+      <div class="grid" id="grid">
+        <!-- ================== 1주차 1교시 ================== -->
+        <section
+          class="card lessonCard"
+          id="week1_1st"
+          data-search="1주차 week1 1교시 1st level1_week1_1st.mp4"
+        >
+          <div class="cardHeader">
+            <div>
+              <h3 class="wkTitle">1주차 · 1교시</h3>
+              <div class="wkMeta">
+                오늘의 핵심 개념을 이해하고 간단한 적용까지 진행합니다.
+              </div>
+            </div>
+            <div class="pill">
+              <strong>영상</strong><span>level1_week1_1st.mp4</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="lesson">
+            <div class="videoBox">
+              <div class="videoTop">
+                <div class="badge">
+                  <strong>1주차 1교시</strong><small>Level 1</small>
+                </div>
+                <div class="fileTag" title="level1_week1_1st.mp4">
+                  level1_week1_1st.mp4
+                </div>
+              </div>
+              <div style="padding: 12px">
+                <video
+                  controls
+                  preload="metadata"
+                  src="/static/videos/level1_week1_1st.mp4"
+                ></video>
+              </div>
+            </div>
+
+            <div class="side">
+              <div class="panel">
+                <h4>핵심 요약</h4>
+                <p contenteditable="true" spellcheck="false">
+                  (여기에 요약을 입력하세요) - 핵심 개념 3가지. - 대표 예시
+                  2가지. - 적용 포인트 1가지.
+                </p>
+              </div>
+
+              <div class="panel">
+                <h4>퀴즈</h4>
+                <div class="quiz">
+                  <div class="q">
+                    <label>Q1. 가장 중요한 키워드 1개는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">힌트: 요약의 첫 줄을 참고하세요.</div>
+                  </div>
+                  <div class="q">
+                    <label>Q2. 오늘 배운 내용을 한 문장으로 요약하면?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: “왜 중요한가?” 관점으로 정리해 보세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sectionDivider"></div>
+        </section>
+
+        <!-- ================== 1주차 2교시 ================== -->
+        <section
+          class="card lessonCard"
+          id="week1_2nd"
+          data-search="1주차 week1 2교시 2nd level1_week1_2nd.mp4"
+        >
+          <div class="cardHeader">
+            <div>
+              <h3 class="wkTitle">1주차 · 2교시</h3>
+              <div class="wkMeta">
+                핵심 개념을 확장하고 실습/적용 사례를 다룹니다.
+              </div>
+            </div>
+            <div class="pill">
+              <strong>영상</strong><span>level1_week1_2nd.mp4</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="lesson">
+            <div class="videoBox">
+              <div class="videoTop">
+                <div class="badge">
+                  <strong>1주차 2교시</strong><small>Level 1</small>
+                </div>
+                <div class="fileTag" title="level1_week1_2nd.mp4">
+                  level1_week1_2nd.mp4
+                </div>
+              </div>
+              <div style="padding: 12px">
+                <video
+                  controls
+                  preload="metadata"
+                  src="/static/videos/level1_week1_2nd.mp4"
+                ></video>
+              </div>
+            </div>
+
+            <div class="side">
+              <div class="panel">
+                <h4>핵심 요약</h4>
+                <p contenteditable="true" spellcheck="false">
+                  (여기에 요약을 입력하세요) - 핵심 정리 3가지. - 사례/데모
+                  2가지. - 주의할 점 1가지.
+                </p>
+              </div>
+
+              <div class="panel">
+                <h4>퀴즈</h4>
+                <div class="quiz">
+                  <div class="q">
+                    <label>Q1. 오늘 배운 개념의 장점 1가지는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: “효율/정확/시간” 중 하나로 표현해 보세요.
+                    </div>
+                  </div>
+                  <div class="q">
+                    <label>Q2. 적용 가능한 예시 1가지는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: 실제 업무나 학습 장면으로 연결해 보세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sectionDivider"></div>
+        </section>
+
+        <!-- ================== 2주차 1교시 ================== -->
+        <section
+          class="card lessonCard"
+          id="week2_1st"
+          data-search="2주차 week2 1교시 1st level1_week2_1st.mp4"
+        >
+          <div class="cardHeader">
+            <div>
+              <h3 class="wkTitle">2주차 · 1교시</h3>
+              <div class="wkMeta">
+                심화 개념을 이해하고 구조적으로 정리합니다.
+              </div>
+            </div>
+            <div class="pill">
+              <strong>영상</strong><span>level1_week2_1st.mp4</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="lesson">
+            <div class="videoBox">
+              <div class="videoTop">
+                <div class="badge">
+                  <strong>2주차 1교시</strong><small>Level 1</small>
+                </div>
+                <div class="fileTag" title="level1_week2_1st.mp4">
+                  level1_week2_1st.mp4
+                </div>
+              </div>
+              <div style="padding: 12px">
+                <video
+                  controls
+                  preload="metadata"
+                  src="/static/videos/level1_week2_1st.mp4"
+                ></video>
+              </div>
+            </div>
+
+            <div class="side">
+              <div class="panel">
+                <h4>핵심 요약</h4>
+                <p contenteditable="true" spellcheck="false">
+                  (여기에 요약을 입력하세요) - 개념 A / 개념 B 차이. -
+                  절차(프로세스) 핵심 단계. - 실무 적용 체크포인트.
+                </p>
+              </div>
+
+              <div class="panel">
+                <h4>퀴즈</h4>
+                <div class="quiz">
+                  <div class="q">
+                    <label>Q1. 프로세스의 첫 단계는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: “준비/입력/설정” 중 하나일 수 있습니다.
+                    </div>
+                  </div>
+                  <div class="q">
+                    <label>Q2. 실무 적용 시 주의할 점 1가지는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: 품질/보안/운영 관점으로 적어보세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sectionDivider"></div>
+        </section>
+
+        <!-- ================== 2주차 2교시 ================== -->
+        <section
+          class="card lessonCard"
+          id="week2_2nd"
+          data-search="2주차 week2 2교시 2nd level1_week2_2nd.mp4"
+        >
+          <div class="cardHeader">
+            <div>
+              <h3 class="wkTitle">2주차 · 2교시</h3>
+              <div class="wkMeta">심화 사례를 통해 응용력을 강화합니다.</div>
+            </div>
+            <div class="pill">
+              <strong>영상</strong><span>level1_week2_2nd.mp4</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="lesson">
+            <div class="videoBox">
+              <div class="videoTop">
+                <div class="badge">
+                  <strong>2주차 2교시</strong><small>Level 1</small>
+                </div>
+                <div class="fileTag" title="level1_week2_2nd.mp4">
+                  level1_week2_2nd.mp4
+                </div>
+              </div>
+              <div style="padding: 12px">
+                <video
+                  controls
+                  preload="metadata"
+                  src="/static/videos/level1_week2_2nd.mp4"
+                ></video>
+              </div>
+            </div>
+
+            <div class="side">
+              <div class="panel">
+                <h4>핵심 요약</h4>
+                <p contenteditable="true" spellcheck="false">
+                  (여기에 요약을 입력하세요) - 사례 기반 핵심 인사이트 3가지. -
+                  문제 → 해결 구조. - 확장 아이디어 1가지.
+                </p>
+              </div>
+
+              <div class="panel">
+                <h4>퀴즈</h4>
+                <div class="quiz">
+                  <div class="q">
+                    <label>Q1. 사례에서 “문제”는 무엇이었나요?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: 상황/제약/요구사항을 떠올려보세요.
+                    </div>
+                  </div>
+                  <div class="q">
+                    <label>Q2. 해결책의 핵심은 무엇이었나요?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: 접근법(전략/기법)을 한 단어로 요약해 보세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sectionDivider"></div>
+        </section>
+
+        <!-- ================== 3주차 1교시 ================== -->
+        <section
+          class="card lessonCard"
+          id="week3_1st"
+          data-search="3주차 week3 1교시 1st level1_week3_1st.mp4"
+        >
+          <div class="cardHeader">
+            <div>
+              <h3 class="wkTitle">3주차 · 1교시</h3>
+              <div class="wkMeta">
+                전체 내용을 정리하고 다음 단계로 연결합니다.
+              </div>
+            </div>
+            <div class="pill">
+              <strong>영상</strong><span>level1_week3_1st.mp4</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="lesson">
+            <div class="videoBox">
+              <div class="videoTop">
+                <div class="badge">
+                  <strong>3주차 1교시</strong><small>Level 1</small>
+                </div>
+                <div class="fileTag" title="level1_week3_1st.mp4">
+                  level1_week3_1st.mp4
+                </div>
+              </div>
+              <div style="padding: 12px">
+                <video
+                  controls
+                  preload="metadata"
+                  src="/static/videos/level1_week3_1st.mp4"
+                ></video>
+              </div>
+            </div>
+
+            <div class="side">
+              <div class="panel">
+                <h4>핵심 요약</h4>
+                <p contenteditable="true" spellcheck="false">
+                  (여기에 요약을 입력하세요) - 이번 주차 핵심 3가지. - 전체
+                  흐름(연결 고리). - 다음 학습을 위한 체크리스트.
+                </p>
+              </div>
+
+              <div class="panel">
+                <h4>퀴즈</h4>
+                <div class="quiz">
+                  <div class="q">
+                    <label>Q1. 가장 기억에 남는 포인트 1가지는?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: “내가 바로 적용할 수 있는 것”을 골라보세요.
+                    </div>
+                  </div>
+                  <div class="q">
+                    <label>Q2. 다음 주차에서 더 배우고 싶은 것은?</label>
+                    <input type="text" placeholder="답을 입력하세요" />
+                    <div class="hint">
+                      힌트: 어려웠던 부분/궁금했던 부분을 적어보세요.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="note">
+        만약 더블클릭으로 바로 열었을 때 재생이 안 되면(브라우저/코덱 정책),
+        <span class="kbd">VSCode Live Server</span> 같은 로컬 서버로 여는 것을
+        권장합니다.
+      </div>
+    </div>
+
+    <script>
+      const search = document.getElementById("search");
+      const clearBtn = document.getElementById("clearBtn");
+      const topBtn = document.getElementById("topBtn");
+      const cards = () => Array.from(document.querySelectorAll(".lessonCard"));
+
+      function applySearch() {
+        const q = (search.value || "").trim().toLowerCase();
+        cards().forEach((card) => {
+          const hay = (card.getAttribute("data-search") || "").toLowerCase();
+          const show = !q || hay.includes(q);
+          card.classList.toggle("hidden", !show);
+        });
+      }
+
+      search.addEventListener("input", applySearch);
+      clearBtn.addEventListener("click", () => {
+        search.value = "";
+        applySearch();
+      });
+      topBtn.addEventListener("click", () =>
+        window.scrollTo({ top: 0, behavior: "smooth" }),
+      );
+    </script>
+  </body>
+</html>

@@ -249,7 +249,7 @@
     <div id="results-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       role="dialog" aria-modal="true" aria-labelledby="results-modal-title">
       <div
-        class="relative w-full max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
+        class="relative w-full max-w-[950px] lg:max-w-[1100px] max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
         role="document">
         <div class="sticky top-0 z-10 -mx-8 -mt-8 px-8 pt-2 pb-2 bg-white/95 backdrop-blur border-b border-gray-100">
           <div class="flex items-center justify-between mb-4">
@@ -285,7 +285,7 @@
         <div id="ai-feedback-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           role="dialog" aria-modal="true" aria-labelledby="ai-feedback-modal-title">
           <div
-            class="relative w-full max-w-4xl lg:max-w-5xl max-h-[95vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
+            class="relative w-full max-w-[950px] lg:max-w-[1100px] max-h-[95vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
             role="document">
             <div class="flex items-center justify-between mb-4">
               <h2 id="ai-feedback-modal-title" class="text-2xl font-bold text-[var(--text-main)]"
@@ -528,7 +528,7 @@
     // 2) 마크다운 흔적 제거/치환
     cleaned = cleaned
       .replace(/^#{1,6}\s*/gm, "") // headings
-      .replace(/\*\*(.+?)\*\*/g, "$1") // bold
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") // **bold** → <strong>
       .replace(/^>\s*/gm, "") // blockquote
       .replace(/^\s*([-*+])\s+/gm, "• ") // unordered list -> •
       .replace(/^\s*\d+\.\s+/gm, "• "); // ordered list -> •
@@ -566,205 +566,149 @@
 
   function extractFeedbackSections(text) {
     if (!text) return null;
-    const lines = text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
 
-    if (!lines.length) return null;
+    const MARKERS = {
+      '[SUMMARY]': 'summary',
+      '[STRENGTHS]': 'strengths',
+      '[IMPROVEMENTS]': 'improvements',
+      '[TIPS]': 'tips',
+      '[SCORE]': 'score'
+    };
 
     const sections = {
       summary: [],
       strengths: [],
       improvements: [],
       tips: [],
-      general: [],
+      score: [],
+      raw: text
     };
 
-    let currentSection = null;
+    let currentSection = 'summary';
 
-    const stripEmoji = (line) =>
-      line.replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]+\s*/u, "").trim();
-    const baseCleaner = (line) =>
-      stripEmoji(line.replace(/^[•\u2022\-*+>\d.\s]+/, "")).trim();
-
-    const isHeaderLine = (line) => {
-      const stripped = stripEmoji(line);
-      if (!stripped) return null;
-      if (/한줄\s*요약|요약/i.test(stripped)) return "summary";
-      if (/(잘한\s*점|강점|좋은|좋음)/i.test(stripped)) return "strengths";
-      if (/(개선|보완|교정|개선.*부분)/i.test(stripped)) return "improvements";
-      if (/(연습|방법|팁|추천|하기|시작)/i.test(stripped)) return "tips";
-      if (/(점수|스코어|유창성|정확)/i.test(stripped)) return "tips";
-      return null;
+    const formatInline = (str) => {
+      // 마크다운 흔적 (# 헤더, 별표 등), '피드백' 접두어 및 여백 제거
+      return str
+        .replace(/^#+\s*/, '')      // # 헤더 제거
+        .replace(/^피드백[:\s]*/, '') // 시작 부분의 '피드백' 문구 및 콜론 제거
+        .replace(/\*\*\*|\*\*|\*/g, '') // 볼드/이탤릭 기호 제거
+        .replace(/__/g, '')
+        .trim();
     };
 
-    const strengthKeywords = [
-      "강점",
-      "잘",
-      "좋",
-      "탁월",
-      "완벽",
-      "우수",
-      "높은",
-      "안정",
-    ];
-    const improvementKeywords = [
-      "개선",
-      "보완",
-      "부족",
-      "주의",
-      "문제",
-      "어려움",
-      "교정",
-      "낮은",
-    ];
-    const tipKeywords = [
-      "팁",
-      "추천",
-      "연습",
-      "시도",
-      "방법",
-      "tip",
-      "도움",
-      "제안",
-      "하기",
-      "시작",
-      "주의",
-    ];
+    for (const raw of text.split('\n')) {
+      let line = raw.trim();
+      if (!line) continue;
 
-    lines.forEach((line) => {
-      // 섹션 헤더(예: "✅ 잘한 점")는 저장하지 않고 현재 섹션만 전환
-      const headerSection = isHeaderLine(line);
-      if (headerSection) {
-        currentSection = headerSection;
-        // "📌 한줄 요약: ..." 형태면 콜론 뒤 내용을 summary로 바로 저장
-        const inlineSummary = stripEmoji(line).split(":").slice(1).join(":").trim();
-        if (headerSection === "summary" && inlineSummary) {
-          sections.summary.push(inlineSummary);
+      const markerKey = Object.keys(MARKERS).find(m => line.toUpperCase().includes(m));
+      if (markerKey) {
+        currentSection = MARKERS[markerKey];
+        // 마커 이후의 텍스트가 같은 줄에 있으면 가져옴
+        const escapedMarker = markerKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const inline = line.replace(new RegExp(escapedMarker, 'i'), '').trim();
+        if (inline) {
+          const formatted = formatInline(inline);
+          if (formatted) sections[currentSection].push(formatted);
         }
-        return;
+        continue;
       }
 
-      const cleaned = baseCleaner(line);
-      if (!cleaned) return;
-      const normalized = cleaned.toLowerCase();
+      // 불렛 및 번호 제거 (•, -, *, 1., 2. 등)
+      let cleaned = line.replace(/^[•\-*]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
+      const formatted = formatInline(cleaned);
 
-      if (currentSection) {
-        sections[currentSection].push(cleaned);
-        return;
+      if (formatted) {
+        sections[currentSection].push(formatted);
       }
+    }
 
-      if (
-        strengthKeywords.some(
-          (kw) => cleaned.includes(kw) || normalized.includes(kw)
-        )
-      ) {
-        sections.strengths.push(cleaned);
-      } else if (
-        improvementKeywords.some(
-          (kw) => cleaned.includes(kw) || normalized.includes(kw)
-        )
-      ) {
-        sections.improvements.push(cleaned);
-      } else if (
-        tipKeywords.some(
-          (kw) => cleaned.includes(kw) || normalized.includes(kw)
-        )
-      ) {
-        sections.tips.push(cleaned);
-      } else {
-        sections.general.push(cleaned);
-      }
-    });
-
-    const hasContent = Object.values(sections).some(
-      (arr) => Array.isArray(arr) && arr.length > 0
-    );
-
-    return hasContent ? sections : null;
+    return sections;
   }
 
   function buildFeedbackSectionMarkup(sections) {
     if (!sections) return "";
-    const parts = [];
 
-    if (sections.summary.length) {
-      parts.push(`
-          <div class="mb-6 rounded-2xl bg-blue-50/80 border border-blue-200 p-5 text-blue-900 shadow-sm">
-            <div class="font-bold text-lg mb-2 flex items-center gap-2 text-blue-800">
-              <span class="text-2xl">📌</span>핵심 요약
-            </div>
-            <p class="text-lg leading-relaxed font-medium">${sections.summary.map(s => s.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>')).join("<br>")}</p>
-          </div>
-        `);
+    let html = "";
+
+    // 1. 요약 카드 (Summary)
+    if (sections.summary && sections.summary.length > 0) {
+      html += `
+        <div class="premium-card summary-card">
+          <header>
+            <span>📝</span>
+            <span>종합 요약</span>
+          </header>
+          <div class="text-lg font-medium leading-relaxed">${sections.summary.join(' ')}</div>
+        </div>
+      `;
     }
 
-    const sectionOrder = [
-      {
-        key: "strengths",
-        title: "강점 포인트",
-        icon: "💪",
-        border: "border-green-200",
-        bg: "bg-green-50/60",
-        textClass: "text-green-900"
-      },
-      {
-        key: "improvements",
-        title: "개선이 필요한 부분",
-        icon: "🛠️",
-        border: "border-orange-200",
-        bg: "bg-orange-50/60",
-        textClass: "text-orange-900"
-      },
-      {
-        key: "tips",
-        title: "연습 팁",
-        icon: "💡",
-        border: "border-sky-200",
-        bg: "bg-sky-50/60",
-        textClass: "text-sky-900"
-      },
-      {
-        key: "general",
-        title: "추가 코멘트",
-        icon: "📝",
-        border: "border-slate-200",
-        bg: "bg-slate-50/60",
-        textClass: "text-slate-900"
-      },
-    ];
+    // 2. 강점 카드 (Strengths)
+    if (sections.strengths && sections.strengths.length > 0) {
+      html += `
+        <div class="premium-card strength-card">
+          <header>
+            <span>✨</span>
+            <span>참 잘했어요! (강점)</span>
+          </header>
+          <ul class="premium-card-list">
+            ${sections.strengths.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
 
-    sectionOrder.forEach((section, idx) => {
-      const items = sections[section.key];
-      if (!items || !items.length) return;
+    // 3. 개선점 카드 (Improvements)
+    if (sections.improvements && sections.improvements.length > 0) {
+      html += `
+        <div class="premium-card improvement-card">
+          <header>
+            <span>🎯</span>
+            <span>이렇게 고쳐볼까요? (개선점)</span>
+          </header>
+          <ul class="premium-card-list">
+            ${sections.improvements.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
 
-      if (parts.length) {
-        parts.push('<div class="border-t border-gray-100 my-6"></div>');
-      }
+    // 4. 팁 카드 (Tips)
+    if (sections.tips && sections.tips.length > 0) {
+      html += `
+        <div class="premium-card tip-card">
+          <header>
+            <span>💡</span>
+            <span>도움이 되는 꿀팁</span>
+          </header>
+          <ul class="premium-card-list">
+            ${sections.tips.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
 
-      const listItems = items
-        .map(
-          (item) =>
-            `<li class="flex items-start gap-3 ${section.textClass || 'text-gray-800'}">
-                <span class="text-xl leading-7 text-gray-400 mt-0.5">•</span>
-                <span class="text-lg leading-relaxed font-medium">${item.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>')}</span>
-              </li>`
-        )
-        .join("");
+    // 5. 점수 카드 (Score)
+    if (sections.score && sections.score.length > 0) {
+      html += `
+        <div class="premium-card" style="background: white; border-color: #e5e7eb;">
+          <header>
+            <span>📊</span>
+            <span>발음 성적표</span>
+          </header>
+          <div class="text-lg font-medium text-indigo-950 leading-relaxed">
+            ${sections.score.join('<br>')}
+          </div>
+        </div>
+      `;
+    }
 
-      parts.push(`
-          <section class="rounded-2xl ${section.bg} border ${section.border} p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <header class="flex items-center gap-3 font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200/50">
-              <span class="text-2xl">${section.icon}</span>
-              <span class="text-xl">${section.title}</span>
-            </header>
-            <ul class="space-y-3">${listItems}</ul>
-          </section>
-        `);
-    });
+    // 데이터가 하나도 파싱되지 않은 경우Fallback
+    if (!html && sections.raw) {
+      html = `<div class="bg-blue-50 p-6 rounded-2xl text-blue-800 leading-relaxed text-lg">${convertAiFeedbackToHtml(sections.raw)}</div>`;
+    }
 
-    return parts.join("\n");
+    return html;
   }
 
   // 전역 상태 관리 객체
@@ -798,9 +742,7 @@
     }
   };
 
-  // 전역 변수 (appState와 중복되지 않는 UI 상태)
-  let aiFeedbackSteps = [];
-  let aiFeedbackStepIndex = 0;
+  // 전역 변수
   let latestAiFeedbackText = "";
   let latestAiFeedbackScore = 0;
 
@@ -1246,42 +1188,36 @@
     const resultContentAi = document.getElementById("result-content-ai");
     const feedbackContent = document.getElementById("feedback-content");
     const modalContent = document.getElementById("ai-feedback-modal-content");
-    if (!resultContentAi && !feedbackContent && !modalContent) return;
 
     const cleanedText = (text || "").trim();
     latestAiFeedbackText = cleanedText;
     latestAiFeedbackScore = score || 0;
+
     const aiButton = document.getElementById("ai-feedback-button");
 
-    // 1. 섹션 파싱 시도
+    // 섹션 파싱 시도
     const sections = extractFeedbackSections(cleanedText);
     let html = "";
 
-    // 2. 섹션이 있으면 구조화된 마크업 생성, 없으면 기존 방식
     if (sections) {
       html = buildFeedbackSectionMarkup(sections);
     } else {
       html = convertAiFeedbackToHtml(cleanedText || text || "");
     }
 
-    const cardHtml = `
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h3 class="text-2xl font-extrabold text-blue-900 mb-6 flex items-center gap-3">
-            <span class="text-3xl">🤖</span> AI 종합 피드백
-          </h3>
-          <div class="space-y-6 text-lg">
-            ${html}
-          </div>
-        </div>
-      `;
+    // 프리미엄 래퍼 스타일 강제 적용
+    const finalHtml = `<div class="premium-feedback-scroll-area">${html}</div>`;
 
-    if (resultContentAi) resultContentAi.innerHTML = cardHtml;
+    if (resultContentAi) resultContentAi.innerHTML = finalHtml;
     if (feedbackContent) feedbackContent.innerHTML = html;
     if (modalContent) modalContent.innerHTML = html;
 
+    // 모달 타이틀 업데이트 및 초기화
+    const titleEl = document.getElementById("ai-feedback-step-title");
+    if (titleEl) titleEl.textContent = "🤖 AI 종합 평가 및 개선 가이드";
+
     aiFeedbackSteps = [];
     aiFeedbackStepIndex = 0;
-    renderAiFeedbackStep();
     if (aiButton) aiButton.disabled = false;
   }
 
@@ -1421,27 +1357,22 @@
   function convertAiFeedbackToHtml(text) {
     if (!text) return '<p class="text-gray-500">내용이 없습니다.</p>';
 
-    // marked + DOMPurify 있으면 사용
-    if (window.marked && window.DOMPurify) {
-      try {
-        return `<div class="prose prose-sm max-w-none text-gray-800 leading-relaxed">
-                  ${DOMPurify.sanitize(marked.parse(text))}
-                </div>`;
-      } catch (e) {
-        console.error("Markdown parse error:", e);
-      }
-    }
+    // 1) 모든 마커 및 마크다운 기호(별표 등)를 완전히 제거하여 '순수 텍스트'만 남김
+    const cleaned = text
+      .replace(/\[SUMMARY\]|\[STRENGTHS\]|\[IMPROVEMENTS\]|\[TIPS\]|\[SCORE\]/gi, '') // 마커 제거
+      .replace(/\*\*\*|\*\*|\*/g, '') // ***, **, * 기호 모두 삭제
+      .replace(/__/g, '') // __ 삭제
+      .replace(/\r/g, '') // 개행 정리
+      .trim();
 
-    // Fallback: 간단한 정규식 처리
-    const escaped = text
+    // 2) html 이스케이프 및 줄바꿈 처리
+    const safeText = cleaned
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
 
-    // **bold** (줄바꿈 포함)
-    const withBold = escaped.replace(/\*\*([\s\S]*?)\*\*/g, '<strong>$1</strong>');
-
-    return `<div class="whitespace-pre-wrap text-gray-800 leading-relaxed">${withBold}</div>`;
+    return `<div class="text-blue-800 whitespace-pre-wrap leading-relaxed text-lg">${safeText}</div>`;
   }
 
   function updateAiFeedbackStepControls() {
@@ -1512,10 +1443,10 @@
     } catch (err) {
       console.error("[AI피드백] 에러:", err);
       updateAiFeedbackUI(
-        "AI 종합 평가를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+        `AI 종합 평가를 불러오지 못했습니다. (${err.message})`,
         Math.round(score.score || 0)
       );
-      console.error("AI 피드백 오류:", err);
+      console.error("AI 피드백 오류 상세:", err);
     }
   }
 
@@ -1789,7 +1720,7 @@
           <div id="details-content" class="space-y-3 text-[var(--text-sub)]">${detailsHtml}</div>
           <div
             id="speechpro-content"
-            class="mt-6 bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800"
+            class="mt-6 bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800 hidden"
           ></div>
         </div>
       `;
@@ -1908,9 +1839,7 @@
       }
 
       speechproHtml += `</div>`;
-    } else {
-      speechproHtml =
-        "<div class='text-sm text-gray-600'>SpeechPro 데이터 준비 중입니다...</div>";
+      speechproHtml = "";
     }
     const speechproContainer = document.getElementById("speechpro-content");
     if (speechproContainer) {
@@ -1934,17 +1863,8 @@
       "";
 
     if (typeof rawAiFeedback === "string" && rawAiFeedback.trim()) {
+      // updateAiFeedbackUI가 내부적으로 result-content-ai를 모두 업데이트하므로 중복 호출 방지
       updateAiFeedbackUI(rawAiFeedback.trim(), score);
-      // AI 탭에도 표시 (원문 그대로)
-      const aiFeedbackHtml = convertAiFeedbackToHtml(rawAiFeedback.trim());
-      document.getElementById("result-content-ai").innerHTML = `
-          <div class="bg-white rounded-2xl p-6">
-            <h3 class="text-xl font-bold text-blue-900 mb-4">AI 종합 피드백</h3>
-            <div class="bg-gradient-to-br from-blue-50 via-indigo-50 to-slate-50 border border-blue-100 rounded-2xl p-6">
-              ${aiFeedbackHtml}
-            </div>
-          </div>
-        `;
     } else {
       showAiFeedbackLoading();
       document.getElementById("result-content-ai").innerHTML = `
@@ -2211,7 +2131,7 @@
     });
   }
 
-  // 학습 진도 기록 및 캐릭터 Pop-Up 표시
+  // 학습 진도 기록 및 Pop-Up 표시
   async function recordLearningProgress(score) {
     try {
       const nickname = localStorage.getItem("user_nickname");
@@ -2531,25 +2451,88 @@
     animation: wave 0.8s ease-in-out infinite;
   }
 
-  /* Result Modal Step Transition */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Premium AI Feedback Card Styles */
+  .premium-feedback-scroll-area {
+    padding: 0.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
   }
 
-  .result-step {
-    animation: fadeIn 0.3s ease-out;
+  .premium-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
-  .result-step.hidden {
-    display: none;
+  .premium-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .summary-card {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+    border-color: #c7d2fe;
+    color: #1e1b4b;
+  }
+
+  .strength-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #bbf7d0;
+  }
+
+  .improvement-card {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    border-color: #fecdd3;
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #fde68a;
+  }
+
+  .premium-card header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .premium-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .premium-card li {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+    font-weight: 500;
+    font-size: 1.125rem;
+    color: #1e1b4b;
+    /* text-indigo-950 context */
+  }
+
+  .premium-card li::before {
+    content: "•";
+    font-size: 1.5rem;
+    line-height: 1;
+    color: currentColor;
+    opacity: 0.6;
+  }
+
+  strong {
+    font-weight: 800;
+    color: inherit;
   }
 </style>
 

@@ -1903,11 +1903,21 @@ async def _generate_pronunciation_feedback(text: str, score_result) -> str:
         fluency_info = ""
         if details.get("fluency"):
             f = details["fluency"]
-            fluency_info = f"""
+            try:
+                correct = f.get('correct_syllables', f.get('correct syllable count', 0)) or 0
+                total = f.get('total_syllables', f.get('syllable count', 0)) or 0
+                rate = f.get('speech_rate', f.get('speech rate', 0)) or 0
+                
+                acc = (correct / max(total, 1) * 100) if total > 0 else 0
+                
+                fluency_info = f"""
 FluencyPro 분석:
-- 발화 속도: {f.get('speech_rate', f.get('speech rate', 0)):.1f} 음절/초
-- 정확 음절: {f.get('correct_syllables', f.get('correct syllable count', 0))}/{f.get('total_syllables', f.get('syllable count', 0))} 
-- 음절 정확도: {(f.get('correct_syllables', f.get('correct syllable count', 0))/max(f.get('total_syllables', f.get('syllable count', 1)), 1)*100):.1f}%"""
+- 발화 속도: {float(rate):.1f} 음절/초
+- 정확 음절: {correct}/{total} 
+- 음절 정확도: {acc:.1f}%"""
+            except Exception as fe:
+                print(f"[AI Feedback] Fluency parse error: {fe}")
+                fluency_info = ""
 
         # 발음이 어려운 단어 분석
         word_scores = []
@@ -1931,7 +1941,7 @@ FluencyPro 분석:
             if high_words:
                 word_summary += "\n잘한 발음: " + ", ".join([f"{w['text']}({w['score']}점)" for w in high_words[:3]])
 
-        prompt = f"""당신은 한국어 발음 교육 전문가이자 친절한 코치입니다. 아래 발음 평가 결과를 바탕으로 학습자에게 **보기 좋고 읽기 쉬운 텍스트(마크다운 금지)** 피드백을 작성해주세요.
+        prompt = f"""당신은 한국어 발음 교육 전문가이자 친절한 코치입니다. 아래 발음 평가 결과를 바탕으로 학습자에게 피드백을 작성해주세요.
 
 [평가 대상 문장]
 {text}
@@ -1941,28 +1951,30 @@ FluencyPro 분석:
 {fluency_info}
 {word_summary}
 
-[출력 형식(그대로 지켜서 출력)]
-📌 한줄 요약: (학습자의 현재 상태를 1줄로)
+[출력 형식 - 아래 마커를 정확히 그대로 사용할 것]
+[SUMMARY]
+(학습자의 현재 상태를 1~2문장으로 요약)
 
-✅ 잘한 점
-• (2~3개, 구체적으로)
+[STRENGTHS]
+• (잘한 점 3개 이상, 각 항목을 • 로 시작)
 
-🛠️ 개선 포인트
-• (2~3개, 어려웠던 단어/음절 중심으로)
+[IMPROVEMENTS]
+• (개선이 필요한 부분 3개 이상, 어려웠던 단어/음절 중심으로, 각 항목을 • 로 시작)
 
-🏋️ 연습 방법
-• (1~3개, 바로 따라할 수 있게)
+[TIPS]
+• (바로 따라할 수 있는 연습 방법 3개 이상, 각 항목을 • 로 시작)
 
-📊 점수 요약
+[SCORE]
 전체: {overall_score}/100
-(가능하면 정확 발음/완성도/유창성 등 핵심 수치 2~4개만 추가)
+(정확 발음/완성도/유창성 등 핵심 수치 2~3개 추가)
 
 [작성 규칙]
-- 따뜻하게 격려하되 과장하지 않기 😊
-- 이모지는 섹션 제목/강조에만 적당히 (남발 금지)
-- 마크다운 문법 금지: #, ##, **, -, 1., > 등 사용하지 말 것
-- 코드블록, JSON, 표(table) 금지
-- 너무 길지 않게(대략 8~14줄)"""
+- 모든 피드백 내용은 반드시 한국어(Korean)로만 작성하세요. (영어 단어, 문장, 설명 등을 절대 사용하지 말 것)
+- 학습자를 따뜻하게 격려하되 과장하지 말 것
+- 문장 안에서 중요 단어/표현 강조 등을 위한 **볼드** 및 마크다운 기호(*)를 절대 사용하지 말 것 (순수하게 텍스트만 사용할 것)
+- 마커([SUMMARY] 등) 와 • 이외의 마크다운(#, ##, >, -, 1.) 금지
+- 코드블록, JSON, 표 금지
+- 각 섹션마다 내용을 충분히 상세하게 작성할 것"""
 
         if MODEL_BACKEND == "ollama":
             payload = {
@@ -1989,7 +2001,7 @@ FluencyPro 분석:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
-                max_tokens=500
+                max_tokens=2500
             )
             feedback = response.choices[0].message.content.strip()
             
@@ -2001,20 +2013,41 @@ FluencyPro 분석:
             genai.configure(api_key=GEMINI_API_KEY)
             model = genai.GenerativeModel(GEMINI_MODEL)
             
-            response = model.generate_content(prompt)
-            feedback = response.text.strip()
+            try:
+                response = model.generate_content(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        max_output_tokens=2500,
+                        temperature=0.7,
+                    )
+                )
+                if response.candidates and len(response.candidates) > 0:
+                    feedback = response.text.strip()
+                else:
+                    print("[AI Feedback] Gemini - No candidates returned (likely blocked)")
+                    return None
+            except Exception as ge:
+                print(f"[AI Feedback] Gemini error: {ge}")
+                return None
         
         else:
             return None
         
-        # Remove obvious JSON artifacts (keep markdown formatting as requested)
-        feedback = re.sub(r'\{.*?\}', '', feedback, flags=re.DOTALL)
-        feedback = feedback.strip()
+        # Remove obvious JSON artifacts if feedback is a string
+        if isinstance(feedback, str):
+            feedback = re.sub(r'\{.*?\}', '', feedback, flags=re.DOTALL)
+            feedback = feedback.strip()
         
-        return feedback if feedback else None
+        if not feedback:
+            print("[AI Feedback] Warning: Empty feedback generated")
+            return None
+            
+        return feedback
         
     except Exception as e:
-        print(f"[AI Feedback] Error: {e}")
+        import traceback
+        print(f"[AI Feedback] Critical Error: {e}")
+        traceback.print_exc()
         return None
 
 # ==========================================
@@ -5711,9 +5744,163 @@ async def generate_music(request: Request):
 def ai_video_learning(request: Request):
     return templates.TemplateResponse("ai-video-learning.html", {"request": request})
 
-@app.get("/components/video-01")
-def component_video_01(request: Request):
-    return templates.TemplateResponse("Video_01.html", {"request": request})
+
+# ── Video Lessons: auto-discovery ──────────────────────────────────────────
+import re as _re
+
+def _parse_video_filename(stem: str):
+    """level1_week3_2nd  →  {level:1, week:3, session:'2nd', short_label:'초급 1 | 3주차 - 2차시'}"""
+    m = _re.match(r"level(\d+)_week(\d+)_(1st|2nd|3rd|4th)", stem)
+    if not m:
+        return None
+    level, week, session = int(m.group(1)), int(m.group(2)), m.group(3)
+    session_num = {"1st": "1", "2nd": "2", "3rd": "3", "4th": "4"}.get(session, session)
+    level_name = f"초급 {level}"
+    return {
+        "level": level,
+        "week": week,
+        "session": session,
+        "session_label": f"{session_num}차시",
+        "level_name": level_name,
+        "label": f"{level_name} | {week}주차 - {session_num}차시",
+        "short_label": f"{level_name} | {week}주차 - {session_num}차시",
+        "id": stem,
+    }
+
+
+@app.get("/api/video-lessons")
+def api_video_lessons():
+    """static/videos/ 폴더를 스캔하여 주차별 강의 목록을 반환합니다.
+    mp4/pdf/html 중 어느 하나라도 있으면 목록에 포함됩니다."""
+    videos_dir = Path("static/videos")
+    lessons: dict = {}
+
+    if videos_dir.exists():
+        # mp4 / pdf / html 파일을 모두 스캔 → 어느 하나라도 있으면 강의 항목 생성
+        for f in sorted(videos_dir.iterdir()):
+            if f.suffix.lower() not in (".mp4", ".pdf", ".html"):
+                continue
+            meta = _parse_video_filename(f.stem)
+            if not meta:
+                continue
+            key = f.stem
+            if key not in lessons:
+                lessons[key] = {
+                    **meta,
+                    "mp4": None, "has_mp4": False,
+                    "pdf": None, "has_pdf": False,
+                    "html": None, "has_html": False,
+                }
+            ext = f.suffix.lower()
+            if ext == ".mp4":
+                lessons[key]["mp4"]     = f"/static/videos/{f.name}"
+                lessons[key]["has_mp4"] = True
+            elif ext == ".pdf":
+                lessons[key]["pdf"]     = f"/static/videos/{f.name}"
+                lessons[key]["has_pdf"] = True
+            elif ext == ".html":
+                lessons[key]["html"]     = f"/static/videos/{f.name}"
+                lessons[key]["has_html"] = True
+
+    # Group by level
+    result: dict = {}
+    for item in sorted(lessons.values(), key=lambda x: (x["level"], x["week"], x["session"])):
+        lvl = f"level{item['level']}"
+        result.setdefault(lvl, []).append(item)
+
+    return JSONResponse(content={"lessons": result})
+
+
+# ── Video Progress API ──────────────────────────────────────────────────────
+def _ensure_video_progress_table(db_path: str = "data/users.db"):
+    conn = sqlite3.connect(db_path)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_video_progress (
+            user_id TEXT NOT NULL,
+            video_id TEXT NOT NULL,
+            watched_seconds INTEGER DEFAULT 0,
+            duration_seconds INTEGER DEFAULT 0,
+            completed INTEGER DEFAULT 0,
+            last_position INTEGER DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, video_id)
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+_ensure_video_progress_table()
+
+
+@app.get("/api/video-progress/{user_id}")
+async def get_video_progress(user_id: str):
+    """사용자의 전체 동영상 시청 진도를 반환합니다."""
+    try:
+        conn = sqlite3.connect("data/users.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT video_id, watched_seconds, duration_seconds, completed, last_position, updated_at "
+            "FROM user_video_progress WHERE user_id = ?",
+            (user_id,)
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        progress = {}
+        for row in rows:
+            progress[row[0]] = {
+                "watched_seconds": row[1],
+                "duration_seconds": row[2],
+                "completed": bool(row[3]),
+                "last_position": row[4],
+                "updated_at": row[5],
+                "percent": round((row[1] / row[2] * 100) if row[2] else 0),
+            }
+        return JSONResponse(content={"progress": progress})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+from pydantic import BaseModel as _PydanticBaseModel
+
+class _VideoProgressBody(_PydanticBaseModel):
+    user_id: str
+    video_id: str
+    watched_seconds: int = 0
+    duration_seconds: int = 0
+    last_position: int = 0
+    completed: bool = False
+
+
+@app.post("/api/video-progress")
+async def save_video_progress(body: _VideoProgressBody):
+    """동영상 시청 진도를 저장합니다."""
+    try:
+        conn = sqlite3.connect("data/users.db")
+        conn.execute("""
+            INSERT INTO user_video_progress
+                (user_id, video_id, watched_seconds, duration_seconds, completed, last_position, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(user_id, video_id) DO UPDATE SET
+                watched_seconds = MAX(excluded.watched_seconds, watched_seconds),
+                duration_seconds = excluded.duration_seconds,
+                completed = MAX(excluded.completed, completed),
+                last_position = excluded.last_position,
+                updated_at = CURRENT_TIMESTAMP
+        """, (body.user_id, body.video_id, body.watched_seconds,
+              body.duration_seconds, int(body.completed), body.last_position))
+        conn.commit()
+
+        # 완료 시 학습 진도 서비스 연동
+        if body.completed:
+            try:
+                lps = LearningProgressService()
+                lps.update_sentence_learned(body.user_id, 1)
+            except Exception:
+                pass
+
+        conn.close()
+        return JSONResponse(content={"saved": True})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 if __name__ == "__main__":
     logger.info("Uvicorn 서버 시작: 0.0.0.0:9000")

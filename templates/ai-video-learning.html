@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+{% block title %}AI 동영상 학습 - 오누이 한국어{% endblock %}
+{% block content %}
+<style>
+  /* ── Layout ── */
+  .vl-wrap {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ── Header ── */
+  .vl-header {
+    margin-bottom: 24px;
+  }
+
+  .vl-header h1 {
+    font-size: clamp(22px, 3vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+    margin: 0 0 5px;
+  }
+
+  .vl-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* ── Stat pills ── */
+  .vl-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .vl-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  }
+
+  .vl-pill .num {
+    color: #6366f1;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  /* ── Main grid ── */
+  .vl-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media(max-width:940px) {
+    .vl-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Sidebar ── */
+  .vl-sidebar {
+    position: sticky;
+    top: 76px;
+    max-height: calc(100vh - 96px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vl-toc-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .vl-toc-header {
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .vl-toc-header h2 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .vl-search {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+  }
+
+  .vl-search input {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 7px 11px;
+    font-size: 13px;
+    outline: none;
+    color: #374151;
+    background: #f8fafc;
+    box-sizing: border-box;
+  }
+
+  .vl-search input:focus {
+    border-color: #6366f1;
+  }
+
+  .vl-level-tabs {
+    display: flex;
+    padding: 8px 14px;
+    gap: 5px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .vl-level-tab {
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+
+  .vl-level-tab.active {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+  }
+
+  .vl-lesson-list {
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .vl-lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background .12s;
+    border-left: 3px solid transparent;
+  }
+
+  .vl-lesson-item:hover {
+    background: #f8fafc;
+  }
+
+  .vl-lesson-item.active {
+    background: #eef2ff;
+    border-left-color: #6366f1;
+  }
+
+  .li-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .li-icon.done {
+    background: #dcfce7;
+  }
+
+  .li-icon.partial {
+    background: #fef3c7;
+  }
+
+  .li-icon.none {
+    background: #f1f5f9;
+  }
+
+  .li-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .li-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .li-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .li-tag {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .li-tag.html-tag {
+    background: #eef2ff;
+    color: #6366f1;
+  }
+
+  .li-tag.pdf-tag {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  .vl-prog-bar {
+    display: none;
+  }
+
+  /* ── Player Panel ── */
+  .vl-player {
+    min-height: 300px;
+  }
+
+  .vl-empty {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 420px;
+    gap: 14px;
+    color: #94a3b8;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .vl-empty .es-icon {
+    font-size: 52px;
+  }
+
+  .vl-empty h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #374151;
+    margin: 0;
+  }
+
+  .vl-empty p {
+    font-size: 13px;
+    margin: 0;
+  }
+
+  /* Video card */
+  .vl-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+    overflow: hidden;
+    display: none;
+  }
+
+  /* Card header */
+  .vl-card-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .vl-card-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .vl-card-header p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 4px 0 0;
+  }
+
+  .vl-hdr-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* Action buttons */
+  .vl-btn {
+    padding: 7px 14px;
+    border-radius: 9px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    color: #374151;
+  }
+
+  .vl-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+  }
+
+  .vl-btn.primary {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+  }
+
+  .vl-btn.primary:hover {
+    background: #4f46e5;
+  }
+
+  .vl-btn.success {
+    background: #22c55e;
+    color: #fff;
+    border-color: #22c55e;
+  }
+
+  .vl-btn.success:hover {
+    background: #16a34a;
+  }
+
+  /* iFrame area */
+  .vl-iframe-wrap {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .vl-iframe-wrap iframe {
+    width: 100%;
+    border: none;
+    display: block;
+    height: 0;
+    /* will be set by JS */
+    overflow: hidden;
+    /* no internal scroll */
+    transition: height .2s ease;
+  }
+
+  /* Spinner */
+  .vl-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 60px auto;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+</style>
+
+<div class="vl-wrap">
+  <!-- Header -->
+  <div class="vl-header">
+    <h1>🎬 AI 동영상 강의</h1>
+    <p>왼쪽 목차에서 차시를 선택하면 강의가 열립니다. 시청 진도가 자동으로 저장됩니다.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="vl-stats">
+    <div class="vl-pill">📹 전체 <span class="num" id="statTotal">-</span> 강</div>
+    <div class="vl-pill">✅ 완료 <span class="num" id="statDone">-</span> 강</div>
+    <div class="vl-pill">▶️ 학습 중 <span class="num" id="statPartial">-</span> 강</div>
+    <div class="vl-pill">🏆 달성률 <span class="num" id="statPct">-</span>%</div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="vl-grid">
+
+    <!-- ── Sidebar TOC ── -->
+    <aside class="vl-sidebar">
+      <div class="vl-toc-card">
+        <div class="vl-toc-header">
+          <span>📋</span>
+          <h2>강의 목차</h2>
+        </div>
+        <div class="vl-search">
+          <input type="search" id="tocSearch" placeholder="주차, 교시 검색...">
+        </div>
+        <div class="vl-level-tabs" id="levelTabs"></div>
+        <div class="vl-lesson-list" id="lessonList">
+          <div class="vl-spinner"></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Panel ── -->
+    <main class="vl-player">
+      <!-- Empty state -->
+      <div class="vl-empty" id="emptyState">
+        <div class="es-icon">🎬</div>
+        <h3>차시를 선택하세요</h3>
+        <p>왼쪽 목차에서 원하는 차시를 클릭하면 강의가 열립니다.</p>
+      </div>
+
+      <!-- Lesson card -->
+      <div class="vl-card" id="lessonCard">
+        <!-- Header -->
+        <div class="vl-card-header">
+          <div>
+            <h2 id="cardTitle">-</h2>
+            <p id="cardSub">-</p>
+          </div>
+          <div class="vl-hdr-actions">
+            <button class="vl-btn success" id="completeBtn" onclick="markComplete()">✅ 완료</button>
+          </div>
+        </div>
+
+        <!-- iFrame body -->
+        <div class="vl-iframe-wrap">
+          <iframe id="lessonFrame" title="강의 내용" scrolling="no"></iframe>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    /* ── User ID (cookie 기반) ── */
+    const USER_ID = (() => {
+      try {
+        const m = document.cookie.match(/session_token=([^;]+)/);
+        return m ? 'u_' + m[1].substring(0, 16) : 'guest';
+      } catch { return 'guest'; }
+    })();
+
+    /* ── State ── */
+    let allLessons = [];
+    let userProgress = {};
+    let current = null;   // current lesson object
+    let activeLevel = 'all';
+    let watchTimer = null;
+    let watchedSec = 0;      // seconds since lesson opened
+    let currentPct = 0;      // live progress %
+    let frameRO = null;   // active ResizeObserver for the iframe
+
+    /* ── Init ── */
+    async function init() {
+      await Promise.all([loadLessons(), loadProgress()]);
+      renderTabs();
+      renderList();
+      updateStats();
+      autoOpenLastLesson();
+    }
+
+    function autoOpenLastLesson() {
+      if (!allLessons.length) return;
+
+      // Find the most recently updated lesson
+      const knownIds = new Set(allLessons.map(l => l.id));
+      let lastId = null;
+      let lastTime = null;
+
+      Object.entries(userProgress).forEach(([id, p]) => {
+        if (!knownIds.has(id)) return;
+        if (!p.updated_at) return;
+        if (!lastTime || p.updated_at > lastTime) {
+          lastTime = p.updated_at;
+          lastId = id;
+        }
+      });
+
+      if (lastId) openLesson(lastId);
+    }
+
+    /* ── API ── */
+    async function loadLessons() {
+      try {
+        const r = await fetch('/api/video-lessons');
+        const d = await r.json();
+        allLessons = [];
+        Object.values(d.lessons || {}).forEach(arr => allLessons.push(...arr));
+      } catch (e) { console.warn('loadLessons', e); }
+    }
+
+    async function loadProgress() {
+      try {
+        const r = await fetch(`/api/video-progress/${encodeURIComponent(USER_ID)}`);
+        const d = await r.json();
+        userProgress = d.progress || {};
+      } catch (e) { console.warn('loadProgress', e); }
+    }
+
+    async function saveProgress(completed) {
+      if (!current) return;
+      const p = userProgress[current.id] || {};
+      const isCompleted = completed || p.completed || false;
+      // Use the live currentPct as the authoritative value
+      const pct = completed ? 100 : currentPct;
+
+      const body = {
+        user_id: USER_ID,
+        video_id: current.id,
+        watched_seconds: watchedSec,
+        duration_seconds: Math.max(watchedSec, p.duration_seconds || 0),
+        last_position: watchedSec,
+        completed: isCompleted,
+      };
+      try {
+        await fetch('/api/video-progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        // Sync local state with what we just saved
+        userProgress[current.id] = {
+          percent: pct,
+          completed: isCompleted,
+          last_position: watchedSec,
+          watched_seconds: watchedSec,
+        };
+        if (completed) {
+          currentPct = 100;
+          setProgressAll(100, true);
+        }
+        updateStats();
+      } catch (e) { console.warn('saveProgress', e); }
+    }
+
+    /* ── Sidebar ── */
+    function renderTabs() {
+      const levels = [...new Set(allLessons.map(l => l.level))].sort((a, b) => a - b);
+      const tabsEl = document.getElementById('levelTabs');
+      tabsEl.innerHTML = `<div class="vl-level-tab active" onclick="filterLevel('all',this)">전체</div>`;
+      levels.forEach(lvl => {
+        // Use level_name from the first lesson of this level (e.g. '초급 1')
+        const levelName = allLessons.find(l => l.level === lvl)?.level_name || `초급 ${lvl}`;
+        tabsEl.innerHTML += `<div class="vl-level-tab" onclick="filterLevel('level${lvl}',this)">${levelName}</div>`;
+      });
+    }
+
+    function renderList(query = '') {
+      const listEl = document.getElementById('lessonList');
+      const q = query.trim().toLowerCase();
+      let items = allLessons;
+      if (activeLevel !== 'all') items = items.filter(l => `level${l.level}` === activeLevel);
+      if (q) items = items.filter(l =>
+        l.label.toLowerCase().includes(q) || l.short_label.toLowerCase().includes(q) || l.id.toLowerCase().includes(q)
+      );
+
+      if (!items.length) {
+        listEl.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px">검색 결과 없음</div>';
+        return;
+      }
+
+      listEl.innerHTML = items.map(lesson => {
+        const p = userProgress[lesson.id] || {};
+        const pct = p.percent || 0;
+        const done = p.completed;
+        const iconCls = done ? 'done' : pct > 0 ? 'partial' : 'none';
+        const icon = done ? '✅' : pct > 0 ? '▶️' : '⬜';
+        const active = current && current.id === lesson.id ? 'active' : '';
+        const tags = [
+          lesson.has_html ? '<span class="li-tag html-tag">강의</span>' : '',
+          lesson.has_pdf ? '<span class="li-tag pdf-tag">PDF</span>' : '',
+        ].join('');
+        return `
+        <div class="vl-lesson-item ${active}" id="li_${lesson.id}" onclick="openLesson('${lesson.id}')">
+          <div class="li-icon ${iconCls}">${icon}</div>
+          <div class="li-text">
+            <div class="li-title">${lesson.short_label}</div>
+            <div class="li-sub">${tags}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ── Level / Search ── */
+    window.filterLevel = function (lvl, el) {
+      activeLevel = lvl;
+      document.querySelectorAll('.vl-level-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderList(document.getElementById('tocSearch').value);
+    };
+    document.getElementById('tocSearch').addEventListener('input', e => renderList(e.target.value));
+
+    /* ── Stats ── */
+    function updateStats() {
+      const total = allLessons.length;
+      const done = allLessons.filter(l => userProgress[l.id]?.completed).length;
+      const partial = allLessons.filter(l => !userProgress[l.id]?.completed && (userProgress[l.id]?.percent || 0) > 3).length;
+      const pct = total ? Math.round(done / total * 100) : 0;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statDone').textContent = done;
+      document.getElementById('statPartial').textContent = partial;
+      document.getElementById('statPct').textContent = pct;
+    }
+
+    /* ── Open Lesson ── */
+    window.openLesson = function (id) {
+      const lesson = allLessons.find(l => l.id === id);
+      if (!lesson) return;
+
+      // Stop watch timer for previous lesson
+      if (current) {
+        clearInterval(watchTimer);
+        saveProgress(false);
+      }
+
+      current = lesson;
+      watchedSec = userProgress[id]?.watched_seconds || 0;
+
+      // Seed currentPct from saved DB value (same formula used when saving)
+      currentPct = Math.min(userProgress[id]?.percent || 0, 100);
+
+      // Show card, hide empty state
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('lessonCard').style.display = 'block';
+
+      // Header texts
+      document.getElementById('cardTitle').textContent = lesson.label;
+      document.getElementById('cardSub').textContent = buildSubText(lesson);
+
+      // Complete button style
+      const btn = document.getElementById('completeBtn');
+      const p = userProgress[id] || {};
+      if (p.completed) {
+        btn.textContent = '✅ 완료됨'; btn.classList.add('success');
+      } else {
+        btn.textContent = '✅ 완료'; btn.classList.remove('success');
+      }
+
+      // Set BOTH bars to same seeded value
+      setProgressAll(currentPct, p.completed || false);
+
+      // ── Load iframe ──────────────────────────────────────────────
+      const frame = document.getElementById('lessonFrame');
+
+      // 이전 ResizeObserver 해제
+      if (frameRO) { frameRO.disconnect(); frameRO = null; }
+
+      // fitFrame: 내용에 맞게 iframe 높이 자동 조정
+      function fitFrame() {
+        try {
+          const doc = frame.contentDocument || frame.contentWindow?.document;
+          if (!doc || !doc.body) return;
+          const h = Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight);
+          if (h > 10) frame.style.height = h + 'px';
+        } catch (e) { frame.style.height = '80vh'; }
+      }
+
+      frame.onload = () => {
+        fitFrame();
+        try {
+          const doc = frame.contentDocument || frame.contentWindow?.document;
+          if (doc && doc.documentElement) {
+            doc.documentElement.style.overflow = 'hidden';
+          }
+          if (doc && window.ResizeObserver) {
+            frameRO = new ResizeObserver(fitFrame);
+            frameRO.observe(doc.documentElement);
+          }
+        } catch (e) { /* cross-origin: skip */ }
+      };
+
+      frame.style.height = '0';
+
+      if (lesson.has_html) {
+        // srcdoc 속성이 남아있으면 src보다 우선순위가 높아져 src가 무시됨
+        // → removeAttribute로 완전히 제거해야 함
+        frame.removeAttribute('srcdoc');
+        frame.src = lesson.html;
+      } else {
+        frame.removeAttribute('src');
+        frame.srcdoc = buildNoContentHtml(lesson);
+      }
+
+      // Scroll sidebar item into view
+      requestAnimationFrame(() => {
+        document.getElementById(`li_${id}`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+
+      // Timer: increment watchedSec and recompute pct with same formula → update BOTH bars
+      watchTimer = setInterval(() => {
+        watchedSec++;
+        currentPct = Math.min(Math.round(watchedSec / 60 * 10), 100);
+        setProgressAll(currentPct, false);
+        if (watchedSec % 30 === 0) saveProgress(false);
+      }, 1000);
+
+      renderList(document.getElementById('tocSearch').value);
+    };
+
+    function buildSubText(lesson) {
+      const parts = [`Level ${lesson.level}`];
+      if (lesson.has_html) parts.push('강의 HTML 포함');
+      if (lesson.has_pdf) parts.push('PDF 교안 포함');
+      return parts.join(' · ');
+    }
+
+    function buildFallbackHtml(lesson) {
+      return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
+      body{margin:0;padding:24px;font-family:sans-serif;background:#f8fafc;}
+      video{width:100%;border-radius:12px;background:#000;}
+      .dl{margin-top:16px;text-align:center;}
+      .dl a{display:inline-block;padding:10px 22px;background:#dc2626;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;}
+    </style></head><body>
+    <video controls src="${lesson.mp4}"></video>
+    ${lesson.has_pdf ? `<div class="dl"><a href="${lesson.pdf}" download>📄 PDF 다운로드</a></div>` : ''}
+    </body></html>`;
+    }
+
+    function buildPdfHtml(lesson) {
+      return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
+        body{margin:0;padding:0;background:#f8fafc;font-family:sans-serif;}
+        .msg{padding:30px;text-align:center;color:#64748b;}
+        .msg h3{color:#374151;margin:0 0 8px;}
+        .msg p{margin:0 0 16px;font-size:13px;}
+        .dl a{display:inline-block;padding:12px 24px;background:#dc2626;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;}
+        iframe{width:100%;height:85vh;border:none;display:block;}
+      </style></head><body>
+        <div class="msg">
+          <h3>📄 PDF 교안</h3>
+          <p>동영상이 아직 업로드되지 않았습니다. PDF 교안을 확인하세요.</p>
+          <div class="dl"><a href="${lesson.pdf}" download>📥 PDF 다운로드</a></div>
+        </div>
+        <iframe src="${lesson.pdf}"></iframe>
+      </body></html>`;
+    }
+
+    function buildNoContentHtml(lesson) {
+      return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><style>
+        body{margin:0;display:flex;align-items:center;justify-content:center;min-height:300px;background:#f8fafc;font-family:sans-serif;}
+        .box{text-align:center;color:#94a3b8;padding:40px;}
+        .box .ic{font-size:48px;margin-bottom:12px;}
+        .box h3{color:#374151;margin:0 0 6px;font-size:16px;}
+        .box p{font-size:13px;margin:0;}
+      </style></head><body>
+        <div class="box">
+          <div class="ic">⏳</div>
+          <h3>콘텐츠 준비 중</h3>
+          <p>동영상 및 교안이 곧 업로드될 예정입니다.</p>
+        </div>
+      </body></html>`;
+    }
+
+    /**
+     * setProgressAll — updates badge and sidebar item bar simultaneously.
+     * (시청 진도 바 제거됨 — 사이드바와 뱃지만 업데이트)
+     */
+    function setProgressAll(pct, completed) {
+      const v = Math.min(Math.max(Math.round(pct), 0), 100);
+
+      // Sidebar item icon only (no progress bar)
+      if (current) {
+        const item = document.getElementById(`li_${current.id}`);
+        if (item) {
+          const icon = item.querySelector('.li-icon');
+          if (icon) {
+            icon.textContent = completed ? '✅' : v > 0 ? '▶️' : '⬜';
+            icon.className = 'li-icon ' + (completed ? 'done' : v > 0 ? 'partial' : 'none');
+          }
+        }
+      }
+    }
+
+    /* ── Actions ── */
+    window.markComplete = async function () {
+      if (!current) return;
+      currentPct = 100;
+      setProgressAll(100, true);
+      await saveProgress(true);
+      userProgress[current.id] = { ...(userProgress[current.id] || {}), completed: true, percent: 100 };
+      const btn = document.getElementById('completeBtn');
+      btn.textContent = '✅ 완료됨'; btn.classList.add('success');
+      updateStats();
+    };
+
+    /* ── Cleanup ── */
+    window.addEventListener('beforeunload', () => {
+      clearInterval(watchTimer);
+      if (current) saveProgress(false);
+    });
+
+    /* ── Start ── */
+    init();
+  })();
+</script>
+{% endblock %}
