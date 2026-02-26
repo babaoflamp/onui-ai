@@ -159,7 +159,7 @@
         </label>
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <select id="evaluation-text"
-            class="flex-1 px-4 py-3 border-2 border-[var(--accent)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition">
+            class="w-full min-w-0 px-4 py-3 border-2 border-[var(--accent)] rounded-lg focus:outline-none focus:border-[var(--accent)] transition">
             <option value="" data-i18n="speechpro.select_placeholder">-- 문장 선택 --</option>
             {% include 'speechpro-words-options.html' %}
           </select>
@@ -281,58 +281,18 @@
           </div>
         </div>
 
-        <!-- AI 종합 평가 모달 -->
-        <div id="ai-feedback-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          role="dialog" aria-modal="true" aria-labelledby="ai-feedback-modal-title">
-          <div
-            class="relative w-full max-w-[950px] lg:max-w-[1100px] max-h-[95vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8"
-            role="document">
-            <div class="flex items-center justify-between mb-4">
-              <h2 id="ai-feedback-modal-title" class="text-2xl font-bold text-[var(--text-main)]"
-                data-i18n="speechpro.ai_modal_title">
-                AI 종합 평가 결과
-              </h2>
-              <button id="close-ai-feedback-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl"
-                aria-label="닫기">
-                ✕
-              </button>
+        <!-- AI 상세 피드백 개별 팝업 (Section별) -->
+        <div id="ai-section-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+          <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform transition-all">
+            <div class="flex items-center justify-between mb-6">
+              <h3 id="ai-section-title" class="text-2xl font-bold text-blue-900 flex items-center gap-2"></h3>
+              <button onclick="closeAiSectionModal()"
+                class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
             </div>
-
-            <div class="mb-3 text-xs font-semibold text-blue-600 uppercase tracking-wide">
-              AI 코칭 단계
-            </div>
-            <h3 id="ai-feedback-step-title" class="text-xl font-bold text-blue-900 mb-3">
-              -
-            </h3>
-
-            <div id="ai-feedback-modal-content"
-              class="relative text-blue-900 leading-loose text-base bg-white/70 border border-blue-100 rounded-xl p-6 shadow-inner"
-              style="line-height: 1.8">
-              <div class="text-sm text-blue-700" data-i18n="speechpro.ai_feedback_loading">
-                AI 종합 평가를 생성 중입니다...
-              </div>
-            </div>
-
-            <div class="mt-4 flex items-center justify-between">
-              <button id="ai-feedback-prev"
-                class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
-                이전
-              </button>
-              <div id="ai-feedback-step-indicator" class="text-xs text-gray-500">
-                0 / 0
-              </div>
-              <button id="ai-feedback-next"
-                class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled>
-                다음
-              </button>
-            </div>
-
-            <div id="ai-feedback-detail-storage" class="hidden">
-              <div id="details-content" class="space-y-3 text-[var(--text-sub)]"></div>
-              <div id="speechpro-content"
-                class="bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800"></div>
+            <div id="ai-section-content" class="text-lg leading-relaxed text-gray-700"></div>
+            <div class="mt-8 text-right">
+              <button onclick="closeAiSectionModal()"
+                class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">닫기</button>
             </div>
           </div>
         </div>
@@ -564,15 +524,16 @@
     return output;
   }
 
-  function extractFeedbackSections(text) {
-    if (!text) return null;
+  // AI 피드백 파싱 및 마크업 생성 통합 함수 (Unified Version)
+  function buildFeedbackMarkup(text) {
+    if (!text) return "";
 
-    const MARKERS = {
-      '[SUMMARY]': 'summary',
-      '[STRENGTHS]': 'strengths',
-      '[IMPROVEMENTS]': 'improvements',
-      '[TIPS]': 'tips',
-      '[SCORE]': 'score'
+    const patterns = {
+      summary: /.*(요약|종합 요약|SUMMARY).*/i,
+      strengths: /.*(잘한점|강점|잘한 점|STRENGTHS).*/i,
+      improvements: /.*(개선점|개선|고칠부분|개선할 점|IMPROVEMENTS).*/i,
+      tips: /.*(연습방법|연습팁|연습팀|팁|연습 방법|TIPS).*/i,
+      score: /.*(점수|SCORE).*/i
     };
 
     const sections = {
@@ -580,135 +541,131 @@
       strengths: [],
       improvements: [],
       tips: [],
-      score: [],
-      raw: text
+      score: []
     };
 
     let currentSection = 'summary';
+    const lines = text.split('\n');
 
     const formatInline = (str) => {
-      // 마크다운 흔적 (# 헤더, 별표 등), '피드백' 접두어 및 여백 제거
       return str
-        .replace(/^#+\s*/, '')      // # 헤더 제거
-        .replace(/^피드백[:\s]*/, '') // 시작 부분의 '피드백' 문구 및 콜론 제거
-        .replace(/\*\*\*|\*\*|\*/g, '') // 볼드/이탤릭 기호 제거
+        .replace(/[#*\[\]]+/g, '')
+        .replace(/^[:\s-]+/g, '')
         .replace(/__/g, '')
         .trim();
     };
 
-    for (const raw of text.split('\n')) {
-      let line = raw.trim();
-      if (!line) continue;
+    for (let line of lines) {
+      let trimmedLine = line.trim();
+      if (!trimmedLine) continue;
 
-      const markerKey = Object.keys(MARKERS).find(m => line.toUpperCase().includes(m));
-      if (markerKey) {
-        currentSection = MARKERS[markerKey];
-        // 마커 이후의 텍스트가 같은 줄에 있으면 가져옴
-        const escapedMarker = markerKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const inline = line.replace(new RegExp(escapedMarker, 'i'), '').trim();
-        if (inline) {
-          const formatted = formatInline(inline);
-          if (formatted) sections[currentSection].push(formatted);
+      // 마커 감지 및 섹션 전환
+      let foundMarker = false;
+      for (const [key, pattern] of Object.entries(patterns)) {
+        // 해당 줄에 마커 키워드가 포함되어 있고, 그 줄이 너무 길지 않으면(헤더로 판단)
+        if (pattern.test(trimmedLine) && trimmedLine.length < 25) {
+          currentSection = key;
+          // 마커 라인에 실제 내용이 섞여 있는 경우 처리
+          const match = trimmedLine.match(pattern);
+          const keyword = match ? match[1] : "";
+          if (keyword) {
+            const contentAfter = trimmedLine.split(keyword).pop().replace(/[\[\]\s*:]+$/, '').trim();
+            if (contentAfter && contentAfter.length > 1) {
+              const formatted = formatInline(contentAfter);
+              if (formatted) sections[currentSection].push(formatted);
+            }
+          }
+          foundMarker = true;
+          break;
         }
-        continue;
       }
 
-      // 불렛 및 번호 제거 (•, -, *, 1., 2. 등)
-      let cleaned = line.replace(/^[•\-*]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
-      const formatted = formatInline(cleaned);
+      if (foundMarker) continue;
 
+      // 일반 라인 처리 (불렛 기호 및 번호 제거)
+      let cleaned = trimmedLine.replace(/^[•\-*]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
+      const formatted = formatInline(cleaned);
       if (formatted) {
         sections[currentSection].push(formatted);
       }
     }
 
-    return sections;
+    // HTML 생성 (별도 팝업용 버튼 배치)
+    window.lastAiSections = sections; // 전역 저장
+
+    let buttonHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">`;
+
+    if (sections.summary.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('summary')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full text-left">
+          <span class="flex items-center gap-2">📝 AI 종합 평가보기</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.strengths.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('strengths')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-green-600 to-teal-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full text-left">
+          <span class="flex items-center gap-2">✨ AI 칭찬 듣기</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.improvements.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('improvements')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full text-left">
+          <span class="flex items-center gap-2">🎯 AI 피드백 의견</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.tips.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('tips')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full text-left">
+          <span class="flex items-center gap-2">💡 AI 학습 팁</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+
+    buttonHtml += `</div>`;
+
+    if (buttonHtml === `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"></div>` && text) {
+      return `<div class="premium-card summary-card"><header><span>📝</span><span>AI 피드백</span></header><div class="text-base">${text.replace(/\n/g, '<br>')}</div></div>`;
+    }
+    return buttonHtml;
   }
 
-  function buildFeedbackSectionMarkup(sections) {
-    if (!sections) return "";
+  // AI 상세 팝업 열기
+  function openAiSectionPopup(key) {
+    const modal = document.getElementById("ai-section-modal");
+    const titleEl = document.getElementById("ai-section-title");
+    const contentEl = document.getElementById("ai-section-content");
+    const sections = window.lastAiSections;
 
-    let html = "";
+    if (!modal || !sections || !sections[key]) return;
 
-    // 1. 요약 카드 (Summary)
-    if (sections.summary && sections.summary.length > 0) {
-      html += `
-        <div class="premium-card summary-card">
-          <header>
-            <span>📝</span>
-            <span>종합 요약</span>
-          </header>
-          <div class="text-lg font-medium leading-relaxed">${sections.summary.join(' ')}</div>
-        </div>
-      `;
+    const titles = {
+      summary: "📝 AI 종합 평가",
+      strengths: "✨ AI 칭찬과 강점",
+      improvements: "🎯 AI 교육 의견",
+      tips: "💡 AI 학습 팁"
+    };
+
+    titleEl.textContent = titles[key] || "AI 피드백";
+
+    if (key === 'summary') {
+      contentEl.innerHTML = `<div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><p class="leading-relaxed font-medium text-blue-900">${sections[key].join(' ')}</p></div>`;
+    } else {
+      contentEl.innerHTML = `<ul class="space-y-4">${sections[key].map(s => `<li class="flex gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100"><span class="mt-1.5 w-1.5 h-1.5 bg-blue-500 rounded-full flex-shrink-0"></span><span class="text-gray-700">${s}</span></li>`).join('')}</ul>`;
     }
 
-    // 2. 강점 카드 (Strengths)
-    if (sections.strengths && sections.strengths.length > 0) {
-      html += `
-        <div class="premium-card strength-card">
-          <header>
-            <span>✨</span>
-            <span>참 잘했어요! (강점)</span>
-          </header>
-          <ul class="premium-card-list">
-            ${sections.strengths.map(s => `<li>${s}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-    }
+    modal.classList.remove("hidden");
+  }
 
-    // 3. 개선점 카드 (Improvements)
-    if (sections.improvements && sections.improvements.length > 0) {
-      html += `
-        <div class="premium-card improvement-card">
-          <header>
-            <span>🎯</span>
-            <span>이렇게 고쳐볼까요? (개선점)</span>
-          </header>
-          <ul class="premium-card-list">
-            ${sections.improvements.map(s => `<li>${s}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-    }
-
-    // 4. 팁 카드 (Tips)
-    if (sections.tips && sections.tips.length > 0) {
-      html += `
-        <div class="premium-card tip-card">
-          <header>
-            <span>💡</span>
-            <span>도움이 되는 꿀팁</span>
-          </header>
-          <ul class="premium-card-list">
-            ${sections.tips.map(s => `<li>${s}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-    }
-
-    // 5. 점수 카드 (Score)
-    if (sections.score && sections.score.length > 0) {
-      html += `
-        <div class="premium-card" style="background: white; border-color: #e5e7eb;">
-          <header>
-            <span>📊</span>
-            <span>발음 성적표</span>
-          </header>
-          <div class="text-lg font-medium text-indigo-950 leading-relaxed">
-            ${sections.score.join('<br>')}
-          </div>
-        </div>
-      `;
-    }
-
-    // 데이터가 하나도 파싱되지 않은 경우Fallback
-    if (!html && sections.raw) {
-      html = `<div class="bg-blue-50 p-6 rounded-2xl text-blue-800 leading-relaxed text-lg">${convertAiFeedbackToHtml(sections.raw)}</div>`;
-    }
-
-    return html;
+  function closeAiSectionModal() {
+    const modal = document.getElementById("ai-section-modal");
+    if (modal) modal.classList.add("hidden");
   }
 
   // 전역 상태 관리 객체
@@ -758,67 +715,52 @@
       document.getElementById("start-recording").classList.add("hidden");
       document.getElementById("play-recording").classList.add("hidden");
 
-      // 카운트다운 표시
+      // 카운트다운 표시 숨김
       const countdownDisplay = document.getElementById("countdown-display");
-      if (countdownDisplay) {
-        countdownDisplay.classList.remove("hidden");
+      if (countdownDisplay) countdownDisplay.classList.add("hidden");
 
-        let countdown = 3;
-        if (countdownDisplay) countdownDisplay.textContent = countdown;
+      // 실제 녹음 시작
+      appState.mediaRecorder = new MediaRecorder(stream);
+      appState.recordedChunks = [];
+      appState.recordingStartTime = Date.now();
 
-        const countdownInterval = setInterval(() => {
-          countdown--;
+      appState.mediaRecorder.ondataavailable = (event) => {
+        appState.recordedChunks.push(event.data);
+      };
 
-          if (countdown > 0) {
-            if (countdownDisplay) countdownDisplay.textContent = countdown;
-          } else {
-            clearInterval(countdownInterval);
-            if (countdownDisplay) countdownDisplay.classList.add("hidden");
+      appState.mediaRecorder.onstop = () => {
+        // 기존 Blob URL이 있으면 해제
+        if (appState.currentBlobUrl) {
+          URL.revokeObjectURL(appState.currentBlobUrl);
+          appState.currentBlobUrl = null;
+        }
 
-            // 실제 녹음 시작
-            appState.mediaRecorder = new MediaRecorder(stream);
-            appState.recordedChunks = [];
-            appState.recordingStartTime = Date.now();
+        const audioBlob = new Blob(appState.recordedChunks, { type: "audio/wav" });
+        appState.currentBlobUrl = URL.createObjectURL(audioBlob);
+        document.getElementById("audio-playback").src = appState.currentBlobUrl;
+        document
+          .getElementById("playback-section")
+          .classList.remove("hidden");
+        document.getElementById("evaluate-button").disabled = false;
+      };
 
-            appState.mediaRecorder.ondataavailable = (event) => {
-              appState.recordedChunks.push(event.data);
-            };
+      appState.mediaRecorder.start();
 
-            appState.mediaRecorder.onstop = () => {
-              // 기존 Blob URL이 있으면 해제
-              if (appState.currentBlobUrl) {
-                URL.revokeObjectURL(appState.currentBlobUrl);
-                appState.currentBlobUrl = null;
-              }
+      // UI 업데이트
+      document.getElementById("stop-recording").classList.remove("hidden");
 
-              const audioBlob = new Blob(appState.recordedChunks, { type: "audio/wav" });
-              appState.currentBlobUrl = URL.createObjectURL(audioBlob);
-              document.getElementById("audio-playback").src = appState.currentBlobUrl;
-              document
-                .getElementById("playback-section")
-                .classList.remove("hidden");
-              document.getElementById("evaluate-button").disabled = false;
-            };
+      // Visualizer 업데이트
+      const visualizer = document.getElementById("recording-visualizer");
+      if (visualizer) visualizer.setAttribute("data-status", "recording");
+      const statusTextRecEl = document.getElementById("status-text");
+      if (statusTextRecEl) statusTextRecEl.textContent = t("speechpro.status_recording", "녹음 중");
+      const waveformEl = document.getElementById("waveform");
+      if (waveformEl) waveformEl.classList.remove("hidden");
 
-            appState.mediaRecorder.start();
+      // 타이머 시작
+      startTimer();
 
-            // UI 업데이트
-            document.getElementById("stop-recording").classList.remove("hidden");
-
-            // Visualizer 업데이트
-            const visualizer = document.getElementById("recording-visualizer");
-            visualizer.setAttribute("data-status", "recording");
-            const statusTextRecEl = document.getElementById("status-text");
-            if (statusTextRecEl) statusTextRecEl.textContent = t("speechpro.status_recording", "녹음 중");
-            document.getElementById("waveform").classList.remove("hidden");
-
-            // 타이머 시작
-            startTimer();
-
-            showMessage(t("speechpro.msg.record_start", "녹음이 시작되었습니다"), "info");
-          }
-        }, 1000);
-      }
+      showMessage(t("speechpro.msg.record_start", "녹음이 시작되었습니다"), "info");
     } catch (error) {
       // 카운트다운 표시 숨김
       document.getElementById("countdown-display").classList.add("hidden");
@@ -925,20 +867,23 @@
     document.getElementById('evaluate-button').addEventListener('click', evaluatePronunciation);
 
     // Modal controls
-    document.getElementById('close-results-btn').addEventListener('click', closeResults);
-    document.getElementById('close-ai-feedback-modal-btn').addEventListener('click', closeAiFeedbackModal);
-    document.getElementById('close-results-btn-2').addEventListener('click', closeResults);
-    document.getElementById('reset-evaluation-btn').addEventListener('click', resetEvaluation);
+    document.getElementById('close-results-btn')?.addEventListener('click', closeResults);
+    document.getElementById('close-results-btn-2')?.addEventListener('click', closeResults);
+    document.getElementById('reset-evaluation-btn')?.addEventListener('click', resetEvaluation);
+
+    // AI Section Modal (New) - Close on background click
+    const aiSectionModal = document.getElementById('ai-section-modal');
+    if (aiSectionModal) {
+      aiSectionModal.addEventListener('click', (e) => {
+        if (e.target.id === 'ai-section-modal') closeAiSectionModal();
+      });
+    }
 
     // Result tabs
-    document.getElementById('tab-score').addEventListener('click', () => switchResultTab('score'));
-    document.getElementById('tab-analysis').addEventListener('click', () => switchResultTab('analysis'));
-    document.getElementById('tab-ai').addEventListener('click', () => switchResultTab('ai'));
-    document.getElementById('view-details-btn').addEventListener('click', () => switchResultTab('analysis'));
-
-    // AI feedback navigation
-    document.getElementById('ai-feedback-prev').addEventListener('click', prevAiFeedbackStep);
-    document.getElementById('ai-feedback-next').addEventListener('click', nextAiFeedbackStep);
+    document.getElementById('tab-score')?.addEventListener('click', () => switchResultTab('score'));
+    document.getElementById('tab-analysis')?.addEventListener('click', () => switchResultTab('analysis'));
+    document.getElementById('tab-ai')?.addEventListener('click', () => switchResultTab('ai'));
+    document.getElementById('view-details-btn')?.addEventListener('click', () => switchResultTab('analysis'));
     // Removed: ai-feedback-button (now integrated into tabs)
 
     // Character popup
@@ -1195,15 +1140,8 @@
 
     const aiButton = document.getElementById("ai-feedback-button");
 
-    // 섹션 파싱 시도
-    const sections = extractFeedbackSections(cleanedText);
-    let html = "";
-
-    if (sections) {
-      html = buildFeedbackSectionMarkup(sections);
-    } else {
-      html = convertAiFeedbackToHtml(cleanedText || text || "");
-    }
+    // 통합 마크업 생성 함수 사용 (Discrepancy 해결)
+    const html = buildFeedbackMarkup(cleanedText);
 
     // 프리미엄 래퍼 스타일 강제 적용
     const finalHtml = `<div class="premium-feedback-scroll-area">${html}</div>`;
@@ -1286,14 +1224,8 @@
     if (latestAiFeedbackText) {
       if (titleEl) titleEl.textContent = "🤖 AI 종합 평가";
 
-      // 섹션 파싱 및 구조화된 마크업 생성
-      const sections = extractFeedbackSections(latestAiFeedbackText);
-      let html = "";
-      if (sections) {
-        html = buildFeedbackSectionMarkup(sections);
-      } else {
-        html = convertAiFeedbackToHtml(latestAiFeedbackText);
-      }
+      // 통합 마크업 생성 함수 사용
+      const html = buildFeedbackMarkup(latestAiFeedbackText);
 
       contentEl.innerHTML = `<div class="space-y-6 text-lg">${html}</div>`;
 
@@ -1718,6 +1650,15 @@
         <div class="bg-white rounded-2xl p-6">
           <h3 class="text-xl font-bold text-gray-900 mb-4">🎯 SpeechPro 정확도 분석</h3>
           <div id="details-content" class="space-y-3 text-[var(--text-sub)]">${detailsHtml}</div>
+          
+          <!-- AI 분석 보기 버튼 추가 -->
+          <div class="text-center mt-8 pb-4">
+            <button onclick="switchResultTab('ai')"
+              class="px-8 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg">
+              AI 분석 보기 →
+            </button>
+          </div>
+
           <div
             id="speechpro-content"
             class="mt-6 bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4 space-y-2 text-orange-800 hidden"
@@ -1972,16 +1913,22 @@
   }
 
   function openAiFeedbackModal() {
-    document.getElementById("ai-feedback-modal").classList.remove("hidden");
-    if (latestAiFeedbackText) {
-      renderAiFeedbackStep();
-    } else {
-      showAiFeedbackLoading();
+    const modal = document.getElementById("ai-section-modal");
+    if (modal) modal.classList.remove("hidden");
+    // 기본적으로 요약을 보여줌
+    if (window.lastAiSections && window.lastAiSections.summary) {
+      openAiSectionPopup('summary');
     }
   }
 
   function closeAiFeedbackModal() {
-    document.getElementById("ai-feedback-modal").classList.add("hidden");
+    const modal = document.getElementById("ai-section-modal");
+    if (modal) modal.classList.add("hidden");
+  }
+
+  function closeAiSectionModal() {
+    const modal = document.getElementById("ai-section-modal");
+    if (modal) modal.classList.add("hidden");
   }
 
   // 메시지 표시

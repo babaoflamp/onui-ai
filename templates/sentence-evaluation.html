@@ -1,177 +1,203 @@
 {% extends "base.html" %} {% block title %}AI 자율 학습 - 오누이 한국어{%
 endblock %} {% block extra_css %}
 <link rel="stylesheet" href="/static/css/pronunciation-practice.css" />
+<style>
+  .premium-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: left;
+  }
+
+  .premium-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .summary-card {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+    border-color: #c7d2fe;
+    color: #1e1b4b;
+  }
+
+  .strength-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-color: #bbf7d0;
+  }
+
+  .improvement-card {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    border-color: #fecdd3;
+  }
+
+  .tip-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: #fde68a;
+  }
+
+  .premium-card header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .premium-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .premium-card li {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: #1e1b4b;
+  }
+
+  .premium-card li::before {
+    content: "•";
+    font-size: 1.4rem;
+    line-height: 1;
+    color: currentColor;
+    opacity: 0.6;
+  }
+</style>
 {% endblock %} {% block content %}
 <div id="alertsContainer"></div>
 <div class="max-w-6xl mx-auto px-4">
   <div class="bg-white rounded-2xl p-6 shadow-lg">
-    <!-- Header -->
-    <header class="mb-6">
+    <!-- Hero Header -->
+    <header class="mb-8">
       <div
-        class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-2"
-      >
-        <span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+        class="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold mb-4">
+        <span class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
         ONUI · AI 자율 학습
       </div>
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">📖 AI 자율 학습</h1>
-      <p class="text-sm text-gray-600">
-        한국어 문장을 읽고 발음을 평가받아보세요.
+      <h1 class="text-4xl font-extrabold text-gray-900 mb-3 leading-tight">
+        내가 원하는 문장, <br class="sm:hidden"><span
+          class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">바로 발음 평가</span>
+      </h1>
+      <p class="text-base text-gray-500 max-w-xl leading-relaxed">
+        교재 밖 세상의 모든 문장을 연습하세요. 업무 이메일, 여행 회화, 드라마 대사까지—
+        <strong class="text-gray-700">직접 입력한 문장을 AI가 음절 단위로 정밀 분석</strong>하고 즉각 피드백을 드립니다.
       </p>
+
+      <!-- Feature badges -->
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-100">⚡
+          실시간 발음 채점</span>
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-100">🎯
+          음절·음소 단위 상세 분석</span>
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-xs font-semibold border border-purple-100">🤖
+          AI 종합 피드백 코칭</span>
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-700 rounded-full text-xs font-semibold border border-orange-100">✍️
+          모든 문장 자유 입력</span>
+      </div>
     </header>
 
     <!-- Back to pronunciation practice link -->
     <div class="mb-6">
-      <a
-        href="/pronunciation-practice"
-        class="text-sm text-blue-600 hover:text-blue-800 font-medium"
-      >
+      <a href="/pronunciation-practice" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
         ← 발음 연습으로 돌아가기
       </a>
     </div>
 
     <!-- Main Content -->
     <div class="bg-white rounded-2xl p-6 shadow-lg">
-      <!-- 문장 선택 섹션 -->
+      <!-- 문장 직접 입력 섹션 (자율 학습 핵심 기능) -->
       <div class="mb-8">
-        <label class="block text-lg font-semibold text-gray-900 mb-3">
-          📚 평가할 문장 선택 또는 직접 입력
+        <label class="block text-lg font-bold text-gray-900 mb-2">
+          ✍️ 연습할 한국어 문장을 입력하세요
         </label>
-        <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <select
-            id="sentence-select"
-            onchange="selectSentence()"
-            class="flex-1 px-4 py-3 border-2 border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-          >
-            <option value="">-- 문장 선택 --</option>
-          </select>
-        </div>
-
-        <!-- 직접 입력 섹션 -->
-        <div class="mt-4 pt-4 border-t border-gray-200">
-          <label class="block text-sm font-semibold text-gray-700 mb-2"
-            >또는 직접 입력하기</label
-          >
-          <div class="flex gap-2">
-            <input
-              type="text"
-              id="custom-sentence"
-              placeholder="평가할 문장을 입력하세요..."
-              class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              onkeydown="
-                if (event.key === 'Enter') {
-                  setCustomSentence();
-                }
-              "
-            />
-            <button
-              onclick="setCustomSentence()"
-              class="px-6 py-3 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold"
-            >
-              설정
-            </button>
-          </div>
+        <p class="text-sm text-gray-500 mb-4">어떤 문장이든 괜찮습니다. 일상 대화, 비즈니스 표현, 뉴스 문장 등 자유롭게 입력해 보세요.</p>
+        <div class="flex gap-2">
+          <input type="text" id="custom-sentence" placeholder="예) 오늘 날씨가 정말 좋네요.  /  안녕하세요, 반갑습니다!"
+            class="flex-1 px-5 py-4 text-base border-2 border-orange-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition shadow-sm"
+            onkeydown="if (event.key === 'Enter') { setCustomSentence(); }" />
+          <button onclick="setCustomSentence()"
+            class="px-6 py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition font-bold shadow-md whitespace-nowrap">
+            연습 시작 →
+          </button>
         </div>
       </div>
 
-      <!-- 선택된 문장 표시 -->
-      <div
-        class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200"
-      >
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3"
-        >
-          <label class="text-sm font-semibold text-gray-700">선택된 문장</label>
-          <button
-            onclick="playSelectedSentenceTTS()"
-            class="px-4 py-2 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold text-sm"
-          >
-            🔊 들어보기
+      <!-- 입력된 문장 표시 -->
+      <div class="mb-8 p-6 bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl border-2 border-orange-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <label class="text-sm font-semibold text-orange-700">📌 연습 문장</label>
+          <button onclick="playSelectedSentenceTTS()"
+            class="px-4 py-2 bg-[#FFE6BF] border-2 border-[#FF8C1A] text-gray-800 rounded-lg hover:bg-[#FF8C1A] hover:text-white transition font-semibold text-sm">
+            🔊 원어민 발음 듣기
           </button>
         </div>
-        <div
-          id="selectedSentenceDisplay"
-          class="text-2xl font-bold text-gray-900"
-        >
-          문장을 선택하거나 입력해주세요
+        <div id="selectedSentenceDisplay" class="text-2xl font-bold text-gray-900">
+          위에 문장을 입력하고 '연습 시작'을 눌러주세요 👆
         </div>
       </div>
 
       <!-- 녹음 섹션 -->
-      <div
-        class="mt-6 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-orange-50/40"
-      >
+      <div class="mt-6 border-2 border-dashed border-orange-200 rounded-xl p-6 text-center bg-orange-50/40">
         <div id="sentenceRecordingStatus" class="mb-4">
           <p class="text-gray-600 text-sm">마이크를 통해 문장을 읽어주세요</p>
         </div>
 
-        <div
-          id="sentenceCountdown"
-          class="text-5xl font-bold text-red-500 text-center mb-4 hidden"
-        >
+        <div id="sentenceCountdown" class="text-5xl font-bold text-red-500 text-center mb-4 hidden">
           3
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-          <button
-            id="sentenceRecordStart"
-            onclick="startSentenceRecording()"
-            class="px-6 py-3 bg-orange-500 border-2 border-orange-500 text-white rounded-lg font-semibold hover:bg-orange-400 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button id="sentenceRecordStart" onclick="startSentenceRecording()"
+            class="px-6 py-3 bg-orange-500 border-2 border-orange-500 text-white rounded-lg font-semibold hover:bg-orange-400 transition flex-1 sm:flex-none h-12 w-40 flex items-center justify-center whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
             🎙️ 녹음 시작
           </button>
-          <button
-            id="sentenceRecordStop"
-            onclick="stopSentenceRecording()"
-            class="px-6 py-3 bg-white border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-100 transition flex-1 sm:flex-none hidden"
-          >
+          <button id="sentenceRecordStop" onclick="stopSentenceRecording()"
+            class="px-6 py-3 bg-white border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-100 transition flex-1 sm:flex-none hidden">
             ⏹️ 녹음 중지
           </button>
-          <button
-            id="sentenceRecordPlay"
-            onclick="playSentenceRecording()"
+          <button id="sentenceRecordPlay" onclick="playSentenceRecording()"
             class="px-6 py-3 bg-orange-100 border-2 border-orange-500 text-gray-800 rounded-lg font-semibold hover:bg-orange-400 hover:text-white transition flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed h-12 w-40 flex items-center justify-center whitespace-nowrap"
-            disabled
-          >
+            disabled>
             ▶️ 재생
           </button>
-          <button
-            id="sentenceAiEvaluate"
-            onclick="evaluateRecordedAudio()"
+          <button id="sentenceAiEvaluate" onclick="evaluateRecordedAudio()"
             class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-bold hover:from-blue-600 hover:to-indigo-700 transition flex-1 sm:flex-none h-12 w-auto min-w-[140px] flex items-center justify-center whitespace-nowrap shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled
-          >
+            disabled>
             🪄 AI 발음 평가
           </button>
         </div>
 
-        <div
-          id="sentenceRecordingProgress"
-          class="w-full max-w-xl mx-auto mb-4 hidden"
-        >
+        <div id="sentenceRecordingProgress" class="w-full max-w-xl mx-auto mb-4 hidden">
           <div class="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-            <div
-              id="sentenceRecordingProgressBar"
+            <div id="sentenceRecordingProgressBar"
               class="h-full bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 transition-all"
-              style="width: 0%"
-            ></div>
+              style="width: 0%"></div>
           </div>
           <p class="text-xs text-gray-500 mt-2">녹음 진행 중...</p>
         </div>
 
-        <div
-          id="sentenceRecordingTimer"
-          class="text-2xl font-mono text-orange-500 mb-4 hidden"
-        >
+        <div id="sentenceRecordingTimer" class="text-2xl font-mono text-orange-500 mb-4 hidden">
           00:00
         </div>
 
         <div id="sentencePlaybackSection" class="mt-6 hidden">
           <p class="text-sm text-gray-600 mb-3">녹음된 음성:</p>
-          <audio
-            id="sentenceAudioPlayback"
-            controls
-            class="w-full mb-3 rounded-lg"
-          ></audio>
+          <audio id="sentenceAudioPlayback" controls class="w-full mb-3 rounded-lg"></audio>
         </div>
       </div>
 
@@ -182,18 +208,10 @@ endblock %} {% block extra_css %}
 </div>
 
 <!-- SpeechPro 결과 모달 -->
-<div
-  id="speechpro-modal"
-  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
->
-  <div
-    class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8"
-  >
-    <button
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
-      onclick="closeSpeechProModal()"
-      aria-label="닫기"
-    >
+<div id="speechpro-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+  <div class="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-8">
+    <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl" onclick="closeSpeechProModal()"
+      aria-label="닫기">
       ✕
     </button>
 
@@ -207,79 +225,74 @@ endblock %} {% block extra_css %}
           <div class="text-6xl font-bold text-blue-600 mb-2">
             <span id="sp-overall-score">0</span>/100
           </div>
-          <p
-            id="sp-score-feedback"
-            class="text-lg text-gray-600 font-semibold"
-          ></p>
+          <p id="sp-score-feedback" class="text-lg text-gray-600 font-semibold"></p>
         </div>
 
         <!-- 점수 게이지 -->
         <div class="mt-6">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-            <div
-              id="sp-score-bar"
+            <div id="sp-score-bar"
               class="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-full transition-all duration-500"
-              style="width: 0%"
-            ></div>
+              style="width: 0%"></div>
           </div>
+        </div>
+
+        <!-- 상세 분석 보기 버튼 추가 -->
+        <div class="text-center mt-8">
+          <button onclick="switchSpeechProTab('details')"
+            class="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg">
+            상세 분석 보기 →
+          </button>
         </div>
       </div>
 
       <!-- 상세 정보 및 AI 피드백 탭 -->
       <div class="border-t pt-6">
         <div class="flex gap-2 border-b border-gray-200 mb-4">
-          <button
-            id="tab-details"
-            onclick="switchSpeechProTab('details')"
-            class="px-4 py-2 font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors"
-          >
+          <button id="tab-details" onclick="switchSpeechProTab('details')"
+            class="px-4 py-2 font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">
             상세 분석
           </button>
-          <button
-            id="tab-ai-feedback"
-            onclick="switchSpeechProTab('ai-feedback')"
-            class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent focus:outline-none transition-colors"
-          >
+          <button id="tab-ai-feedback" onclick="switchSpeechProTab('ai-feedback')"
+            class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent focus:outline-none transition-colors">
             🤖 AI 개선 피드백
           </button>
         </div>
 
         <!-- 상세 분석 탭 내용 -->
-        <div
-          id="sp-details-tab-content"
-          class="space-y-3 text-gray-700 max-h-80 overflow-y-auto"
-        >
+        <div id="sp-details-tab-content" class="space-y-3 text-gray-700 max-h-80 overflow-y-auto">
           <!-- 동적으로 생성됨 -->
         </div>
 
         <!-- AI 피드백 탭 내용 (초기 hidden) -->
         <div id="sp-ai-feedback-tab-content" class="hidden">
-          <div
-            class="bg-blue-50 border border-blue-100 rounded-xl p-6 shadow-sm"
-          >
-            <h3
-              class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2"
-            >
-              <span class="text-2xl">🤖</span> AI 종합 피드백
-            </h3>
-            <div
-              id="sp-ai-feedback-content"
-              class="text-blue-800 whitespace-pre-wrap leading-relaxed text-lg"
-            >
-              <!-- 동적으로 생성됨 -->
-            </div>
+          <div id="sp-ai-feedback-content" class="space-y-4">
+            <!-- 프리미엄 카드들이 여기에 동적으로 삽입됩니다 -->
           </div>
         </div>
       </div>
     </div>
 
     <div class="flex justify-end gap-3">
-      <button
-        onclick="closeSpeechProModal()"
-        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-      >
+      <button onclick="closeSpeechProModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
         닫기
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- AI 상세 피드백 개별 팝업 -->
+<div id="ai-section-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
+  <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform transition-all">
+    <div class="flex items-center justify-between mb-6">
+      <h3 id="ai-section-title" class="text-2xl font-bold text-blue-900 flex items-center gap-2"></h3>
+      <button onclick="closeAiSectionModal()" class="text-gray-400 hover:text-gray-600 text-3xl">&times;</button>
+    </div>
+    <div id="ai-section-content" class="text-lg leading-relaxed text-gray-700"></div>
+    <div class="mt-8 text-right">
+      <button onclick="closeAiSectionModal()"
+        class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">닫기</button>
     </div>
   </div>
 </div>
@@ -287,30 +300,20 @@ endblock %} {% block extra_css %}
 <script>
   // 초기화
   document.addEventListener("DOMContentLoaded", () => {
-    loadSentencesData();
+    // 자율 학습 페이지: 문장 직접 입력 후 바로 연습 시작
+    const input = document.getElementById("custom-sentence");
+    if (input) input.focus();
   });
 
   let sentenceItems = [];
 
-  // 문장 선택
-  function selectSentence() {
-    const select = document.getElementById("sentence-select");
-    const selected = select.options[select.selectedIndex];
-    const selectedId = Number(selected?.dataset?.id);
-    const selectedItem = sentenceItems.find((item) => item.id === selectedId);
-    const sentence = selectedItem ? selectedItem.text : selected.value;
 
-    if (sentence) {
-      document.getElementById("selectedSentenceDisplay").textContent = sentence;
-      document.getElementById("custom-sentence").value = ""; // 직접 입력 칸 초기화
-    }
-  }
 
   async function playSelectedSentenceTTS() {
     const sentence = document
       .getElementById("selectedSentenceDisplay")
       ?.textContent?.trim();
-    if (!sentence || sentence === "문장을 선택하거나 입력해주세요") {
+    if (!sentence || sentence.startsWith("위에 문장을 입력하고")) {
       showToastMessage("먼저 문장을 선택하거나 입력해주세요.");
       return;
     }
@@ -357,54 +360,9 @@ endblock %} {% block extra_css %}
     }
 
     document.getElementById("selectedSentenceDisplay").textContent = sentence;
-    document.getElementById("sentence-select").selectedIndex = 0; // 드롭다운 초기화
   }
 
-  // 문장 데이터 로드 (inline 로딩 상태 사용, full-screen 스피너 없음)
-  async function loadSentencesData() {
-    const select = document.getElementById("sentence-select");
 
-    try {
-      if (select) {
-        select.disabled = true;
-        select.innerHTML = '<option value="">문장 불러오는 중...</option>';
-      }
-
-      const response = await fetch("/api/puzzle/sentences");
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Clear existing options (except first)
-      if (select) {
-        select.innerHTML = '<option value="">-- 문장 선택 --</option>';
-
-        // Add sentences
-        if (data.sentences && Array.isArray(data.sentences)) {
-          sentenceItems = data.sentences;
-          data.sentences.forEach((sentence) => {
-            const option = document.createElement("option");
-            option.value = sentence.text || "";
-            option.dataset.id = sentence.id;
-            option.textContent = sentence.text || "";
-            select.appendChild(option);
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load sentences:", error);
-      if (select) {
-        select.innerHTML =
-          '<option value="">문장을 불러올 수 없습니다</option>';
-      }
-    } finally {
-      if (select) {
-        select.disabled = false;
-      }
-    }
-  }
 
   // 녹음 시작
   let mediaRecorder;
@@ -458,66 +416,52 @@ endblock %} {% block extra_css %}
       if (aiBtn) aiBtn.disabled = true;
 
       if (sentenceCountdownEl) {
-        sentenceCountdownEl.classList.remove("hidden");
-        sentenceCountdownEl.textContent = "3";
+        sentenceCountdownEl.classList.add("hidden");
       }
 
-      let countdown = 3;
-      const countdownInterval = setInterval(() => {
-        countdown -= 1;
-        if (sentenceCountdownEl) {
-          sentenceCountdownEl.textContent = String(countdown);
+      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+      mediaRecorder.onstop = async () => {
+        recordedAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        if (sentenceAudioPlaybackEl) {
+          const url = URL.createObjectURL(recordedAudioBlob);
+          sentenceAudioPlaybackEl.src = url;
+        }
+        if (sentencePlaybackSectionEl) {
+          sentencePlaybackSectionEl.classList.remove("hidden");
+        }
+        if (sentenceRecordPlayEl) {
+          sentenceRecordPlayEl.disabled = false;
+          sentenceRecordPlayEl.classList.remove("hidden");
         }
 
-        if (countdown <= 0) {
-          clearInterval(countdownInterval);
-          if (sentenceCountdownEl) sentenceCountdownEl.classList.add("hidden");
-
-          mediaRecorder = new MediaRecorder(mediaStream);
-          mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-              audioChunks.push(event.data);
-            }
-          };
-          mediaRecorder.onstop = async () => {
-            recordedAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
-            if (sentenceAudioPlaybackEl) {
-              const url = URL.createObjectURL(recordedAudioBlob);
-              sentenceAudioPlaybackEl.src = url;
-            }
-            if (sentencePlaybackSectionEl) {
-              sentencePlaybackSectionEl.classList.remove("hidden");
-            }
-            if (sentenceRecordPlayEl) {
-              sentenceRecordPlayEl.disabled = false;
-              sentenceRecordPlayEl.classList.remove("hidden");
-            }
-
-            // AI 평가 버튼 활성화
-            if (aiBtn) {
-              aiBtn.disabled = false;
-            }
-          };
-          mediaRecorder.start();
-
-          recordingStartTime = Date.now();
-          if (sentenceRecordingTimerEl) {
-            sentenceRecordingTimerEl.classList.remove("hidden");
-            startSentenceTimer();
-          }
-          if (sentenceRecordingStatusEl) {
-            sentenceRecordingStatusEl.innerHTML =
-              '<p class="text-red-600 font-semibold">🔴 녹음 중...</p>';
-          }
-          if (sentenceRecordStopEl)
-            sentenceRecordStopEl.classList.remove("hidden");
-          if (sentenceRecordingProgressEl) {
-            sentenceRecordingProgressEl.classList.remove("hidden");
-          }
-          startRecordingProgress();
-          document.getElementById("evaluationResult").classList.add("hidden");
+        // AI 평가 버튼 활성화
+        if (aiBtn) {
+          aiBtn.disabled = false;
         }
-      }, 1000);
+      };
+      mediaRecorder.start();
+
+      recordingStartTime = Date.now();
+      if (sentenceRecordingTimerEl) {
+        sentenceRecordingTimerEl.classList.remove("hidden");
+        startSentenceTimer();
+      }
+      if (sentenceRecordingStatusEl) {
+        sentenceRecordingStatusEl.innerHTML =
+          '<p class="text-red-600 font-semibold">🔴 녹음 중...</p>';
+      }
+      if (sentenceRecordStopEl)
+        sentenceRecordStopEl.classList.remove("hidden");
+      if (sentenceRecordingProgressEl) {
+        sentenceRecordingProgressEl.classList.remove("hidden");
+      }
+      startRecordingProgress();
+      document.getElementById("evaluationResult").classList.add("hidden");
     } catch (error) {
       console.error("마이크 접근 오류:", error);
       AlertManager.error(
@@ -854,8 +798,18 @@ endblock %} {% block extra_css %}
       detailsHtml += `</div>`;
     }
 
-    document.getElementById("sp-details-tab-content").innerHTML =
-      detailsHtml || "<p class='text-gray-500'>상세 정보가 없습니다.</p>";
+    let finalDetailsHtml = detailsHtml || "<p class='text-gray-500'>상세 정보가 없습니다.</p>";
+    if (detailsHtml) {
+      finalDetailsHtml += `
+        <div class="text-center mt-8 pb-4">
+          <button onclick="switchSpeechProTab('ai-feedback')"
+            class="px-8 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg">
+            AI 분석 보기 →
+          </button>
+        </div>
+      `;
+    }
+    document.getElementById("sp-details-tab-content").innerHTML = finalDetailsHtml;
 
     // AI Feedback
     const aiTabBtn = document.getElementById("tab-ai-feedback");
@@ -936,13 +890,159 @@ endblock %} {% block extra_css %}
     }
   }
 
-  // AI 피드백 포맷팅 헬퍼 (speechpro-practice.html에서 가져옴 - 필요한 부분만 간소화)
+  // AI 피드백 파싱 및 마크업 생성 통합 함수 (Discrepancy 해결)
   function formatAiFeedback(text) {
     if (!text) return "";
-    // 마크다운 볼드 처리 등 간단한 변환
-    return text
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\n/g, "<br>");
+
+    // 초강력 마커 감지 정규식: 앞에 무엇(#, *, [, 공백 등)이 오든 키워드만 있으면 감지
+    const patterns = {
+      summary: /.*(요약|종합 요약|SUMMARY).*/i,
+      strengths: /.*(잘한점|강점|잘한 점|STRENGTHS).*/i,
+      improvements: /.*(개선점|개선|고칠부분|개선할 점|IMPROVEMENTS).*/i,
+      tips: /.*(연습방법|연습팁|연습팀|팁|연습 방법|TIPS).*/i,
+      score: /.*(점수|SCORE).*/i
+    };
+
+    const sections = {
+      summary: [],
+      strengths: [],
+      improvements: [],
+      tips: [],
+      score: []
+    };
+
+    let currentSection = 'summary';
+    const lines = text.split('\n');
+
+    const formatInline = (str) => {
+      // 마크다운 흔적 (# 헤더, 별표 등) 및 여백 제거
+      return str
+        .replace(/[#*\[\]]+/g, '') // #, *, [, ] 기호 모두 제거
+        .replace(/^[:\s-]+/g, '')  // 시작 부분의 콜론, 공백, 하이픈 제거
+        .trim();
+    };
+
+    for (let line of lines) {
+      let trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+
+      // 마커 감지 및 섹션 전환
+      let foundMarker = false;
+      for (const [key, pattern] of Object.entries(patterns)) {
+        // 해당 줄에 마커 키워드가 포함되어 있고, 그 줄이 너무 길지 않으면(헤더로 판단)
+        if (pattern.test(trimmedLine) && trimmedLine.length < 25) {
+          currentSection = key;
+          // 마커 라인에 실제 내용이 섞여 있는 경우(예: "[요약] 잘 하셨습니다") 처리
+          const match = trimmedLine.match(pattern);
+          const keyword = match ? match[1] : "";
+          if (keyword) {
+            const contentAfter = trimmedLine.split(keyword).pop().replace(/[\[\]\s*:]+$/, '').trim();
+            if (contentAfter && contentAfter.length > 1) {
+              const formatted = formatInline(contentAfter);
+              if (formatted) sections[currentSection].push(formatted);
+            }
+          }
+          foundMarker = true;
+          break;
+        }
+      }
+
+      if (foundMarker) continue;
+
+      // 일반 라인 처리 (불렛 기호 및 번호 제거)
+      let cleaned = trimmedLine.replace(/^[•\-*]\s*/, '').replace(/^\d+[\.\)]\s*/, '').trim();
+      const formatted = formatInline(cleaned);
+      if (formatted) {
+        sections[currentSection].push(formatted);
+      }
+    }
+
+    // HTML 생성 (별도 팝업용 버튼 배치)
+    window.lastAiSections = sections; // 전역 저장
+
+    let buttonHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">`;
+
+    if (sections.summary.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('summary')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full">
+          <span class="flex items-center gap-2">📝 AI 종합 평가보기</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.strengths.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('strengths')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-green-600 to-teal-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full">
+          <span class="flex items-center gap-2">✨ AI 칭찬 듣기</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.improvements.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('improvements')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full">
+          <span class="flex items-center gap-2">🎯 AI 피드백 의견</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+    if (sections.tips.length > 0) {
+      buttonHtml += `
+        <button onclick="openAiSectionPopup('tips')" 
+          class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 to-purple-500 text-white rounded-xl font-bold hover:scale-105 transition shadow-lg w-full">
+          <span class="flex items-center gap-2">💡 AI 학습 팁</span>
+          <span class="text-xl">→</span>
+        </button>`;
+    }
+
+    buttonHtml += `</div>`;
+
+    if (buttonHtml === `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4"></div>` && text) {
+      return `<div class="premium-card summary-card"><header><span>📝</span><span>AI 피드백</span></header><div class="text-base">${text.replace(/\n/g, '<br>')}</div></div>`;
+    }
+    return buttonHtml;
+  }
+
+  // AI 상세 팝업 열기
+  function openAiSectionPopup(key) {
+    const modal = document.getElementById("ai-section-modal");
+    const titleEl = document.getElementById("ai-section-title");
+    const contentEl = document.getElementById("ai-section-content");
+    const sections = window.lastAiSections;
+
+    if (!modal || !sections || !sections[key]) return;
+
+    const titles = {
+      summary: "📝 AI 종합 평가",
+      strengths: "✨ AI 칭찬과 강점",
+      improvements: "🎯 AI 교육 의견",
+      tips: "💡 AI 학습 팁"
+    };
+
+    titleEl.textContent = titles[key] || "AI 피드백";
+
+    if (key === 'summary') {
+      contentEl.innerHTML = `
+        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-inner">
+          <p class="leading-relaxed font-medium text-blue-900 text-lg">${sections[key].join(' ')}</p>
+        </div>`;
+    } else {
+      contentEl.innerHTML = `
+        <div class="space-y-4">
+          ${sections[key].map(s => `
+            <div class="flex gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 shadow-sm transition hover:bg-white hover:shadow-md">
+              <span class="mt-1.5 w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+              <span class="text-gray-700 font-medium">${s}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    modal.classList.remove("hidden");
+  }
+
+  function closeAiSectionModal() {
+    document.getElementById("ai-section-modal").classList.add("hidden");
   }
 </script>
 {% endblock %}
