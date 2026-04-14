@@ -69,18 +69,71 @@ endblock %} {% block content %}
 
   // 녹음 데이터 로드
   async function loadRecordings() {
+    const tableBody = document.getElementById("recordings-table");
+    const alertsContainer = document.body;
+
     try {
       checkAdminAccess();
-      // 실제 API 구현 예정
-      document.getElementById("recordings-table").innerHTML = `
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("로그인이 필요합니다.");
+
+      const response = await fetch("/api/admin/recordings?limit=50", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("녹음 데이터를 불러오지 못했습니다.");
+      }
+
+      const data = await response.json();
+      const stats = data.stats || {};
+      const recordings = data.recordings || [];
+
+      // Update stats
+      document.getElementById("total-recordings").textContent = stats.total || 0;
+      document.getElementById("today-recordings").textContent = stats.today || 0;
+      document.getElementById("avg-length").textContent = `${stats.avg_length || 0}초`;
+      document.getElementById("total-size").textContent = `${stats.total_size || 0}MB`;
+
+      if (recordings.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+              최근 녹음 내역이 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = recordings
+        .map(
+          (r) => `
+          <tr class="hover:bg-gray-50">
+            <td class="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900">${r.user}</td>
+            <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700">${r.sentence}</td>
+            <td class="border border-gray-300 px-4 py-3 text-sm text-center">
+              <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full font-bold">${r.score}점</span>
+            </td>
+            <td class="border border-gray-300 px-4 py-3 text-sm text-gray-500">${r.created_at.substring(0, 16).replace("T", " ")}</td>
+            <td class="border border-gray-300 px-4 py-3 text-center">
+              <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs" onclick="AlertManager.info('오디오 재생 기능 준비 중', '알림')">
+                재생
+              </button>
+            </td>
+          </tr>
+        `
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error loading recordings:", error);
+      tableBody.innerHTML = `
         <tr>
-          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
-            녹음 데이터를 불러올 수 없습니다. (API 개발 예정)
+          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-red-500 font-medium">
+            ${error.message}
           </td>
         </tr>
       `;
-    } catch (error) {
-      console.error("Error loading recordings:", error);
     }
   }
 

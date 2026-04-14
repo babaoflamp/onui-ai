@@ -853,9 +853,31 @@ def _init_user_db():
         _ensure_sentence_score_table(conn)
         _ensure_attendance_table(conn)
         _ensure_rag_tables(conn)
+        _ensure_ai_content_table(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
+
+
+def _ensure_ai_content_table(conn):
+    """Create AI content generation history table if missing."""
+    cursor = conn.cursor()
+    cursor.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS ai_content_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            content_type TEXT NOT NULL, -- 'feedback', 'sentence', 'image', 'chatbot'
+            model TEXT NOT NULL,
+            prompt TEXT,
+            response TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_ai_content_user_type
+            ON ai_content_history(user_id, content_type, created_at);
+        """
+    )
+    conn.commit()
 
 
 def _ensure_is_admin_column(conn):
@@ -1011,6 +1033,24 @@ def _rag_chunk_text(text: str, max_chars: int = 700) -> List[str]:
             for i in range(0, len(c), max_chars):
                 final_chunks.append(c[i : i + max_chars].strip())
     return [c for c in final_chunks if c]
+
+
+def _log_ai_content(user_id: int, content_type: str, model: str, prompt: str = None, response: str = None):
+    """Log AI content generation to database."""
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            INSERT INTO ai_content_history (user_id, content_type, model, prompt, response)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (user_id, content_type, model, prompt, response)
+        )
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Failed to log AI content: {str(e)}")
+    finally:
+        conn.close()
 
 
 def _rag_get_settings(conn) -> dict:
@@ -3172,6 +3212,124 @@ async def admin_words_list(request: Request, q: str = "", skip: int = 0, limit: 
     }
 
 
+@app.get("/api/admin/recordings")
+async def admin_recordings_list(request: Request, limit: int = 50):
+    """관리자용 최근 녹음 목록 조회."""
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Stats
+        cursor.execute("SELECT COUNT(*) FROM sentence_score_history")
+        total_recordings = cursor.fetchone()[0]
+        
+        today = datetime.now().date().isoformat()
+        cursor.execute(
+            "SELECT COUNT(*) FROM sentence_score_history WHERE date(created_at) = ?",
+            (today,)
+        )
+        today_recordings = cursor.fetchone()[0]
+        
+        # Recent recordings
+        cursor.execute(
+            """
+            SELECT s.id, u.name, u.email, s.score, s.created_at, s.sentence_id
+            FROM sentence_score_history s
+            JOIN users u ON s.user_id = u.id
+            ORDER BY s.created_at DESC
+            LIMIT ?
+            """,
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        
+        # Load sentences for context
+        sentences_data = load_json_data("sentences.json") or []
+        sentence_map = {str(s.get("id")): s.get("text") for s in sentences_data if s.get("id")}
+        
+        recordings = []
+        for r in rows:
+            recordings.append({
+                "id": r["id"],
+                "user": f"{r['name'] or 'Unknown'} ({r['email']})",
+                "sentence": sentence_map.get(str(r["sentence_id"]), f"Sentence #{r['sentence_id']}"),
+                "score": r["score"],
+                "created_at": r["created_at"]
+            })
+            
+        return {
+            "success": True,
+            "stats": {
+                "total": total_recordings,
+                "today": today_recordings,
+                "avg_length": "2.4", # Mocked for now
+                "total_size": "124" # Mocked for now
+            },
+            "recordings": recordings
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/api/admin/content")
+async def admin_content_list(request: Request, limit: int = 50):
+    """관리자용 AI 콘텐츠 생성 내역 조회."""
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Total
+        cursor.execute("SELECT COUNT(*) FROM ai_content_history")
+        total_content = cursor.fetchone()[0]
+        
+        # By type
+        cursor.execute("SELECT content_type, COUNT(*) as count FROM ai_content_history GROUP BY content_type")
+        type_counts = {row["content_type"]: row["count"] for row in cursor.fetchall()}
+        
+        # Recent
+        cursor.execute(
+            """
+            SELECT a.id, u.name, u.email, a.content_type, a.model, a.created_at
+            FROM ai_content_history a
+            JOIN users u ON a.user_id = u.id
+            ORDER BY a.created_at DESC
+            LIMIT ?
+            """,
+            (limit,)
+        )
+        rows = cursor.fetchall()
+        
+        content_list = []
+        for r in rows:
+            content_list.append({
+                "id": r["id"],
+                "type": r["content_type"],
+                "model": r["model"],
+                "user": f"{r['name'] or 'Unknown'} ({r['email']})",
+                "created_at": r["created_at"]
+            })
+            
+        return {
+            "success": True,
+            "stats": {
+                "total": total_content,
+                "feedback": type_counts.get("feedback", 0),
+                "sentence": type_counts.get("sentence", 0),
+                "image": type_counts.get("image", 0),
+                "chatbot": type_counts.get("chatbot", 0),
+            },
+            "content": content_list
+        }
+    finally:
+        conn.close()
+
+
 @app.post("/api/admin/users/{user_id}/toggle-admin")
 async def admin_toggle_user_admin(request: Request, user_id: int):
     """사용자 관리자 권한 토글."""
@@ -5031,11 +5189,16 @@ async def chatbot_api(request: Request):
                 if "response" in result:
                     ai_response = result["response"].strip()
                     print(f"[Chatbot] Ollama response: {ai_response[:100]}...")
+
+                    # Log AI content
+                    session = _extract_session_from_request(request)
+                    if session:
+                        _log_ai_content(session["user_id"], "chatbot", "ollama", user_message, ai_response)
+
                     return JSONResponse(content={
                         "response": ai_response,
                         "success": True
                     })
-                
                 print(f"[Chatbot] Failed to extract text from response: {result}")
                 return JSONResponse(
                     status_code=500,
@@ -5081,6 +5244,12 @@ async def chatbot_api(request: Request):
                 
                 ai_response = response.choices[0].message.content.strip()
                 print(f"[Chatbot] OpenAI response: {ai_response[:100]}...")
+                
+                # Log AI content
+                session = _extract_session_from_request(request)
+                if session:
+                    _log_ai_content(session["user_id"], "chatbot", "openai", user_message, ai_response)
+                    
                 return JSONResponse(content={
                     "response": ai_response,
                     "success": True
@@ -5107,6 +5276,12 @@ async def chatbot_api(request: Request):
                 )
                 ai_response = response.text.strip()
                 print(f"[Chatbot] Gemini response: {ai_response[:100]}...")
+                
+                # Log AI content
+                session = _extract_session_from_request(request)
+                if session:
+                    _log_ai_content(session["user_id"], "chatbot", "gemini", user_message, ai_response)
+                    
                 return JSONResponse(content={
                     "response": ai_response,
                     "success": True

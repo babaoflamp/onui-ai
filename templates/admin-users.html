@@ -212,41 +212,7 @@ block content %}
           LoadingManager.hide();
           console.error(err);
           tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
-          AlertManager.error(err.message, "오류", alertsContainer
-          tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
-          setStatus(err.message, false);
-        }
-      };
-
-      window.toggleAdmin = async function (userId, makeAdmin) {
-        const token = ensureAdmin();
-        if (!token) return;
-
-        if (
-          !confirm(
-            `${makeAdmin ? "관리자로 설정" : "관리자 권한 제거"}하시겠습니까?`
-          )
-        )
-          return;
-
-        try {
-          const res = await fetch(`/api/admin/users/${userId}/toggle-admin`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ is_admin: makeAdmin }),
-          });
-
-          if (!res.ok) {
-            const error = await res.json().catch(() => ({}));
-            throw new Error(error.detail || "권한 변경에 실패했습니다.");
-          }
-  AlertManager.error(err.message, "오류", alertsContainer
-          loadUsers();
-        } catch (err) {
-          AlertManager.error(err.message, "오류", document.getElementById("alertsContainer") || document.body);
+          AlertManager.error(err.message, "오류", alertsContainer);
         }
       };
 
@@ -273,6 +239,9 @@ block content %}
             throw new Error(error.detail || "역할 변경에 실패했습니다.");
           }
 
+          ToastManager.success("역할이 성공적으로 변경되었습니다.");
+          loadUsers();
+        } catch (err) {
           AlertManager.error(err.message, "오류", alertsContainer);
         }
       };
@@ -283,10 +252,9 @@ block content %}
 
         const newPwd = prompt("새 비밀번호를 입력하세요 (8자 이상):");
         if (!newPwd) return;
+        
         if (newPwd.length < 8) {
-          AlertManager.error("비밀번호는 8자 이상이어야 합니다.", "유효성 검사 오류", alertsContainer
-        if (newPwd.length < 8) {
-          AlertManager.warning("비밀번호는 8자 이상이어야 합니다.", "입력 오류", document.getElementById("alertsContainer") || document.body);
+          AlertManager.warning("비밀번호는 8자 이상이어야 합니다.", "입력 오류", alertsContainer);
           return;
         }
 
@@ -305,12 +273,12 @@ block content %}
           if (!res.ok) {
             const error = await res.json().catch(() => ({}));
             throw new Error(error.detail || "비밀번호 초기화에 실패했습니다.");
+          }
+          
           ToastManager.success("비밀번호가 초기화되었습니다.");
           loadUsers();
         } catch (err) {
-          AlertManager.error(err.message, "오류", alertsContainer
-        } catch (err) {
-          AlertManager.error(err.message, "오류", document.getElementById("alertsContainer") || document.body);
+          AlertManager.error(err.message, "오류", alertsContainer);
         }
       };
 

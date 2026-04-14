@@ -105,18 +105,69 @@ endblock %} {% block content %}
 
   // 콘텐츠 데이터 로드
   async function loadContent() {
+    const tableBody = document.getElementById("content-table");
+
     try {
       checkAdminAccess();
-      // 실제 API 구현 예정
-      document.getElementById("content-table").innerHTML = `
+      const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("로그인이 필요합니다.");
+
+      const response = await fetch("/api/admin/content?limit=50", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("콘텐츠 데이터를 불러오지 못했습니다.");
+      }
+
+      const data = await response.json();
+      const stats = data.stats || {};
+      const content = data.content || [];
+
+      // Update stats
+      document.getElementById("total-content").textContent = stats.total || 0;
+      document.getElementById("feedback-count").textContent = stats.feedback || 0;
+      document.getElementById("sentence-count").textContent = stats.sentence || 0;
+      document.getElementById("image-count").textContent = stats.image || 0;
+      document.getElementById("api-calls").textContent = stats.total || 0; // Simplified
+
+      if (content.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+              최근 생성 내역이 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = content
+        .map(
+          (c) => `
+          <tr class="hover:bg-gray-50">
+            <td class="border border-gray-300 px-4 py-3 text-sm">
+              <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-md font-medium capitalize">${c.type}</span>
+            </td>
+            <td class="border border-gray-300 px-4 py-3 text-sm text-gray-700 capitalize">${c.model}</td>
+            <td class="border border-gray-300 px-4 py-3 text-sm font-medium text-gray-900">${c.user}</td>
+            <td class="border border-gray-300 px-4 py-3 text-sm text-gray-500">${c.created_at.substring(0, 16).replace("T", " ")}</td>
+            <td class="border border-gray-300 px-4 py-3 text-center">
+              <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">Success</span>
+            </td>
+          </tr>
+        `
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error loading content:", error);
+      tableBody.innerHTML = `
         <tr>
-          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
-            콘텐츠 데이터를 불러올 수 없습니다. (API 개발 예정)
+          <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-red-500 font-medium">
+            ${error.message}
           </td>
         </tr>
       `;
-    } catch (error) {
-      console.error("Error loading content:", error);
     }
   }
 
