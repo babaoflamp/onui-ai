@@ -176,10 +176,8 @@ content %}
     let defaultSrc = "/admin/dashboard?embed=1"; // Default for system_admin
     
     if (role === "instructor") {
-      if (nickname === "teach") {
+      if (nickname === "teach" || nickname === "teacher") {
         defaultSrc = "/admin/analytics?embed=1";
-      } else if (nickname === "teacher") {
-        defaultSrc = "/admin/users?embed=1";
       } else {
         defaultSrc = "/learning"; // Generic instructor fallback
       }
