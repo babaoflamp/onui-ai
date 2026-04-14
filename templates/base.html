@@ -504,11 +504,8 @@
               <span data-i18n="auth.signup">회원가입</span>
             </a>
 
-            <!-- Language Dropdown -->
-            <div
-              class="dropdown dropdown-right inline-flex items-center relative"
-              id="lang-dropdown"
-            >
+            <!-- Language Selector -->
+            <div class="relative inline-flex items-center" id="lang-dropdown">
               <button
                 id="lang-toggle"
                 class="flex items-center justify-center p-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors shadow-sm"
@@ -520,44 +517,45 @@
                   id="lang-flag-img"
                   src="/static/img/flags/ko.svg"
                   alt="한국어"
-                  class="w-5 h-5 rounded-sm object-cover"
+                  class="w-7 h-7 rounded-sm object-cover shadow-sm"
                 />
               </button>
-              <div class="dropdown-content hidden !min-w-[auto] !p-2 !mt-2" id="lang-menu">
-                <div class="flex flex-row gap-2">
-                  <a
-                    href="#"
-                    class="!p-1.5 hover:bg-gray-100 rounded-md transition-colors flex items-center justify-center"
-                    title="한국어"
-                    onclick="setAppLang('ko'); return false;"
-                  >
-                    <img src="/static/img/flags/ko.svg" alt="한국어" class="w-6 h-6 rounded-sm object-cover"/>
-                  </a>
-                  <a
-                    href="#"
-                    class="!p-1.5 hover:bg-gray-100 rounded-md transition-colors flex items-center justify-center"
-                    title="English"
-                    onclick="setAppLang('en'); return false;"
-                  >
-                    <img src="/static/img/flags/en.svg" alt="English" class="w-6 h-6 rounded-sm object-cover"/>
-                  </a>
-                  <a
-                    href="#"
-                    class="!p-1.5 hover:bg-gray-100 rounded-md transition-colors flex items-center justify-center"
-                    title="日本語"
-                    onclick="setAppLang('ja'); return false;"
-                  >
-                    <img src="/static/img/flags/ja.svg" alt="日本語" class="w-6 h-6 rounded-sm object-cover"/>
-                  </a>
-                  <a
-                    href="#"
-                    class="!p-1.5 hover:bg-gray-100 rounded-md transition-colors flex items-center justify-center"
-                    title="中文"
-                    onclick="setAppLang('zh'); return false;"
-                  >
-                    <img src="/static/img/flags/zh.svg" alt="中文" class="w-6 h-6 rounded-sm object-cover"/>
-                  </a>
-                </div>
+              <div 
+                class="hidden absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-2 z-[1001] flex flex-row gap-2" 
+                id="lang-menu"
+              >
+                <a
+                  href="#"
+                  class="p-1.5 hover:bg-orange-50 rounded-md transition-colors flex items-center justify-center"
+                  title="한국어"
+                  onclick="setAppLang('ko'); return false;"
+                >
+                  <img src="/static/img/flags/ko.svg" alt="한국어" class="w-7 h-7 rounded-sm object-cover shadow-sm"/>
+                </a>
+                <a
+                  href="#"
+                  class="p-1.5 hover:bg-orange-50 rounded-md transition-colors flex items-center justify-center"
+                  title="English"
+                  onclick="setAppLang('en'); return false;"
+                >
+                  <img src="/static/img/flags/en.svg" alt="English" class="w-7 h-7 rounded-sm object-cover shadow-sm"/>
+                </a>
+                <a
+                  href="#"
+                  class="p-1.5 hover:bg-orange-50 rounded-md transition-colors flex items-center justify-center"
+                  title="日本語"
+                  onclick="setAppLang('ja'); return false;"
+                >
+                  <img src="/static/img/flags/ja.svg" alt="日本語" class="w-7 h-7 rounded-sm object-cover shadow-sm"/>
+                </a>
+                <a
+                  href="#"
+                  class="p-1.5 hover:bg-orange-50 rounded-md transition-colors flex items-center justify-center"
+                  title="中文"
+                  onclick="setAppLang('zh'); return false;"
+                >
+                  <img src="/static/img/flags/zh.svg" alt="中文" class="w-7 h-7 rounded-sm object-cover shadow-sm"/>
+                </a>
               </div>
             </div>
           </div>
@@ -1700,6 +1698,15 @@
         const next = (lang || "").toLowerCase();
         if (!["ko", "ja", "zh", "en"].includes(next)) return;
         localStorage.setItem("app_lang", next);
+        
+        // Update the visible flag in the selector
+        const flagImg = document.getElementById("lang-flag-img");
+        if (flagImg) {
+          flagImg.src = `/static/img/flags/${next}.svg`;
+          const labels = { ko: "한국어", en: "English", ja: "日本語", zh: "中文" };
+          flagImg.alt = labels[next] || next;
+        }
+
         // Apply immediately without full reload.
         try {
           document.documentElement.lang = next;
