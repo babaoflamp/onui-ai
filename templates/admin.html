@@ -110,19 +110,46 @@ content %}
 
     <!-- Content panel -->
     <section
-      class="lg:col-span-4 rounded-2xl shadow-sm bg-white border border-gray-100 overflow-hidden"
+      class="lg:col-span-4"
     >
       <iframe
         id="adminFrame"
         name="adminFrame"
         src="/admin/dashboard?embed=1"
-        class="w-full h-[70vh]"
+        class="w-full border-0 rounded-2xl shadow-sm bg-white"
+        scrolling="no"
+        onload="resizeIframe(this)"
       ></iframe>
     </section>
   </div>
 </div>
 
 <script>
+  /**
+   * Resizes the iframe to fit its content height
+   */
+  function resizeIframe(obj) {
+    try {
+      obj.style.height = 'auto'; // Reset height
+      const contentHeight = obj.contentWindow.document.documentElement.scrollHeight;
+      obj.style.height = (contentHeight + 20) + 'px';
+    } catch (e) {
+      console.warn("Could not resize iframe due to cross-origin or other error:", e);
+      // Fallback if cross-origin or other error
+      obj.style.height = '80vh';
+    }
+  }
+
+  // Handle messages from iframe for height adjustment
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'setHeight') {
+      const frame = document.getElementById('adminFrame');
+      if (frame) {
+        frame.style.height = e.data.height + 'px';
+      }
+    }
+  }, false);
+
   // Client-side role check: redirect to admin login if missing role
   (function ensureAdmin() {
     const token = localStorage.getItem("auth_token");
