@@ -1324,8 +1324,9 @@
       }
 
       // Event listeners
-      sendChatbotMessage(chatbotInput.value);
-        });
+      chatbotBtn.addEventListener("click", () => {
+        sendChatbotMessage(chatbotInput.value);
+      });
 
       chatbotInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
