@@ -1155,11 +1155,10 @@
       const chatbotToggle = document.getElementById("chatbot-toggle");
       const chatbotWindow = document.getElementById("chatbot-window");
       const chatbotClose = document.getElementById("chatbot-close");
-      const chatbotMessages = document.getElementById("chatbot-messages");
-      const chatbotInput = document.getElementById("chatbot-input");
-      const chatbotModelSelect = document.getElementById(
-        "chatbot-model-select",
-      );
+      const chatbotMessages = document.getElementById("chat-messages");
+      const chatbotInput = document.getElementById("user-input");
+      const chatbotSendBtn = document.getElementById("send-button");
+      const chatbotModelSelect = document.getElementById("model-select");
 
       // Load model preference from localStorage
       function loadChatbotModelPreference() {
@@ -1177,16 +1176,20 @@
       }
 
       // Toggle chat window
-      chatbotToggle.addEventListener("click", () => {
-        chatbotWindow.classList.toggle("hidden");
-        if (!chatbotWindow.classList.contains("hidden")) {
-          chatbotInput.focus();
-        }
-      });
+      if (chatbotToggle && chatbotWindow) {
+        chatbotToggle.addEventListener("click", () => {
+          chatbotWindow.classList.toggle("hidden");
+          if (!chatbotWindow.classList.contains("hidden") && chatbotInput) {
+            chatbotInput.focus();
+          }
+        });
+      }
 
-      chatbotClose.addEventListener("click", () => {
-        chatbotWindow.classList.add("hidden");
-      });
+      if (chatbotClose && chatbotWindow) {
+        chatbotClose.addEventListener("click", () => {
+          chatbotWindow.classList.add("hidden");
+        });
+      }
 
       // Save model preference on change
       if (chatbotModelSelect) {
