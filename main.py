@@ -3365,7 +3365,7 @@ async def admin_toggle_user_admin(request: Request, user_id: int):
 @app.post("/api/admin/users/{user_id}/role")
 async def admin_update_user_role(request: Request, user_id: int):
     """사용자 역할 변경."""
-    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     payload = await request.json()
 
     if admin["id"] == user_id:
@@ -3406,7 +3406,7 @@ async def admin_update_user_role(request: Request, user_id: int):
 @app.post("/api/admin/users/{user_id}/reset-password")
 async def admin_reset_user_password(request: Request, user_id: int):
     """사용자 비밀번호 초기화."""
-    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     payload = await request.json()
     
     if admin["id"] == user_id:
@@ -3438,7 +3438,7 @@ async def admin_reset_user_password(request: Request, user_id: int):
 @app.post("/api/admin/users")
 async def admin_create_user(request: Request):
     """관리자용 새 사용자 계정 생성."""
-    _require_role(request, {ROLE_SYSTEM_ADMIN})
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     payload = await request.json()
     
     email = (payload.get("email") or "").strip().lower()
@@ -3478,7 +3478,7 @@ async def admin_create_user(request: Request):
 @app.patch("/api/admin/users/{user_id}")
 async def admin_update_user(request: Request, user_id: int):
     """관리자용 사용자 정보 수정 (이름, 이메일)."""
-    _require_role(request, {ROLE_SYSTEM_ADMIN})
+    _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     payload = await request.json()
     
     name = (payload.get("name") or "").strip()
@@ -3521,7 +3521,7 @@ async def admin_update_user(request: Request, user_id: int):
 @app.delete("/api/admin/users/{user_id}")
 async def admin_delete_user(request: Request, user_id: int):
     """관리자용 사용자 계정 삭제."""
-    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
     
     if admin["id"] == user_id:
         raise HTTPException(status_code=400, detail="자신의 계정은 삭제할 수 없습니다.")

@@ -230,7 +230,7 @@ block content %}
           const currentRole =
             localStorage.getItem("user_role") ||
             (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
-          const canManage = currentRole === "system_admin";
+          const canManage = ["instructor", "system_admin"].includes(currentRole);
 
           tbody.innerHTML = users
             .map((user) => {
