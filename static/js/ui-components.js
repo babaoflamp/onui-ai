@@ -77,6 +77,15 @@ const AlertManager = {
    * @param {HTMLElement} container - 표시 위치 (기본값: body)
    */
   show: function (message, type = "info", title = "", container = null) {
+    // container가 없으면 ToastManager로 리다이렉트 (상단 팝업 방지)
+    if (!container) {
+      if (typeof ToastManager !== "undefined") {
+        const fullMessage = title ? `${title}: ${message}` : message;
+        return ToastManager.show(fullMessage, type);
+      }
+      container = document.body;
+    }
+
     const typeIcons = {
       success: "✓",
       error: "✕",

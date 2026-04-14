@@ -149,7 +149,7 @@
   // Play word pronunciation using MzTTS
   window.playWord = async function() {
     if (!currentItem) {
-      alert('먼저 단어를 선택하세요.');
+      ToastManager.warning('먼저 단어를 선택하세요.');
       return;
     }
 
@@ -189,7 +189,7 @@
 
     } catch (error) {
       console.error('Error playing word:', error);
-      alert('음성 재생 중 오류가 발생했습니다.');
+      ToastManager.error('음성 재생 중 오류가 발생했습니다.');
     } finally {
       btn.disabled = false;
     }
@@ -238,7 +238,7 @@
 
     } catch (error) {
       console.error('Error playing sentence:', error);
-      alert('음성 재생 중 오류가 발생했습니다.');
+      ToastManager.error('음성 재생 중 오류가 발생했습니다.');
     } finally {
       btn.disabled = false;
     }

@@ -225,7 +225,7 @@
   // Play audio using MzTTS API
   window.playAudio = async function () {
     if (!currentWord) {
-      alert("먼저 단어를 선택하세요.");
+      ToastManager.warning("먼저 단어를 선택하세요.");
       return;
     }
 
@@ -268,7 +268,7 @@
       await audio.play();
     } catch (error) {
       console.error("Error playing audio:", error);
-      alert("음성 재생 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      ToastManager.error("음성 재생 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       // Reset button state
       setTimeout(() => {
@@ -281,7 +281,7 @@
   // Start recording
   window.startRecording = async function () {
     if (!currentWord) {
-      alert("먼저 단어를 선택하세요.");
+      ToastManager.warning("먼저 단어를 선택하세요.");
       return;
     }
 
@@ -311,7 +311,7 @@
       scoreResult.classList.add("hidden");
     } catch (error) {
       console.error("Error starting recording:", error);
-      alert("마이크 접근 권한을 허용해주세요.");
+      ToastManager.error("마이크 접근 권한을 허용해주세요.");
     }
   };
 
@@ -574,12 +574,12 @@
     const text = document.getElementById("evaluation-text").value.trim();
 
     if (!text) {
-      alert("평가할 문장을 입력하세요");
+      ToastManager.warning("평가할 문장을 입력하세요");
       return;
     }
 
     if (sentenceRecordedChunks.length === 0) {
-      alert("음성을 녹음하세요");
+      ToastManager.warning("음성을 녹음하세요");
       return;
     }
 
@@ -631,16 +631,16 @@
       if (result.success) {
         displaySentenceResults(result);
       } else {
-        alert(result.error || "평가에 실패했습니다");
+        ToastManager.error(result.error || "평가에 실패했습니다");
       }
     } catch (error) {
       document
         .getElementById("sentence-recording-progress")
         .classList.add("hidden");
       if (error.name === "AbortError") {
-        alert("요청이 지연되고 있습니다. 다시 시도해주세요.");
+        ToastManager.error("요청이 지연되고 있습니다. 다시 시도해주세요.");
       } else {
-        alert(`평가 중 오류: ${error.message}`);
+        ToastManager.error(`평가 중 오류: ${error.message}`);
       }
     } finally {
       clearTimeout(timeoutId);

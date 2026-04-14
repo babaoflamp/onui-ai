@@ -1,164 +1,18 @@
-<!-- 캐릭터 Pop-Up 모달 -->
-<div
-  id="character-popup-modal"
-  class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
->
-  <div class="relative w-full max-w-2xl">
-    <!-- 조선시대 편지 스타일 박스 -->
-    <div
-      id="popup-letter"
-      class="bg-yellow-50 rounded-none border-8 border-yellow-900 p-8 shadow-2xl relative"
-    >
-      <!-- 왁스 씰 (상단 우측) -->
-      <div
-        id="popup-seal"
-        class="absolute -top-4 -right-4 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-3xl font-bold"
-      ></div>
-
-      <!-- 캐릭터 영역 -->
-      <div class="flex items-start gap-6 mb-6">
-        <div id="popup-character" class="text-8xl flex-shrink-0">
-          <!-- 캐릭터 이모지가 들어갑니다 -->
-        </div>
-
-        <!-- 메시지 영역 -->
-        <div class="flex-1">
-          <!-- 발신자 정보 -->
-          <div
-            id="popup-header"
-            class="text-sm text-gray-700 mb-4 pb-3 border-b-2 border-yellow-900"
-          >
-            <div id="popup-sender" class="font-semibold">오빠로부터</div>
-            <div id="popup-date" class="text-xs text-gray-500"></div>
-          </div>
-
-          <!-- 메시지 본문 -->
-          <div
-            id="popup-message"
-            class="text-lg leading-loose text-gray-800 font-serif mb-6"
-          >
-            <!-- 메시지가 들어갑니다 -->
-          </div>
-
-          <!-- 서명 -->
-          <div
-            id="popup-signature"
-            class="text-right text-sm text-gray-700 italic"
-          >
-            — 너의 한국어 학습 도우미 —
-          </div>
-        </div>
-      </div>
-
-      <!-- 버튼들 -->
-      <div
-        class="flex justify-end gap-3 mt-8 pt-4 border-t-2 border-yellow-900"
-      >
-        <button
-          onclick="dismissCharacterPopup()"
-          class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
-        >
-          다음에 보기
-        </button>
-        <button
-          onclick="closeCharacterPopup()"
-          class="px-6 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition font-semibold"
-        >
-          확인했어요!
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-  /* 캐릭터 Pop-Up 스타일 */
-  #popup-letter {
-    font-family: "Georgia", "Noto Serif KR", serif;
-    background: linear-gradient(135deg, #fef8f0 0%, #fef3e6 100%);
-    position: relative;
-  }
-
-  #popup-seal {
-    background: radial-gradient(circle at 30% 30%, #ff6b6b, #cc0000);
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  /* 캐릭터별 색상 */
-  .popup-oppa #popup-seal {
-    background: radial-gradient(circle at 30% 30%, #4a90e2, #1f4788);
-  }
-
-  .popup-tiger #popup-seal {
-    background: radial-gradient(circle at 30% 30%, #ff9500, #e67e00);
-  }
-
-  .popup-sister #popup-seal {
-    background: radial-gradient(circle at 30% 30%, #e84c89, #c91e63);
-  }
-
-  /* 애니메이션 */
-  @keyframes popupSlide {
-    from {
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  #character-popup-modal:not(.hidden) #popup-letter {
-    animation: popupSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  /* 종이 질감 */
-  #popup-letter::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.02) 2px,
-        rgba(0, 0, 0, 0.02) 4px
-      ),
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.02) 2px,
-        rgba(0, 0, 0, 0.02) 4px
-      );
-    pointer-events: none;
-  }
-</style>
-
+<!-- 캐릭터 Pop-Up (ToastManager 대체됨) -->
 <script>
   // 캐릭터 정보
   const characterInfo = {
     oppa: {
       emoji: "👦",
-      name: "오빠 (남동생)",
-      style: "popup-oppa",
+      name: "오빠",
     },
     tiger: {
       emoji: "🐯",
       name: "호랑이",
-      style: "popup-tiger",
     },
     sister: {
       emoji: "👧",
       name: "여동생",
-      style: "popup-sister",
     },
   };
 
@@ -166,7 +20,7 @@
   let currentPopupData = null;
 
   /**
-   * 캐릭터 팝업 표시 (백엔드 데이터 사용)
+   * 캐릭터 팝업 표시 (ToastManager로 메시지 표시)
    * @param {Object} popupData - 백엔드에서 받은 팝업 데이터
    */
   function showCharacterPopup(popupData) {
@@ -181,31 +35,14 @@
       return;
     }
 
-    const modal = document.getElementById("character-popup-modal");
-    const letter = document.getElementById("popup-letter");
-
-    // 스타일 적용
-    letter.className = `bg-yellow-50 rounded-none border-8 border-yellow-900 p-8 shadow-2xl relative ${charInfo.style}`;
-
-    // 캐릭터 설정
-    document.getElementById("popup-character").textContent = charInfo.emoji;
-    document.getElementById("popup-sender").textContent = `${charInfo.name}로부터`;
-    document.getElementById("popup-message").textContent = popupData.message;
-
-    // 날짜 설정
-    const today = new Date().toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    document.getElementById("popup-date").textContent = today;
-
-    // 색상 테마 (왁스 씰)
-    const sealElement = document.getElementById("popup-seal");
-    sealElement.textContent = charInfo.emoji;
-
-    // 모달 표시
-    modal.classList.remove("hidden");
+    // 모달 대신 토스트 메시지 표시
+    const toastMessage = `${charInfo.emoji} ${charInfo.name}: ${popupData.message}`;
+    if (typeof ToastManager !== 'undefined') {
+      // 캐릭터 메시지는 정보성 알림으로 5초간 표시
+      ToastManager.info(toastMessage, 5000);
+    } else {
+      console.log('Character Message:', toastMessage);
+    }
 
     // 팝업 표시 기록 (서버에)
     recordPopupShown(popupData);
@@ -239,25 +76,6 @@
   }
 
   /**
-   * 팝업 닫기
-   */
-  function closeCharacterPopup() {
-    const modal = document.getElementById("character-popup-modal");
-    modal.classList.add("hidden");
-    currentPopupData = null;
-  }
-
-  /**
-   * 팝업 다음에 보기 (나중에 다시 표시)
-   */
-  function dismissCharacterPopup() {
-    const modal = document.getElementById("character-popup-modal");
-    modal.classList.add("hidden");
-    // TODO: 다음에 다시 보기 기능 구현
-    currentPopupData = null;
-  }
-
-  /**
    * 팝업 표시 기록
    */
   async function recordPopupShown(popupData) {
@@ -283,16 +101,6 @@
     }
   }
 
-  // ESC 키로 팝업 닫기
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      const modal = document.getElementById("character-popup-modal");
-      if (!modal.classList.contains('hidden')) {
-        closeCharacterPopup();
-      }
-    }
-  });
-
   // 페이지 로드 시 팝업 확인 (로그인된 경우)
   window.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('session_token');
@@ -301,4 +109,8 @@
       setTimeout(checkPopupTrigger, 3000);
     }
   });
+
+  // 호환성을 위한 더미 함수들
+  function closeCharacterPopup() {}
+  function dismissCharacterPopup() {}
 </script>
