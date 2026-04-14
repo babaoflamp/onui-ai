@@ -829,7 +829,7 @@ def _init_user_db():
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
-                nickname TEXT NOT NULL,
+                nickname TEXT,
                 password_hash TEXT NOT NULL,
                 native_lang TEXT,
                 affiliation TEXT,
@@ -1149,7 +1149,8 @@ def _normalize_interests(raw):
 def _store_user_signup(payload: dict) -> dict:
     email = (payload.get("email") or "").strip().lower()
     # Use email prefix as default nickname if not provided
-    nickname = (payload.get("nickname") or email.split("@")[0]).strip()
+    raw_nickname = payload.get("nickname") or email.split("@")[0]
+    nickname = (raw_nickname or "User").strip()
     password = payload.get("password") or ""
 
     if not email or not EMAIL_REGEX.match(email):
