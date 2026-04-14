@@ -20,6 +20,12 @@ content %}
             교수
           </p>
           <a
+            href="/admin/analytics?embed=1"
+            target="adminFrame"
+            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
+            >대시보드</a
+          >
+          <a
             href="/admin/users?embed=1"
             target="adminFrame"
             class="block px-3 py-2 rounded-xl hover:bg-gray-100"
@@ -48,12 +54,6 @@ content %}
             target="adminFrame"
             class="block px-3 py-2 rounded-xl hover:bg-gray-100"
             >AI 콘텐츠 현황</a
-          >
-          <a
-            href="/admin/analytics?embed=1"
-            target="adminFrame"
-            class="block px-3 py-2 rounded-xl hover:bg-gray-100"
-            >통계 분석</a
           >
         </div>
         <div class="space-y-1" data-roles="system_admin">
@@ -171,12 +171,24 @@ content %}
     });
 
     const frame = document.getElementById("adminFrame");
-    const defaultSrcMap = {
-      instructor: "/learning",
-      system_admin: "/admin/dashboard?embed=1",
-    };
-    if (frame && defaultSrcMap[role]) {
-      frame.src = defaultSrcMap[role];
+    const nickname = (localStorage.getItem("user_nickname") || "").toLowerCase();
+    
+    let defaultSrc = "/admin/dashboard?embed=1"; // Default for system_admin
+    
+    if (role === "instructor") {
+      if (nickname === "teach") {
+        defaultSrc = "/admin/analytics?embed=1";
+      } else if (nickname === "teacher") {
+        defaultSrc = "/admin/users?embed=1";
+      } else {
+        defaultSrc = "/learning"; // Generic instructor fallback
+      }
+    } else if (role === "system_admin") {
+      defaultSrc = "/admin/dashboard?embed=1";
+    }
+
+    if (frame) {
+      frame.src = defaultSrc;
     }
   })();
 
