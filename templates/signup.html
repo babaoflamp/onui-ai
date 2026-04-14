@@ -50,21 +50,6 @@
       <div>
         <label
           class="block text-sm font-medium text-gray-700 mb-1"
-          for="nickname"
-          >닉네임</label
-        >
-        <input
-          id="nickname"
-          name="nickname"
-          type="text"
-          required
-          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-          placeholder="your_nickname"
-        />
-      </div>
-      <div>
-        <label
-          class="block text-sm font-medium text-gray-700 mb-1"
           for="password"
           >비밀번호</label
         >
@@ -116,7 +101,6 @@
       const signupBtn = document.getElementById("signupBtn");
       const nameInput = document.getElementById("name");
       const emailInput = document.getElementById("email");
-      const nicknameInput = document.getElementById("nickname");
       const passwordInput = document.getElementById("password");
       const confirmPasswordInput = document.getElementById("confirm_password");
       const alertsContainer = document.getElementById("alertsContainer");
@@ -125,7 +109,6 @@
       const inputs = [
         nameInput,
         emailInput,
-        nicknameInput,
         passwordInput,
         confirmPasswordInput,
       ];
@@ -155,11 +138,6 @@
             emailInput,
             "유효한 이메일을 입력해주세요."
           );
-          hasErrors = true;
-        }
-
-        if (!FormValidator.isRequired(nicknameInput.value)) {
-          FormValidator.showFieldError(nicknameInput, "닉네임은 필수입니다.");
           hasErrors = true;
         }
 
@@ -202,7 +180,6 @@
             body: JSON.stringify({
               name: nameInput.value,
               email: emailInput.value,
-              nickname: nicknameInput.value,
               password: passwordInput.value,
             }),
           });

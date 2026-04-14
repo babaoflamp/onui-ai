@@ -1148,13 +1148,13 @@ def _normalize_interests(raw):
 
 def _store_user_signup(payload: dict) -> dict:
     email = (payload.get("email") or "").strip().lower()
-    nickname = (payload.get("nickname") or "").strip()
+    # Use email prefix as default nickname if not provided
+    nickname = (payload.get("nickname") or email.split("@")[0]).strip()
     password = payload.get("password") or ""
 
     if not email or not EMAIL_REGEX.match(email):
         raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
-    if not nickname:
-        raise HTTPException(status_code=400, detail="닉네임을 입력하세요.")
+    # No longer strictly require nickname as we default to email prefix
     if len(password) < 8:
         raise HTTPException(status_code=400, detail="비밀번호는 8자 이상이어야 합니다.")
 
@@ -2376,17 +2376,17 @@ async def landing_intake(request: Request):
 # ------------------------------------------
 @app.post("/api/login")
 async def login(request: Request):
-    """사용자 로그인: 닉네임과 비밀번호로 인증."""
+    """사용자 로그인: 이메일과 비밀번호로 인증."""
     payload = await request.json()
-    nickname = (payload.get("nickname") or "").strip()
+    email = (payload.get("email") or "").strip().lower()
     password = payload.get("password") or ""
 
-    if not nickname or not password:
-        raise HTTPException(status_code=400, detail="닉네임과 비밀번호를 입력하세요.")
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="이메일과 비밀번호를 입력하세요.")
 
-    user = _get_user_by_nickname(nickname)
+    user = _get_user_by_email(email)
     if not user or not _verify_password(user["password_hash"], password):
-        raise HTTPException(status_code=401, detail="닉네임 또는 비밀번호가 올바르지 않습니다.")
+        raise HTTPException(status_code=401, detail="이메일 또는 비밀번호가 올바르지 않습니다.")
 
     # Create session token
     token = _create_session_token(user["id"], user["email"], bool(user.get("is_admin")))

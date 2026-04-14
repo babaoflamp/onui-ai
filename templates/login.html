@@ -17,17 +17,17 @@ endblock %} {% block content %}
 
       <!-- Login Form -->
       <form id="loginForm" class="space-y-5">
-        <!-- Nickname Input -->
+        <!-- Email Input -->
         <div class="space-y-2">
-          <label class="text-sm font-semibold text-gray-800">닉네임</label>
+          <label class="text-sm font-semibold text-gray-800">이메일</label>
           <input
-            id="nicknameInput"
-            name="nickname"
-            type="text"
+            id="emailInput"
+            name="email"
+            type="email"
             required
-            autocomplete="username"
+            autocomplete="email"
             class="w-full border border-gray-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
-            placeholder="your_nickname"
+            placeholder="you@example.com"
           />
         </div>
 
@@ -97,15 +97,15 @@ endblock %} {% block content %}
   (function () {
     const form = document.getElementById("loginForm");
     const loginBtn = document.getElementById("loginBtn");
-    const nicknameInput = document.getElementById("nicknameInput");
+    const emailInput = document.getElementById("emailInput");
     const passwordInput = document.getElementById("passwordInput");
     const alertsContainer = document.getElementById("alertsContainer");
 
     if (!form) return;
 
     // Clear field errors on input
-    nicknameInput.addEventListener("input", () => {
-      FormValidator.clearFieldError(nicknameInput);
+    emailInput.addEventListener("input", () => {
+      FormValidator.clearFieldError(emailInput);
     });
     passwordInput.addEventListener("input", () => {
       FormValidator.clearFieldError(passwordInput);
@@ -118,8 +118,11 @@ endblock %} {% block content %}
       alertsContainer.innerHTML = "";
       let hasErrors = false;
 
-      if (!FormValidator.isRequired(nicknameInput.value)) {
-        FormValidator.showFieldError(nicknameInput, "닉네임은 필수입니다.");
+      if (!FormValidator.isRequired(emailInput.value)) {
+        FormValidator.showFieldError(emailInput, "이메일은 필수입니다.");
+        hasErrors = true;
+      } else if (!FormValidator.isValidEmail(emailInput.value)) {
+        FormValidator.showFieldError(emailInput, "유효한 이메일을 입력해주세요.");
         hasErrors = true;
       }
 
@@ -134,7 +137,7 @@ endblock %} {% block content %}
       }
 
       const payload = {
-        nickname: nicknameInput.value,
+        email: emailInput.value,
         password: passwordInput.value,
       };
 
