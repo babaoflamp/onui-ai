@@ -25,7 +25,7 @@ block content %}
       <input
         id="searchEmail"
         type="text"
-        placeholder="이메일로 검색..."
+        placeholder="이름 또는 이메일로 검색..."
         class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400"
       />
       <select
@@ -58,7 +58,7 @@ block content %}
               이메일
             </th>
             <th class="px-4 py-3 text-left font-semibold text-gray-700">
-              닉네임
+              이름
             </th>
             <th class="px-4 py-3 text-left font-semibold text-gray-700">
               역할
@@ -134,8 +134,8 @@ block content %}
           if (searchTerm) {
             users = users.filter((user) => {
               const email = (user.email || "").toLowerCase();
-              const nickname = (user.nickname || "").toLowerCase();
-              return email.includes(searchTerm) || nickname.includes(searchTerm);
+              const name = (user.name || user.nickname || "").toLowerCase();
+              return email.includes(searchTerm) || name.includes(searchTerm);
             });
           }
           if (roleFilter) {
@@ -144,11 +144,11 @@ block content %}
               return userRole === roleFilter;
             });
           }
-  LoadingManager.hide();
+
+          LoadingManager.hide();
+
           if (users.length === 0) {
             tbody.innerHTML = `<tr><td class="px-4 py-3 text-gray-500" colspan="5" style="text-align: center;">사용자가 없습니다.</td></tr>`;
-            ToastManager.info(`총 ${total}명의 사용자 중 표시할 항목이 없습니다.`ay-500" colspan="5" style="text-align: center;">사용자가 없습니다.</td></tr>`;
-            setStatus(`총 ${total}명의 사용자 중 표시할 항목이 없습니다.`, false);
             return;
           }
 
@@ -169,7 +169,7 @@ block content %}
               return `
             <tr>
               <td class="px-4 py-3 text-gray-900">${user.email}</td>
-              <td class="px-4 py-3 text-gray-700">${user.nickname}</td>
+              <td class="px-4 py-3 text-gray-700">${user.name || user.nickname || "-"}</td>
               <td class="px-4 py-3">
                 <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                   userRole === "system_admin"
@@ -204,9 +204,10 @@ block content %}
                     : `<span class="text-xs text-gray-400">권한 없음</span>`
                 }
               </td>
-            </tr>`
+            </tr>`;
             })
-          LoadingManager.hide();
+            .join("");
+          
           ToastManager.success(`총 ${total}명 중 ${users.length}명 표시`);
         } catch (err) {
           LoadingManager.hide();

@@ -3123,7 +3123,7 @@ async def admin_users_list(request: Request, skip: int = 0, limit: int = 50):
         # Get paginated users
         cursor.execute(
             """
-            SELECT id, email, nickname, is_admin, role, created_at
+            SELECT id, email, name, nickname, is_admin, role, created_at
             FROM users
             ORDER BY created_at DESC
             LIMIT ? OFFSET ?
