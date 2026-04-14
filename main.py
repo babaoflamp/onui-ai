@@ -3435,6 +3435,109 @@ async def admin_reset_user_password(request: Request, user_id: int):
         conn.close()
 
 
+@app.post("/api/admin/users")
+async def admin_create_user(request: Request):
+    """관리자용 새 사용자 계정 생성."""
+    _require_role(request, {ROLE_SYSTEM_ADMIN})
+    payload = await request.json()
+    
+    email = (payload.get("email") or "").strip().lower()
+    name = (payload.get("name") or "").strip()
+    password = payload.get("password") or "mz1234!@" # 기본 비밀번호
+    role = (payload.get("role") or ROLE_LEARNER).strip().lower()
+    
+    if not email or not EMAIL_REGEX.match(email):
+        raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
+    if not name:
+        raise HTTPException(status_code=400, detail="이름을 입력하세요.")
+    if role not in ROLE_CHOICES:
+        raise HTTPException(status_code=400, detail="유효하지 않은 역할입니다.")
+
+    password_hash = _hash_password(password)
+    created_at = datetime.utcnow().isoformat()
+    is_admin = 1 if role == ROLE_SYSTEM_ADMIN else 0
+    nickname = name
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute(
+            """
+            INSERT INTO users (email, name, nickname, password_hash, created_at, is_admin, role)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (email, name, nickname, password_hash, created_at, is_admin, role),
+        )
+        conn.commit()
+        return {"success": True, "message": "사용자 계정이 생성되었습니다."}
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 존재하는 이메일입니다.")
+    finally:
+        conn.close()
+
+
+@app.patch("/api/admin/users/{user_id}")
+async def admin_update_user(request: Request, user_id: int):
+    """관리자용 사용자 정보 수정 (이름, 이메일)."""
+    _require_role(request, {ROLE_SYSTEM_ADMIN})
+    payload = await request.json()
+    
+    name = (payload.get("name") or "").strip()
+    email = (payload.get("email") or "").strip().lower()
+    
+    if not name and not email:
+        raise HTTPException(status_code=400, detail="수정할 정보를 입력하세요.")
+
+    updates = []
+    values = []
+    if name:
+        updates.append("name = ?")
+        updates.append("nickname = ?")
+        values.extend([name, name])
+    if email:
+        if not EMAIL_REGEX.match(email):
+            raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
+        updates.append("email = ?")
+        values.append(email)
+    
+    values.append(user_id)
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            f"UPDATE users SET {', '.join(updates)} WHERE id = ?",
+            tuple(values)
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+        return {"success": True, "message": "사용자 정보가 수정되었습니다."}
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 존재하는 이메일입니다.")
+    finally:
+        conn.close()
+
+
+@app.delete("/api/admin/users/{user_id}")
+async def admin_delete_user(request: Request, user_id: int):
+    """관리자용 사용자 계정 삭제."""
+    admin = _require_role(request, {ROLE_SYSTEM_ADMIN})
+    
+    if admin["id"] == user_id:
+        raise HTTPException(status_code=400, detail="자신의 계정은 삭제할 수 없습니다.")
+        
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+        return {"success": True, "message": "사용자 계정이 삭제되었습니다."}
+    finally:
+        conn.close()
+
+
 @app.get("/api/admin/users/{user_id}")
 async def admin_get_user_detail(request: Request, user_id: int):
     """사용자 상세 조회."""

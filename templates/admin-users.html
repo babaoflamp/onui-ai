@@ -9,11 +9,19 @@ block content %}
       <h1 class="text-3xl font-bold text-gray-900 mt-1">사용자 관리</h1>
       <p class="text-gray-600 mt-2">모든 사용자 계정, 권한, 활동 확인</p>
     </div>
-    <a
-      href="/admin/dashboard"
-      class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-      >← 대시보드</a
-    >
+    <div class="flex gap-2">
+      <button
+        onclick="openUserModal()"
+        class="px-4 py-2 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 shadow-sm transition-colors"
+      >
+        + 사용자 추가
+      </button>
+      <a
+        href="/admin/dashboard"
+        class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        >← 대시보드</a
+      >
+    </div>
   </div>
 
   <!-- Alerts Container -->
@@ -21,7 +29,7 @@ block content %}
 
   <!-- Search & Filter -->
   <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-sm">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <input
         id="searchEmail"
         type="text"
@@ -86,6 +94,59 @@ block content %}
     </div>
   </div>
 </div>
+
+<!-- User Modal (Add/Edit) -->
+<div id="userModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeUserModal()">
+      <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+    </div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modalTitle">
+              사용자 추가
+            </h3>
+            <div class="mt-4 space-y-4">
+              <input type="hidden" id="modalUserId">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">이름</label>
+                <input type="text" id="modalUserName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">이메일</label>
+                <input type="email" id="modalUserEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+              <div id="passwordField">
+                <label class="block text-sm font-medium text-gray-700">비밀번호 (기본: mz1234!@)</label>
+                <input type="password" id="modalUserPassword" placeholder="기본 비밀번호가 사용됩니다" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">역할</label>
+                <select id="modalUserRole" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                  <option value="learner">학습자</option>
+                  <option value="instructor">교수</option>
+                  <option value="system_admin">시스템관리자</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+        <button type="button" onclick="saveUser()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+          저장
+        </button>
+        <button type="button" onclick="closeUserModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          취소
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %} {% block extra_js %}
 <script>
     (function () {
@@ -93,6 +154,15 @@ block content %}
       const tbody = document.getElementById("usersTbody");
       const searchEl = document.getElementById("searchEmail");
       const filterEl = document.getElementById("filterRole");
+      
+      const modal = document.getElementById("userModal");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalUserId = document.getElementById("modalUserId");
+      const modalUserName = document.getElementById("modalUserName");
+      const modalUserEmail = document.getElementById("modalUserEmail");
+      const modalUserPassword = document.getElementById("modalUserPassword");
+      const modalUserRole = document.getElementById("modalUserRole");
+      const passwordField = document.getElementById("passwordField");
 
       function ensureAdmin() {
         const token = localStorage.getItem("auth_token");
@@ -116,7 +186,7 @@ block content %}
         LoadingManager.show("사용자 목록을 불러오는 중...");
 
         try {
-          const res = await fetch("/api/admin/users", {
+          const res = await fetch("/api/admin/users?limit=500", {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -185,24 +255,31 @@ block content %}
                 user.created_at?.substring(0, 10) || "-"
               }</td>
               <td class="px-4 py-3 text-center">
-                ${
-                  canManage
-                    ? `
                 <div class="flex flex-wrap gap-2 justify-center items-center">
-                  <select id="role-${user.id}" class="border border-gray-200 rounded px-2 py-1 text-xs">
-                    <option value="learner" ${userRole === "learner" ? "selected" : ""}>학습자</option>
-                    <option value="instructor" ${userRole === "instructor" ? "selected" : ""}>교수</option>
-                    <option value="system_admin" ${userRole === "system_admin" ? "selected" : ""}>시스템관리자</option>
-                  </select>
+                  ${
+                    canManage
+                      ? `
+                  <button onclick='openUserModal(${JSON.stringify(user).replace(/'/g, "&apos;")})' class="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    수정
+                  </button>
                   <button onclick="updateRole(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200">
                     역할 저장
                   </button>
                   <button onclick="resetPassword(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
                     비번초기화
                   </button>
-                </div>`
-                    : `<span class="text-xs text-gray-400">권한 없음</span>`
-                }
+                  <button onclick="deleteUser(${user.id})" class="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200">
+                    삭제
+                  </button>
+                  <select id="role-${user.id}" class="border border-gray-200 rounded px-2 py-1 text-xs">
+                    <option value="learner" ${userRole === "learner" ? "selected" : ""}>학습자</option>
+                    <option value="instructor" ${userRole === "instructor" ? "selected" : ""}>교수</option>
+                    <option value="system_admin" ${userRole === "system_admin" ? "selected" : ""}>시스템관리자</option>
+                  </select>
+                  `
+                      : `<span class="text-xs text-gray-400">조회 전용</span>`
+                  }
+                </div>
               </td>
             </tr>`;
             })
@@ -213,6 +290,91 @@ block content %}
           LoadingManager.hide();
           console.error(err);
           tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="5" style="text-align: center;">${err.message}</td></tr>`;
+          AlertManager.error(err.message, "오류", alertsContainer);
+        }
+      };
+
+      window.openUserModal = function(user = null) {
+        if (user) {
+          modalTitle.textContent = "사용자 수정";
+          modalUserId.value = user.id;
+          modalUserName.value = user.name || user.nickname || "";
+          modalUserEmail.value = user.email || "";
+          modalUserRole.value = user.role || (user.is_admin ? "system_admin" : "learner");
+          passwordField.classList.add("hidden");
+        } else {
+          modalTitle.textContent = "사용자 추가";
+          modalUserId.value = "";
+          modalUserName.value = "";
+          modalUserEmail.value = "";
+          modalUserPassword.value = "";
+          modalUserRole.value = "learner";
+          passwordField.classList.remove("hidden");
+        }
+        modal.classList.remove("hidden");
+      };
+
+      window.closeUserModal = function() {
+        modal.classList.add("hidden");
+      };
+
+      window.saveUser = async function() {
+        const token = ensureAdmin();
+        if (!token) return;
+
+        const userId = modalUserId.value;
+        const name = modalUserName.value.trim();
+        const email = modalUserEmail.value.trim();
+        const role = modalUserRole.value;
+        const password = modalUserPassword.value;
+
+        if (!name || !email) {
+          ToastManager.error("이름과 이메일을 입력하세요.");
+          return;
+        }
+
+        try {
+          let res;
+          if (userId) {
+            // Update (PATCH)
+            res = await fetch(`/api/admin/users/${userId}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ name, email }),
+            });
+            // Also update role if changed (separate API call based on current implementation)
+            await fetch(`/api/admin/users/${userId}/role`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ role }),
+            });
+          } else {
+            // Create (POST)
+            res = await fetch(`/api/admin/users`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ name, email, role, password }),
+            });
+          }
+
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "작업에 실패했습니다.");
+          }
+
+          ToastManager.success(userId ? "수정되었습니다." : "추가되었습니다.");
+          closeUserModal();
+          loadUsers();
+        } catch (err) {
           AlertManager.error(err.message, "오류", alertsContainer);
         }
       };
@@ -277,6 +439,32 @@ block content %}
           }
           
           ToastManager.success("비밀번호가 초기화되었습니다.");
+          loadUsers();
+        } catch (err) {
+          AlertManager.error(err.message, "오류", alertsContainer);
+        }
+      };
+
+      window.deleteUser = async function(userId) {
+        const token = ensureAdmin();
+        if (!token) return;
+
+        if (!confirm("정말로 이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+
+        try {
+          const res = await fetch(`/api/admin/users/${userId}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({}));
+            throw new Error(error.detail || "삭제에 실패했습니다.");
+          }
+
+          ToastManager.success("삭제되었습니다.");
           loadUsers();
         } catch (err) {
           AlertManager.error(err.message, "오류", alertsContainer);
