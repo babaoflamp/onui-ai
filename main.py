@@ -3236,7 +3236,7 @@ async def admin_recordings_list(request: Request, limit: int = 50):
         # Recent recordings
         cursor.execute(
             """
-            SELECT s.id, u.name, u.email, s.score, s.created_at, s.sentence_id
+            SELECT s.id, u.name, u.email, s.score, s.created_at, s.sentence_id, s.audio_path
             FROM sentence_score_history s
             JOIN users u ON s.user_id = u.id
             ORDER BY s.created_at DESC
@@ -3257,7 +3257,8 @@ async def admin_recordings_list(request: Request, limit: int = 50):
                 "user": f"{r['name'] or 'Unknown'} ({r['email']})",
                 "sentence": sentence_map.get(str(r["sentence_id"]), f"Sentence #{r['sentence_id']}"),
                 "score": r["score"],
-                "created_at": r["created_at"]
+                "created_at": r["created_at"],
+                "audio_path": r["audio_path"]
             })
             
         return {

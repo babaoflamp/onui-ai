@@ -117,9 +117,13 @@ endblock %} {% block content %}
             </td>
             <td class="border border-gray-300 px-4 py-3 text-sm text-gray-500">${r.created_at.substring(0, 16).replace("T", " ")}</td>
             <td class="border border-gray-300 px-4 py-3 text-center">
-              <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs" onclick="AlertManager.info('오디오 재생 기능 준비 중', '알림')">
-                재생
-              </button>
+              ${r.audio_path ? `
+                <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-xs flex items-center gap-1 mx-auto" onclick="playAudio('${r.audio_path}')">
+                  <span>▶</span> 재생
+                </button>
+              ` : `
+                <span class="text-xs text-gray-400 italic">파일 없음</span>
+              `}
             </td>
           </tr>
         `
@@ -135,6 +139,23 @@ endblock %} {% block content %}
         </tr>
       `;
     }
+  }
+
+  // 오디오 재생 함수
+  function playAudio(path) {
+    if (!path) return;
+    
+    // 경로 처리 (/uploads/... 형태 보장)
+    let url = path;
+    if (!url.startsWith('/')) {
+      url = '/' + url;
+    }
+    
+    const audio = new Audio(url);
+    audio.play().catch(err => {
+      console.error("Playback failed:", err);
+      AlertManager.error("오디오 파일을 재생할 수 없습니다. 파일이 존재하지 않거나 형식이 올바르지 않습니다.");
+    });
   }
 
   document.addEventListener("DOMContentLoaded", loadRecordings);

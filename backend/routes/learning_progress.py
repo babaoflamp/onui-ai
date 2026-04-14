@@ -245,8 +245,10 @@ async def add_sentence_score(request: Request):
 
     user = require_authenticated_user(request)
     payload = await request.json()
-    sentence_id = payload.get("sentence_id")
-    score = payload.get("score")
+    sentence_id = data.get("sentence_id")
+    score = data.get("score")
+    audio_path = data.get("audio_path")
+
     if sentence_id is None:
         raise HTTPException(status_code=400, detail="sentence_id is required")
     try:
@@ -267,13 +269,13 @@ async def add_sentence_score(request: Request):
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO sentence_score_history (user_id, sentence_id, score)
-            VALUES (?, ?, ?)
+            INSERT INTO sentence_score_history (user_id, sentence_id, score, audio_path)
+            VALUES (?, ?, ?, ?)
             """,
-            (user["id"], sentence_id, score),
+            (user["id"], sentence_id, score, audio_path),
         )
         conn.commit()
-    finally:
+
         conn.close()
 
     return JSONResponse({"success": True})
