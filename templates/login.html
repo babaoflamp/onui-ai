@@ -158,7 +158,7 @@ endblock %} {% block content %}
 
         // Store token and nickname in localStorage
         localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("user_nickname", data.nickname);
+        localStorage.setItem("user_nickname", data.name);
         const role = data.role || "";
         if (role) {
           localStorage.setItem("user_role", role);
@@ -174,7 +174,7 @@ endblock %} {% block content %}
         localStorage.removeItem("welcome_mail_sent");
 
         LoadingManager.clearButtonLoading(loginBtn);
-        ToastManager.success(`${data.nickname}님 환영합니다!`);
+        ToastManager.success(`${data.name}님 환영합니다!`);
 
         // Redirect after 1.5 seconds
         setTimeout(() => {

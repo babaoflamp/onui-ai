@@ -829,6 +829,7 @@ def _init_user_db():
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
+                name TEXT,
                 nickname TEXT,
                 password_hash TEXT NOT NULL,
                 native_lang TEXT,
@@ -1148,14 +1149,15 @@ def _normalize_interests(raw):
 
 def _store_user_signup(payload: dict) -> dict:
     email = (payload.get("email") or "").strip().lower()
-    # Use email prefix as default nickname if not provided
-    raw_nickname = payload.get("nickname") or email.split("@")[0]
-    nickname = (raw_nickname or "User").strip()
+    name = (payload.get("name") or "").strip()
+    # For backward compatibility internally, use name as nickname
+    nickname = name or email.split("@")[0]
     password = payload.get("password") or ""
 
     if not email or not EMAIL_REGEX.match(email):
         raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
-    # No longer strictly require nickname as we default to email prefix
+    if not name:
+        raise HTTPException(status_code=400, detail="이름을 입력하세요.")
     if len(password) < 8:
         raise HTTPException(status_code=400, detail="비밀번호는 8자 이상이어야 합니다.")
 
@@ -1176,12 +1178,13 @@ def _store_user_signup(payload: dict) -> dict:
         conn.execute(
             """
             INSERT INTO users (
-                email, nickname, password_hash, native_lang, affiliation,
+                email, name, nickname, password_hash, native_lang, affiliation,
                 time_pref, interests, goal, exam_level, reason, style, created_at, is_admin, role
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
             """,
             (
                 email,
+                name,
                 nickname,
                 password_hash,
                 native_lang,
@@ -1197,12 +1200,20 @@ def _store_user_signup(payload: dict) -> dict:
             ),
         )
         conn.commit()
+        user_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
     finally:
         conn.close()
 
-    return {"email": email, "nickname": nickname}
+    return {
+        "id": user_id,
+        "email": email,
+        "name": name,
+        "nickname": nickname,
+        "is_admin": False,
+        "role": ROLE_LEARNER,
+    }
 
 
 def _verify_password(stored_hash: str, password: str) -> bool:
@@ -1230,7 +1241,7 @@ def _get_user_by_email(email: str) -> dict:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT id, email, nickname, password_hash, is_admin, role
+            SELECT id, email, name, nickname, password_hash, is_admin, role
             FROM users WHERE email = ?
             """,
             ((email or "").strip().lower(),)
@@ -2363,7 +2374,17 @@ def admin_rag_page(request: Request):
 async def signup(request: Request):
     payload = await request.json()
     user = _store_user_signup(payload)
-    return {"success": True, "email": user["email"], "nickname": user["nickname"]}
+
+    # Auto-login: Create session token
+    token = _create_session_token(user["id"], user["email"], user["is_admin"])
+
+    return {
+        "success": True,
+        "token": token,
+        "email": user["email"],
+        "name": user["name"],
+        "role": user["role"],
+    }
 
 
 @app.post("/api/landing-intake")
@@ -2408,7 +2429,7 @@ async def login(request: Request):
         "success": True,
         "token": token,
         "email": user["email"],
-        "nickname": user["nickname"],
+        "name": user["name"],
         "is_admin": role == ROLE_SYSTEM_ADMIN,
         "role": role,
     }
