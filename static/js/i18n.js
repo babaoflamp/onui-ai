@@ -8,24 +8,27 @@ async function setAppLang(lang) {
     localStorage.setItem("app_lang", lang);
     await loadTranslations(lang);
     applyTranslations();
+    syncLangUI(lang);
+}
 
-    // Update label
-    const lbl = document.getElementById("current-lang-label");
-    if (lbl) lbl.textContent = lang.toUpperCase();
+function syncLangUI(lang) {
+    const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
+    
+    // Update all flags
+    document.querySelectorAll("[id='current-lang-flag']").forEach(el => {
+        el.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
+    });
 
-    // Update flag/name (alternative selector pattern)
-    const flagEl = document.getElementById("current-lang-flag");
-    const nameEl = document.getElementById("current-lang-name");
-    if (flagEl && nameEl) {
-        const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
-        flagEl.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
-        nameEl.textContent = lang.toUpperCase();
-    }
+    // Update all labels/names
+    document.querySelectorAll("[id='current-lang-label'], [id='current-lang-name']").forEach(el => {
+        el.textContent = lang.toUpperCase();
+    });
 
     // Update checkmarks in dropdown
     ["ko", "en", "ja", "zh"].forEach(l => {
-        const el = document.getElementById("lang-check-" + l);
-        if (el) el.classList.toggle("hidden", l !== lang);
+        document.querySelectorAll("[id='lang-check-" + l + "']").forEach(el => {
+            el.classList.toggle("hidden", l !== lang);
+        });
     });
 }
 
@@ -66,12 +69,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // FOUC 방지 해제: 번역 적용 완료 후 표시
     document.documentElement.style.visibility = "";
 
-    // Sync header selector if it exists
-    const flagEl = document.getElementById("current-lang-flag");
-    const nameEl = document.getElementById("current-lang-name");
-    if (flagEl && nameEl) {
-        const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
-        flagEl.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
-        nameEl.textContent = lang.toUpperCase();
-    }
+    // Sync all language UI elements
+    syncLangUI(lang);
 });

@@ -216,8 +216,8 @@ Intelligence{% endblock %} {% block extra_css %}
     <!-- 🌍 Language Selector -->
     <div class="relative group">
       <button class="flex items-center gap-2 px-3 py-2 text-[12px] font-black text-white/60 hover:text-white uppercase tracking-[0.05em] hover:bg-white/10 rounded-full transition-all duration-300">
-        <span id="current-lang-flag" class="fi fi-kr fis rounded-sm"></span>
-        <span id="current-lang-name">KO</span>
+        <span id="current-lang-flag" class="fi fi-us fis rounded-sm"></span>
+        <span id="current-lang-name">EN</span>
         <svg class="w-3 h-3 opacity-40 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
       </button>
       
@@ -263,7 +263,7 @@ Intelligence{% endblock %} {% block extra_css %}
       <span id="hero-typing-2" class="glow-text bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent italic"></span>
     </h1>
 
-    <p class="hero-subtitle" data-i18n="land.hero_subtitle" style="white-space: pre-line;">
+    <p class="hero-subtitle" data-i18n="land.hero_subtitle">
       AI 오누이와 함께하는 가장 진보된 한국어 발음 교정 솔루션.
       당신의 목소리가 데이터와 만나 완성되는 경험을 시작하세요.
     </p>
@@ -343,16 +343,11 @@ Intelligence{% endblock %} {% block extra_css %}
         <p id="score-feedback-label" class="text-2xl font-bold text-white mt-6"></p>
       </div>
 
-      <div class="bg-white/5 border border-white/5 rounded-3xl p-6 mb-6 text-left">
+      <div class="bg-white/5 border border-white/5 rounded-3xl p-6 mb-8 text-left">
         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Detailed Analysis</p>
         <div id="demo-details" class="flex flex-wrap gap-3 justify-center">
           <!-- Syllable cards will be injected here -->
         </div>
-      </div>
-
-      <div class="bg-white/5 border border-white/5 rounded-3xl p-6 mb-8 text-left">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2" data-i18n="land.ai_feedback">AI Feedback</p>
-        <p id="demo-feedback" class="text-sm text-white/80 leading-relaxed font-medium italic"></p>
       </div>
 
       <a href="/signup" class="group/start-btn relative block w-full py-5 pb-5.5 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-full font-black text-xl shadow-[0_15px_30px_rgba(249,115,22,0.3)] hover:shadow-[0_20px_40px_rgba(249,115,22,0.5)] hover:scale-[1.02] active:scale-95 transition-all overflow-hidden text-center">
@@ -467,23 +462,37 @@ Intelligence{% endblock %} {% block extra_css %}
   </section>
 
   <!-- 🏢 Footer -->
-  <footer class="max-w-6xl mx-auto px-4 pb-20 mt-10">
-    <div class="border-t border-white/5 pt-16 text-center">
-      <h4 class="text-white/60 font-black text-xl mb-8 tracking-tighter">미디어젠(주)</h4>
-      
-      <div class="text-white/30 text-[11px] md:text-xs leading-loose space-y-3 font-bold">
-        <p>
-          본사 : 경기도 성남시 분당구 판교역로 230 (삼평동) <span class="mx-2 opacity-20">|</span> 
-          R&D센터 : 서울시 강서구 마곡중앙 12로 31(마곡동) 미디어젠 R&D 센터
-        </p>
-        <p>
-          대표번호 : 02-6429-7100 <span class="mx-2 opacity-20">|</span> 
-          FAX : 02-6429-7188 <span class="mx-2 opacity-20">|</span> 
-          영업(AUTO) : 02-6429-7109 <span class="mx-2 opacity-20">|</span> 
-          영업(AI) : 02-6429-7156 <span class="mx-2 opacity-20">|</span> 
-          주식 : 02-6429-7121
-        </p>
-        <p class="pt-10 uppercase tracking-[0.3em] text-[10px] font-black opacity-40">
+  <footer class="max-w-7xl mx-auto px-8 pb-20 mt-10">
+    <div class="border-t border-white/10 pt-16 text-left">
+      <div class="mb-10">
+        <h4 class="text-white/90 font-black text-xl mb-4 tracking-tighter">미디어젠(주)</h4>
+        <div class="text-white/70 text-[12px] md:text-sm leading-relaxed space-y-1.5 font-medium mb-8">
+          <p>
+            본사 : 경기도 성남시 분당구 판교역로 230 (삼평동) <span class="mx-3 text-white/20">|</span> 
+            R&D센터 : 서울시 강서구 마곡중앙 12로 31(마곡동) 미디어젠 R&D 센터
+          </p>
+          <p>
+            대표번호 : 02-6429-7100 <span class="mx-3 text-white/20">|</span> 
+            FAX : 02-6429-7188 <span class="mx-3 text-white/20">|</span> 
+            영업(AUTO) : 02-6429-7109 <span class="mx-3 text-white/20">|</span> 
+            영업(AI) : 02-6429-7156 <span class="mx-3 text-white/20">|</span> 
+            주식 : 02-6429-7121
+          </p>
+        </div>
+        
+        <div class="flex flex-col items-start">
+          <div class="flex items-center gap-4 mb-2">
+            <a href="/privacy" class="text-white/90 hover:text-white text-[11px] font-bold transition-colors">Privacy Policy</a>
+            <span class="text-white/20 text-[10px]">|</span>
+            <a href="/privacy" class="text-white/90 hover:text-white text-[11px] font-bold transition-colors">개인정보 처리방침</a>
+          </div>
+          <p class="text-white/60 text-[10px] font-black uppercase tracking-widest">
+            &copy; 2026 Onui. All rights reserved.
+          </p>
+        </div>
+      </div>
+      <div class="pt-8 border-t border-white/5">
+        <p class="uppercase tracking-[0.3em] text-[10px] font-black text-white/20">
           copyright ⓒ mediazen all rights reserved.
         </p>
       </div>
@@ -653,7 +662,7 @@ Intelligence{% endblock %} {% block extra_css %}
     const resultsArea = document.getElementById("demo-results");
     const scoreDisplay = document.getElementById("demo-score");
     const scoreCircle = document.getElementById("score-circle");
-    const feedbackText = document.getElementById("demo-feedback");
+    const feedbackText = null; // AI feedback removed for speed
 
     let mediaRecorder;
     let audioChunks = [];
@@ -740,16 +749,15 @@ Intelligence{% endblock %} {% block extra_css %}
         const modal = document.getElementById("demo-modal");
         const scoreDisplay = document.getElementById("demo-score");
         const feedbackLabel = document.getElementById("score-feedback-label");
-        const feedbackText = document.getElementById("demo-feedback");
         const detailsContainer = document.getElementById("demo-details");
 
-        if (!modal || !scoreDisplay || !feedbackLabel || !feedbackText || !detailsContainer) {
+        if (!modal || !scoreDisplay || !feedbackLabel || !detailsContainer) {
           console.error("Missing modal elements");
           return;
         }
 
         const score = data.overall_score || 0;
-        const feedback = data.ai_feedback || "Excellent pronunciation! Your tone sounds very natural.";
+        // AI Feedback display removed for speed
 
         modal.classList.remove("hidden");
         if (statusText) statusText.innerText = "Check your report!";
@@ -792,8 +800,6 @@ Intelligence{% endblock %} {% block extra_css %}
             });
           }
         }
-
-        feedbackText.innerText = feedback;
 
         // Render Detailed Analysis
         detailsContainer.innerHTML = "";
@@ -838,6 +844,10 @@ Intelligence{% endblock %} {% block extra_css %}
         if (syllables && Array.isArray(syllables)) {
           syllables.forEach(syl => {
             const char = syl.syllable || syl.text || "?";
+            
+            // Skip silence markers
+            if (char === "!SIL" || char === "SIL") return;
+
             const sylScore = Math.round(syl.accuracy_percentage || syl.score || 0);
             
             let colorClass = "border-red-500/30 text-red-400";
@@ -852,13 +862,17 @@ Intelligence{% endblock %} {% block extra_css %}
             if (syl.phones && Array.isArray(syl.phones)) {
               phonemesHtml = `<div class="flex gap-1 mt-2">`;
               syl.phones.forEach(p => {
+                const symbol = p.symbol || p.text;
+                // Skip silence phonemes
+                if (symbol === "!SIL" || symbol === "SIL") return;
+
                 const pScore = Math.round(p.score || 0);
                 let pColor = "text-red-400/60";
                 if (pScore >= 80) pColor = "text-green-400/60";
                 else if (pScore >= 60) pColor = "text-orange-400/60";
                 
                 phonemesHtml += `<div class="flex flex-col items-center">
-                  <span class="text-[9px] font-black">${p.symbol || p.text}</span>
+                  <span class="text-[9px] font-black">${symbol}</span>
                   <span class="text-[7px] font-bold ${pColor}">${pScore}</span>
                 </div>`;
               });
@@ -940,3 +954,5 @@ Intelligence{% endblock %} {% block extra_css %}
     };
 </script>
 {% endblock %}
+
+{% block footer %}{% endblock %}
