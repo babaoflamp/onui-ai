@@ -55,6 +55,27 @@ endblock %} {% block extra_css %}
 </style>
 {% endblock %} {% block content %}
 <div class="max-w-7xl mx-auto space-y-12">
+  <!-- 📊 Quick Stats Row -->
+  <div id="quick-stats" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="suno-card py-5 text-center">
+      <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2" data-i18n="pr.streak">Streak</p>
+      <p class="text-3xl font-black text-orange-400"><span id="qs-streak">0</span><span class="text-sm text-white/30 ml-1">D</span></p>
+    </div>
+    <div class="suno-card py-5 text-center">
+      <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2" data-i18n="pr.avg_accuracy">Avg Score</p>
+      <p class="text-3xl font-black text-blue-400"><span id="qs-score">-</span></p>
+    </div>
+    <div class="suno-card py-5 text-center">
+      <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2" data-i18n="pr.evaluations">Evaluations</p>
+      <p class="text-3xl font-black text-white"><span id="qs-total">0</span></p>
+    </div>
+    <a href="/learning-progress" class="suno-card py-5 text-center hover:bg-white/10 transition-colors">
+      <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Report</p>
+      <p class="text-2xl">📊</p>
+      <p class="text-[10px] text-white/40 mt-1" data-i18n="dash.view_full">View Full →</p>
+    </a>
+  </div>
+
   <!-- 🎤 Recent Evaluation Feed (Suno style) -->
   <section>
     <h2 class="section-header">
@@ -120,6 +141,18 @@ endblock %} {% block extra_css %}
   async function loadSunoStyleDashboard() {
     const token = localStorage.getItem("auth_token");
     const feedContainer = document.getElementById("recent-evaluation-feed");
+
+    // 퀵 통계 로드
+    if (token) {
+      fetch('/api/learning/user-stats/me', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(s => {
+          document.getElementById('qs-streak').textContent = s.consecutive_days ?? 0;
+          document.getElementById('qs-score').textContent = (s.avg_score ?? 0) + '%';
+          document.getElementById('qs-total').textContent = s.total_practices ?? 0;
+          document.getElementById('quick-stats').classList.remove('hidden');
+        }).catch(() => {});
+    }
 
     try {
       const resp = await fetch("/api/dashboard/recent-pronunciation", {

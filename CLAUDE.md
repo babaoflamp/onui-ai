@@ -14,15 +14,29 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Dev server (hot reload)
-source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload
+# Dev server (hot reload) — 반드시 9002 포트 사용 (9000은 onui-academy 서비스)
+source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
 
-# Stop server
+# Stop dev server
 pkill -f uvicorn
 
 # Run tests (tests/ currently has no source files; add them under tests/unit, tests/api, tests/integration)
 python -m pytest
+python -m pytest tests/unit   # scoped run
 ```
+
+### Production (PM2)
+
+```bash
+./start-service.sh    # starts onui-ai + ngrok via PM2
+./stop-service.sh     # stops both PM2 processes
+
+pm2 status            # check process health
+pm2 logs onui-ai      # tail application logs
+pm2 restart onui-ai   # restart without full stop
+```
+
+PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `logs/pm2-error.log`.
 
 ## Key Environment Variables (`.env`)
 
@@ -80,7 +94,7 @@ These are mounted in `main.py` (~line 1976) via `app.include_router(...)`:
 
 SQLite at `data/users.db`. Schema is created/migrated programmatically in `_init_user_db()` (main.py ~line 977). The DB is called at startup and uses `_ensure_*` helper functions to add columns/tables to existing DBs — no migration framework.
 
-Tables: `users`, `word_scores`, `sentence_scores`, `attendance`, RAG document tables, LMS tables, admin logging tables.
+Tables: `users`, `word_scores`, `sentence_scores`, `attendance`, `n_documents`/`n_chunks`/`n_settings` (RAG with SQLite FTS5), LMS tables, admin logging tables.
 
 ### Session Auth
 
@@ -111,6 +125,17 @@ Static JSON datasets read at startup or on-demand:
 - `folktales.json` — 10 Korean folktales
 - `cultural-expressions.json` — 30 cultural expressions
 - `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
+
+### Scripts (`scripts/`)
+
+Utility scripts for one-off data management — not part of the app runtime:
+- `generate_locales.py` / `translate_locales.py` — generate and machine-translate locale JSON files
+- `import_excel_sentences.py` / `sync_sentences_json.py` / `merge_sentences.py` — manage `sentences.json`
+- `rotate-logs.py` — manual log rotation (also configured via `onui-ai-logrotate.conf`)
+
+### Dependency Note
+
+`requirements.txt` pins `openai<2.0.0`. The codebase uses the v1 `OpenAI` client style — upgrading to v2 would break DALL-E and Whisper integrations.
 
 ## Coding Conventions
 

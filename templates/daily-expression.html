@@ -51,7 +51,7 @@ endblock %} {% block extra_css %}
   }
 </style>
 {% endblock %} {% block content %}
-<div class="max-w-5xl mx-auto px-4 py-8">
+<div class="max-w-5xl mx-auto px-4 pt-0 pb-8">
   <!-- Header Section -->
   <header class="mb-10 text-center md:text-left">
     <div
@@ -103,10 +103,16 @@ endblock %} {% block extra_css %}
                 id="levelChip"
               >CEFR A1</span>
             </div>
-            <button class="tts-btn" id="ttsBtn" title="Listen to pronunciation">
-              <span id="ttsIcon">🔊</span>
-              <span>Listen</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button class="tts-btn" id="ttsBtn" title="Listen to pronunciation">
+                <span id="ttsIcon">🔊</span>
+                <span>Listen</span>
+              </button>
+              <button id="doneBtn" title="Mark as done" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">
+                <span id="doneIcon">✓</span>
+                <span id="doneLbl">Done</span>
+              </button>
+            </div>
           </div>
 
           <div

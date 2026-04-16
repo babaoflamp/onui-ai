@@ -926,6 +926,20 @@ class LearningProgressService:
 
         dataset_totals = _load_dataset_totals()
 
+        # 활동 유형별 분포 계산
+        total_fluency = sum(d["fluency_tests"] for d in all_days)
+        activity_items = [
+            {"name": "발음 평가", "icon": "🎤", "count": int(total_practices)},
+            {"name": "단어 학습", "icon": "📚", "count": int(words_learned)},
+            {"name": "문장 학습", "icon": "📝", "count": int(sentences_learned)},
+            {"name": "AI 교재", "icon": "🤖", "count": int(content_generated)},
+            {"name": "유창성 테스트", "icon": "✍️", "count": int(total_fluency)},
+        ]
+        activity_total = sum(a["count"] for a in activity_items) or 1
+        for a in activity_items:
+            a["pct"] = round(a["count"] / activity_total * 100)
+        activity_breakdown = [a for a in activity_items if a["count"] > 0]
+
         return {
             "total_practices": int(total_practices or 0),
             "avg_score": avg_score,
@@ -938,6 +952,7 @@ class LearningProgressService:
             'achievements': badges,
             "accuracy_distribution": acc,
             "daily_log": daily_log,
+            "activity_breakdown": activity_breakdown,
             # 커버리지용 필드
             'words_learned': words_learned,
             'words_total': dataset_totals.get('vocab_total', 0),

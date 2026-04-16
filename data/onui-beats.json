@@ -1,104 +1,10 @@
 [
   {
-    "id": "edu_arirang",
-    "title": "Arirang (아리랑)",
-    "artist": "Korean Traditional Folk Song",
-    "audio_url": "/static/audio/arirang.ogg",
-    "image_url": "/static/images/arirang-cover.svg",
-    "lyrics": [
-      {
-        "text": "아리랑 아리랑 아라리요",
-        "blank": "아리랑",
-        "meaning": "Arirang (Traditional Korean folk song title)"
-      },
-      {
-        "text": "아리랑 고개를 넘어간다",
-        "blank": "고개를",
-        "meaning": "Pass / Hill"
-      },
-      {
-        "text": "나를 버리고 가시는 님은",
-        "blank": "버리고",
-        "meaning": "Abandon / Leave behind"
-      },
-      {
-        "text": "십리도 못 가서 발병 난다",
-        "blank": "발병",
-        "meaning": "Foot disease / Blister"
-      }
-    ]
-  },
-  {
-    "id": "edu_ollegil",
-    "title": "Olle Gil (올레길)",
-    "description": "Traditional Jeju folk song about the Olle path.",
-    "artist": "Korean Traditional Folk Song",
-    "audio_url": "/static/audio/ollegil.mp3",
-    "image_url": "/static/images/ollegil-cover.svg",
-    "lyrics": [
-      {
-        "text": "올레질은 좋은 질",
-        "blank": "올레질은",
-        "meaning": "Olle path (제주 방언: 오솔길)"
-      },
-      {
-        "text": "조미있는 질",
-        "blank": "조미있는",
-        "meaning": "재미있는 (Jeju dialect: Interesting / Fun)"
-      },
-      {
-        "text": "산새 들새 벗되영 반겨주는 질",
-        "blank": "벗되영",
-        "meaning": "친구가 되어 (Jeju: becoming friends)"
-      },
-      {
-        "text": "생이추룩 놀고싶엉",
-        "blank": "생이추룩",
-        "meaning": "새처럼 (Jeju: like a bird)"
-      },
-      {
-        "text": "두폴 벨기민 산들 보름달이 밀려줍니다",
-        "blank": "두폴",
-        "meaning": "두 팔 (Jeju: two arms)"
-      },
-      {
-        "text": "올레 질은 좋은 질 정이 드는 질",
-        "blank": "정이",
-        "meaning": "Affection / Love (정情)"
-      },
-      {
-        "text": "고장덜이 도투멍 인사 호는 질",
-        "blank": "도투멍",
-        "meaning": "함께 모여 (Jeju: gathering together)"
-      },
-      {
-        "text": "꽃들처럼 예쁘게 하하 웃으민 메아리도 정답게 따라합니다",
-        "blank": "메아리",
-        "meaning": "Echo (메아리)"
-      },
-      {
-        "text": "올레 질은 좋은 질 도틈어신 질",
-        "blank": "도틈어신",
-        "meaning": "다툼없는 (Jeju: without conflict)"
-      },
-      {
-        "text": "놀멍 쉬멍 걸어도 꼴등 어신 질",
-        "blank": "놀멍 쉬멍",
-        "meaning": "놀면서 쉬면서 (Jeju: playing and resting)"
-      },
-      {
-        "text": "대자연의 숨소리 풀말축놀래 아름다운 노을만 품엉옵니다",
-        "blank": "노을만",
-        "meaning": "Sunset only (아름다운 노을)"
-      }
-    ]
-  },
-  {
     "id": "beat_001",
     "title": "섞일수록 빛나 (비빔밥)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/섞일수록 빛나 (비빔밥).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_001.jpg",
     "description": "월드팝",
     "lyrics": [
       {
@@ -183,7 +89,7 @@
     "title": "바람에 스며든 색 (한복)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/바람에 스며든 색 (한복).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_002.jpg",
     "description": "전통 발라드",
     "lyrics": [
       {
@@ -268,7 +174,7 @@
     "title": "바람이 머무는 곳 (제주)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/바람이 머무는 곳 (제주).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_003.jpg",
     "description": "어쿠스틱",
     "lyrics": [
       {
@@ -353,7 +259,7 @@
     "title": "오늘은 우리 집 (설날)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/오늘은 우리 집 (설날).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_004.jpg",
     "description": "따뜻한 발라드",
     "lyrics": [
       {
@@ -438,7 +344,7 @@
     "title": "한 잔 더 할래? (막걸리)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/한 잔 더 할래_ (막걸리).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_005.jpg",
     "description": "트로트 팝 (트로트 + K-pop 믹스)",
     "lyrics": [
       {
@@ -523,7 +429,7 @@
     "title": "빛나는 이 도시 (남산)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/빛나는 이 도시 (남산).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_006.jpg",
     "description": "감성 팝",
     "lyrics": [
       {
@@ -608,7 +514,7 @@
     "title": "끝까지 서 있을게 (이순신)",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/끝까지 서 있을게 (이순신).mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_007.jpg",
     "description": "영화음악 / 웅장",
     "lyrics": [
       {
@@ -693,7 +599,7 @@
     "title": "꽃이 피는 순간",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/꽃이 피는 순간.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_008.jpg",
     "description": "밝은 어쿠스틱 팝",
     "lyrics": [
       {
@@ -783,7 +689,7 @@
     "title": "파도가 닿는 곳",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/파도가 닿는 곳.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_009.jpg",
     "description": "청량 K-pop / 댄스",
     "lyrics": [
       {
@@ -873,7 +779,7 @@
     "title": "붉게 물든 길",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/붉게 물든 길.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_010.jpg",
     "description": "스타일: 감성 팝 / 트래블송",
     "lyrics": [
       {
@@ -963,7 +869,7 @@
     "title": "눈 내리는 밤",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/눈 내리는 밤.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_011.jpg",
     "description": "K-pop 캐롤",
     "lyrics": [
       {
@@ -1053,7 +959,7 @@
     "title": "안녕, 나야",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/안녕, 나야.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_012.jpg",
     "description": "밝은 K-pop / 입문용",
     "lyrics": [
       {
@@ -1138,7 +1044,7 @@
     "title": "바쁜데 귀여워",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/바쁜데 귀여워.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_013.jpg",
     "description": "경쾌한 팝 / 리듬감",
     "lyrics": [
       {
@@ -1223,7 +1129,7 @@
     "title": "괜찮아, 너라서",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/괜찮아, 너라서.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_014.jpg",
     "description": "감동 팝 / 응원곡",
     "lyrics": [
       {
@@ -1303,7 +1209,7 @@
     "title": "또 왜 그래?",
     "artist": "Onui AI",
     "audio_url": "/static/audio/beats/또 왜 그래_.mp3",
-    "image_url": "/static/images/kpop-banner.jpg",
+    "image_url": "/static/images/beats/beat_015.jpg",
     "description": "어쿠스틱 팝 / AKMU 느낌",
     "lyrics": [
       {

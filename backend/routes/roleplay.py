@@ -131,7 +131,75 @@ async def roleplay_evaluate(request: Request, payload: ChatRequest):
     """
 
     # LLM 호출하여 평가 결과 생성
-    # (chat API와 유사한 구조로 호출)
-    # ... (생략 가능, 구현 시 추가)
-    
-    return {"status": "success", "result": "Evaluation placeholder"}
+    model_backend = os.getenv("MODEL_BACKEND", "ollama")
+
+    try:
+        raw_output = ""
+
+        if model_backend == "gemini":
+            from google import genai as genai_lib
+            gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+            if not gemini_key:
+                raise RuntimeError("Gemini API key not configured")
+            gc = genai_lib.Client(api_key=gemini_key)
+            resp = gc.models.generate_content(model=gemini_model, contents=eval_prompt)
+            raw_output = resp.text or ""
+
+        elif model_backend == "openai":
+            from openai import OpenAI as _OpenAI
+            openai_key = os.getenv("OPENAI_API_KEY")
+            openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+            if not openai_key:
+                raise RuntimeError("OpenAI API key not configured")
+            oc = _OpenAI(api_key=openai_key)
+            resp = oc.chat.completions.create(
+                model=openai_model,
+                messages=[{"role": "user", "content": eval_prompt}],
+                temperature=0.5,
+            )
+            raw_output = resp.choices[0].message.content or ""
+
+        else:  # ollama
+            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+            ollama_model = os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b")
+            resp = requests.post(
+                f"{ollama_url}/api/generate",
+                json={"model": ollama_model, "prompt": eval_prompt, "stream": False, "options": {"temperature": 0.5}},
+                timeout=60,
+            )
+            if resp.status_code != 200:
+                raise RuntimeError(f"Ollama error {resp.status_code}: {resp.text}")
+            raw_output = resp.json().get("response", "")
+
+        # JSON 파싱: 코드 펜스 또는 중괄호 블록 추출
+        parsed = None
+        fence = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw_output, re.IGNORECASE)
+        if fence:
+            try:
+                parsed = json.loads(fence.group(1).strip())
+            except Exception:
+                pass
+        if parsed is None:
+            brace = re.search(r"(\{[\s\S]*\})", raw_output)
+            if brace:
+                try:
+                    parsed = json.loads(brace.group(1))
+                except Exception:
+                    pass
+
+        if parsed is None or not isinstance(parsed, dict):
+            raise RuntimeError("LLM이 유효한 JSON을 반환하지 않았습니다.")
+
+        # 필수 필드 보정
+        result = {
+            "score": int(parsed.get("score", 0)),
+            "feedback": parsed.get("feedback", ""),
+            "strengths": parsed.get("strengths", []),
+            "improvements": parsed.get("improvements", []),
+        }
+        return {"status": "success", "result": result}
+
+    except Exception as e:
+        logger.error(f"Roleplay evaluate error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})

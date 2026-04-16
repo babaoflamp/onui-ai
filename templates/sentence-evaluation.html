@@ -43,9 +43,9 @@
 
 {% block content %}
 <div id="alertsContainer"></div>
-<div class="max-w-4xl mx-auto py-12 px-4">
+<div class="max-w-4xl mx-auto pt-0 pb-12 px-4">
   <!-- Premium Header Section -->
-  <div class="mb-12 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-8 rounded-[40px] relative overflow-hidden group">
+  <div class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
     <!-- Background Glows -->
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full group-hover:bg-blue-500/30 transition-all duration-700"></div>
     <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/20 blur-[80px] rounded-full group-hover:bg-indigo-500/30 transition-all duration-700"></div>
@@ -55,7 +55,7 @@
         <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
         <span>ONUI · AI SELF-LEARNING</span>
       </div>
-      <h1 class="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter leading-tight">
+      <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
         Free <span class="bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent italic pb-2 pr-2">AI Eval</span>
       </h1>
       <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="fe.desc">
@@ -64,7 +64,7 @@
     </div>
 
     <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-        <div class="relative w-32 h-32 md:w-44 md:h-44 rounded-[40px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+        <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
             <img src="/static/images/onui-idol-nurse.png" alt="Free Eval AI" class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
         </div>
@@ -282,11 +282,54 @@
     const score = Math.round(data.overall_score || 0);
     document.getElementById("sp-overall-score").textContent = score;
     document.getElementById("sp-score-bar").style.width = score + "%";
-    document.getElementById("sp-score-feedback").textContent = score >= 80 ? "Perfect! 🌟" : "Good Start! 💪";
-    
-    // Detailed analysis building (simulated for brevity)
-    document.getElementById("sp-details-tab-content").innerHTML = `<div class="glass-sub-card p-6 rounded-2xl"><p class="text-white/80">${text}</p></div>`;
-    
+    document.getElementById("sp-score-feedback").textContent = score >= 80 ? "Perfect! 🌟" : score >= 60 ? "Good Effort! 👍" : "Keep Practicing! 💪";
+
+    // 상세 분석 탭
+    const detailsEl = document.getElementById("sp-details-tab-content");
+    if (data.score && data.score.details) {
+      const d = data.score.details;
+      const accuracy = data.score.accuracy_percentage || 0;
+      const fluencyPct = d.fluency
+        ? Math.round((d.fluency.correct_syllable_count / (d.fluency.total_syllable_count || 1)) * 100)
+        : 0;
+      const syllables = d.syllables || [];
+      detailsEl.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="glass-sub-card p-5 rounded-2xl text-center">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">정확도</p>
+            <p class="text-3xl font-black text-white">${Math.round(accuracy)}%</p>
+          </div>
+          <div class="glass-sub-card p-5 rounded-2xl text-center">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">유창도</p>
+            <p class="text-3xl font-black text-white">${fluencyPct}%</p>
+          </div>
+        </div>
+        ${syllables.length > 0 ? `
+          <p class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">음절 분석</p>
+          <div class="flex flex-wrap gap-2">
+            ${syllables.map(s => `
+              <div class="px-3 py-2 rounded-xl text-center ${s.score >= 80 ? 'bg-green-500/20 border border-green-500/30' : 'bg-orange-500/20 border border-orange-500/30'}">
+                <p class="text-lg font-black text-white">${s.syllable}</p>
+                <p class="text-[10px] font-bold ${s.score >= 80 ? 'text-green-400' : 'text-orange-400'}">${Math.round(s.score)}%</p>
+              </div>
+            `).join('')}
+          </div>` : `<p class="glass-sub-card p-4 rounded-xl text-sm text-white/60">${text}</p>`}
+      `;
+    } else {
+      detailsEl.innerHTML = `<div class="glass-sub-card p-5 rounded-2xl"><p class="text-white/70">${text}</p></div>`;
+    }
+
+    // AI 피드백 탭
+    const aiEl = document.getElementById("sp-ai-feedback-content");
+    aiEl.innerHTML = `
+      <div class="glass-sub-card p-6 rounded-2xl">
+        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">AI Feedback</p>
+        <p class="text-base text-white/80 leading-relaxed italic">
+          "${data.ai_feedback || '피드백을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.'}"
+        </p>
+      </div>
+    `;
+
     document.getElementById("speechpro-modal").classList.remove("hidden");
   }
 

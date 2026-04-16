@@ -1,112 +1,101 @@
 [
   {
     "id": "restaurant_ordering",
-    "title": "Ordering at Restaurants in Korean",
-    "description": "Learn essential phrases for ordering food at Korean restaurants. Perfect for beginners visiting Korea.",
+    "title": "식당에서 주문하기",
+    "description": "한국 식당에서 음식을 주문할 때 쓰는 핵심 표현을 배워봐요.",
     "level": "1",
-    "youtube_id": "MHFnJcjy1C0",
-    "poster_url": "/api/tube/poster/MHFnJcjy1C0",
-    "video_url": "https://www.youtube.com/watch?v=MHFnJcjy1C0",
-    "channel": "TalkToMeInKorean"
+    "video_url": "/static/video/restaurant_ordering.mp4",
+    "poster_url": "/static/images/tube/restaurant_ordering.jpg",
+    "duration": 60
   },
   {
     "id": "essential_verbs",
-    "title": "30 Essential Korean Verbs You Must Know",
-    "description": "Master the 30 most important Korean verbs used in everyday conversation. Build your core vocabulary fast.",
+    "title": "꼭 알아야 할 한국어 동사 30개",
+    "description": "일상 대화에서 가장 많이 쓰이는 필수 동사 30개를 익혀봐요.",
     "level": "1",
-    "youtube_id": "G3hBXruoB1Y",
-    "poster_url": "/api/tube/poster/G3hBXruoB1Y",
-    "video_url": "https://www.youtube.com/watch?v=G3hBXruoB1Y",
-    "channel": "Talk To Me In Korean"
+    "video_url": "/static/video/essential_verbs.mp4",
+    "poster_url": "/static/images/tube/essential_verbs.jpg",
+    "duration": 60
   },
   {
     "id": "want_to_korean",
-    "title": "How to Say \"Want To\" in Korean",
-    "description": "Learn how to express desires and wishes in Korean using -고 싶다 and related grammar patterns.",
+    "title": "~고 싶다: 원하는 것 말하기",
+    "description": "-고 싶다 문법으로 원하는 것을 자연스럽게 표현해봐요.",
     "level": "1",
-    "youtube_id": "HoXBxoaIJMQ",
-    "poster_url": "/api/tube/poster/HoXBxoaIJMQ",
-    "video_url": "https://www.youtube.com/watch?v=HoXBxoaIJMQ",
-    "channel": "TalkToMeInKorean"
+    "video_url": "/static/video/want_to_korean.mp4",
+    "poster_url": "/static/images/tube/want_to_korean.jpg",
+    "duration": 60
   },
   {
     "id": "bts_dna_lyrics",
-    "title": "Learn Korean with BTS — DNA Lyrics",
-    "description": "Study Korean through BTS's iconic song DNA. Break down lyrics, vocabulary, and grammar in a fun musical context.",
+    "title": "BTS DNA 가사로 배우는 한국어",
+    "description": "BTS의 'DNA' 가사를 통해 어휘와 문법을 재미있게 공부해봐요.",
     "level": "2",
-    "youtube_id": "DKV2TlobX50",
-    "poster_url": "/api/tube/poster/DKV2TlobX50",
-    "video_url": "https://www.youtube.com/watch?v=DKV2TlobX50",
-    "channel": "90 Day Korean"
+    "video_url": "/static/video/bts_dna_lyrics.mp4",
+    "poster_url": "/static/images/tube/bts_dna_lyrics.jpg",
+    "duration": 60
   },
   {
     "id": "seoul_living_vlog",
-    "title": "Seoul Living Vlog — Real Korean Life",
-    "description": "Experience everyday life in Seoul through a vlog. Learn natural conversational Korean as it's actually spoken.",
+    "title": "서울 일상 브이로그",
+    "description": "실제 서울 생활을 담은 브이로그로 자연스러운 대화체 한국어를 배워봐요.",
     "level": "2",
-    "youtube_id": "iU1w8iVv0cA",
-    "poster_url": "/api/tube/poster/iU1w8iVv0cA",
-    "video_url": "https://www.youtube.com/watch?v=iU1w8iVv0cA",
-    "channel": "Hana's Suitcase"
+    "video_url": "/static/video/seoul_living_vlog.mp4",
+    "poster_url": "/static/images/tube/seoul_living_vlog.jpg",
+    "duration": 60
   },
   {
     "id": "just_a_minute",
-    "title": "Learn Korean: Just a Minute!",
-    "description": "Quick, focused Korean lessons in just one minute. Ideal for busy learners who want to build vocabulary daily.",
+    "title": "1분 한국어 레슨",
+    "description": "매일 1분씩, 집중적으로 어휘를 늘려가는 미니 레슨이에요.",
     "level": "1",
-    "youtube_id": "-_jgKgisSOU",
-    "poster_url": "/api/tube/poster/-_jgKgisSOU",
-    "video_url": "https://www.youtube.com/watch?v=-_jgKgisSOU",
-    "channel": "Go! Billy Korean"
+    "video_url": "",
+    "poster_url": "/static/images/tube/just_a_minute.jpg",
+    "duration": 60
   },
   {
     "id": "listening_me_and_cat",
-    "title": "1-Hour Korean Listening — Me & My Cat",
-    "description": "Improve your Korean listening comprehension with this one-hour natural conversation story about daily life with a cat.",
+    "title": "1시간 한국어 듣기 — 나와 고양이",
+    "description": "일상 이야기를 담은 1시간짜리 자연스러운 한국어 듣기 연습이에요.",
     "level": "3",
-    "youtube_id": "2I6UMxg6cDc",
-    "poster_url": "/api/tube/poster/2I6UMxg6cDc",
-    "video_url": "https://www.youtube.com/watch?v=2I6UMxg6cDc",
-    "channel": "Korean Motivated"
+    "video_url": "",
+    "poster_url": "/static/images/tube/listening_me_and_cat.jpg",
+    "duration": 3600
   },
   {
     "id": "temple_food_master",
-    "title": "Korean Temple Food Master",
-    "description": "Explore the serene world of Korean Buddhist temple food — learn culinary and cultural vocabulary in an authentic setting.",
+    "title": "사찰 음식 장인",
+    "description": "한국 불교 사찰 음식의 세계를 통해 요리·문화 어휘를 배워봐요.",
     "level": "3",
-    "youtube_id": "wuBh23o0_bQ",
-    "poster_url": "/api/tube/poster/wuBh23o0_bQ",
-    "video_url": "https://www.youtube.com/watch?v=wuBh23o0_bQ",
-    "channel": "Great Big Story"
+    "video_url": "",
+    "poster_url": "/static/images/tube/temple_food_master.jpg",
+    "duration": 60
   },
   {
     "id": "listening_speaking_practice",
-    "title": "Korean Listening & Speaking Practice",
-    "description": "Practice both listening and speaking skills with guided exercises. Great for intermediate learners building fluency.",
+    "title": "한국어 듣기 & 말하기 연습",
+    "description": "듣기와 말하기를 함께 연습하는 중급 학습자용 훈련 영상이에요.",
     "level": "3",
-    "youtube_id": "zCcpjBZjfSk",
-    "poster_url": "/api/tube/poster/zCcpjBZjfSk",
-    "video_url": "https://www.youtube.com/watch?v=zCcpjBZjfSk",
-    "channel": "seemile Korean"
+    "video_url": "",
+    "poster_url": "/static/images/tube/listening_speaking_practice.jpg",
+    "duration": 60
   },
   {
     "id": "newjeans_hype_boy",
-    "title": "NewJeans — Hype Boy MV",
-    "description": "Watch and listen to NewJeans' iconic Hype Boy. Perfect for K-Pop fans learning modern conversational Korean.",
+    "title": "NewJeans — Hype Boy",
+    "description": "뉴진스의 'Hype Boy'로 현대 구어체 한국어를 배워봐요.",
     "level": "2",
-    "youtube_id": "11cta61wi0g",
-    "poster_url": "/api/tube/poster/11cta61wi0g",
-    "video_url": "https://www.youtube.com/watch?v=11cta61wi0g",
-    "channel": "HYBE LABELS"
+    "video_url": "",
+    "poster_url": "/static/images/tube/newjeans_hype_boy.jpg",
+    "duration": 60
   },
   {
     "id": "baby_shark_korean",
-    "title": "Baby Shark — Korean Version",
-    "description": "The global hit Baby Shark in Korean! Perfect for complete beginners and young learners starting their Korean journey.",
+    "title": "아기상어 — 한국어 버전",
+    "description": "전 세계가 아는 아기상어를 한국어로! 완전 입문자와 어린이 학습자에게 딱이에요.",
     "level": "1",
-    "youtube_id": "761ae_KDg_Q",
-    "poster_url": "/api/tube/poster/761ae_KDg_Q",
-    "video_url": "https://www.youtube.com/watch?v=761ae_KDg_Q",
-    "channel": "Pinkfong"
+    "video_url": "",
+    "poster_url": "/static/images/tube/baby_shark_korean.jpg",
+    "duration": 60
   }
 ]

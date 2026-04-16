@@ -21,6 +21,25 @@
   const nextBtn = document.getElementById("nextBtn");
   const ttsBtn = document.getElementById("ttsBtn");
   const ttsIcon = document.getElementById("ttsIcon");
+  const doneBtn = document.getElementById("doneBtn");
+  const doneIcon = document.getElementById("doneIcon");
+  const doneLbl = document.getElementById("doneLbl");
+
+  const DONE_KEY = "expr_done_v1";
+  function getDoneSet() {
+    try { return new Set(JSON.parse(localStorage.getItem(DONE_KEY) || "[]")); } catch { return new Set(); }
+  }
+  function saveDoneSet(s) {
+    localStorage.setItem(DONE_KEY, JSON.stringify([...s]));
+  }
+
+  function showToast(msg, isError = false) {
+    const t = document.createElement("div");
+    t.textContent = msg;
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;color:#fff;background:${isError ? "rgba(239,68,68,0.9)" : "rgba(249,115,22,0.9)"};z-index:9999;pointer-events:none;opacity:1;transition:opacity 0.4s`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.remove(), 400); }, 2500);
+  }
 
   // Load expressions from API, pass current month so this month comes first
   async function loadExpressions() {
@@ -87,6 +106,21 @@
       d.classList.toggle("active", idx === currentIndex);
     });
 
+    // 완료 버튼 상태
+    if (doneBtn) {
+      const done = getDoneSet().has(String(currentIndex));
+      doneIcon.textContent = done ? "✅" : "✓";
+      doneLbl.textContent = done ? "Done!" : "Done";
+      doneBtn.style.background = done ? "rgba(34,197,94,0.2)" : "rgba(255,255,255,0.05)";
+      doneBtn.style.borderColor = done ? "rgba(34,197,94,0.4)" : "rgba(255,255,255,0.1)";
+      doneBtn.style.color = done ? "#4ade80" : "rgba(255,255,255,0.4)";
+    }
+    // 완료된 dots에 초록 표시
+    const doneSet = getDoneSet();
+    document.querySelectorAll(".dot").forEach((d, idx) => {
+      d.style.background = doneSet.has(String(idx)) ? "#4ade80" : "";
+    });
+
     // Animation effect
     card.style.opacity = "0";
     card.style.transform = "translateY(8px)";
@@ -141,6 +175,7 @@
     } catch (err) {
       console.error('TTS error:', err);
       stopTTS();
+      showToast('TTS 재생에 실패했습니다.', true);
     }
   }
 
@@ -162,6 +197,17 @@
     ttsBtn.addEventListener('click', () => {
       const text = expressions[currentIndex]?.sentenceKr;
       if (text) playTTS(text);
+    });
+  }
+
+  // 완료 버튼
+  if (doneBtn) {
+    doneBtn.addEventListener('click', () => {
+      const s = getDoneSet();
+      const key = String(currentIndex);
+      if (s.has(key)) { s.delete(key); } else { s.add(key); showToast('완료 표시했습니다! 👍'); }
+      saveDoneSet(s);
+      renderCard();
     });
   }
 

@@ -49,7 +49,9 @@ class OnuiTubeVideo(BaseModel):
     title: str
     description: str
     level: str
-    youtube_id: str
+    video_url: str = ""
+    poster_url: str = ""
+    duration: int = 0
 
 
 try:
@@ -1008,6 +1010,7 @@ def _init_user_db():
         _ensure_rag_tables(conn)
         _ensure_lms_tables(conn)
         _ensure_admin_logging_tables(conn)
+        _ensure_saved_vocab_table(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
@@ -1084,6 +1087,27 @@ def _ensure_word_score_table(conn):
         );
         CREATE INDEX IF NOT EXISTS idx_word_score_user_word
             ON word_score_history(user_id, word_id, created_at);
+        """
+    )
+    conn.commit()
+
+
+def _ensure_saved_vocab_table(conn):
+    """Create user saved vocabulary table if missing."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS user_saved_vocab (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            pos TEXT,
+            meaning TEXT,
+            source TEXT DEFAULT 'tube',
+            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, label)
+        );
+        CREATE INDEX IF NOT EXISTS idx_saved_vocab_user
+            ON user_saved_vocab(user_id, saved_at);
         """
     )
     conn.commit()
@@ -1629,8 +1653,9 @@ def _extract_session_from_request(request: Request) -> dict:
     return _parse_session_token(token)
 
 
+@lru_cache(maxsize=128)
 def _get_user_by_id(user_id: int) -> dict:
-    """Fetch full user profile by ID."""
+    """Fetch full user profile by ID (Cached)."""
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.row_factory = sqlite3.Row
@@ -1657,6 +1682,10 @@ def _get_user_by_id(user_id: int) -> dict:
         return None
     finally:
         conn.close()
+
+def _clear_user_cache():
+    """Clear the user lookup cache."""
+    _get_user_by_id.cache_clear()
 
 
 def _require_authenticated_user(request: Request) -> dict:
@@ -1830,38 +1859,28 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         path = request.url.path
         query_params = dict(request.query_params) if request.query_params else {}
 
-        # 세션 토큰에서 사용자 정보 추출
+        # 세션 토큰에서 사용자 정보 추출 (정적 파일 요청이 아닌 경우에만)
         user_info = "Guest"
         user_label = "Guest"
         user_email = ""
         user_role = ""
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-            session_data = _parse_session_token(token)
-            if session_data:
-                user_id = session_data.get("user_id")
-                email = session_data.get("email")
-                # 데이터베이스에서 닉네임 조회
-                user = _get_user_by_id(user_id)
-                if user:
-                    user_info = f"{user['nickname']} ({email})"
-                    user_label = user["nickname"]
-                    user_email = email or ""
-                    user_role = user.get("role") or ""
-                else:
-                    user_info = f"User#{user_id} ({email})"
-                    user_label = f"User#{user_id}"
-                    user_email = email or ""
-
-        # 쿠키에서도 확인
-        if user_info == "Guest":
-            cookie_token = request.cookies.get("session_token")
-            if cookie_token:
-                session_data = _parse_session_token(cookie_token)
+        
+        is_static = (
+            path.startswith("/static") or 
+            path.startswith("/uploads") or 
+            path.startswith("/data/locales") or
+            path.endswith((".ico", ".png", ".jpg", ".jpeg", ".svg", ".css", ".js", ".mp3", ".mp4"))
+        )
+        
+        if not is_static:
+            auth_header = request.headers.get("Authorization", "")
+            if auth_header.startswith("Bearer "):
+                token = auth_header[7:]
+                session_data = _parse_session_token(token)
                 if session_data:
                     user_id = session_data.get("user_id")
                     email = session_data.get("email")
+                    # 데이터베이스에서 닉네임 조회
                     user = _get_user_by_id(user_id)
                     if user:
                         user_info = f"{user['nickname']} ({email})"
@@ -1872,6 +1891,25 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                         user_info = f"User#{user_id} ({email})"
                         user_label = f"User#{user_id}"
                         user_email = email or ""
+
+            # 쿠키에서도 확인
+            if user_info == "Guest":
+                cookie_token = request.cookies.get("session_token")
+                if cookie_token:
+                    session_data = _parse_session_token(cookie_token)
+                    if session_data:
+                        user_id = session_data.get("user_id")
+                        email = session_data.get("email")
+                        user = _get_user_by_id(user_id)
+                        if user:
+                            user_info = f"{user['nickname']} ({email})"
+                            user_label = user["nickname"]
+                            user_email = email or ""
+                            user_role = user.get("role") or ""
+                        else:
+                            user_info = f"User#{user_id} ({email})"
+                            user_label = f"User#{user_id}"
+                            user_email = email or ""
 
         logger.info(f"[REQUEST] {method} {path} from {client_host} | User: {user_info}")
         if query_params:
@@ -2423,13 +2461,27 @@ def landing_page(request: Request):
 @app.get("/video-learning")
 def video_learning_page(request: Request):
     """VOD 기반 학습 (Lingopie 스타일)"""
-    return templates.TemplateResponse(request, "video-learning.html")
+    videos = []
+    try:
+        if os.path.exists("data/onui-tube.json"):
+            with open("data/onui-tube.json", "r", encoding="utf-8") as f:
+                videos = json.load(f)
+    except Exception:
+        pass
+    return templates.TemplateResponse(request, "video-learning.html", {"videos": videos})
 
 
 @app.get("/onui-beats")
 def onui_beats_page(request: Request):
     """Lirica 스타일 음악 학습"""
-    return templates.TemplateResponse(request, "onui-beats.html")
+    songs = []
+    try:
+        if os.path.exists("data/onui-beats.json"):
+            with open("data/onui-beats.json", "r", encoding="utf-8") as f:
+                songs = json.load(f)
+    except Exception:
+        pass
+    return templates.TemplateResponse(request, "onui-beats.html", {"songs": songs})
 
 
 @app.get("/voice-call")
@@ -6217,140 +6269,6 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
             pass
 
 
-@app.get("/api/tube/poster/{video_id}")
-async def get_tube_poster(video_id: str):
-    """유튜브 썸네일 이미지를 프록시합니다. oEmbed를 사용하여 신뢰할 수 있는 썸네일 URL을 가져옵니다."""
-    if ".." in video_id or "/" in video_id:
-        raise HTTPException(status_code=400, detail="Invalid video_id")
-
-    oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video_id}&format=json"
-    logger.info(f"Fetching oEmbed data from: {oembed_url}")
-
-    try:
-        # 1. oEmbed API를 호출하여 썸네일 URL을 가져옵니다.
-        oembed_resp = requests.get(oembed_url, timeout=5)
-        oembed_resp.raise_for_status()
-
-        data = oembed_resp.json()
-        thumbnail_url = data.get("thumbnail_url")
-        logger.info(f"Extracted thumbnail URL: {thumbnail_url}")
-
-        if not thumbnail_url:
-            logger.error(
-                f"Thumbnail URL not found in oEmbed response for {video_id}. Response: {data}"
-            )
-            raise HTTPException(
-                status_code=404, detail="Thumbnail URL not found in oEmbed response."
-            )
-
-        # 2. 가져온 썸네일 URL에서 이미지를 스트리밍합니다.
-        logger.info(f"Fetching image from: {thumbnail_url}")
-        image_resp = requests.get(thumbnail_url, stream=True, timeout=10)
-        image_resp.raise_for_status()
-
-        return StreamingResponse(
-            image_resp.iter_content(chunk_size=1024),
-            media_type=image_resp.headers["Content-Type"],
-            headers={"Cache-Control": "public, max-age=3600"}
-        )
-
-    except requests.exceptions.HTTPError as e:
-        logger.error(
-            f"HTTPError for {video_id}: {e.response.status_code} from {e.request.url}"
-        )
-        raise HTTPException(
-            status_code=e.response.status_code,
-            detail="Failed to fetch thumbnail dependency.",
-        )
-    except requests.exceptions.RequestException as e:
-        logger.error(f"RequestException for {video_id} using oEmbed: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to connect to thumbnail service."
-        )
-    except Exception as e:
-        logger.error(
-            f"An unexpected error occurred in get_tube_poster for {video_id}: {e}"
-        )
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
-# Global cache for YouTube search results to save API quota
-youtube_search_cache = {}
-
-
-@app.get("/api/youtube/search")
-async def search_youtube_videos(q: str):
-    """Search YouTube for Creative Commons videos with 1-hour memory caching."""
-    if not YOUTUBE_API_KEY:
-        return JSONResponse(
-            status_code=501,
-            content={
-                "error": "YouTube API key is not configured on the server (YOUTUBE_API_KEY)."
-            },
-        )
-
-    if not q:
-        return JSONResponse(
-            status_code=400, content={"error": "Query parameter 'q' is required."}
-        )
-
-    # 1. Check Cache
-    current_time = time.time()
-    if q in youtube_search_cache:
-        cached_data, timestamp = youtube_search_cache[q]
-        # Only return cache if it matches the current limit (3) and is fresh
-        if current_time - timestamp < 3600 and len(cached_data) <= 3:
-            logger.info(f"Returning cached YouTube results for: {q}")
-            return JSONResponse(content={"success": True, "videos": cached_data})
-
-    try:
-        search_url = "https://www.googleapis.com/youtube/v3/search"
-        params = {
-            "part": "snippet",
-            "q": q,
-            "type": "video",
-            "videoLicense": "creativeCommon",
-            "key": YOUTUBE_API_KEY,
-            "maxResults": 3,
-        }
-
-        response = requests.get(search_url, params=params, timeout=10)
-        response.raise_for_status()
-        results = response.json()
-
-        videos = []
-        for item in results.get("items", []):
-            if "videoId" not in item.get("id", {}):
-                continue
-            snippet = item.get("snippet", {})
-            videos.append(
-                {
-                    "videoId": item["id"]["videoId"],
-                    "title": snippet.get("title"),
-                    "description": snippet.get("description"),
-                    "thumbnail": snippet.get("thumbnails", {})
-                    .get("high", {})
-                    .get("url"),
-                    "channelTitle": snippet.get("channelTitle"),
-                }
-            )
-
-        # 2. Update Cache
-        youtube_search_cache[q] = (videos, current_time)
-        return JSONResponse(content={"success": True, "videos": videos})
-
-    except requests.exceptions.RequestException as e:
-        return JSONResponse(
-            status_code=502,
-            content={"error": "Failed to connect to YouTube API.", "details": str(e)},
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "An unexpected error occurred.", "details": str(e)},
-        )
-
-
 @app.get("/api/tube/videos")
 async def get_tube_videos():
     """OnuiTube용 비디오 목록 반환"""
@@ -6390,12 +6308,6 @@ async def add_tube_video(video: OnuiTubeVideo):
 
         # Add new video
         new_video_data = video.dict()
-        new_video_data["poster_url"] = (
-            f"https://i.ytimg.com/vi/{video.youtube_id}/hqdefault.jpg"
-        )
-        new_video_data["video_url"] = (
-            f"https://www.youtube.com/watch?v={video.youtube_id}"
-        )
         videos.append(new_video_data)
 
         # Write back to file
@@ -6428,6 +6340,48 @@ async def get_tube_transcripts(video_id: str):
         return JSONResponse(status_code=404, content={"error": "Transcripts not found"})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@app.get("/api/tube/vocab")
+async def get_saved_vocab(request: Request):
+    """로그인한 사용자의 저장된 어휘 목록 반환"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(content={"success": True, "vocab": []})
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            rows = conn.execute(
+                "SELECT label, pos, meaning, saved_at FROM user_saved_vocab WHERE user_id=? ORDER BY saved_at DESC",
+                (user["user_id"],),
+            ).fetchall()
+        finally:
+            conn.close()
+        vocab = [{"label": r[0], "pos": r[1], "mean": r[2], "saved_at": r[3]} for r in rows]
+        return JSONResponse(content={"success": True, "vocab": vocab})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+@app.post("/api/tube/vocab")
+async def save_vocab_word(request: Request, label: str = Form(...), pos: str = Form(""), meaning: str = Form(""), source: str = Form("tube")):
+    """단어를 사용자 어휘 목록에 저장 (중복 무시)"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "error": "로그인이 필요합니다."})
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            conn.execute(
+                "INSERT OR IGNORE INTO user_saved_vocab (user_id, label, pos, meaning, source) VALUES (?,?,?,?,?)",
+                (user["user_id"], label, pos, meaning, source),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        return JSONResponse(content={"success": True})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
 
 @app.post("/api/stt/whisper")

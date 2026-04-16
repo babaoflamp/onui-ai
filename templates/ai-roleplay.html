@@ -55,9 +55,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-12">
+<div class="max-w-4xl mx-auto px-4 pt-0 pb-12">
     <!-- Header Section -->
-    <div class="mb-12 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-8 rounded-[40px] relative overflow-hidden group">
+    <div class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
         <!-- Background Glows -->
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-pink-500/20 blur-[80px] rounded-full group-hover:bg-pink-500/30 transition-all duration-700"></div>
         <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full group-hover:bg-orange-500/30 transition-all duration-700"></div>
@@ -67,7 +67,7 @@
                 <span class="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse"></span>
                 Premium Companion
             </div>
-            <h1 class="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter leading-tight">
+            <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
                 AI <span class="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent italic pb-2 pr-2">Roleplay</span>
             </h1>
             <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="rp.desc">
@@ -76,7 +76,7 @@
         </div>
 
         <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-            <div class="relative w-32 h-32 md:w-44 md:h-44 rounded-[40px] overflow-hidden border-4 border-white/20 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+            <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/20 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
                 <img src="/static/images/onui-pure-idol.webp" alt="Pure Korean Idol Avatar" class="w-full h-full object-cover" loading="lazy">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             </div>
@@ -433,9 +433,13 @@
                 body: JSON.stringify({ scenario_id: currentScenario.id, messages: chatHistory })
             });
             const data = await resp.json();
+            if (!resp.ok || data.error) {
+                alert('Evaluation failed: ' + (data.error || resp.status));
+                return;
+            }
             showEvalModal(data.result);
         } catch (e) {
-            alert('Evaluation failed.');
+            alert('Evaluation failed: ' + e.message);
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
@@ -443,18 +447,11 @@
     }
 
     function showEvalModal(result) {
-        const mockResult = {
-            score: 88,
-            feedback: "Excellent work! You effectively navigated the scenario with appropriate vocabulary and natural flow.",
-            strengths: ["Proper honorifics", "Contextual word choice"],
-            improvements: ["Sentence ending variety", "Smoother transitions"]
-        };
-        const res = result && typeof result === 'object' ? result : mockResult;
-        
-        document.getElementById('eval-score').textContent = res.score;
-        document.getElementById('eval-feedback').textContent = res.feedback;
-        document.getElementById('eval-strengths').innerHTML = res.strengths.map(s => `<li>${s}</li>`).join('');
-        document.getElementById('eval-improvements').innerHTML = res.improvements.map(i => `<li>${i}</li>`).join('');
+        if (!result || typeof result !== 'object') return;
+        document.getElementById('eval-score').textContent = result.score ?? '-';
+        document.getElementById('eval-feedback').textContent = result.feedback ?? '';
+        document.getElementById('eval-strengths').innerHTML = (result.strengths ?? []).map(s => `<li>${s}</li>`).join('');
+        document.getElementById('eval-improvements').innerHTML = (result.improvements ?? []).map(i => `<li>${i}</li>`).join('');
         document.getElementById('eval-modal').classList.remove('hidden');
     }
 

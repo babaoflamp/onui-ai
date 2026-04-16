@@ -161,9 +161,9 @@
 {% endblock %}
 
 {% block content %}
-<div id="beats-container" class="max-w-4xl mx-auto py-12 px-4 min-h-screen">
+<div id="beats-container" class="max-w-4xl mx-auto pt-0 pb-12 px-4 min-h-screen">
   <!-- Premium Header Section -->
-  <div id="beats-header" class="mb-12 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-8 rounded-[40px] relative overflow-hidden group">
+  <div id="beats-header" class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/20 blur-[80px] rounded-full group-hover:bg-indigo-500/30 transition-all"></div>
     <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-500/20 blur-[80px] rounded-full group-hover:bg-purple-500/30 transition-all"></div>
 
@@ -172,7 +172,7 @@
         <span class="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse"></span>
         <span data-i18n="bt.kpop_blanks">K-Pop Blanks</span>
       </div>
-      <h1 class="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter leading-tight">
+      <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
         Onui <span class="bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent italic pb-2 pr-2">Beats</span>
       </h1>
       <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="bt.desc">
@@ -181,7 +181,7 @@
     </div>
 
     <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-        <div class="relative w-32 h-32 md:w-44 md:h-44 rounded-[40px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700 bg-white/5">
+        <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700 bg-white/5">
             <img src="/static/images/kpop-banner.svg" alt="K-Pop Vibes" class="w-full h-full object-cover" loading="lazy">
             <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
         </div>
@@ -253,6 +253,9 @@
 
       <!-- Actions -->
       <div class="flex gap-4 mt-16 w-full max-w-md">
+        <button id="hint-btn" class="py-5 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white font-black rounded-[24px] transition-all active:scale-95" title="힌트: 첫 글자 보기">
+          💡
+        </button>
         <button id="check-ans-btn" class="flex-1 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-[1.02] text-white font-black rounded-[24px] shadow-2xl transition-all active:scale-95" data-i18n="bt.check_answer">
           CHECK MY ANSWERS
         </button>
@@ -285,7 +288,15 @@
     const accuracyDisplay = document.getElementById('accuracy-display');
     const playerVisual = document.getElementById('player-visual');
 
+    const initialSongs = {{ songs|tojson if songs else '[]' }};
+    
     async function fetchSongs() {
+      if (initialSongs && initialSongs.length > 0) {
+        songs = initialSongs;
+        renderLobby();
+        return;
+      }
+      
       console.time('fetchSongs API call'); // Start timer for API call
       try {
         const resp = await fetch('/api/beats/songs');
@@ -297,7 +308,6 @@
           console.time('renderLobby function'); // Start timer for rendering
           renderLobby();
           console.timeEnd('renderLobby function'); // End timer for rendering
-          preloadAudioFiles(); // Start preloading audio files
           }
           } catch (err) {
           console.error('Failed to load songs', err);
@@ -305,37 +315,11 @@
           }
           }
 
-          function preloadAudioFiles() {
-          console.time('Audio preloading');
-          const preloadPromises = songs.map(song => {
-          return new Promise((resolve, reject) => {
-          const audio = new Audio();
-          audio.src = song.audio_url;
-          audio.preload = 'auto'; // Suggest to the browser to preload
-          audio.oncanplaythrough = () => {
-            console.log(`Preloaded: ${song.title} (${song.audio_url})`);
-            resolve();
-          };
-          audio.onerror = (e) => {
-            console.warn(`Failed to preload: ${song.title} (${song.audio_url})`, e);
-            resolve(); // Resolve even on error to not block other preloads
-          };
-          // For immediate loading, we can also call load()
-          audio.load();
-          });
-          });
-
-          Promise.allSettled(preloadPromises).then(() => {
-          console.timeEnd('Audio preloading');
-          console.log('All audio files preload attempts finished.');
-          });
-          }
-
           function renderLobby() {
           songGrid.innerHTML = songs.map((s, idx) => `
         <div onclick="startSong(${idx})" class="song-card suno-card p-6 flex items-center gap-6 cursor-pointer group">
            <div class="relative w-24 h-24 flex-shrink-0">
-             <img src="${s.image_url}" class="w-full h-full object-cover rounded-2xl shadow-lg group-hover:scale-105 transition-all duration-500" />
+             <img src="${s.image_url}" onerror="this.src='/static/images/kpop-banner.svg'" class="w-full h-full object-cover rounded-2xl shadow-lg group-hover:scale-105 transition-all duration-500" />
            </div>
            <div class="flex-1 overflow-hidden">
              <h3 class="text-xl font-black text-white mb-1 truncate">${s.title}</h3>
@@ -353,7 +337,9 @@
       
       document.getElementById('game-song-title').innerText = currentSong.title;
       document.getElementById('game-song-artist').innerText = currentSong.artist;
-      document.getElementById('game-album-art').src = currentSong.image_url;
+      const albumArt = document.getElementById('game-album-art');
+      albumArt.src = currentSong.image_url;
+      albumArt.onerror = () => { albumArt.src = '/static/images/kpop-banner.svg'; };
       
       audio.src = currentSong.audio_url;
       audio.play().catch(e => console.log("Autoplay blocked, waiting for user click"));
@@ -444,6 +430,22 @@
       return `${m}:${sec.toString().padStart(2, '0')}`;
     }
 
+    document.getElementById('hint-btn').onclick = () => {
+      const inputs = document.querySelectorAll('.lyric-blank');
+      let hinted = 0;
+      inputs.forEach(input => {
+        if (!input.classList.contains('correct') && !input.value) {
+          const answer = input.dataset.answer || '';
+          input.placeholder = answer.charAt(0) + '...';
+          input.style.borderColor = 'rgba(251,191,36,0.6)';
+          hinted++;
+        }
+      });
+      if (hinted === 0 && window.ToastManager) {
+        ToastManager.info(translations['bt.hint_none'] || '모든 빈칸을 이미 채웠습니다!');
+      }
+    };
+
     document.getElementById('check-ans-btn').onclick = () => {
       const inputs = document.querySelectorAll('.lyric-blank');
       let correct = 0;
@@ -457,10 +459,20 @@
           input.classList.remove('correct');
         }
       });
-      
+
       const acc = Math.round((correct / inputs.length) * 100);
       animateAccuracy(acc);
-      
+
+      // 점수 학습 기록 저장
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        fetch('/api/learning/pronunciation-completed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ score: acc })
+        }).catch(() => {});
+      }
+
       if (acc === 100) {
         fireConfetti();
         if (window.ToastManager) {
