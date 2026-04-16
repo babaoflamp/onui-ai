@@ -53,93 +53,48 @@ async def roleplay_chat(request: Request, payload: ChatRequest):
     level = scenario.get("level", "중급")
     goals = scenario.get("goals") or []
 
-    system_prompt = f"""당신은 한국 역사 인물 '{persona}'입니다.
-시대: {era}
-말투: {speaking_style}
-주요 주제: {', '.join(topics)}
+    system_prompt = f"""당신은 조선의 임금 세종대왕입니다.
+사용자와 대화하기 위해, 완전한 고어체가 아닌 부드러운 옛말 기반의 구어체를 사용합니다.
 
-역할극 지침:
-1. 반드시 한국어로만 답변하세요. 절대 영어로 답하지 마세요.
-2. '{persona}'의 성격, 시대적 배경, 말투를 일관되게 유지하세요.
-3. 학습자 수준({level})에 맞게 어휘를 조절하세요.
-4. 답변은 반드시 2~3문장 이내로 짧고 간결하게 하세요. 절대 길게 설명하지 마세요.
-5. 마지막 문장은 학습자에게 짧은 질문으로 끝내세요.
-6. 학습 목표({', '.join(goals)})를 자연스럽게 달성할 수 있도록 유도하세요.
-7. 학습자가 잘못된 표현을 쓰면 인물의 캐릭터를 유지하며 한 문장으로만 교정해주세요."""
+원칙:
+1. 말투: "~하였느니라" 대신 "~하는 것이 좋겠소", "~라 생각하오", "~이 옳다 보오"처럼 부드럽고 자연스럽게 말합니다. "그대", "백성" 등의 표현을 사용합니다. 절대로 '~하였사옵니다'와 같은 신하의 말투는 사용하지 마세요.
+2. 사고방식: 항상 실용성과 효율을 우선하며, 이유와 원리를 단계별로 쉽게 풀어 설명합니다.
+3. 태도: 따뜻하고 인자하지만 판단은 명확하며, 무지함을 꾸짖기보다 이해시키려 합니다.
+4. 표현 스타일: 비유와 예시를 사용하여 쉽게 설명합니다. "내가 살펴보니", "생각건대", "이는 이런 이치이니" 같은 표현을 활용합니다.
+
+지침:
+1. 반드시 한국어로만 답변하세요.
+2. 답변은 **반드시 3문장 이상**으로 풍부하게 작성하고 절대 문장을 중간에 끊지 마세요.
+3. 마지막 문장은 학습자가 대화를 이어갈 수 있도록 열린 질문으로 끝내세요.
+4. 학습 목표({', '.join(goals)})를 자연스럽게 달성할 수 있도록 대화를 주도하세요.
+5. 학습자가 잘못된 표현을 쓰면 인물의 캐릭터를 유지하며 한 문장으로만 교정해주세요."""
 
     messages = [{"role": "system", "content": system_prompt}] + payload.messages
 
-    # LLM 호출 (main.py의 설정을 활용)
-    backend = (request.app.state.model_backend or "").strip().lower()
+    # LLM 호출 (강제로 Ollama 사용)
+    backend = "ollama"
 
     try:
-        if backend == "gemini":
-            # Gemini API 호출 로직
-            try:
-                import google.generativeai as genai
-            except ImportError:
-                raise RuntimeError("Gemini 패키지(google.generativeai)가 설치되어 있지 않습니다.")
-
-            if not request.app.state.gemini_model:
-                raise RuntimeError("GEMINI_MODEL 설정이 필요합니다.")
-
-            model = genai.GenerativeModel(
-                request.app.state.gemini_model,
-                generation_config={"max_output_tokens": 200, "temperature": 0.7},
-            )
-
-            # 대화 형식 변환 (Gemini용)
-            history = []
-            for msg in messages[1:-1]:
-                role = "user" if msg["role"] == "user" else "model"
-                history.append({"role": role, "parts": [msg["content"]]})
-
-            chat = model.start_chat(history=history)
-            response = chat.send_message(messages[-1]["content"])
-            ai_message = response.text
-
-        elif backend == "ollama":
-            # Ollama 호출 로직 (간략화)
+        if backend == "ollama":
+            # Ollama 호출 로직
             import requests
             ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-            model = request.app.state.ollama_model or os.getenv("OLLAMA_MODEL")
-            if not model:
-                raise RuntimeError("OLLAMA_MODEL 설정이 필요합니다.")
+            model = os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b")
 
-            url = f"{ollama_url}/v1/chat/completions"
+            url = f"{ollama_url}/api/generate"
             resp = requests.post(url, json={
                 "model": model,
-                "messages": messages,
-                "temperature": 0.7,
-                "max_tokens": 200,
-            }, timeout=30)
+                "prompt": f"{system_prompt}\n\n대화 기록:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in payload.messages]),
+                "stream": False,
+                "options": {"temperature": 0.7}
+            }, timeout=60)
 
             if resp.status_code != 200:
                 raise RuntimeError(f"Ollama 응답 상태 코드: {resp.status_code} - {resp.text}")
 
-            ai_message = resp.json().get("choices", [])[0].get("message", {}).get("content", "")
-
-        elif backend == "openai":
-            openai_client = request.app.state.openai_client
-            openai_model = request.app.state.openai_model
-            if not openai_client:
-                raise RuntimeError("OpenAI 클라이언트가 초기화되지 않았습니다. OPENAI_API_KEY를 확인하세요.")
-            if not openai_model:
-                raise RuntimeError("OPENAI_MODEL 설정이 필요합니다.")
-
-            response = openai_client.chat.completions.create(
-                model=openai_model,
-                messages=[
-                    {"role": "system", "content": "당신은 한국어 학습 도우미입니다."},
-                    *messages[1:]
-                ],
-                temperature=0.7,
-                max_tokens=200,
-            )
-            ai_message = response.choices[0].message.content
-
+            ai_message = resp.json().get("response", "")
         else:
-            raise RuntimeError(f"지원되지 않는 AI 백엔드입니다: '{backend}'. set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'.")
+            raise RuntimeError(f"지원되지 않는 AI 백엔드입니다: '{backend}'.")
 
         return {"message": ai_message}
 

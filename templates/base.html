@@ -42,6 +42,12 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- flag-icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
+    />
+
     <!-- 공통 UI 컴포넌트 CSS -->
     <link rel="stylesheet" href="/static/css/components.css" />
     <link rel="stylesheet" href="/static/css/floating-buttons.css" />
@@ -651,6 +657,7 @@
               class="text-xs font-black text-gray-500 hover:text-white tracking-widest uppercase transition-colors flex items-center gap-2"
             >
               <span data-i18n="lang.label">Lang:</span>
+              <span id="current-lang-flag" class="fi fis rounded-sm"></span>
               <span id="current-lang-label" class="text-orange-500">EN</span>
               <span class="text-[8px] opacity-40">▼</span>
             </button>
@@ -658,22 +665,22 @@
             <!-- Language Dropdown -->
             <div id="lang-dropdown" class="absolute top-full right-0 mt-3 w-40 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top-right">
               <button onclick="changeLang('ko')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span>🇰🇷</span>
+                <span class="fi fi-kr fis rounded-sm text-lg"></span>
                 <span>한국어</span>
                 <span id="lang-check-ko" class="text-orange-500 hidden">✓</span>
               </button>
               <button onclick="changeLang('en')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span>🇺🇸</span>
+                <span class="fi fi-us fis rounded-sm text-lg"></span>
                 <span>ENGLISH</span>
                 <span id="lang-check-en" class="text-orange-500 hidden">✓</span>
               </button>
               <button onclick="changeLang('ja')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span>🇯🇵</span>
+                <span class="fi fi-jp fis rounded-sm text-lg"></span>
                 <span>日本語</span>
                 <span id="lang-check-ja" class="text-orange-500 hidden">✓</span>
               </button>
               <button onclick="changeLang('zh')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span>🇨🇳</span>
+                <span class="fi fi-cn fis rounded-sm text-lg"></span>
                 <span>中文</span>
                 <span id="lang-check-zh" class="text-orange-500 hidden">✓</span>
               </button>
@@ -747,10 +754,12 @@
         // Language Label + checkmark
         const lang = localStorage.getItem("app_lang") || "en";
         const lbl = document.getElementById("current-lang-label");
-        const flagMap = { ko: "🇰🇷", en: "🇺🇸", ja: "🇯🇵", zh: "🇨🇳" };
+        const flagMap = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
         if (lbl) lbl.textContent = lang.toUpperCase();
         const flagEl = document.getElementById("current-lang-flag");
-        if (flagEl) flagEl.textContent = flagMap[lang] || "🌍";
+        if (flagEl) {
+          flagEl.className = "fi fis rounded-sm " + (flagMap[lang] || "fi-un");
+        }
         ["ko","en","ja","zh"].forEach(l => {
           const el = document.getElementById("lang-check-" + l);
           if (el) el.classList.toggle("hidden", l !== lang);

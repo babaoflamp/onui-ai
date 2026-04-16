@@ -17,8 +17,8 @@ async function setAppLang(lang) {
     const flagEl = document.getElementById("current-lang-flag");
     const nameEl = document.getElementById("current-lang-name");
     if (flagEl && nameEl) {
-        const flags = { ko: "🇰🇷", en: "🇺🇸", ja: "🇯🇵", zh: "🇨🇳" };
-        flagEl.textContent = flags[lang] || "🌍";
+        const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
+        flagEl.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
         nameEl.textContent = lang.toUpperCase();
     }
 
@@ -70,8 +70,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const flagEl = document.getElementById("current-lang-flag");
     const nameEl = document.getElementById("current-lang-name");
     if (flagEl && nameEl) {
-        const flags = { ko: "🇰🇷", en: "🇺🇸", ja: "🇯🇵", zh: "🇨🇳" };
-        flagEl.textContent = flags[lang] || "🌍";
+        const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
+        flagEl.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
         nameEl.textContent = lang.toUpperCase();
     }
 });

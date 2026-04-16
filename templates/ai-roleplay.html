@@ -117,7 +117,7 @@
                 {% include "components/ai-avatar.html" %}
             </div>
             <div class="flex-1">
-                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4" data-i18n="rp.objectives">Current Objectives</h3>
+                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Conversation Topics</h3>
                 <div class="flex flex-wrap gap-3" id="scenario-goals">
                     <!-- Goals will be listed here -->
                 </div>
@@ -293,7 +293,7 @@
         
         // Render goals
         document.getElementById('scenario-goals').innerHTML = currentScenario.goals.map(g => `
-            <span class="px-4 py-2 bg-white/5 text-white/70 rounded-2xl text-xs font-bold border border-white/5">✦ ${g}</span>
+            <span onclick="promptGoal('${g}')" class="px-4 py-2 bg-white/5 text-white/70 rounded-2xl text-xs font-bold border border-white/5 cursor-pointer hover:bg-orange-500/20 hover:text-orange-400 transition-all" data-goal="${g}">✦ ${g}</span>
         `).join('');
 
         // Clear chat
@@ -303,7 +303,7 @@
         // Add initial message
         addMessage('ai', currentScenario.initial_message);
         chatHistory.push({role: 'assistant', content: currentScenario.initial_message});
-        playTTS(currentScenario.initial_message);
+        if (window.AI_AVATAR) AI_AVATAR.speak(currentScenario.initial_message, currentScenario.initial_message.length * 150);
     }
 
     function backToScenarios() {
@@ -313,7 +313,13 @@
         currentScenario = null;
     }
 
-    function addMessage(role, text) {
+    function promptGoal(goal) {
+        const input = document.getElementById('user-input');
+        input.value = goal;
+        sendMessage();
+    }
+
+    async function addMessage(role, text, isTyping = false) {
         const chatBox = document.getElementById('chat-box');
         const wrapper = document.createElement('div');
         wrapper.className = `flex w-full gap-3 ${role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-${role === 'user' ? 'right' : 'left'}-4 fade-in duration-300`;
@@ -327,11 +333,20 @@
 
         const div = document.createElement('div');
         div.className = `max-w-[75%] p-5 font-medium leading-relaxed ${role === 'user' ? 'message-user' : 'message-ai'}`;
-        div.textContent = text;
         
         wrapper.appendChild(div);
         chatBox.appendChild(wrapper);
         chatBox.scrollTop = chatBox.scrollHeight;
+
+        if (isTyping) {
+            for (let i = 0; i < text.length; i++) {
+                div.textContent += text.charAt(i);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                await new Promise(r => setTimeout(r, 30));
+            }
+        } else {
+            div.textContent = text;
+        }
     }
 
     async function sendMessage() {
@@ -374,41 +389,14 @@
             if (window.AI_AVATAR) AI_AVATAR.setStatus(null);
 
             if (data.message) {
-                addMessage('ai', data.message);
+                addMessage('ai', data.message, true);
                 chatHistory.push({role: 'assistant', content: data.message});
-                playTTS(data.message);
+                if (window.AI_AVATAR) AI_AVATAR.speak(data.message, data.message.length * 150);
             }
         } catch (e) {
             console.error('Chat error', e);
             document.getElementById(typingId).textContent = 'Connection error.';
         }
-    }
-
-    async function playTTS(text) {
-        try {
-            const resp = await fetch('/api/tts/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
-                },
-                body: JSON.stringify({
-                    text: text,
-                    backend: 'gemini'
-                })
-            });
-            const blob = await resp.blob();
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            
-            audio.onplay = () => {
-                if (window.AI_AVATAR) {
-                    const duration = (audio.duration && !isNaN(audio.duration)) ? audio.duration * 1000 : text.length * 250;
-                    AI_AVATAR.speak(text, duration);
-                }
-            };
-            audio.play();
-        } catch (e) { console.warn('TTS failed', e); }
     }
 
     function toggleMic() {
