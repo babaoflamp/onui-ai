@@ -341,7 +341,13 @@ CLARITY_PROJECT_ID = os.getenv("CLARITY_PROJECT_ID")
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(24).hex())
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if not SECRET_KEY:
+    SECRET_KEY = os.urandom(24).hex()
+    logging.warning(
+        "[SECURITY] SECRET_KEY env var is not set. A random key was generated — "
+        "all sessions will be invalidated on every restart. Set SECRET_KEY in .env for production."
+    )
 
 oauth = OAuth()
 if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
@@ -1383,12 +1389,19 @@ def _compute_attendance_streak(conn, user_id: int) -> int:
 
 def _seed_admin_user(conn):
     """Seed a default admin account if none exists."""
-    admin_email = os.getenv("ADMIN_EMAIL", "admin@mediazen.co.kr").lower().strip()
-    admin_password = os.getenv("ADMIN_PASSWORD", "mz1234!@")
+    admin_email = os.getenv("ADMIN_INITIAL_EMAIL", "").lower().strip()
+    admin_password = os.getenv("ADMIN_INITIAL_PASSWORD", "")
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE is_admin = 1")
     row = cursor.fetchone()
     if row:
+        return
+
+    if not admin_email or not admin_password:
+        logging.warning(
+            "[SECURITY] No admin user found and ADMIN_INITIAL_EMAIL / ADMIN_INITIAL_PASSWORD "
+            "env vars are not set. Skipping admin seed. Set these env vars to create the initial admin account."
+        )
         return
 
     password_hash = _hash_password(admin_password)
@@ -1719,6 +1732,15 @@ def _require_admin(request: Request) -> dict:
     return user
 
 
+def _check_admin_for_page(request: Request):
+    """For HTML admin pages: returns RedirectResponse to /admin/login if not admin, else None."""
+    try:
+        _require_admin(request)
+        return None
+    except HTTPException:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+
 def _require_role(request: Request, allowed_roles) -> dict:
     """Return user if role is allowed, otherwise raise HTTP 403."""
     user = _require_authenticated_user(request)
@@ -1913,7 +1935,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
         logger.info(f"[REQUEST] {method} {path} from {client_host} | User: {user_info}")
         if query_params:
-            logger.info(f"[QUERY] {query_params}")
+            _SENSITIVE_PARAMS = {"token", "password", "secret", "key", "auth"}
+            masked_params = {
+                k: "[REDACTED]" if any(s in k.lower() for s in _SENSITIVE_PARAMS) else v
+                for k, v in query_params.items()
+            }
+            logger.info(f"[QUERY] {masked_params}")
 
         # 요청 본문 (POST/PUT 등)
         if method in ["POST", "PUT", "PATCH"]:
@@ -1938,8 +1965,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                     # JSON 형식이면 파싱, 아니면 문자열로
                     try:
                         body_json = json.loads(body)
+                        _SENSITIVE_FIELDS = {"password", "token", "secret", "key", "credential", "auth"}
+                        def _mask_sensitive(obj):
+                            if isinstance(obj, dict):
+                                return {
+                                    k: "[REDACTED]" if any(s in k.lower() for s in _SENSITIVE_FIELDS) else _mask_sensitive(v)
+                                    for k, v in obj.items()
+                                }
+                            if isinstance(obj, list):
+                                return [_mask_sensitive(i) for i in obj]
+                            return obj
                         logger.info(
-                            f"[BODY] {json.dumps(body_json, ensure_ascii=False)[:500]}"
+                            f"[BODY] {json.dumps(_mask_sensitive(body_json), ensure_ascii=False)[:500]}"
                         )
                     except:
                         if body:
@@ -2615,51 +2652,64 @@ def admin_login_page(request: Request):
 
 @app.get("/admin/dashboard")
 def admin_dashboard_page(request: Request):
-    """관리자 대시보드 페이지 (클라이언트 측 인증 검사)"""
-    # Note: Token validation happens on client-side (JavaScript)
-    # API endpoints enforce _require_admin for actual operations
+    """관리자 대시보드 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-dashboard.html")
 
 
 @app.get("/admin/users")
 def admin_users_page(request: Request):
-    """관리자 사용자 관리 페이지 (클라이언트 측 인증 검사)"""
-    # Note: Token validation happens on client-side (JavaScript)
-    # API endpoints enforce _require_admin for actual operations
+    """관리자 사용자 관리 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-users.html")
 
 
 @app.get("/admin")
 def admin_shell_page(request: Request):
     """관리자 셸: 좌측 사이드 패널 + 우측 콘텐츠 프레임"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin.html")
 
 
 @app.get("/admin/api")
 def admin_api_page(request: Request):
     """관리자 API 설정 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-api.html")
 
 
 @app.get("/admin/system")
 def admin_system_page(request: Request):
     """관리자 시스템 설정 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-system.html")
 
 
 @app.get("/admin/logs")
 def admin_logs_page(request: Request):
-    """관리자 로그 모니터링 페이지 (클라이언트 측 인증 검사)"""
-    # Note: Token validation happens on client-side (JavaScript)
-    # API endpoints enforce _require_admin for actual operations
+    """관리자 로그 모니터링 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-logs.html")
 
 
 @app.get("/admin/settings")
 def admin_settings_page(request: Request):
-    """관리자 설정 페이지 (클라이언트 측 인증 검사)"""
-    # Note: Token validation happens on client-side (JavaScript)
-    # API endpoints enforce _require_admin for actual operations
+    """관리자 설정 페이지"""
+    redirect = _check_admin_for_page(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "admin-settings.html")
 
 
@@ -5065,7 +5115,9 @@ async def pronunciation_check(
             status_code=415, content={"error": "Unsupported media type"}
         )
 
-    file_location = f"temp_{file.filename}"
+    # Path Traversal 방어: basename만 추출하고 안전한 임시 디렉토리에 저장
+    safe_filename = os.path.basename(file.filename or "upload").replace("..", "")
+    file_location = os.path.join(APP_TMP_DIR, f"temp_{safe_filename}")
 
     # STT backend pre-checks
     if STT_BACKEND == "openai":
@@ -7147,8 +7199,17 @@ _ensure_video_progress_table()
 
 
 @app.get("/api/video-progress/{user_id}")
-async def get_video_progress(user_id: str):
+async def get_video_progress(user_id: str, request: Request):
     """사용자의 전체 동영상 시청 진도를 반환합니다."""
+    # 세션 검증: 본인 데이터 또는 관리자만 조회 가능
+    try:
+        session_user = _require_authenticated_user(request)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
+    session_user_id = str(session_user.get("id", ""))
+    session_role = _normalize_role(session_user.get("role"), session_user.get("is_admin"))
+    if session_user_id != str(user_id) and session_role != ROLE_SYSTEM_ADMIN:
+        return JSONResponse(status_code=403, content={"error": "권한이 없습니다."})
     try:
         conn = sqlite3.connect("data/users.db")
         cursor = conn.cursor()
@@ -7178,7 +7239,6 @@ from pydantic import BaseModel as _PydanticBaseModel
 
 
 class _VideoProgressBody(_PydanticBaseModel):
-    user_id: str
     video_id: str
     watched_seconds: int = 0
     duration_seconds: int = 0
@@ -7187,8 +7247,14 @@ class _VideoProgressBody(_PydanticBaseModel):
 
 
 @app.post("/api/video-progress")
-async def save_video_progress(body: _VideoProgressBody):
+async def save_video_progress(request: Request, body: _VideoProgressBody):
     """동영상 시청 진도를 저장합니다."""
+    # 세션에서 user_id 추출 (body의 user_id는 더 이상 신뢰하지 않음)
+    try:
+        session_user = _require_authenticated_user(request)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
+    user_id = str(session_user.get("id", ""))
     try:
         conn = sqlite3.connect("data/users.db")
         conn.execute(
@@ -7204,7 +7270,7 @@ async def save_video_progress(body: _VideoProgressBody):
                 updated_at = CURRENT_TIMESTAMP
         """,
             (
-                body.user_id,
+                user_id,
                 body.video_id,
                 body.watched_seconds,
                 body.duration_seconds,
@@ -7216,7 +7282,7 @@ async def save_video_progress(body: _VideoProgressBody):
 
         # LMS: 강의 출결 자동 연동 (실패 무시)
         try:
-            _uid_int = int(body.user_id)
+            _uid_int = int(user_id)
             _watched_pct = (
                 round(body.watched_seconds / body.duration_seconds * 100, 1)
                 if body.duration_seconds and body.duration_seconds > 0

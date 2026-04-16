@@ -297,22 +297,27 @@ async def record_video_attendance(request: Request):
     """
     강의 시청률을 기반으로 출결 처리.
     watched_pct >= 80 이면 status = 'present'.
-    인증 없이도 호출 가능 (video-progress와 동일 패턴).
+    세션에서 user_id를 가져옴 (body의 user_id는 무시).
     """
+    # 세션 인증 필수
+    try:
+        session_user = _require_user(request)
+    except Exception as e:
+        return JSONResponse(status_code=401, content={"error": str(e)})
+
     payload = await request.json()
 
-    user_id = payload.get("user_id")
     video_id = payload.get("video_id", "")
     watched_pct = float(payload.get("watched_pct", 0))
     study_secs = int(payload.get("study_seconds", 0))
     week = payload.get("week")
     term_id = payload.get("term_id", "2026-1")
 
-    # user_id가 숫자가 아니면(게스트) 무시
+    # 세션에서 user_id 추출
     try:
-        user_id = int(user_id)
+        user_id = int(session_user.get("id"))
     except (TypeError, ValueError):
-        return JSONResponse(content={"success": False, "reason": "guest_skipped"})
+        return JSONResponse(content={"success": False, "reason": "invalid_user"})
 
     if not video_id:
         return JSONResponse(status_code=400, content={"error": "video_id required"})
@@ -504,10 +509,16 @@ async def save_study_session(request: Request):
     """
     페이지 이탈 시 유효 학습 시간(초)을 저장.
     60초 미만은 서버에서 무시.
+    세션에서 user_id를 가져옴 (body의 user_id는 무시).
     """
+    # 세션 인증 필수
+    try:
+        session_user = _require_user(request)
+    except Exception as e:
+        return JSONResponse(status_code=401, content={"error": str(e)})
+
     payload = await request.json()
 
-    user_id = payload.get("user_id")
     page = payload.get("page", "")
     page_type = payload.get(
         "page_type", "other"
@@ -517,11 +528,11 @@ async def save_study_session(request: Request):
     device_type = payload.get("device_type", "pc")
     ui_lang = payload.get("ui_lang", "en")
 
-    # 게스트 건너뜀
+    # 세션에서 user_id 추출
     try:
-        user_id = int(user_id)
+        user_id = int(session_user.get("id"))
     except (TypeError, ValueError):
-        return JSONResponse(content={"success": False, "reason": "guest_skipped"})
+        return JSONResponse(content={"success": False, "reason": "invalid_user"})
 
     # 60초 미만 미집계
     if duration < 60:

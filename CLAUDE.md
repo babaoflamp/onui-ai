@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web platform. Backend: FastAPI (Python). Frontend: Jinja2 templates + Tailwind CSS. The app runs at port 9000 by default.
+**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web platform. Backend: FastAPI (Python). Frontend: Jinja2 templates + Tailwind CSS. The app runs at port 9002 (both dev and production via PM2).
 
 ## Development Commands
 
@@ -65,7 +65,7 @@ Key sections in `main.py`:
 - **Lines 1–500**: imports, env config, AI client initialization
 - **Lines 500–970**: TTS helpers (MzTTS, Gemini, Google, OpenAI), audio conversion utilities
 - **Lines 970–2090**: SQLite DB init (`data/users.db`), auth helpers (PBKDF2 passwords, session tokens), app factory, middleware setup
-- **Lines 2090+**: All route handlers (`@app.get/post/...`)
+- **Lines 2090+**: All route handlers (`@app.get/post/...`), including a WebSocket endpoint at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming)
 
 ### Routers in `backend/routes/`
 
@@ -78,6 +78,10 @@ These are mounted in `main.py` (~line 1976) via `app.include_router(...)`:
 | `speechpro.py` | `/api/speechpro/*` — pronunciation evaluation |
 | `roleplay.py` | `/roleplay`, `/api/roleplay/*` — AI historical figure roleplay |
 | `lms.py` | LMS (Learning Management System) routes |
+
+### `backend/utils.py`
+
+Thin shared helper — currently just `_get_state(request, name)` for reading from `request.app.state`. Import from here rather than accessing `app.state` directly in routers/services.
 
 ### Services in `backend/services/`
 
@@ -108,7 +112,9 @@ Cookie-based sessions using an in-memory `active_sessions` dict (token → user 
 - Tailwind CSS is loaded via CDN (not compiled locally).
 - JavaScript in templates is mostly inline; standalone JS files exist only for complex pages (word-puzzle, vocab-garden, etc.).
 
-Notable templates beyond the learning activities: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `dashboard.html`, and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`).
+Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`).
+
+User-uploaded files (profile images, audio recordings) are stored under `uploads/` and served at `/uploads` via a separate static mount.
 
 ### i18n System
 
@@ -121,9 +127,14 @@ UI strings are translated client-side. Locale files live in `data/locales/{lang}
 Static JSON datasets read at startup or on-demand:
 - `sentences.json` — 35 sentences for listening/puzzle activities
 - `vocabulary.json` — 72 vocabulary words (A1–B2)
-- `pronunciation-words.json` — pronunciation practice words
+- `pronunciation-words.json` / `speechpro-sentences.json` — pronunciation practice content
+- `expressions.json` — daily expressions served via `/api/expressions`
 - `folktales.json` — 10 Korean folktales
 - `cultural-expressions.json` — 30 cultural expressions
+- `voice-call.json` — voice call scenario definitions (used by `/ws/voice-call/` WebSocket)
+- `onui-beats.json` — music/lyrics data for Onui Beats feature
+- `onui-tube.json` / `onui-tube-transcripts.json` — video metadata and transcripts for OnuiTube
+- `roleplay-scenarios.json` — historical figure scenarios for AI Roleplay
 - `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
 
 ### Scripts (`scripts/`)
