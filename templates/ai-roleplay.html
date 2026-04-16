@@ -117,7 +117,7 @@
                 {% include "components/ai-avatar.html" %}
             </div>
             <div class="flex-1">
-                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Conversation Topics</h3>
+                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Objectives</h3>
                 <div class="flex flex-wrap gap-3" id="scenario-goals">
                     <!-- Goals will be listed here -->
                 </div>
@@ -303,7 +303,7 @@
         // Add initial message
         addMessage('ai', currentScenario.initial_message);
         chatHistory.push({role: 'assistant', content: currentScenario.initial_message});
-        if (window.AI_AVATAR) AI_AVATAR.speak(currentScenario.initial_message, currentScenario.initial_message.length * 150);
+        // TTS disabled as requested
     }
 
     function backToScenarios() {
@@ -391,7 +391,7 @@
             if (data.message) {
                 addMessage('ai', data.message, true);
                 chatHistory.push({role: 'assistant', content: data.message});
-                if (window.AI_AVATAR) AI_AVATAR.speak(data.message, data.message.length * 150);
+                // TTS disabled as requested
             }
         } catch (e) {
             console.error('Chat error', e);

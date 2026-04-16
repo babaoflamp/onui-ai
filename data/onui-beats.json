@@ -6,10 +6,26 @@
     "audio_url": "/static/audio/arirang.ogg",
     "image_url": "/static/images/arirang-cover.svg",
     "lyrics": [
-      { "text": "아리랑 아리랑 아라리요", "blank": "아리랑", "meaning": "Arirang (Traditional Korean folk song title)" },
-      { "text": "아리랑 고개를 넘어간다", "blank": "고개를", "meaning": "Pass / Hill" },
-      { "text": "나를 버리고 가시는 님은", "blank": "버리고", "meaning": "Abandon / Leave behind" },
-      { "text": "십리도 못 가서 발병 난다", "blank": "발병", "meaning": "Foot disease / Blister" }
+      {
+        "text": "아리랑 아리랑 아라리요",
+        "blank": "아리랑",
+        "meaning": "Arirang (Traditional Korean folk song title)"
+      },
+      {
+        "text": "아리랑 고개를 넘어간다",
+        "blank": "고개를",
+        "meaning": "Pass / Hill"
+      },
+      {
+        "text": "나를 버리고 가시는 님은",
+        "blank": "버리고",
+        "meaning": "Abandon / Leave behind"
+      },
+      {
+        "text": "십리도 못 가서 발병 난다",
+        "blank": "발병",
+        "meaning": "Foot disease / Blister"
+      }
     ]
   },
   {
@@ -20,17 +36,1356 @@
     "audio_url": "/static/audio/ollegil.mp3",
     "image_url": "/static/images/ollegil-cover.svg",
     "lyrics": [
-      { "text": "올레질은 좋은 질", "blank": "올레질은", "meaning": "Olle path (제주 방언: 오솔길)" },
-      { "text": "조미있는 질", "blank": "조미있는", "meaning": "재미있는 (Jeju dialect: Interesting / Fun)" },
-      { "text": "산새 들새 벗되영 반겨주는 질", "blank": "벗되영", "meaning": "친구가 되어 (Jeju: becoming friends)" },
-      { "text": "생이추룩 놀고싶엉", "blank": "생이추룩", "meaning": "새처럼 (Jeju: like a bird)" },
-      { "text": "두폴 벨기민 산들 보름달이 밀려줍니다", "blank": "두폴", "meaning": "두 팔 (Jeju: two arms)" },
-      { "text": "올레 질은 좋은 질 정이 드는 질", "blank": "정이", "meaning": "Affection / Love (정情)" },
-      { "text": "고장덜이 도투멍 인사 호는 질", "blank": "도투멍", "meaning": "함께 모여 (Jeju: gathering together)" },
-      { "text": "꽃들처럼 예쁘게 하하 웃으민 메아리도 정답게 따라합니다", "blank": "메아리", "meaning": "Echo (메아리)" },
-      { "text": "올레 질은 좋은 질 도틈어신 질", "blank": "도틈어신", "meaning": "다툼없는 (Jeju: without conflict)" },
-      { "text": "놀멍 쉬멍 걸어도 꼴등 어신 질", "blank": "놀멍 쉬멍", "meaning": "놀면서 쉬면서 (Jeju: playing and resting)" },
-      { "text": "대자연의 숨소리 풀말축놀래 아름다운 노을만 품엉옵니다", "blank": "노을만", "meaning": "Sunset only (아름다운 노을)" }
+      {
+        "text": "올레질은 좋은 질",
+        "blank": "올레질은",
+        "meaning": "Olle path (제주 방언: 오솔길)"
+      },
+      {
+        "text": "조미있는 질",
+        "blank": "조미있는",
+        "meaning": "재미있는 (Jeju dialect: Interesting / Fun)"
+      },
+      {
+        "text": "산새 들새 벗되영 반겨주는 질",
+        "blank": "벗되영",
+        "meaning": "친구가 되어 (Jeju: becoming friends)"
+      },
+      {
+        "text": "생이추룩 놀고싶엉",
+        "blank": "생이추룩",
+        "meaning": "새처럼 (Jeju: like a bird)"
+      },
+      {
+        "text": "두폴 벨기민 산들 보름달이 밀려줍니다",
+        "blank": "두폴",
+        "meaning": "두 팔 (Jeju: two arms)"
+      },
+      {
+        "text": "올레 질은 좋은 질 정이 드는 질",
+        "blank": "정이",
+        "meaning": "Affection / Love (정情)"
+      },
+      {
+        "text": "고장덜이 도투멍 인사 호는 질",
+        "blank": "도투멍",
+        "meaning": "함께 모여 (Jeju: gathering together)"
+      },
+      {
+        "text": "꽃들처럼 예쁘게 하하 웃으민 메아리도 정답게 따라합니다",
+        "blank": "메아리",
+        "meaning": "Echo (메아리)"
+      },
+      {
+        "text": "올레 질은 좋은 질 도틈어신 질",
+        "blank": "도틈어신",
+        "meaning": "다툼없는 (Jeju: without conflict)"
+      },
+      {
+        "text": "놀멍 쉬멍 걸어도 꼴등 어신 질",
+        "blank": "놀멍 쉬멍",
+        "meaning": "놀면서 쉬면서 (Jeju: playing and resting)"
+      },
+      {
+        "text": "대자연의 숨소리 풀말축놀래 아름다운 노을만 품엉옵니다",
+        "blank": "노을만",
+        "meaning": "Sunset only (아름다운 노을)"
+      }
+    ]
+  },
+  {
+    "id": "beat_001",
+    "title": "섞일수록 빛나 (비빔밥)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/섞일수록 빛나 (비빔밥).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "월드팝",
+    "lyrics": [
+      {
+        "text": "참기름 향이 번져가",
+        "blank": "참기름",
+        "meaning": "Sesame oil"
+      },
+      {
+        "text": "따뜻한 밥 위에",
+        "blank": "밥",
+        "meaning": "Rice"
+      },
+      {
+        "text": "고추장 한 스푼 얹으면",
+        "blank": "고추장",
+        "meaning": "Red chili paste"
+      },
+      {
+        "text": "색이 살아나",
+        "blank": "살아나",
+        "meaning": "Come to life"
+      },
+      {
+        "text": "나물 하나 김 한 장도",
+        "blank": "나물",
+        "meaning": "Seasoned vegetables"
+      },
+      {
+        "text": "서로를 채워",
+        "blank": "서로를",
+        "meaning": "Each other"
+      },
+      {
+        "text": "다른 맛이 만나서",
+        "blank": "맛이",
+        "meaning": "Taste"
+      },
+      {
+        "text": "더 깊어지는 걸",
+        "blank": "깊어지는",
+        "meaning": "Deepening"
+      },
+      {
+        "text": "섞일수록 빛나",
+        "blank": "빛나",
+        "meaning": "Shine"
+      },
+      {
+        "text": "더 선명해져",
+        "blank": "선명해져",
+        "meaning": "Vivid / Clear"
+      },
+      {
+        "text": "한 그릇 안에 담긴",
+        "blank": "그릇",
+        "meaning": "Bowl"
+      },
+      {
+        "text": "우리 이야기",
+        "blank": "이야기",
+        "meaning": "Story"
+      },
+      {
+        "text": "지금 이 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "다름이 모여 만든",
+        "blank": "모여",
+        "meaning": "Gathered"
+      },
+      {
+        "text": "조화처럼",
+        "blank": "조화",
+        "meaning": "Harmony"
+      }
+    ]
+  },
+  {
+    "id": "beat_002",
+    "title": "바람에 스며든 색 (한복)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/바람에 스며든 색 (한복).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "전통 발라드",
+    "lyrics": [
+      {
+        "text": "고운 비단 위에 앉은",
+        "blank": "비단",
+        "meaning": "Silk"
+      },
+      {
+        "text": "은은한 색감",
+        "blank": "색감",
+        "meaning": "Color / Hue"
+      },
+      {
+        "text": "저고리와 치마 자락",
+        "blank": "저고리",
+        "meaning": "Hanbok jacket"
+      },
+      {
+        "text": "바람에 번져",
+        "blank": "바람",
+        "meaning": "Wind"
+      },
+      {
+        "text": "고름 매는 손끝마다",
+        "blank": "고름",
+        "meaning": "Hanbok ribbon"
+      },
+      {
+        "text": "정성이 담겨",
+        "blank": "정성",
+        "meaning": "Sincerity / Care"
+      },
+      {
+        "text": "조용히 이어져 온",
+        "blank": "이어져",
+        "meaning": "Continued"
+      },
+      {
+        "text": "오랜 시간들",
+        "blank": "시간들",
+        "meaning": "Times"
+      },
+      {
+        "text": "바람에 스며든 색",
+        "blank": "스며든",
+        "meaning": "Soaked / Permeated"
+      },
+      {
+        "text": "한복의 선처럼",
+        "blank": "한복",
+        "meaning": "Hanbok"
+      },
+      {
+        "text": "흘러가는 이 순간",
+        "blank": "흘러가는",
+        "meaning": "Flowing"
+      },
+      {
+        "text": "머물러 있어",
+        "blank": "머물러",
+        "meaning": "Staying"
+      },
+      {
+        "text": "다시 이어져",
+        "blank": "이어져",
+        "meaning": "Connect / Continue"
+      },
+      {
+        "text": "천천히 살아나는",
+        "blank": "천천히",
+        "meaning": "Slowly"
+      },
+      {
+        "text": "우리의 시간",
+        "blank": "시간",
+        "meaning": "Time"
+      }
+    ]
+  },
+  {
+    "id": "beat_003",
+    "title": "바람이 머무는 곳 (제주)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/바람이 머무는 곳 (제주).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "어쿠스틱",
+    "lyrics": [
+      {
+        "text": "돌하르방 지켜보는",
+        "blank": "돌하르방",
+        "meaning": "Stone grandfather statue"
+      },
+      {
+        "text": "조용한 길 위",
+        "blank": "조용한",
+        "meaning": "Quiet"
+      },
+      {
+        "text": "검은 돌담 사이로",
+        "blank": "돌담",
+        "meaning": "Stone wall"
+      },
+      {
+        "text": "바람이 불어",
+        "blank": "불어",
+        "meaning": "Blowing"
+      },
+      {
+        "text": "푸른 바다 넘어오는",
+        "blank": "바다",
+        "meaning": "Sea"
+      },
+      {
+        "text": "짠 내음 속에",
+        "blank": "내음",
+        "meaning": "Scent / Smell"
+      },
+      {
+        "text": "귤 향기가 번져가",
+        "blank": "귤",
+        "meaning": "Tangerine"
+      },
+      {
+        "text": "마음이 풀려",
+        "blank": "마음",
+        "meaning": "Mind / Heart"
+      },
+      {
+        "text": "바람이 머무는 곳",
+        "blank": "머무는",
+        "meaning": "Staying"
+      },
+      {
+        "text": "제주의 시간",
+        "blank": "제주",
+        "meaning": "Jeju Island"
+      },
+      {
+        "text": "파도와 바람 속에",
+        "blank": "파도",
+        "meaning": "Wave"
+      },
+      {
+        "text": "나를 맡겨",
+        "blank": "맡겨",
+        "meaning": "Entrust"
+      },
+      {
+        "text": "눈을 감으면",
+        "blank": "감으면",
+        "meaning": "Close"
+      },
+      {
+        "text": "자연이 들려주는",
+        "blank": "자연",
+        "meaning": "Nature"
+      },
+      {
+        "text": "이야기",
+        "blank": "이야기",
+        "meaning": "Story"
+      }
+    ]
+  },
+  {
+    "id": "beat_004",
+    "title": "오늘은 우리 집 (설날)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/오늘은 우리 집 (설날).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "따뜻한 발라드",
+    "lyrics": [
+      {
+        "text": "한복 입고 인사하면",
+        "blank": "인사하면",
+        "meaning": "Greeting"
+      },
+      {
+        "text": "새해가 시작돼",
+        "blank": "새해",
+        "meaning": "New Year"
+      },
+      {
+        "text": "“새해 복 많이 받아”",
+        "blank": "복",
+        "meaning": "Luck / Blessing"
+      },
+      {
+        "text": "웃음이 번져",
+        "blank": "웃음",
+        "meaning": "Laughter"
+      },
+      {
+        "text": "떡국 한 그릇 속에",
+        "blank": "떡국",
+        "meaning": "Rice cake soup"
+      },
+      {
+        "text": "나이를 담고",
+        "blank": "나이",
+        "meaning": "Age"
+      },
+      {
+        "text": "어제보다 조금 더",
+        "blank": "어제보다",
+        "meaning": "Than yesterday"
+      },
+      {
+        "text": "자라난 하루",
+        "blank": "자라난",
+        "meaning": "Grown"
+      },
+      {
+        "text": "오늘은 우리 집",
+        "blank": "우리 집",
+        "meaning": "Our house"
+      },
+      {
+        "text": "설날 아침",
+        "blank": "설날",
+        "meaning": "Lunar New Year"
+      },
+      {
+        "text": "따뜻한 온기가",
+        "blank": "온기",
+        "meaning": "Warmth"
+      },
+      {
+        "text": "이어져",
+        "blank": "이어져",
+        "meaning": "Continued"
+      },
+      {
+        "text": "함께라서",
+        "blank": "함께",
+        "meaning": "Together"
+      },
+      {
+        "text": "평범한 순간도",
+        "blank": "평범한",
+        "meaning": "Ordinary"
+      },
+      {
+        "text": "특별해져",
+        "blank": "특별해져",
+        "meaning": "Become special"
+      }
+    ]
+  },
+  {
+    "id": "beat_005",
+    "title": "한 잔 더 할래? (막걸리)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/한 잔 더 할래_ (막걸리).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "트로트 팝 (트로트 + K-pop 믹스)",
+    "lyrics": [
+      {
+        "text": "하얀 거품 가득 담긴",
+        "blank": "거품",
+        "meaning": "Foam / Bubble"
+      },
+      {
+        "text": "사기잔 위로",
+        "blank": "사기잔",
+        "meaning": "Ceramic cup"
+      },
+      {
+        "text": "탁한 빛 속에 담긴",
+        "blank": "탁한",
+        "meaning": "Cloudy / Murky"
+      },
+      {
+        "text": "시간의 맛",
+        "blank": "맛",
+        "meaning": "Taste"
+      },
+      {
+        "text": "파전 굽는 소리 따라",
+        "blank": "파전",
+        "meaning": "Green onion pancake"
+      },
+      {
+        "text": "웃음이 번져",
+        "blank": "웃음",
+        "meaning": "Laughter"
+      },
+      {
+        "text": "비 오는 날이면 더",
+        "blank": "비",
+        "meaning": "Rain"
+      },
+      {
+        "text": "생각나는 밤",
+        "blank": "밤",
+        "meaning": "Night"
+      },
+      {
+        "text": "한 잔 더 할래?",
+        "blank": "한 잔",
+        "meaning": "A glass / A drink"
+      },
+      {
+        "text": "막걸리처럼",
+        "blank": "막걸리",
+        "meaning": "Makgeolli (Rice wine)"
+      },
+      {
+        "text": "부드럽게 흐르는",
+        "blank": "부드럽게",
+        "meaning": "Softly / Smoothly"
+      },
+      {
+        "text": "이 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "노래가 이어져",
+        "blank": "노래",
+        "meaning": "Song"
+      },
+      {
+        "text": "낯선 사이도",
+        "blank": "낯선",
+        "meaning": "Unfamiliar / Stranger"
+      },
+      {
+        "text": "가까워져",
+        "blank": "가까워져",
+        "meaning": "Become closer"
+      }
+    ]
+  },
+  {
+    "id": "beat_006",
+    "title": "빛나는 이 도시 (남산)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/빛나는 이 도시 (남산).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "감성 팝",
+    "lyrics": [
+      {
+        "text": "남산 타워 불빛 아래",
+        "blank": "불빛",
+        "meaning": "Light"
+      },
+      {
+        "text": "서울이 내려와",
+        "blank": "서울",
+        "meaning": "Seoul"
+      },
+      {
+        "text": "한강 위로 번지는",
+        "blank": "한강",
+        "meaning": "Han River"
+      },
+      {
+        "text": "밤의 색들",
+        "blank": "색들",
+        "meaning": "Colors"
+      },
+      {
+        "text": "케이블카 지나가는",
+        "blank": "케이블카",
+        "meaning": "Cable car"
+      },
+      {
+        "text": "느린 시간 속",
+        "blank": "느린",
+        "meaning": "Slow"
+      },
+      {
+        "text": "수많은 이야기들이",
+        "blank": "수많은",
+        "meaning": "Numerous"
+      },
+      {
+        "text": "빛나고 있어",
+        "blank": "빛나고",
+        "meaning": "Shining"
+      },
+      {
+        "text": "빛나는 이 도시",
+        "blank": "도시",
+        "meaning": "City"
+      },
+      {
+        "text": "서울의 밤",
+        "blank": "밤",
+        "meaning": "Night"
+      },
+      {
+        "text": "끝없이 이어지는",
+        "blank": "끝없이",
+        "meaning": "Endlessly"
+      },
+      {
+        "text": "이 장면",
+        "blank": "장면",
+        "meaning": "Scene"
+      },
+      {
+        "text": "지금 이 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "같은 하늘 아래",
+        "blank": "하늘",
+        "meaning": "Sky"
+      },
+      {
+        "text": "우리가 있어",
+        "blank": "우리",
+        "meaning": "We"
+      }
+    ]
+  },
+  {
+    "id": "beat_007",
+    "title": "끝까지 서 있을게 (이순신)",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/끝까지 서 있을게 (이순신).mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "영화음악 / 웅장",
+    "lyrics": [
+      {
+        "text": "거북선이 바다를 가르며",
+        "blank": "거북선",
+        "meaning": "Turtle ship"
+      },
+      {
+        "text": "파도를 넘어",
+        "blank": "파도",
+        "meaning": "Wave"
+      },
+      {
+        "text": "명량의 물결 속에서도",
+        "blank": "물결",
+        "meaning": "Wave / Current"
+      },
+      {
+        "text": "길을 만들었지",
+        "blank": "길을",
+        "meaning": "Path"
+      },
+      {
+        "text": "열두 척의 작은 배로",
+        "blank": "작은 배",
+        "meaning": "Small boat"
+      },
+      {
+        "text": "지켜낸 이름",
+        "blank": "이름",
+        "meaning": "Name"
+      },
+      {
+        "text": "끝까지 물러서지",
+        "blank": "물러서지",
+        "meaning": "Retreat"
+      },
+      {
+        "text": "않던 그 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "끝까지 서 있을게",
+        "blank": "서 있을게",
+        "meaning": "Will stand"
+      },
+      {
+        "text": "이순신처럼",
+        "blank": "이순신",
+        "meaning": "Yi Sun-sin"
+      },
+      {
+        "text": "어둠 속에서도",
+        "blank": "어둠",
+        "meaning": "Darkness"
+      },
+      {
+        "text": "빛을 찾아",
+        "blank": "빛을",
+        "meaning": "Light"
+      },
+      {
+        "text": "흔들리지 않게",
+        "blank": "흔들리지",
+        "meaning": "Without shaking"
+      },
+      {
+        "text": "지켜낸 그 마음을",
+        "blank": "마음",
+        "meaning": "Heart / Mind"
+      },
+      {
+        "text": "따라서",
+        "blank": "따라서",
+        "meaning": "Following"
+      }
+    ]
+  },
+  {
+    "id": "beat_008",
+    "title": "꽃이 피는 순간",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/꽃이 피는 순간.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "밝은 어쿠스틱 팝",
+    "lyrics": [
+      {
+        "text": "꽃잎이 흩날리면",
+        "blank": "꽃잎",
+        "meaning": "Flower petal"
+      },
+      {
+        "text": "하늘이 물들어",
+        "blank": "하늘",
+        "meaning": "Sky"
+      },
+      {
+        "text": "작은 길을 따라가면",
+        "blank": "길을",
+        "meaning": "Path"
+      },
+      {
+        "text": "봄이 시작돼",
+        "blank": "봄",
+        "meaning": "Spring"
+      },
+      {
+        "text": "햇살이 내려앉아",
+        "blank": "햇살",
+        "meaning": "Sunlight"
+      },
+      {
+        "text": "어깨를 감싸고",
+        "blank": "어깨",
+        "meaning": "Shoulder"
+      },
+      {
+        "text": "새로운 하루가",
+        "blank": "하루",
+        "meaning": "Day"
+      },
+      {
+        "text": "조용히 피어나",
+        "blank": "피어나",
+        "meaning": "Bloom"
+      },
+      {
+        "text": "꽃이 피는 순간에",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "우리가 서 있어",
+        "blank": "우리",
+        "meaning": "We"
+      },
+      {
+        "text": "처음처럼 설레는",
+        "blank": "설레는",
+        "meaning": "Fluttering / Exciting"
+      },
+      {
+        "text": "이 느낌 그대로",
+        "blank": "느낌",
+        "meaning": "Feeling"
+      },
+      {
+        "text": "꽃이 피는 순간이",
+        "blank": "피는",
+        "meaning": "Blooming"
+      },
+      {
+        "text": "다시 오듯이",
+        "blank": "다시",
+        "meaning": "Again"
+      },
+      {
+        "text": "멈춰 있던 마음도",
+        "blank": "마음",
+        "meaning": "Heart / Mind"
+      },
+      {
+        "text": "깨어나",
+        "blank": "깨어나",
+        "meaning": "Wake up"
+      }
+    ]
+  },
+  {
+    "id": "beat_009",
+    "title": "파도가 닿는 곳",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/파도가 닿는 곳.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "청량 K-pop / 댄스",
+    "lyrics": [
+      {
+        "text": "파도가 닿는 곳에",
+        "blank": "파도",
+        "meaning": "Wave"
+      },
+      {
+        "text": "우리가 서 있어",
+        "blank": "우리",
+        "meaning": "We"
+      },
+      {
+        "text": "뜨거운 햇살 아래",
+        "blank": "햇살",
+        "meaning": "Sunlight"
+      },
+      {
+        "text": "웃음이 번져가",
+        "blank": "웃음",
+        "meaning": "Laughter"
+      },
+      {
+        "text": "밤이 되면 바다는",
+        "blank": "바다",
+        "meaning": "Sea"
+      },
+      {
+        "text": "빛으로 물들고",
+        "blank": "빛",
+        "meaning": "Light"
+      },
+      {
+        "text": "잠들지 않는 여름",
+        "blank": "여름",
+        "meaning": "Summer"
+      },
+      {
+        "text": "우릴 부르고 있어",
+        "blank": "부르고",
+        "meaning": "Calling"
+      },
+      {
+        "text": "파도가 닿는 이 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "우릴 데려가",
+        "blank": "데려가",
+        "meaning": "Take us"
+      },
+      {
+        "text": "멈추지 않는 리듬 속",
+        "blank": "리듬",
+        "meaning": "Rhythm"
+      },
+      {
+        "text": "자유를 느껴",
+        "blank": "자유",
+        "meaning": "Freedom"
+      },
+      {
+        "text": "파도가 닿는 그곳에",
+        "blank": "그곳",
+        "meaning": "That place"
+      },
+      {
+        "text": "다시 서 있을 때",
+        "blank": "다시",
+        "meaning": "Again"
+      },
+      {
+        "text": "이 계절의 기억이",
+        "blank": "기억",
+        "meaning": "Memory"
+      },
+      {
+        "text": "빛나",
+        "blank": "빛나",
+        "meaning": "Shine"
+      }
+    ]
+  },
+  {
+    "id": "beat_010",
+    "title": "붉게 물든 길",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/붉게 물든 길.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "스타일: 감성 팝 / 트래블송",
+    "lyrics": [
+      {
+        "text": "내장산 길 위에 서면",
+        "blank": "내장산",
+        "meaning": "Naejangsan Mountain"
+      },
+      {
+        "text": "붉은 빛이 쏟아져",
+        "blank": "붉은",
+        "meaning": "Red"
+      },
+      {
+        "text": "설악산 바람 불어와",
+        "blank": "설악산",
+        "meaning": "Seoraksan Mountain"
+      },
+      {
+        "text": "계절이 말을 해",
+        "blank": "계절",
+        "meaning": "Season"
+      },
+      {
+        "text": "남이섬 은행나무 길",
+        "blank": "은행나무",
+        "meaning": "Ginkgo tree"
+      },
+      {
+        "text": "노랗게 이어지고",
+        "blank": "노랗게",
+        "meaning": "Yellow"
+      },
+      {
+        "text": "천천히 걷는 이 순간",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "시간이 머물러",
+        "blank": "시간",
+        "meaning": "Time"
+      },
+      {
+        "text": "붉게 물든 이 길 위에",
+        "blank": "길",
+        "meaning": "Road / Path"
+      },
+      {
+        "text": "우리가 남아",
+        "blank": "우리",
+        "meaning": "We"
+      },
+      {
+        "text": "바람 따라 흘러가는",
+        "blank": "흘러가는",
+        "meaning": "Flowing"
+      },
+      {
+        "text": "작은 이야기",
+        "blank": "이야기",
+        "meaning": "Story"
+      },
+      {
+        "text": "빛으로 번진 이 계절",
+        "blank": "계절",
+        "meaning": "Season"
+      },
+      {
+        "text": "마음에 스며",
+        "blank": "마음",
+        "meaning": "Heart / Mind"
+      },
+      {
+        "text": "다시 돌아오고 싶은",
+        "blank": "다시",
+        "meaning": "Again"
+      },
+      {
+        "text": "그날처럼",
+        "blank": "그날",
+        "meaning": "That day"
+      }
+    ]
+  },
+  {
+    "id": "beat_011",
+    "title": "눈 내리는 밤",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/눈 내리는 밤.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "K-pop 캐롤",
+    "lyrics": [
+      {
+        "text": "하얀 눈이 내려오면",
+        "blank": "눈",
+        "meaning": "Snow"
+      },
+      {
+        "text": "거리마다 빛나",
+        "blank": "거리",
+        "meaning": "Street"
+      },
+      {
+        "text": "작은 불빛 사이로",
+        "blank": "불빛",
+        "meaning": "Light"
+      },
+      {
+        "text": "웃음이 번져가",
+        "blank": "웃음",
+        "meaning": "Laughter"
+      },
+      {
+        "text": "찬 바람이 스쳐도",
+        "blank": "바람",
+        "meaning": "Wind"
+      },
+      {
+        "text": "손을 잡고 걸어",
+        "blank": "손",
+        "meaning": "Hand"
+      },
+      {
+        "text": "오늘은 조금 더",
+        "blank": "오늘",
+        "meaning": "Today"
+      },
+      {
+        "text": "따뜻한 밤이야",
+        "blank": "밤",
+        "meaning": "Night"
+      },
+      {
+        "text": "눈 내리는 이 밤에",
+        "blank": "내리는",
+        "meaning": "Falling"
+      },
+      {
+        "text": "노래가 흐르고",
+        "blank": "노래",
+        "meaning": "Song"
+      },
+      {
+        "text": "반짝이는 불빛 속에",
+        "blank": "불빛",
+        "meaning": "Light"
+      },
+      {
+        "text": "우린 웃고 있어",
+        "blank": "우린",
+        "meaning": "We"
+      },
+      {
+        "text": "눈 내리는 이 밤이",
+        "blank": "밤",
+        "meaning": "Night"
+      },
+      {
+        "text": "기억이 되어",
+        "blank": "기억",
+        "meaning": "Memory"
+      },
+      {
+        "text": "천천히 마음속에",
+        "blank": "마음",
+        "meaning": "Heart / Mind"
+      },
+      {
+        "text": "쌓여가",
+        "blank": "쌓여가",
+        "meaning": "Piling up"
+      }
+    ]
+  },
+  {
+    "id": "beat_012",
+    "title": "안녕, 나야",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/안녕, 나야.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "밝은 K-pop / 입문용",
+    "lyrics": [
+      {
+        "text": "안녕, 나야 처음 만났지",
+        "blank": "안녕",
+        "meaning": "Hello"
+      },
+      {
+        "text": "이름을 말해 줄게",
+        "blank": "이름",
+        "meaning": "Name"
+      },
+      {
+        "text": "작은 목소리라도 괜찮아",
+        "blank": "목소리",
+        "meaning": "Voice"
+      },
+      {
+        "text": "천천히 해도 돼",
+        "blank": "천천히",
+        "meaning": "Slowly"
+      },
+      {
+        "text": "나는 이런 걸 좋아해",
+        "blank": "좋아해",
+        "meaning": "Like"
+      },
+      {
+        "text": "노래하고 웃는 거",
+        "blank": "노래",
+        "meaning": "Song"
+      },
+      {
+        "text": "조금 서툴러도 괜찮아",
+        "blank": "서툴러도",
+        "meaning": "Even if clumsy"
+      },
+      {
+        "text": "지금 시작이야",
+        "blank": "시작",
+        "meaning": "Start"
+      },
+      {
+        "text": "기억해줘",
+        "blank": "기억해줘",
+        "meaning": "Remember me"
+      },
+      {
+        "text": "오늘부터 친구야",
+        "blank": "친구",
+        "meaning": "Friend"
+      },
+      {
+        "text": "이름 하나로 이어진",
+        "blank": "이름",
+        "meaning": "Name"
+      },
+      {
+        "text": "작은 인연",
+        "blank": "인연",
+        "meaning": "Fate / Connection"
+      },
+      {
+        "text": "다시 말해",
+        "blank": "다시",
+        "meaning": "Again"
+      },
+      {
+        "text": "조금 더 크게 말해",
+        "blank": "크게",
+        "meaning": "Loudly"
+      },
+      {
+        "text": "여기 있는 나를",
+        "blank": "나",
+        "meaning": "Me"
+      }
+    ]
+  },
+  {
+    "id": "beat_013",
+    "title": "바쁜데 귀여워",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/바쁜데 귀여워.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "경쾌한 팝 / 리듬감",
+    "lyrics": [
+      {
+        "text": "알람 소리에 눈을 떠",
+        "blank": "알람",
+        "meaning": "Alarm"
+      },
+      {
+        "text": "아직도 더 자고 싶어",
+        "blank": "자고 싶어",
+        "meaning": "Want to sleep"
+      },
+      {
+        "text": "급하게 옷을 입고서",
+        "blank": "옷",
+        "meaning": "Clothes"
+      },
+      {
+        "text": "또 하루 시작해",
+        "blank": "하루",
+        "meaning": "Day"
+      },
+      {
+        "text": "수업 듣고 친구 만나",
+        "blank": "수업",
+        "meaning": "Class"
+      },
+      {
+        "text": "웃다가 시간 가고",
+        "blank": "시간",
+        "meaning": "Time"
+      },
+      {
+        "text": "숙제는 또 미뤄두고",
+        "blank": "숙제",
+        "meaning": "Homework"
+      },
+      {
+        "text": "밤이 되어가",
+        "blank": "밤",
+        "meaning": "Night"
+      },
+      {
+        "text": "바쁜데 귀여워",
+        "blank": "바쁜데",
+        "meaning": "Busy"
+      },
+      {
+        "text": "정신없이 흘러가",
+        "blank": "정신없이",
+        "meaning": "Frantically"
+      },
+      {
+        "text": "작은 하루 속에도",
+        "blank": "하루",
+        "meaning": "Day"
+      },
+      {
+        "text": "이야기가 있어",
+        "blank": "이야기",
+        "meaning": "Story"
+      },
+      {
+        "text": "서툰 이 하루가",
+        "blank": "서툰",
+        "meaning": "Clumsy / Unskilled"
+      },
+      {
+        "text": "나중에 생각하면",
+        "blank": "나중에",
+        "meaning": "Later"
+      },
+      {
+        "text": "웃음이 될 거야",
+        "blank": "웃음",
+        "meaning": "Laughter"
+      }
+    ]
+  },
+  {
+    "id": "beat_014",
+    "title": "괜찮아, 너라서",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/괜찮아, 너라서.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "감동 팝 / 응원곡",
+    "lyrics": [
+      {
+        "text": "지친 하루 끝에 앉아",
+        "blank": "지친",
+        "meaning": "Tired"
+      },
+      {
+        "text": "한숨이 늘어나도",
+        "blank": "한숨",
+        "meaning": "Sigh"
+      },
+      {
+        "text": "오늘을 버틴 너에게",
+        "blank": "오늘",
+        "meaning": "Today"
+      },
+      {
+        "text": "말해주고 싶어",
+        "blank": "말해주고",
+        "meaning": "Want to tell"
+      },
+      {
+        "text": "조금 느려도 괜찮아",
+        "blank": "느려도",
+        "meaning": "Even if slow"
+      },
+      {
+        "text": "비교하지 않아도 돼",
+        "blank": "비교",
+        "meaning": "Comparison"
+      },
+      {
+        "text": "지금 이 순간까지",
+        "blank": "순간",
+        "meaning": "Moment"
+      },
+      {
+        "text": "잘 해왔잖아",
+        "blank": "잘 해왔잖아",
+        "meaning": "Have done well"
+      },
+      {
+        "text": "괜찮아, 너라서",
+        "blank": "괜찮아",
+        "meaning": "It's okay"
+      },
+      {
+        "text": "여기까지 온 거야",
+        "blank": "여기까지",
+        "meaning": "This far"
+      },
+      {
+        "text": "흔들리는 그 마음도",
+        "blank": "마음",
+        "meaning": "Heart / Mind"
+      },
+      {
+        "text": "다시 일어날 거야",
+        "blank": "일어날",
+        "meaning": "Stand up"
+      },
+      {
+        "text": "지금의 너 그대로도",
+        "blank": "그대로",
+        "meaning": "As you are"
+      },
+      {
+        "text": "충분해",
+        "blank": "충분해",
+        "meaning": "Sufficient / Enough"
+      }
+    ]
+  },
+  {
+    "id": "beat_015",
+    "title": "또 왜 그래?",
+    "artist": "Onui AI",
+    "audio_url": "/static/audio/beats/또 왜 그래_.mp3",
+    "image_url": "/static/images/kpop-banner.jpg",
+    "description": "어쿠스틱 팝 / AKMU 느낌",
+    "lyrics": [
+      {
+        "text": "또 왜 그래 삐졌어?",
+        "blank": "삐졌어",
+        "meaning": "Are you upset? / Pouting?"
+      },
+      {
+        "text": "아니거든 그냥 그래",
+        "blank": "그냥",
+        "meaning": "Just"
+      },
+      {
+        "text": "아까부터 말 없잖아",
+        "blank": "아까부터",
+        "meaning": "Since a while ago"
+      },
+      {
+        "text": "너 때문이거든",
+        "blank": "너 때문",
+        "meaning": "Because of you"
+      },
+      {
+        "text": "내가 뭘 했는데 또",
+        "blank": "뭘",
+        "meaning": "What"
+      },
+      {
+        "text": "다 알면서 그러네",
+        "blank": "알면서",
+        "meaning": "Knowing"
+      },
+      {
+        "text": "말은 그렇게 해도",
+        "blank": "말은",
+        "meaning": "Words"
+      },
+      {
+        "text": "결국 웃게 되잖아",
+        "blank": "결국",
+        "meaning": "Eventually"
+      },
+      {
+        "text": "또 왜 그래 말하면서",
+        "blank": "말하면서",
+        "meaning": "While talking"
+      },
+      {
+        "text": "우린 또 웃고 있어",
+        "blank": "웃고",
+        "meaning": "Laughing"
+      },
+      {
+        "text": "티격태격 이 순간도",
+        "blank": "티격태격",
+        "meaning": "Bickering"
+      },
+      {
+        "text": "우리답잖아",
+        "blank": "우리",
+        "meaning": "We"
+      },
+      {
+        "text": "하다가도",
+        "blank": "하다가도",
+        "meaning": "While doing"
+      },
+      {
+        "text": "다시 가까워져",
+        "blank": "가까워져",
+        "meaning": "Become closer"
+      },
+      {
+        "text": "이상하게 편한 사이",
+        "blank": "편한",
+        "meaning": "Comfortable"
+      },
+      {
+        "text": "너와 나",
+        "blank": "너와 나",
+        "meaning": "You and I"
+      }
     ]
   }
 ]

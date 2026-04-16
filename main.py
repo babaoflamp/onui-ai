@@ -6133,19 +6133,35 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
             await session.send(input=initial_msg, end_of_turn=True)
 
             async def browser_to_gemini():
-                """브라우저 PCM 오디오 → Gemini Live"""
+                """브라우저 PCM 오디오 및 제어 메시지 → Gemini Live"""
                 try:
-                    async for msg in websocket.iter_bytes():
-                        if len(msg) == 0:
-                            # Empty buffer = end-of-turn signal from browser
-                            await session.send_realtime_input(audio_stream_end=True)
-                        else:
-                            from google.genai.types import Blob
-                            await session.send_realtime_input(
-                                audio=Blob(data=msg, mime_type="audio/pcm;rate=16000")
-                            )
-                except WebSocketDisconnect:
-                    pass
+                    while True:
+                        # websocket.iter_bytes() 대신 직접 receive()를 사용하여 텍스트/바이너리 모두 처리
+                        message = await websocket.receive()
+                        
+                        if message["type"] == "websocket.disconnect":
+                            break
+                            
+                        if "bytes" in message:
+                            data = message["bytes"]
+                            if len(data) == 0:
+                                # Empty buffer = end-of-turn signal from browser
+                                await session.send_realtime_input(audio_stream_end=True)
+                            else:
+                                from google.genai.types import Blob
+                                await session.send_realtime_input(
+                                    audio=Blob(data=data, mime_type="audio/pcm;rate=16000")
+                                )
+                        elif "text" in message:
+                            try:
+                                import json
+                                data = json.loads(message["text"])
+                                if data.get("type") == "end_call":
+                                    # AI에게 마무리 인사를 하도록 유도
+                                    await session.send(input="대화를 마칠게요. 마무리 인사를 해줘.", end_of_turn=True)
+                            except Exception as e:
+                                logger.warning(f"[VoiceCall WS] Text message error: {e}")
+
                 except Exception as e:
                     logger.error(f"[VoiceCall WS] browser→gemini error: {e}")
 

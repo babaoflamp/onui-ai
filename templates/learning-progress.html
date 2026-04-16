@@ -193,64 +193,124 @@
 
     document.getElementById("userGreeting").textContent = nickname;
     
-    // Inject Dummy Data if needed (same logic as before)
-    const statsData = {
-        total_practices: 142, avg_score: 82.4, best_score: 98, total_duration: 520,
-        learning_days: 22, consecutive_days: 7, achievement_level: "Intermediate",
-        achievements: ["first_learning", "consecutive_3days", "score_80plus"],
-        daily_log: Array.from({length: 15}, (_, i) => ({
-            date: new Date(Date.now() - i*86400000).toISOString().split('T')[0],
-            practices: Math.floor(Math.random()*5)+1,
-            duration: Math.floor(Math.random()*30)+10,
-            avg_score: Math.floor(Math.random()*20)+75
-        }))
-    };
-
-    updateUI(statsData);
-    renderWeeklyGraph(statsData.daily_log);
-    renderFluencyMetrics({fluency_grade: 'A', best_fluency_score: 92, speech_rate_average: 3.4, practice_frequency: 'High'});
-    
-    document.getElementById("loadingState").style.display = "none";
-    document.getElementById("progressContent").classList.remove("hidden");
+    try {
+        const resp = await fetch(`/api/learning/user-stats/me`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!resp.ok) throw new Error("Failed to fetch stats");
+        const statsData = await resp.json();
+        
+        updateUI(statsData);
+        renderWeeklyGraph(statsData.daily_log);
+        
+        // Fluency metrics based on scores
+        const fluencyGrade = statsData.avg_score >= 90 ? 'A+' : statsData.avg_score >= 80 ? 'A' : statsData.avg_score >= 70 ? 'B' : 'C';
+        renderFluencyMetrics({
+            fluency_grade: fluencyGrade,
+            best_fluency_score: statsData.best_score,
+            speech_rate_average: 3.2,
+            practice_frequency: statsData.learning_days > 5 ? 'High' : 'Normal'
+        });
+    } catch (err) {
+        console.error("Failed to load real stats, using fallback", err);
+        // Fallback or error display
+    } finally {
+        document.getElementById("loadingState").style.display = "none";
+        document.getElementById("progressContent").classList.remove("hidden");
+    }
   }
 
   function updateUI(data) {
-    document.getElementById("userLevelDisplay").textContent = data.achievement_level;
-    document.getElementById("consecutiveDays").textContent = data.consecutive_days;
-    document.getElementById("todayPractices").textContent = data.daily_log[0].practices;
-    document.getElementById("todayAvgScore").textContent = Math.round(data.avg_score) + "%";
-    document.getElementById("todayDuration").textContent = data.daily_log[0].duration;
-    document.getElementById("totalPractices").textContent = data.total_practices;
-    document.getElementById("bestScore").textContent = data.best_score + "%";
+    // Top stats
+    document.getElementById("consecutiveDays").textContent = data.consecutive_days || 0;
     
-    const achCont = document.getElementById("achievementsContainer");
-    achCont.innerHTML = data.achievements.map(a => `
-        <div class="flex flex-col items-center p-4 glass-card rounded-2xl group">
-            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform badge-glow">${ACHIEVEMENTS[a].emoji}</div>
-            <p class="text-[9px] font-black text-white/40 uppercase text-center">${ACHIEVEMENTS[a].title}</p>
-        </div>
-    `).join('');
+    const todayLog = (data.daily_log && data.daily_log.length > 0) ? data.daily_log[data.daily_log.length - 1] : { practices: 0, duration: 0 };
+    document.getElementById("todayPractices").textContent = todayLog.practices || 0;
+    document.getElementById("todayAvgScore").textContent = Math.round(data.avg_score || 0) + "%";
+    document.getElementById("todayDuration").textContent = todayLog.duration || 0;
+    
+    // Total stats
+    document.getElementById("totalPractices").textContent = data.total_practices || 0;
+    document.getElementById("bestScore").textContent = (data.best_score || 0) + "%";
+    
+    // Coverage
+    const wordsPercent = data.words_total > 0 ? Math.round((data.words_learned / data.words_total) * 100) : 0;
+    const sentencesPercent = data.sentences_total > 0 ? Math.round((data.sentences_learned / data.sentences_total) * 100) : 0;
+    const contentPercent = data.content_total > 0 ? Math.round((data.content_completed / data.content_total) * 100) : 0;
 
-    document.getElementById("dailyLog").innerHTML = data.daily_log.map(l => `
-        <div class="flex items-center justify-between p-5 glass-card rounded-[24px] mb-3 group">
-            <div class="flex items-center gap-5">
-                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 font-black">${new Date(l.date).getDate()}</div>
-                <div>
-                    <p class="font-black text-white">${new Date(l.date).toLocaleDateString()}</p>
-                    <p class="text-[10px] text-white/30 font-bold uppercase">${l.practices} Eval • ${l.duration} Min</p>
+    document.getElementById("coverageWordsPercent").textContent = wordsPercent + "%";
+    document.getElementById("coverageWordsBar").style.width = wordsPercent + "%";
+    document.getElementById("coverageWordsText").textContent = `${data.words_learned} / ${data.words_total}`;
+
+    document.getElementById("coverageSentencesPercent").textContent = sentencesPercent + "%";
+    document.getElementById("coverageSentencesBar").style.width = sentencesPercent + "%";
+    document.getElementById("coverageSentencesText").textContent = `${data.sentences_learned} / ${data.sentences_total}`;
+
+    document.getElementById("coverageContentPercent").textContent = contentPercent + "%";
+    document.getElementById("coverageContentBar").style.width = contentPercent + "%";
+    document.getElementById("coverageContentText").textContent = `${data.content_completed} / ${data.content_total}`;
+
+    // Accuracy Distribution
+    const dist = data.accuracy_distribution || {excellent: 0, good: 0, fair: 0, need_improvement: 0};
+    document.getElementById("accuracyExcellentCount").textContent = dist.excellent;
+    document.getElementById("accuracyGoodCount").textContent = dist.good;
+
+    // Achievements (Badges)
+    const achCont = document.getElementById("achievementsContainer");
+    if (data.achievements && data.achievements.length > 0) {
+        achCont.innerHTML = data.achievements.map(a => `
+            <div class="flex flex-col items-center p-4 glass-card rounded-2xl group">
+                <div class="text-3xl mb-2 group-hover:scale-110 transition-transform badge-glow">${a.icon || '⭐'}</div>
+                <p class="text-[9px] font-black text-white/40 uppercase text-center">${a.name}</p>
+            </div>
+        `).join('');
+    } else {
+        achCont.innerHTML = '<p class="col-span-3 text-center text-xs text-white/20 py-4">No achievements yet</p>';
+    }
+
+    // Daily Logs
+    const logCont = document.getElementById("dailyLog");
+    if (data.daily_log && data.daily_log.length > 0) {
+        logCont.innerHTML = [...data.daily_log].reverse().map(l => `
+            <div class="flex items-center justify-between p-5 glass-card rounded-[24px] mb-3 group hover:bg-white/5 transition-all">
+                <div class="flex items-center gap-5">
+                    <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 font-black">${new Date(l.date).getDate()}</div>
+                    <div>
+                        <p class="font-black text-white">${new Date(l.date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</p>
+                        <p class="text-[10px] text-white/30 font-bold uppercase">${l.practices} Eval • ${l.duration} Min</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xl font-black text-blue-400">${Math.round(l.avg_score)}%</p>
                 </div>
             </div>
-            <div class="text-right">
-                <p class="text-xl font-black text-blue-400">${Math.round(l.avg_score)}%</p>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+    } else {
+        logCont.innerHTML = '<p class="text-center text-xs text-white/20 py-10">No activity logs found</p>';
+    }
   }
 
   function renderWeeklyGraph(log) {
     const host = document.getElementById("weeklyGraph");
-    // Simplified SVG rendering for dark mode
-    host.innerHTML = `<svg viewBox="0 0 700 200" width="100%"><path d="M50 150 Q 150 50, 250 120 T 450 80 T 650 130" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" /></svg>`;
+    if (!log || log.length === 0) {
+        host.innerHTML = '<p class="text-white/20 text-xs">Insufficient data for graph</p>';
+        return;
+    }
+    
+    // Draw a simple polyline SVG based on score trends (last 10 days)
+    const points = log.slice(-10).map((l, i) => `${i * 70 + 50},${180 - (l.avg_score * 1.5)}`).join(' ');
+    
+    host.innerHTML = `
+        <svg viewBox="0 0 700 200" width="100%" class="drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+            <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(59,130,246,0.2);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgba(59,130,246,0);stop-opacity:0" />
+                </linearGradient>
+            </defs>
+            <polyline points="${points}" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M50,200 L${points} L${(log.slice(-10).length - 1) * 70 + 50},200 Z" fill="url(#grad)" />
+        </svg>`;
   }
 
   function renderFluencyMetrics(data) {
