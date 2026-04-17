@@ -663,7 +663,7 @@ Intelligence{% endblock %} {% block extra_css %}
     const scoreDisplay = document.getElementById("demo-score");
     const scoreCircle = document.getElementById("score-circle");
     const feedbackText = null; // AI feedback removed for speed
-    const DEMO_TEXT = "안녕하세요.";
+    const DEMO_TEXT = "안녕하세요, 반갑습니다!";
     let demoPrecomputed = null;
 
     let mediaRecorder;
@@ -844,7 +844,11 @@ Intelligence{% endblock %} {% block extra_css %}
               quality.sentences.forEach(s => {
                 // Ignore silent segments or empty sentences
                 if (s.text === "!SIL" || !s.words) return;
-                s.words.forEach(w => {
+                s.words.forEach((w, wordIdx) => {
+                  if (wordIdx > 0 && allSyllables.length > 0) {
+                    // Insert a visual row break between words.
+                    allSyllables.push({ __word_break: true });
+                  }
                   if (w.syll && Array.isArray(w.syll)) {
                     allSyllables = allSyllables.concat(w.syll);
                   }
@@ -871,6 +875,13 @@ Intelligence{% endblock %} {% block extra_css %}
 
         if (syllables && Array.isArray(syllables)) {
           syllables.forEach(syl => {
+            if (syl && syl.__word_break) {
+              const br = document.createElement("div");
+              br.className = "basis-full h-0";
+              detailsContainer.appendChild(br);
+              return;
+            }
+
             const char = syl.syllable || syl.text || "?";
             
             // Skip silence markers
