@@ -2676,6 +2676,9 @@ async def get_dashboard_recent_pronunciation(request: Request):
                 },
             }
 
+    except HTTPException as e:
+        logger.info(f"[DASHBOARD_API] Auth/HTTP error: {e.detail}")
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
     except Exception as e:
         logger.error(f"[DASHBOARD_API] Error: {e}", exc_info=True)
         return JSONResponse(status_code=500, content={"error": str(e)})

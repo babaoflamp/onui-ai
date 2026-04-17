@@ -90,6 +90,8 @@ async def get_user_learning_stats(request: Request, user_id: str):
         user = require_authenticated_user(request)
         stats = learning_service.get_user_stats(user["id"])
         return JSONResponse(stats)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
@@ -105,6 +107,8 @@ async def get_today_progress(request: Request, user_id: str):
         user = require_authenticated_user(request)
         progress = learning_service.get_or_create_today_progress(user["id"])
         return JSONResponse(progress)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
@@ -136,6 +140,8 @@ async def check_popup_trigger(request: Request):
         if popup and popup.get("should_show"):
             return JSONResponse({"popup": popup})
         return JSONResponse({"popup": None})
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"error": e.detail})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
