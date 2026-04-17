@@ -7,6 +7,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
+from backend.utils import _get_state
 
 router = APIRouter()
 
@@ -19,30 +20,6 @@ class TTSRequest(BaseModel):
     gain: float = 1.0
     language_code: Optional[str] = None
     voice: Optional[str] = None
-
-
-def _get_state(request: Request, name: str):
-    val = getattr(request.app.state, name, None)
-    if val is None:
-        import os
-        from dotenv import load_dotenv
-        cwd = os.getcwd()
-        env_path = os.path.join(cwd, ".env")
-        load_dotenv(dotenv_path=env_path, override=True)
-        
-        env_names = {
-            "tts_backend": "TTS_BACKEND",
-            "gemini_tts_model": "GEMINI_TTS_MODEL",
-            "gemini_tts_mime": "GEMINI_TTS_MIME",
-            "openai_api_key": "OPENAI_API_KEY",
-            "openai_tts_model": "OPENAI_TTS_MODEL",
-            "openai_tts_voice": "OPENAI_TTS_VOICE",
-            "openai_tts_format": "OPENAI_TTS_FORMAT",
-            "google_tts_language": "GOOGLE_TTS_LANGUAGE",
-            "google_tts_voice": "GOOGLE_TTS_VOICE",
-        }
-        val = os.getenv(env_names.get(name, name))
-    return val
 
 
 @router.get("/api/tts/info")

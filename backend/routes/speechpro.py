@@ -181,8 +181,14 @@ async def speechpro_config():
 
 
 @router.post("/api/speechpro/config")
-async def set_speechpro_config(data: dict = None):
-    """SpeechPro API URL 설정"""
+async def set_speechpro_config(request: Request, data: dict = None):
+    """SpeechPro API URL 설정 (관리자 전용)"""
+    require_admin = _get_state(request, "require_admin")
+    if callable(require_admin):
+        try:
+            require_admin(request)
+        except Exception as e:
+            return JSONResponse(status_code=403, content={"error": str(e)})
     try:
         if data is None:
             data = {}

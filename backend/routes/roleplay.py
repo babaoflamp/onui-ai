@@ -73,30 +73,52 @@ async def roleplay_chat(request: Request, payload: ChatRequest):
 
     messages = [{"role": "system", "content": system_prompt}] + payload.messages
 
-    # LLM 호출 (강제로 Ollama 사용)
-    backend = "ollama"
+    backend = os.getenv("MODEL_BACKEND", "ollama")
 
     try:
-        if backend == "ollama":
-            # Ollama 호출 로직
-            import requests
+        ai_message = ""
+
+        if backend == "gemini":
+            from google import genai as genai_lib
+            gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+            if not gemini_key:
+                raise RuntimeError("Gemini API key not configured")
+            gc = genai_lib.Client(api_key=gemini_key)
+            prompt_text = system_prompt + "\n\n대화 기록:\n" + "\n".join(
+                [f"{m['role']}: {m['content']}" for m in payload.messages]
+            )
+            resp = gc.models.generate_content(model=gemini_model, contents=prompt_text)
+            ai_message = resp.text or ""
+
+        elif backend == "openai":
+            from openai import OpenAI as _OpenAI
+            openai_key = os.getenv("OPENAI_API_KEY")
+            openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+            if not openai_key:
+                raise RuntimeError("OpenAI API key not configured")
+            oc = _OpenAI(api_key=openai_key)
+            resp = oc.chat.completions.create(
+                model=openai_model,
+                messages=messages,
+                temperature=0.7,
+            )
+            ai_message = resp.choices[0].message.content or ""
+
+        else:  # ollama
             ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
             model = os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b")
-
-            url = f"{ollama_url}/api/generate"
-            resp = requests.post(url, json={
+            resp = requests.post(f"{ollama_url}/api/generate", json={
                 "model": model,
-                "prompt": f"{system_prompt}\n\n대화 기록:\n" + "\n".join([f"{m['role']}: {m['content']}" for m in payload.messages]),
+                "prompt": system_prompt + "\n\n대화 기록:\n" + "\n".join(
+                    [f"{m['role']}: {m['content']}" for m in payload.messages]
+                ),
                 "stream": False,
                 "options": {"temperature": 0.7}
             }, timeout=60)
-
             if resp.status_code != 200:
                 raise RuntimeError(f"Ollama 응답 상태 코드: {resp.status_code} - {resp.text}")
-
             ai_message = resp.json().get("response", "")
-        else:
-            raise RuntimeError(f"지원되지 않는 AI 백엔드입니다: '{backend}'.")
 
         return {"message": ai_message}
 

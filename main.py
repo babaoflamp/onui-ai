@@ -1667,8 +1667,8 @@ def _extract_session_from_request(request: Request) -> dict:
 
 
 @lru_cache(maxsize=128)
-def _get_user_by_id(user_id: int) -> dict:
-    """Fetch full user profile by ID (Cached)."""
+def _get_user_by_id_cached(user_id: int) -> tuple:
+    """Internal: fetch user row and return as immutable tuple of items for cache safety."""
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.row_factory = sqlite3.Row
@@ -1684,21 +1684,30 @@ def _get_user_by_id(user_id: int) -> dict:
         row = cursor.fetchone()
         if row:
             data = dict(row)
-            # Parse interests JSON
             if data.get("interests"):
                 try:
                     data["interests"] = json.loads(data["interests"])
                 except Exception:
                     data["interests"] = []
             data["role"] = _normalize_role(data.get("role"), data.get("is_admin"))
-            return data
+            # Return as tuple of items so lru_cache stores an immutable value
+            return tuple(data.items())
         return None
     finally:
         conn.close()
 
+
+def _get_user_by_id(user_id: int) -> dict:
+    """Fetch full user profile by ID. Always returns a fresh copy to prevent cache mutation."""
+    result = _get_user_by_id_cached(user_id)
+    if result is None:
+        return None
+    return dict(result)
+
+
 def _clear_user_cache():
     """Clear the user lookup cache."""
-    _get_user_by_id.cache_clear()
+    _get_user_by_id_cached.cache_clear()
 
 
 def _require_authenticated_user(request: Request) -> dict:
@@ -2011,13 +2020,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             raise
 
 
-app = FastAPI()
-# API setup
 app = FastAPI(title="Onui Korean Learning Platform API", version="2.0.0")
 
 @app.get("/privacy")
 async def privacy(request: Request):
-    return templates.TemplateResponse("privacy.html", {"request": request})
+    return templates.TemplateResponse(request, "privacy.html")
 
 # Session persistence for OAuth state
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
@@ -2051,6 +2058,7 @@ app.include_router(lms_router)
 
 # App state hooks for routers (avoid importing from main.py)
 app.state.require_authenticated_user = _require_authenticated_user
+app.state.require_admin = _require_admin
 app.state.redirect_if_unauthenticated = _redirect_if_unauthenticated
 app.state.normalize_role = _normalize_role
 app.state.role_instructor = ROLE_INSTRUCTOR
@@ -2807,25 +2815,29 @@ async def auth_google_callback(request: Request):
     import urllib.parse
 
     safe_nickname = urllib.parse.quote(user["nickname"])
+    # Display-only cookies (JS-readable for UI rendering; server auth does NOT rely on these)
     response.set_cookie(
         key="user_nickname",
         value=safe_nickname,
         max_age=SESSION_EXPIRY_SECONDS,
+        samesite="lax",
         path="/",
     )
     response.set_cookie(
-        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, path="/"
+        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, samesite="lax", path="/"
     )
     response.set_cookie(
         key="user_role",
         value=_normalize_role(user.get("role"), user.get("is_admin")),
         max_age=SESSION_EXPIRY_SECONDS,
+        samesite="lax",
         path="/",
     )
     response.set_cookie(
         key="is_admin",
         value="true" if user.get("is_admin") else "false",
         max_age=SESSION_EXPIRY_SECONDS,
+        samesite="lax",
         path="/",
     )
 
@@ -2892,16 +2904,17 @@ async def login(request: Request):
         samesite="lax",
         path="/",
     )
-    # Mirror Google OAuth behavior with URL-encoded nickname for Unicode support
+    # Display-only cookies (JS-readable for UI rendering; server auth does NOT rely on these)
     safe_nickname = urllib.parse.quote(user["nickname"])
     response.set_cookie(
         key="user_nickname",
         value=safe_nickname,
         max_age=SESSION_EXPIRY_SECONDS,
+        samesite="lax",
         path="/",
     )
     response.set_cookie(
-        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, path="/"
+        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, samesite="lax", path="/"
     )
 
     return response
@@ -3127,9 +3140,8 @@ async def update_user_profile(request: Request):
     finally:
         conn.close()
 
-    # Return updated user
+    _clear_user_cache()
     updated = _get_user_by_id(user_id)
-    updated.pop("password_hash", None)
     return {"success": True, "user": updated}
 
 
@@ -3450,8 +3462,24 @@ async def admin_learner_status(request: Request, q: str = "", limit: int = 200):
         )
         sentence_rows = {row["user_id"]: dict(row) for row in cursor.fetchall()}
 
-        # Streak per user (small N; compute in python using helper)
-        streaks = {uid: _compute_attendance_streak(conn, uid) for uid in user_ids}
+        # Streak per user — single bulk query instead of N+1
+        cursor.execute(
+            f"SELECT user_id, date FROM attendance WHERE user_id IN ({placeholders})",
+            user_ids,
+        )
+        attendance_dates: dict[int, set] = {}
+        for row in cursor.fetchall():
+            attendance_dates.setdefault(row["user_id"], set()).add(row["date"])
+
+        def _streak_from_dates(dates: set) -> int:
+            streak = 0
+            day = datetime.now().date()
+            while day.isoformat() in dates:
+                streak += 1
+                day = day - timedelta(days=1)
+            return streak
+
+        streaks = {uid: _streak_from_dates(attendance_dates.get(uid, set())) for uid in user_ids}
 
     finally:
         conn.close()
@@ -3533,26 +3561,24 @@ async def admin_logs_tail(
         return {"success": True, "logs": [], "count": 0, "total_available": 0}
 
     try:
-        with open(log_file, "r", encoding="utf-8") as f:
-            all_lines = f.readlines()
+        # Use deque to avoid loading the entire file into memory
+        MAX_SCAN = 10000  # scan at most the last 10k lines for filter queries
+        from collections import deque
+        with open(log_file, "r", encoding="utf-8", errors="replace") as f:
+            tail_lines = deque(f, maxlen=MAX_SCAN)
 
         # Filter logs
+        level_upper = level.upper() if level else ""
+        search_lower = search.lower() if search else ""
         filtered = []
-        for line in all_lines:
-            # Level filter
-            if (
-                level
-                and f"[{level.upper()}]" not in line
-                and f" {level.upper()} " not in line
-            ):
+        for line in tail_lines:
+            if level_upper and f"[{level_upper}]" not in line and f" {level_upper} " not in line:
                 continue
-            # Search filter
-            if search and search.lower() not in line.lower():
+            if search_lower and search_lower not in line.lower():
                 continue
             filtered.append(line)
 
-        # Get last N filtered lines
-        recent = filtered[-min(lines, len(filtered)) :]
+        recent = filtered[-min(lines, len(filtered)):]
         logger.info(
             f"[ADMIN_LOGS] {admin['email']} retrieved {len(recent)} log lines (level={level}, search={search})"
         )
@@ -3561,7 +3587,7 @@ async def admin_logs_tail(
             "success": True,
             "logs": recent,
             "count": len(recent),
-            "total_available": len(all_lines),
+            "total_available": len(tail_lines),
             "total_filtered": len(filtered),
         }
     except Exception as e:
@@ -3837,6 +3863,7 @@ async def admin_toggle_user_admin(request: Request, user_id: int):
         )
         conn.commit()
 
+        _clear_user_cache()
         user = _get_user_by_id(user_id)
         logger.info(
             f"[ADMIN_TOGGLE] {admin['email']} set is_admin={is_admin} for user {user['email']}"
@@ -3874,6 +3901,7 @@ async def admin_update_user_role(request: Request, user_id: int):
         )
         conn.commit()
 
+        _clear_user_cache()
         user = _get_user_by_id(user_id)
         logger.info(
             f"[ADMIN_ROLE] {admin['email']} set role={role} for user {user['email']}"
@@ -3919,6 +3947,7 @@ async def admin_reset_user_password(request: Request, user_id: int):
         )
         conn.commit()
 
+        _clear_user_cache()
         user = _get_user_by_id(user_id)
         logger.info(
             f"[ADMIN_RESET_PWD] {admin['email']} reset password for user {user['email']}"
@@ -4173,6 +4202,7 @@ async def change_password(request: Request):
     finally:
         conn.close()
 
+    _clear_user_cache()
     return {"success": True, "message": "비밀번호가 변경되었습니다."}
 
 
