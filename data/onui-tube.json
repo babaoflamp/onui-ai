@@ -6,7 +6,7 @@
     "level": "1",
     "video_url": "/static/video/restaurant_ordering.mp4",
     "poster_url": "/static/images/tube/restaurant_ordering.jpg",
-    "duration": 60,
+    "duration": 37,
     "transcript_offset": 0
   },
   {
@@ -16,7 +16,7 @@
     "level": "1",
     "video_url": "/static/video/essential_verbs.mp4",
     "poster_url": "/static/images/tube/essential_verbs.jpg",
-    "duration": 60,
+    "duration": 44,
     "transcript_offset": 0
   },
   {
@@ -26,7 +26,7 @@
     "level": "1",
     "video_url": "/static/video/want_to_korean.mp4",
     "poster_url": "/static/images/tube/want_to_korean.jpg",
-    "duration": 60,
+    "duration": 34,
     "transcript_offset": 0
   },
   {
@@ -36,7 +36,7 @@
     "level": "2",
     "video_url": "/static/video/bts_dna_lyrics.mp4",
     "poster_url": "/static/images/tube/bts_dna_lyrics.jpg",
-    "duration": 60,
+    "duration": 48,
     "transcript_offset": 0
   },
   {
@@ -46,7 +46,7 @@
     "level": "2",
     "video_url": "/static/video/seoul_living_vlog.mp4",
     "poster_url": "/static/images/tube/seoul_living_vlog.jpg",
-    "duration": 60,
+    "duration": 43,
     "transcript_offset": 0
   },
   {
