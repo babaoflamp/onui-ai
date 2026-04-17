@@ -2060,6 +2060,10 @@ from backend.routes.lms import router as lms_router
 
 app.include_router(lms_router)
 
+from backend.routes.auth import router as auth_router
+
+app.include_router(auth_router)
+
 # App state hooks for routers (avoid importing from main.py)
 app.state.require_authenticated_user = _require_authenticated_user
 app.state.require_admin = _require_admin
@@ -2071,6 +2075,17 @@ app.state.db_path = DB_PATH
 app.state.get_word_score_history = _get_word_score_history
 app.state.get_sentence_score_history = _get_sentence_score_history
 app.state.find_vocab_id_by_word = _find_vocab_id_by_word
+app.state.oauth = oauth
+app.state.store_user_signup = _store_user_signup
+app.state.get_user_by_google_id = _get_user_by_google_id
+app.state.get_user_by_email = _get_user_by_email
+app.state.get_user_by_nickname = _get_user_by_nickname
+app.state.create_google_user = _create_google_user
+app.state.create_session_token = _create_session_token
+app.state.verify_password = _verify_password
+app.state.parse_session_token = _parse_session_token
+app.state.active_sessions = active_sessions
+app.state.session_expiry_seconds = SESSION_EXPIRY_SECONDS
 
 # TTS hooks/config for routers
 app.state.logger = logger
@@ -2741,203 +2756,6 @@ def admin_settings_page(request: Request):
     return templates.TemplateResponse(request, "admin-settings.html")
 
 
-# ------------------------------------------
-# 회원가입 (실제 계정 생성)
-# ------------------------------------------
-@app.post("/api/signup")
-async def signup(request: Request):
-    payload = await request.json()
-    user = _store_user_signup(payload)
-    return {"success": True, "email": user["email"], "nickname": user["nickname"]}
-
-
-@app.post("/api/landing-intake")
-async def landing_intake(request: Request):
-    """Backward compatibility: reuse signup handler."""
-    return await signup(request)
-
-
-# ------------------------------------------
-# 로그인 (계정 인증)
-# ------------------------------------------
-@app.get("/api/login/google")
-async def login_google(request: Request):
-    if not oauth.google:
-        raise HTTPException(status_code=500, detail="Google OAuth not configured")
-
-    # Generate redirect_uri
-    redirect_uri = request.url_for("auth_google_callback")
-
-    # If using a proxy (like ngrok), url_for might incorrectly use 'http' instead of 'https'
-    # We force 'https' for any non-localhost domain to avoid redirect_uri_mismatch
-    if "localhost" not in str(redirect_uri) and str(redirect_uri).startswith("http://"):
-        redirect_uri = str(redirect_uri).replace("http://", "https://", 1)
-
-    logger.info(f"[OAuth] Generated redirect_uri: {redirect_uri}")
-    return await oauth.google.authorize_redirect(request, str(redirect_uri))
-
-
-@app.get("/api/login/google/callback")
-async def auth_google_callback(request: Request):
-    if not oauth.google:
-        raise HTTPException(status_code=500, detail="Google OAuth not configured")
-
-    try:
-        token = await oauth.google.authorize_access_token(request)
-    except Exception as e:
-        logger.error(f"OAuth error: {e}")
-        return RedirectResponse(url="/login?error=oauth_failed")
-
-    user_info = token.get("userinfo")
-    if not user_info:
-        return RedirectResponse(url="/login?error=no_user_info")
-
-    email = user_info.get("email")
-    google_id = user_info.get("sub")
-    nickname = user_info.get("name") or email.split("@")[0]
-
-    # Check if user exists by google_id
-    user = _get_user_by_google_id(google_id)
-
-    if not user:
-        # Check if user exists by email and link google_id
-        user = _get_user_by_email(email)
-        if user:
-            conn = sqlite3.connect(DB_PATH)
-            try:
-                conn.execute(
-                    "UPDATE users SET google_id = ? WHERE id = ?",
-                    (google_id, user["id"]),
-                )
-                conn.commit()
-            finally:
-                conn.close()
-        else:
-            # Create new user
-            user = _create_google_user(email, nickname, google_id)
-
-    # Issue session token
-    session_token = _create_session_token(
-        user["id"], user["email"], bool(user.get("is_admin"))
-    )
-
-    # Redirect to dashboard with token
-    response = RedirectResponse(url="/dashboard")
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        max_age=SESSION_EXPIRY_SECONDS,
-        httponly=True,
-        samesite="lax",
-        path="/",
-    )
-    # Also add nickname and other user info for frontend header/localstorage
-    import urllib.parse
-
-    safe_nickname = urllib.parse.quote(user["nickname"])
-    # Display-only cookies (JS-readable for UI rendering; server auth does NOT rely on these)
-    response.set_cookie(
-        key="user_nickname",
-        value=safe_nickname,
-        max_age=SESSION_EXPIRY_SECONDS,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, samesite="lax", path="/"
-    )
-    response.set_cookie(
-        key="user_role",
-        value=_normalize_role(user.get("role"), user.get("is_admin")),
-        max_age=SESSION_EXPIRY_SECONDS,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="is_admin",
-        value="true" if user.get("is_admin") else "false",
-        max_age=SESSION_EXPIRY_SECONDS,
-        samesite="lax",
-        path="/",
-    )
-
-    return response
-
-
-@app.post("/api/login")
-async def login(request: Request):
-    """사용자 로그인: 닉네임과 비밀번호로 인증."""
-    payload = await request.json()
-    identifier = (
-        payload.get("username") or payload.get("nickname") or payload.get("email") or ""
-    ).strip()
-    password = payload.get("password") or ""
-
-    if not identifier or not password:
-        raise HTTPException(
-            status_code=400, detail="이메일/닉네임과 비밀번호를 입력하세요."
-        )
-
-    # Try looking up by email first, then by nickname
-    user = _get_user_by_email(identifier)
-    if not user:
-        user = _get_user_by_nickname(identifier)
-
-    if not user or not _verify_password(user["password_hash"], password):
-        raise HTTPException(
-            status_code=401, detail="이메일/닉네임 또는 비밀번호가 올바르지 않습니다."
-        )
-
-    # Create session token
-    token = _create_session_token(user["id"], user["email"], bool(user.get("is_admin")))
-
-    # Log successful login
-    client_host = request.client.host if request.client else "Unknown"
-    logger.info(
-        "[LOGIN] user=%s email=%s role=%s ip=%s",
-        user["nickname"],
-        user["email"],
-        _normalize_role(user.get("role"), user.get("is_admin")),
-        client_host,
-    )
-
-    role = _normalize_role(user.get("role"), user.get("is_admin"))
-
-    # Issue session token and set cookies for browser recognition
-    response_data = {
-        "success": True,
-        "token": token,
-        "email": user["email"],
-        "nickname": user["nickname"],
-        "is_admin": role == ROLE_SYSTEM_ADMIN,
-        "role": role,
-    }
-
-    import urllib.parse
-
-    response = JSONResponse(content=response_data)
-    response.set_cookie(
-        key="session_token",
-        value=token,
-        max_age=SESSION_EXPIRY_SECONDS,
-        httponly=True,
-        samesite="lax",
-        path="/",
-    )
-    # Display-only cookies (JS-readable for UI rendering; server auth does NOT rely on these)
-    safe_nickname = urllib.parse.quote(user["nickname"])
-    response.set_cookie(
-        key="user_nickname",
-        value=safe_nickname,
-        max_age=SESSION_EXPIRY_SECONDS,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="user_id", value=str(user["id"]), max_age=SESSION_EXPIRY_SECONDS, samesite="lax", path="/"
-    )
-
-    return response
 
 
 @app.post("/api/log/guest-login")
@@ -3063,27 +2881,6 @@ async def attendance_month(request: Request, year: int, month: int):
         }
     finally:
         conn.close()
-
-
-@app.post("/api/logout")
-async def logout(request: Request):
-    """사용자 로그아웃."""
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        token = request.cookies.get("session_token", "")
-
-    if token:
-        session = _parse_session_token(token)
-        if session:
-            logger.info(
-                f"[LOGOUT] user_id={session['user_id']} email={session['email']}"
-            )
-
-        # Remove from active_sessions
-        if token in active_sessions:
-            del active_sessions[token]
-
-    return {"success": True, "message": "로그아웃되었습니다."}
 
 
 # ------------------------------------------
