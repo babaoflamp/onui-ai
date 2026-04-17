@@ -2674,6 +2674,8 @@ def video_learning_page(request: Request):
         if os.path.exists("data/onui-tube.json"):
             with open("data/onui-tube.json", "r", encoding="utf-8") as f:
                 videos = json.load(f)
+            for v in videos:
+                v.setdefault('transcript_offset', 0)
     except Exception:
         pass
     return templates.TemplateResponse(request, "video-learning.html", {"videos": videos})

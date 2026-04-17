@@ -267,7 +267,13 @@
     <button id="btn-back-lobby" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white rounded-xl text-sm font-black transition-all" data-i18n="yt.back_lobby">
       ← 목록으로
     </button>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 flex-wrap justify-end">
+      <!-- 자막 오프셋 조정 -->
+      <div class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-2 py-1">
+        <button id="btn-offset-minus" class="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-black transition-all flex items-center justify-center">−</button>
+        <span class="text-[10px] font-black text-white/50 tabular-nums w-14 text-center">자막 <span id="offset-label">0.0s</span></span>
+        <button id="btn-offset-plus" class="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-black transition-all flex items-center justify-center">+</button>
+      </div>
       <label class="flex items-center gap-2 cursor-pointer">
         <span class="text-xs font-bold text-white/40" data-i18n="yt.auto_pause">Auto-pause</span>
         <div class="relative">
@@ -352,6 +358,7 @@
     let allVideos = [];
     let currentSpeed = 1.0;
     let currentVideoId = null;
+    let currentOffset = 0;
     let activeLevel = 'all';
     let saveProgressTimer = null;
     let ttsAudio = null;
@@ -378,6 +385,9 @@
     const searchBtn         = document.getElementById('search-btn');
     const showAllBtn        = document.getElementById('show-all-btn');
     const btnExport         = document.getElementById('btn-export-vocab');
+    const btnOffsetMinus    = document.getElementById('btn-offset-minus');
+    const btnOffsetPlus     = document.getElementById('btn-offset-plus');
+    const offsetLabel       = document.getElementById('offset-label');
 
     // ── 토스트 알림 ─────────────────────────────────────
     function showToast(msg, type = 'info') {
@@ -397,6 +407,24 @@
         setTimeout(() => toast.remove(), 300);
       }, 2500);
     }
+
+    // ── 자막 오프셋 조정 ────────────────────────────────
+    function updateOffsetUI() {
+      offsetLabel.innerText = (currentOffset >= 0 ? '+' : '') + currentOffset.toFixed(1) + 's';
+      offsetLabel.parentElement.style.color = currentOffset !== 0 ? '#fb923c' : '';
+    }
+    btnOffsetMinus.onclick = () => {
+      currentOffset = Math.round((currentOffset - 0.5) * 10) / 10;
+      updateOffsetUI();
+      handleTimeUpdate(videoEl.currentTime);
+      console.log(`[OnuiTube] transcript_offset: ${currentOffset}`);
+    };
+    btnOffsetPlus.onclick = () => {
+      currentOffset = Math.round((currentOffset + 0.5) * 10) / 10;
+      updateOffsetUI();
+      handleTimeUpdate(videoEl.currentTime);
+      console.log(`[OnuiTube] transcript_offset: ${currentOffset}`);
+    };
 
     // ── TTS 발음 재생 ────────────────────────────────────
     async function playWordTTS(word) {
@@ -563,6 +591,7 @@
     // ── 플레이어 초기화 ──────────────────────────────────
     function initPlayer(v) {
       currentVideoId = v.id;
+      currentOffset = typeof v.transcript_offset === 'number' ? v.transcript_offset : 0;
       document.getElementById('player-title').innerText = v.title;
       document.getElementById('player-desc').innerText = v.description || '';
 
@@ -571,6 +600,7 @@
       currentSpeed = 1.0;
       speedLabel.innerText = '1.0x';
       videoEl.playbackRate = 1.0;
+      updateOffsetUI();
 
       transcripts = [];
       currentSubtitleIndex = -1;
@@ -599,6 +629,7 @@
         .then(data => {
           if (data.success && data.transcripts) {
             transcripts = data.transcripts;
+            handleTimeUpdate(videoEl.currentTime);
           } else {
             showToast(translations['yt.captions_failed'] || '자막을 불러오지 못했어요.', 'warn');
           }
@@ -662,8 +693,8 @@
       if (!transcripts.length) return;
       const cur = videoEl.currentTime;
       let target = null;
-      for (const t of transcripts) { if (t.end + 1 >= cur) { target = t; break; } }
-      if (target) { videoEl.currentTime = target.start; videoEl.play(); }
+      for (const t of transcripts) { if ((t.end + currentOffset) + 1 >= cur) { target = t; break; } }
+      if (target) { videoEl.currentTime = target.start + currentOffset; videoEl.play(); }
     };
 
     function formatTime(sec) {
@@ -676,7 +707,7 @@
     function handleTimeUpdate(time) {
       if (!transcripts.length) return;
 
-      const active = transcripts.findIndex(s => time >= s.start && time <= s.end);
+      const active = transcripts.findIndex(s => time >= (s.start + currentOffset) && time < (s.end + currentOffset));
 
       if (active !== currentSubtitleIndex) {
         currentSubtitleIndex = active;
@@ -686,10 +717,10 @@
 
       if (currentSubtitleIndex !== -1 && autoPauseToggle.checked && !autoPauseFired) {
         const cur = transcripts[currentSubtitleIndex];
-        if (time >= cur.end) {
+        if (time >= (cur.end + currentOffset)) {
           autoPauseFired = true;
           videoEl.pause();
-          videoEl.currentTime = cur.end;
+          videoEl.currentTime = cur.end + currentOffset;
         }
       }
     }
