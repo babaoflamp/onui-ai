@@ -59,7 +59,7 @@ PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `l
 
 ### Single-file Backend (`main.py`, ~7300 lines)
 
-All FastAPI routes, middleware, and most business logic live in `main.py`. It is large by design — don't split it without strong motivation.
+All FastAPI routes, middleware, and most business logic live in `main.py`. It is large by design (~7450 lines) — don't split it without strong motivation.
 
 Key sections in `main.py`:
 - **Lines 1–500**: imports, env config, AI client initialization
@@ -77,7 +77,8 @@ These are mounted in `main.py` (~line 1976) via `app.include_router(...)`:
 | `tts.py` | `/api/tts/*` — TTS generation endpoint |
 | `speechpro.py` | `/api/speechpro/*` — pronunciation evaluation |
 | `roleplay.py` | `/roleplay`, `/api/roleplay/*` — AI historical figure roleplay |
-| `lms.py` | LMS (Learning Management System) routes |
+| `lms.py` | LMS (Learning Management System) routes — grades, attendance, time-on-task |
+| `auth.py` | `/api/signup`, `/api/login`, `/api/logout` and related auth endpoints |
 
 ### `backend/utils.py`
 
@@ -107,12 +108,12 @@ Cookie-based sessions using an in-memory `active_sessions` dict (token → user 
 ### Frontend
 
 - **`templates/base.html`**: Master layout — navigation, i18n initialization, character popup. All pages extend this.
-- **`templates/components/`**: Reusable Jinja2 partials.
+- **`templates/components/`**: Reusable Jinja2 partials — `character-popup.html`, `floating-buttons.html`, `ai-avatar.html`.
 - **`static/js/` and `static/css/`**: Feature-specific assets with kebab-case names matching their template (e.g., `word-puzzle.js` ↔ `word-puzzle.html`).
 - Tailwind CSS is loaded via CDN (not compiled locally).
-- JavaScript in templates is mostly inline; standalone JS files exist only for complex pages (word-puzzle, vocab-garden, etc.).
+- JavaScript in templates is mostly inline; standalone JS files exist for complex pages: `word-puzzle.js`, `vocab-garden.js`, `daily-expression.js`, `ui-components.js`, `floating-buttons.js`, `auth.js`.
 
-Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`).
+Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, `onui-grammar.html` (AI Grammar Coach), and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`, `admin-api.html`). Dev/test templates (`api-test.html`, `stt-multi-test.html`) are not user-facing.
 
 User-uploaded files (profile images, audio recordings) are stored under `uploads/` and served at `/uploads` via a separate static mount.
 
@@ -135,6 +136,10 @@ Static JSON datasets read at startup or on-demand:
 - `onui-beats.json` — music/lyrics data for Onui Beats feature
 - `onui-tube.json` / `onui-tube-transcripts.json` — video metadata and transcripts for OnuiTube
 - `roleplay-scenarios.json` — historical figure scenarios for AI Roleplay
+- `tongue-twister-metadata.json` — tongue twister content
+- `sp_ko_questions.json` — SpeechPro Korean question bank
+- `landing_intake.json` — landing page intake/onboarding data
+- `word_image_cache.json` — cached DALL-E image URLs for vocabulary words
 - `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
 
 ### Scripts (`scripts/`)

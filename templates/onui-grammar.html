@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+{% block title %}Onui Grammar - AI Grammar Coach{% endblock %}
+{% block extra_css %}
+<style>
+  .chat-container {
+    background: #121212;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    height: 75vh;
+    overflow: hidden;
+  }
+  .chat-header {
+    background: rgba(255,255,255,0.03);
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .chat-input-area {
+    padding: 16px 24px;
+    background: rgba(0,0,0,0.5);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    gap: 12px;
+  }
+
+  .bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 1rem;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .bubble-ai {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+  .bubble-user {
+    background: #f97316;
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+  }
+
+  /* Red Pen Correction styling */
+  .correction-card {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-top: 4px;
+    align-self: flex-end;
+    max-width: 80%;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .typing-indicator {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    width: fit-content;
+    display: flex;
+    gap: 4px;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: pulse 1.5s infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+  <!-- Premium Header Section -->
+  <div class="mb-12 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-8 rounded-[40px] relative overflow-hidden group">
+    <!-- Background Glows -->
+    <div class="absolute -right-20 -top-20 w-48 h-48 bg-teal-500/20 blur-[60px] rounded-full group-hover:bg-teal-500/30 transition-all duration-700"></div>
+    <div class="absolute -left-20 -bottom-20 w-48 h-48 bg-emerald-500/20 blur-[60px] rounded-full group-hover:bg-emerald-500/30 transition-all duration-700"></div>
+
+    <div class="md:w-3/5 relative z-10 text-center md:text-left mb-6 md:mb-0">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
+        <span class="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></span>
+        Grammar Coach
+      </div>
+      <h1 class="text-3xl md:text-5xl font-black text-white mb-2 tracking-tighter leading-tight">
+        Onui <span class="bg-gradient-to-r from-teal-400 to-emerald-500 bg-clip-text text-transparent italic pb-2 pr-2">Grammar</span>
+      </h1>
+      <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="msg.desc">
+        Chat with AI partners and get real-time grammar corrections. Improve your writing naturally.
+      </p>
+    </div>
+
+    <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
+        <div class="relative w-32 h-32 md:w-44 md:h-44 rounded-[40px] overflow-hidden border-4 border-white/20 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+            <img src="/static/images/onui-idol-barista.png" alt="Grammar Coach" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
+    </div>
+  </div>
+
+  <div class="h-full flex flex-col pb-6">
+  <div class="chat-container shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="relative" id="character-selector">
+        <button class="flex items-center gap-2 p-1 pr-3 bg-white/10 hover:bg-white/20 rounded-full transition-all">
+          <img id="current-avatar" src="/static/images/onui-pure-idol.png" class="w-10 h-10 rounded-full object-cover" />
+          <span id="current-name" class="text-sm font-bold text-white">채원</span>
+          <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="character-dropdown" class="hidden absolute top-full left-0 mt-2 w-64 bg-gray-900 border border-white/10 rounded-2xl overflow-hidden z-50 shadow-2xl">
+          <div class="p-2 space-y-1">
+            <button onclick="selectCharacter('chaeon', 'Chaewon', '/static/images/onui-pure-idol.png', 'Language Exchange Partner')" class="w-full flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition-all text-left">
+              <img src="/static/images/onui-pure-idol.png" class="w-10 h-10 rounded-full object-cover" />
+              <div>
+                <p class="text-sm font-bold text-white">Chaewon</p>
+                <p class="text-xs text-white/50" data-i18n="msg.partner_lang">Language Exchange Partner</p>
+              </div>
+            </button>
+            <button onclick="selectCharacter('teacher', 'Young-ja Teacher', '/static/images/arirang-cover.svg', 'Korean Teacher')" class="w-full flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition-all text-left">
+              <img src="/static/images/arirang-cover.svg" class="w-10 h-10 rounded-full object-cover bg-white/10" />
+              <div>
+                <p class="text-sm font-bold text-white">Young-ja Teacher</p>
+                <p class="text-xs text-white/50" data-i18n="msg.partner_teacher">Korean Teacher</p>
+              </div>
+            </button>
+            <button onclick="selectCharacter('barista', 'Minsu', '/static/images/onui-idol-barista.png', 'Cafe Staff')" class="w-full flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition-all text-left">
+              <img src="/static/images/onui-idol-barista.png" class="w-10 h-10 rounded-full object-cover" />
+              <div>
+                <p class="text-sm font-bold text-white">Minsu</p>
+                <p class="text-xs text-white/50" data-i18n="msg.partner_barista">Cafe Staff</p>
+              </div>
+            </button>
+            <button onclick="selectCharacter('doctor', 'Dr. Park', '/static/images/arirang-cover.svg', 'Doctor')" class="w-full flex items-center gap-3 p-3 hover:bg-white/10 rounded-xl transition-all text-left">
+              <img src="/static/images/arirang-cover.svg" class="w-10 h-10 rounded-full object-cover bg-white/10" />
+              <div>
+                <p class="text-sm font-bold text-white">Dr. Park</p>
+                <p class="text-xs text-white/50" data-i18n="msg.partner_doctor">Doctor</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <button onclick="setMode('chat')" id="mode-chat-btn" class="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold" data-i18n="msg.mode_chat">Chat</button>
+        <button onclick="setMode('correction')" id="mode-correction-btn" class="px-3 py-1 text-white/40 hover:text-white rounded-full text-xs font-bold" data-i18n="msg.mode_correction">Grammar Correction</button>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-body custom-scrollbar" id="chat-body">
+      <div class="text-center text-xs font-bold text-white/30 uppercase tracking-widest my-4">Today</div>
+      <!-- Messages will be injected here -->
+    </div>
+
+    <!-- Input -->
+    <form class="chat-input-area" id="chat-form">
+      <button type="button" class="text-white/40 hover:text-white transition-colors p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </button>
+      <input type="text" id="user-input" placeholder="Type in Korean..." data-i18n="msg.input_placeholder" class="flex-1 bg-white/5 border border-white/10 rounded-full px-6 text-white text-sm outline-none focus:border-orange-500 transition-colors" autocomplete="off" />
+      <button type="submit" class="w-12 h-12 bg-orange-500 hover:bg-orange-400 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] transition-all active:scale-95">
+        <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const chatBody = document.getElementById('chat-body');
+  const chatForm = document.getElementById('chat-form');
+  const userInput = document.getElementById('user-input');
+
+  let currentCharacter = { id: 'chaeon', name: 'Chaewon', role: 'Language Exchange Partner', avatar: '/static/images/onui-pure-idol.png' };
+  let currentMode = 'chat';
+  let characterDropdown = document.getElementById('character-dropdown');
+
+  let chatHistory = [
+    { role: 'assistant', content: '안녕하세요! 오늘 어떤 한국어 연습을 하고 싶으세요? 😊' }
+  ];
+
+  document.getElementById('character-selector').addEventListener('click', (e) => {
+    e.stopPropagation();
+    characterDropdown.classList.toggle('hidden');
+  });
+  document.addEventListener('click', () => characterDropdown.classList.add('hidden'));
+
+  function selectCharacter(id, name, avatar, role) {
+    currentCharacter = { id, name, role, avatar };
+    document.getElementById('current-avatar').src = avatar;
+    document.getElementById('current-name').textContent = name;
+    characterDropdown.classList.add('hidden');
+    chatHistory = [{ role: 'assistant', content: `${name}(이/가) 도와드릴게요! 무엇을 말씀해 주시겠어요? 😊` }];
+    chatBody.innerHTML = '<div class="text-center text-xs font-bold text-white/30 uppercase tracking-widest my-4">Today</div>';
+    addMessage('assistant', chatHistory[0].content);
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-chat-btn').className = mode === 'chat' ? 'px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold' : 'px-3 py-1 text-white/40 hover:text-white rounded-full text-xs font-bold';
+    document.getElementById('mode-correction-btn').className = mode === 'correction' ? 'px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold' : 'px-3 py-1 text-white/40 hover:text-white rounded-full text-xs font-bold';
+  }
+
+  function addMessage(role, content) {
+    const bubble = document.createElement('div');
+    bubble.className = `bubble ${role === 'assistant' ? 'bubble-ai' : 'bubble-user'}`;
+    bubble.innerText = content;
+    chatBody.appendChild(bubble);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function addCorrection(correction) {
+    const card = document.createElement('div');
+    card.className = 'correction-card';
+    card.innerHTML = `
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-red-400 text-xs font-black uppercase tracking-widest">🖋️ Grammar Correction</span>
+      </div>
+      <p class="text-white/60 text-sm line-through decoration-red-500 mb-1">${correction.original}</p>
+      <p class="text-white font-bold text-sm">${correction.corrected}</p>
+      <p class="text-[10px] text-white/40 mt-1 italic">${correction.reason}</p>
+    `;
+    chatBody.appendChild(card);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function showTyping() {
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator bubble-ai';
+    indicator.id = 'typing-indicator';
+    indicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+    chatBody.appendChild(indicator);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    return indicator;
+  }
+
+  // Initial greeting
+  addMessage('assistant', chatHistory[0].content);
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    userInput.value = '';
+    addMessage('user', text);
+
+    const typing = showTyping();
+
+    try {
+      const response = await fetch('/api/messenger/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          history: chatHistory,
+          character: currentCharacter.id,
+          mode: currentMode
+        })
+      });
+
+      const result = await response.json();
+      typing.remove();
+
+      if (result.success) {
+        if (result.correction) {
+          addCorrection(result.correction);
+        }
+        addMessage('assistant', result.reply);
+        chatHistory.push({ role: 'user', content: text });
+        chatHistory.push({ role: 'assistant', content: result.reply });
+      } else {
+        ToastManager.error(translations['toast.fetch_failed'] || 'Failed to get response.');
+      }
+    } catch (err) {
+      typing.remove();
+      ToastManager.error(translations['toast.server_error'] || 'Server connection failed.');
+    }
+  });
+</script>
+{% endblock %}

@@ -2694,6 +2694,11 @@ def voice_call_page(request: Request):
     return templates.TemplateResponse(request, "voice-call.html")
 
 
+@app.get("/onui-grammar")
+def onui_grammar_page(request: Request):
+    """문법 코치 - AI 문법 교정 및 작문 피드백"""
+    return templates.TemplateResponse(request, "onui-grammar.html")
+
 
 @app.get("/content-generation")
 def content_generation_page(request: Request):
@@ -6065,6 +6070,117 @@ async def chatbot_api(request: Request):
         )
 
 
+@app.post("/api/messenger/chat")
+async def messenger_chat_api(request: Request):
+    """Onui Messenger 전용 API - 발음/문법 교정 및 답변 제공"""
+    try:
+        data = await request.json()
+        user_message = data.get("message", "").strip()
+        history = data.get("history", [])
+        character = data.get("character", "chaeon")
+        mode = data.get("mode", "chat")
+
+        if not user_message:
+            return JSONResponse(
+                status_code=400, content={"error": "메시지를 입력해주세요."}
+            )
+
+        character_prompts = {
+            "chaeon": {
+                "name": "채원",
+                "system": """당신은 한국인 언어교환 파트너 '채원'입니다.
+반드시 아래 JSON 형식으로만 응답하세요: { "correction": null또는string, "reply": string }
+
+규칙:
+1. reply는 반드시 한국어로만 작성하세요. 절대 영어로 답하지 마세요.
+2. 친구처럼 자연스럽고 짧게 (2-3문장) 대화하세요.
+3. correction: 사용자 문장에 문법/어휘 오류가 있으면 교정 내용을 작성하고, 오류가 없으면 반드시 null로 설정하세요.
+4. 가끔 한국 문화나 신조어를 자연스럽게 소개해주세요.""",
+            },
+            "teacher": {
+                "name": "영자 선생님",
+                "system": """당신은 경력 많은 한국어 선생님 '영자 선생님'입니다.
+반드시 아래 JSON 형식으로만 응답하세요: { "correction": null또는string, "reply": string }
+
+규칙:
+1. reply는 반드시 한국어로만 작성하세요. 절대 영어로 답하지 마세요.
+2. 정중하고 체계적으로, 2-3문장으로 설명해주세요.
+3. correction: 문법 오류나 더 적절한 표현이 있으면 높임말 사용법 포함해서 교정하고, 오류가 없으면 반드시 null로 설정하세요.
+4. reply에 한국어 원리나 문화적 배경을 간략히 덧붙여주세요.""",
+            },
+            "barista": {
+                "name": "민수",
+                "system": """당신은 활기찬 카페 점원 '민수'입니다.
+반드시 아래 JSON 형식으로만 응답하세요: { "correction": null또는string, "reply": string }
+
+규칙:
+1. reply는 반드시 한국어로만 작성하세요. 절대 영어로 답하지 마세요.
+2. 밝고 친절하게, 2-3문장으로 대화하세요.
+3. correction: 카페 주문 표현에 오류가 있으면 교정하고, 오류가 없으면 반드시 null로 설정하세요.
+4. 카페 문화나 음료 관련 이야기를 자연스럽게 나눠주세요.""",
+            },
+            "doctor": {
+                "name": "박의사",
+                "system": """당신은 친절한 병원 의사 '박의사'입니다.
+반드시 아래 JSON 형식으로만 응답하세요: { "correction": null또는string, "reply": string }
+
+규칙:
+1. reply는 반드시 한국어로만 작성하세요. 절대 영어로 답하지 마세요.
+2. 전문적이면서 따뜻하게, 2-3문장으로 대화하세요.
+3. correction: 증상 설명 표현에 오류가 있으면 교정하고, 오류가 없으면 반드시 null로 설정하세요.
+4. 건강 관리 팁이나 한국 의료 문화를 자연스럽게 소개해주세요.""",
+            },
+        }
+
+        cp = character_prompts.get(character, character_prompts["chaeon"])
+        system_prompt = cp["system"]
+
+        prompt = f"사용자 메시지: {user_message}\n\n최근 대화 기록:\n"
+        for h in history[-5:]:
+            prompt += f"{h['role']}: {h['content']}\n"
+
+        backend = (os.getenv("MODEL_BACKEND") or "gemini").strip().lower()
+
+        response_text = ""
+
+        if backend == "gemini" and GEMINI_API_KEY and gemini_client:
+            resp = gemini_client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=f"{system_prompt}\n\n{prompt}",
+                config={"response_mime_type": "application/json"},
+            )
+            response_text = resp.text
+        elif backend == "openai" and OPENAI_API_KEY and client:
+            resp = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                response_format={"type": "json_object"},
+            )
+            response_text = resp.choices[0].message.content
+        else:
+            payload = {
+                "model": OLLAMA_MODEL,
+                "prompt": f"{system_prompt}\n\n{prompt}",
+                "stream": False,
+                "format": "json",
+            }
+            r = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
+            if r.status_code == 200:
+                response_text = r.json().get("response", "{}")
+            else:
+                return JSONResponse(
+                    status_code=500, content={"error": "AI backend error"}
+                )
+
+        result = json.loads(response_text)
+        return JSONResponse(content={"success": True, **result})
+
+    except Exception as e:
+        logger.error(f"Messenger Chat Error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 
 @app.get("/api/beats/songs")
