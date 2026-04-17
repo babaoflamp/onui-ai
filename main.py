@@ -986,6 +986,10 @@ def _init_user_db():
     """Ensure the users table exists and has the is_admin column."""
     conn = sqlite3.connect(DB_PATH)
     try:
+        # WAL 모드 활성화 — 한 번 설정하면 DB 파일에 영구 적용 (모든 연결에서 자동 사용)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        conn.commit()
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
@@ -2140,7 +2144,22 @@ app.add_middleware(LoggingMiddleware)
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-app.mount("/data/locales", StaticFiles(directory="data/locales"), name="locales")
+
+
+@app.get("/data/locales/{filename}")
+async def serve_locale(filename: str):
+    """로케일 JSON 파일 서빙 — Cache-Control 헤더 포함."""
+    import mimetypes
+    from fastapi.responses import FileResponse
+    safe_name = os.path.basename(filename)
+    locale_path = os.path.join("data", "locales", safe_name)
+    if not os.path.exists(locale_path) or not safe_name.endswith(".json"):
+        raise HTTPException(status_code=404, detail="Locale not found")
+    return FileResponse(
+        locale_path,
+        media_type="application/json",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 @app.on_event("startup")
@@ -2207,8 +2226,9 @@ def _cleanup_expired_sessions():
 # ==========================================
 # 학습 데이터 로드 헬퍼 함수
 # ==========================================
+@lru_cache(maxsize=32)
 def load_json_data(filename):
-    """Load JSON data from data/ directory"""
+    """Load JSON data from data/ directory (cached per filename)."""
     try:
         with open(f"data/{filename}", "r", encoding="utf-8") as f:
             return json.load(f)

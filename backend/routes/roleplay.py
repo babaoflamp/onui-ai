@@ -19,16 +19,19 @@ class ChatRequest(BaseModel):
     messages: List[dict]  # [{"role": "user/assistant", "content": "..."}]
 
 _scenarios_cache: list | None = None
+_scenarios_mtime: float = 0.0
 
 def load_scenarios():
-    global _scenarios_cache
-    if _scenarios_cache is not None:
-        return _scenarios_cache
+    """시나리오 로드. 파일 변경 시 자동으로 캐시 무효화."""
+    global _scenarios_cache, _scenarios_mtime
     if not os.path.exists(DATA_PATH):
-        _scenarios_cache = []
+        return []
+    current_mtime = os.path.getmtime(DATA_PATH)
+    if _scenarios_cache is not None and current_mtime == _scenarios_mtime:
         return _scenarios_cache
     with open(DATA_PATH, "r", encoding="utf-8") as f:
         _scenarios_cache = json.load(f)
+    _scenarios_mtime = current_mtime
     return _scenarios_cache
 
 @router.get("/roleplay", response_class=HTMLResponse)

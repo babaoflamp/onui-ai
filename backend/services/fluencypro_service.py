@@ -16,8 +16,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# FluencyPro WebSocket 엔드포인트
-FLUENCYPRO_WS_URL = os.getenv("FLUENCYPRO_WS_URL", "ws://112.220.79.218:33043/ws")
+# FluencyPro WebSocket 엔드포인트 (반드시 FLUENCYPRO_WS_URL 환경변수로 설정하세요)
+FLUENCYPRO_WS_URL = os.getenv("FLUENCYPRO_WS_URL", "")
+if not FLUENCYPRO_WS_URL:
+    logger.warning(
+        "[CONFIG] FLUENCYPRO_WS_URL is not set. FluencyPro features will be unavailable. "
+        "Set FLUENCYPRO_WS_URL=ws://<host>:<port>/ws in .env"
+    )
 
 
 def convert_audio_to_pcm(audio_data: bytes, target_sample_rate: int = 8000) -> bytes:

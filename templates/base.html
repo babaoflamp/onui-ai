@@ -696,7 +696,7 @@
         {% block footer %}
         <footer class="mt-20 pb-12 text-[11px] text-white/60 font-bold uppercase tracking-widest border-t border-white/10 pt-8 px-8 flex justify-between items-center">
           <div class="flex gap-6">
-            <span class="text-white/80">&copy; 2026 Onui. All rights reserved.</span>
+            <span class="text-white/80">&copy; <span id="footer-year">2026</span> Onui. All rights reserved.</span>
           </div>
           <div class="flex gap-8 items-center">
             <a href="/privacy" class="text-white/70 hover:text-white transition-colors underline-offset-4 hover:underline">Privacy Policy</a>
@@ -821,5 +821,6 @@
         });
       }
     </script>
+    <script>document.getElementById("footer-year").textContent = new Date().getFullYear();</script>
   </body>
 </html>

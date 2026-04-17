@@ -57,6 +57,8 @@ class LearningProgressService:
     def _init_db(self):
         """데이터베이스 초기화"""
         conn = sqlite3.connect(self.db_path)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         cursor = conn.cursor()
         
         # 스키마 생성

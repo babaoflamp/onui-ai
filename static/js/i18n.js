@@ -87,13 +87,28 @@ function applyTranslations() {
     });
 }
 
+// 브라우저 언어에서 지원 언어 코드 매핑
+function _detectBrowserLang() {
+    const supported = ["ko", "en", "ja", "zh"];
+    const nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    if (nav.startsWith("ko")) return "ko";
+    if (nav.startsWith("ja")) return "ja";
+    if (nav.startsWith("zh")) return "zh";
+    return "en";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     // 안전장치: i18n 로드 실패 시에도 2초 후 페이지 강제 표시
     const _fouc_guard = setTimeout(() => {
         document.documentElement.style.visibility = "";
     }, 2000);
 
-    const lang = localStorage.getItem("app_lang") || "en";
+    // 저장된 언어 없으면 브라우저 언어 자동 감지
+    const lang = localStorage.getItem("app_lang") || _detectBrowserLang();
+    if (!localStorage.getItem("app_lang")) {
+        localStorage.setItem("app_lang", lang);
+    }
+
     await loadTranslations(lang);
     applyTranslations();
 
@@ -101,4 +116,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.documentElement.style.visibility = "";
 
     syncLangUI(lang);
+});
+
+// 탭 간 언어 동기화: 다른 탭에서 언어 변경 시 현재 탭도 갱신
+window.addEventListener("storage", async (e) => {
+    if (e.key === "app_lang" && e.newValue && e.newValue !== e.oldValue) {
+        await loadTranslations(e.newValue);
+        applyTranslations();
+        syncLangUI(e.newValue);
+    }
 });
