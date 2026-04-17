@@ -674,5 +674,17 @@
   "yt.show_all": "전체 보기",
   "yt.try_searching": "검색어 추천:",
   "yt.vlog": "브이로그",
-  "yt.words_count": "단어"
+  "yt.words_count": "단어",
+  "yt.already_saved": "이미 저장된 단어예요.",
+  "yt.word_saved": "저장됨!",
+  "yt.save_failed": "저장 중 오류가 발생했어요.",
+  "yt.captions_failed": "자막을 불러오지 못했어요.",
+  "yt.resume_at": "이어서 재생:",
+  "yt.export_csv": "CSV 내보내기",
+  "yt.export_failed": "내보내기 실패.",
+  "yt.tts_failed": "발음 재생 실패.",
+  "yt.login_required": "로그인 후 이용하세요.",
+  "yt.lv1": "Lv.1 입문",
+  "yt.lv2": "Lv.2 초중급",
+  "yt.lv3": "Lv.3 고급"
 }

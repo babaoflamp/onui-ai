@@ -674,5 +674,17 @@
   "yt.show_all": "Show All",
   "yt.try_searching": "Recommended:",
   "yt.vlog": "Vlog",
-  "yt.words_count": "Words"
+  "yt.words_count": "Words",
+  "yt.already_saved": "Already saved.",
+  "yt.word_saved": "Saved!",
+  "yt.save_failed": "Save failed.",
+  "yt.captions_failed": "Failed to load captions.",
+  "yt.resume_at": "Resuming from:",
+  "yt.export_csv": "Export CSV",
+  "yt.export_failed": "Export failed.",
+  "yt.tts_failed": "Failed to play pronunciation.",
+  "yt.login_required": "Please log in first.",
+  "yt.lv1": "Lv.1 Beginner",
+  "yt.lv2": "Lv.2 Intermediate",
+  "yt.lv3": "Lv.3 Advanced"
 }

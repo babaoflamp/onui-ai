@@ -116,7 +116,7 @@
 
   .progress-bar-wrapper {
     width: 100%;
-    height: 3px;
+    height: 5px;
     background: rgba(255,255,255,0.2);
     border-radius: 2px;
     cursor: pointer;
@@ -164,6 +164,28 @@
     box-shadow: none;
   }
 
+  /* 레벨 필터 버튼 */
+  .level-filter-btn {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .level-filter-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+  .level-filter-btn.active {
+    background: linear-gradient(to right, #f97316, #ec4899);
+    color: white;
+    border-color: transparent;
+  }
+
   .custom-scrollbar::-webkit-scrollbar { width: 5px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -202,7 +224,7 @@
   </div>
 
   <!-- 검색 바 -->
-  <div class="mb-10">
+  <div class="mb-4">
     <div class="flex gap-3">
       <input type="text" id="search-input"
         class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
@@ -214,6 +236,14 @@
         전체
       </button>
     </div>
+  </div>
+
+  <!-- 레벨 필터 버튼 -->
+  <div class="flex gap-2 mb-8 flex-wrap">
+    <button class="level-filter-btn active" data-level="all" data-i18n="yt.all">전체</button>
+    <button class="level-filter-btn" data-level="1" data-i18n="yt.lv1">Lv.1 입문</button>
+    <button class="level-filter-btn" data-level="2" data-i18n="yt.lv2">Lv.2 초중급</button>
+    <button class="level-filter-btn" data-level="3" data-i18n="yt.lv3">Lv.3 고급</button>
   </div>
 
   <!-- 영상 그리드 (세로형 카드) -->
@@ -293,7 +323,10 @@
         <h2 class="text-base font-black text-white flex items-center gap-2">
           <span>📚</span> <span data-i18n="yt.my_vocab">My Vocabulary</span>
         </h2>
-        <span class="text-xs font-bold bg-white/10 text-white/60 px-2 py-1 rounded-md" id="vocab-count">0 words</span>
+        <div class="flex items-center gap-2">
+          <button id="btn-export-vocab" title="CSV 내보내기" class="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all text-xs font-bold" data-i18n="yt.export_csv">↓ CSV</button>
+          <span class="text-xs font-bold bg-white/10 text-white/60 px-2 py-1 rounded-md" id="vocab-count">0 words</span>
+        </div>
       </div>
       <div id="vocab-list" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-1">
         <div id="vocab-empty" class="h-full flex flex-col items-center justify-center text-center opacity-50 py-8">
@@ -314,60 +347,138 @@
     let videoEl = document.getElementById('video-player');
     let transcripts = [];
     let currentSubtitleIndex = -1;
+    let autoPauseFired = false;
     let savedVocab = [];
     let allVideos = [];
     let currentSpeed = 1.0;
+    let currentVideoId = null;
+    let activeLevel = 'all';
+    let saveProgressTimer = null;
+    let ttsAudio = null;
 
-    const lobby        = document.getElementById('tube-lobby');
-    const playerScreen = document.getElementById('player-screen');
-    const videoGrid    = document.getElementById('video-grid');
+    const lobby             = document.getElementById('tube-lobby');
+    const playerScreen      = document.getElementById('player-screen');
+    const videoGrid         = document.getElementById('video-grid');
     const captionsContainer = document.getElementById('captions-container');
-    const vocabList    = document.getElementById('vocab-list');
-    const vocabEmpty   = document.getElementById('vocab-empty');
-    const vocabCountEl = document.getElementById('vocab-count');
-    const autoPauseToggle = document.getElementById('auto-pause-toggle');
-    const btnBack      = document.getElementById('btn-back-lobby');
-    const btnSpeed     = document.getElementById('btn-playback-speed');
-    const speedLabel   = document.getElementById('speed-label');
-    const btnPlayPause = document.getElementById('btn-play-pause');
-    const playIcon     = document.getElementById('play-icon');
-    const progressFill = document.getElementById('progress-fill');
-    const progressWrapper = document.getElementById('progress-wrapper');
-    const timeCurrent  = document.getElementById('time-current');
-    const timeTotal    = document.getElementById('time-total');
-    const btnRewind    = document.getElementById('btn-rewind-sentence');
-    const searchInput  = document.getElementById('search-input');
-    const searchBtn    = document.getElementById('search-btn');
-    const showAllBtn   = document.getElementById('show-all-btn');
+    const vocabList         = document.getElementById('vocab-list');
+    const vocabEmpty        = document.getElementById('vocab-empty');
+    const vocabCountEl      = document.getElementById('vocab-count');
+    const autoPauseToggle   = document.getElementById('auto-pause-toggle');
+    const btnBack           = document.getElementById('btn-back-lobby');
+    const btnSpeed          = document.getElementById('btn-playback-speed');
+    const speedLabel        = document.getElementById('speed-label');
+    const btnPlayPause      = document.getElementById('btn-play-pause');
+    const playIcon          = document.getElementById('play-icon');
+    const progressFill      = document.getElementById('progress-fill');
+    const progressWrapper   = document.getElementById('progress-wrapper');
+    const timeCurrent       = document.getElementById('time-current');
+    const timeTotal         = document.getElementById('time-total');
+    const btnRewind         = document.getElementById('btn-rewind-sentence');
+    const searchInput       = document.getElementById('search-input');
+    const searchBtn         = document.getElementById('search-btn');
+    const showAllBtn        = document.getElementById('show-all-btn');
+    const btnExport         = document.getElementById('btn-export-vocab');
 
-    // ── 로비 로드 (SSR 데이터 활용) ──────────────────────
+    // ── 토스트 알림 ─────────────────────────────────────
+    function showToast(msg, type = 'info') {
+      const colors = {
+        success: 'bg-green-500 text-white',
+        error:   'bg-red-500 text-white',
+        warn:    'bg-orange-500 text-white',
+        info:    'bg-white/10 backdrop-blur-md border border-white/20 text-white',
+      };
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] px-5 py-2.5 rounded-2xl font-bold text-sm shadow-2xl transition-all duration-300 opacity-0 translate-y-3 ${colors[type] || colors.info}`;
+      toast.innerText = msg;
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-3'));
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-3');
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    // ── TTS 발음 재생 ────────────────────────────────────
+    async function playWordTTS(word) {
+      try {
+        if (ttsAudio) { ttsAudio.pause(); ttsAudio = null; }
+        const resp = await fetch('/api/tts/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: word }),
+        });
+        if (!resp.ok) throw new Error('TTS error');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        ttsAudio = new Audio(url);
+        ttsAudio.play();
+        ttsAudio.onended = () => URL.revokeObjectURL(url);
+      } catch {
+        showToast(translations['yt.tts_failed'] || '발음 재생 실패', 'error');
+      }
+    }
+
+    // ── 어휘 CSV 내보내기 ────────────────────────────────
+    btnExport.onclick = async () => {
+      try {
+        const resp = await fetch('/api/tube/vocab/export');
+        if (resp.status === 401) {
+          showToast(translations['yt.login_required'] || '로그인 후 이용하세요.', 'warn');
+          return;
+        }
+        if (!resp.ok) throw new Error('export failed');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'onui-vocab.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch {
+        showToast(translations['yt.export_failed'] || '내보내기 실패', 'error');
+      }
+    };
+
+    // ── 로비 로드 ────────────────────────────────────────
     const initialVideos = {{ videos|tojson if videos else '[]' }};
-    
+
     async function loadLobby() {
       if (initialVideos && initialVideos.length > 0) {
         allVideos = initialVideos;
-        renderGrid(allVideos);
-        return;
-      }
-      
-      try {
-        const resp = await fetch('/api/tube/videos');
-        const data = await resp.json();
-        if (data.success && data.videos && data.videos.length > 0) {
-          allVideos = data.videos;
-          renderGrid(allVideos);
-        } else {
-          videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/50 font-black uppercase">${translations['yt.no_videos'] || '영상이 없습니다.'}</div>`;
+      } else {
+        try {
+          const resp = await fetch('/api/tube/videos');
+          const data = await resp.json();
+          if (data.success && data.videos && data.videos.length > 0) {
+            allVideos = data.videos;
+          } else {
+            videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/50 font-black uppercase">${translations['yt.no_videos'] || '영상이 없습니다.'}</div>`;
+            return;
+          }
+        } catch {
+          videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-red-400 font-bold uppercase">${translations['yt.server_error'] || '서버 연결 오류.'}</div>`;
+          return;
         }
-      } catch(e) {
-        videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-red-400 font-bold uppercase">${translations['yt.server_error'] || '서버 연결 오류.'}</div>`;
       }
+      // 저장된 검색어 복원
+      const savedSearch = sessionStorage.getItem('tube_search');
+      const savedLevel  = sessionStorage.getItem('tube_level');
+      if (savedLevel) {
+        activeLevel = savedLevel;
+        document.querySelectorAll('.level-filter-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.level === activeLevel);
+        });
+      }
+      if (savedSearch) {
+        searchInput.value = savedSearch;
+      }
+      applyFilters();
     }
 
     function renderGrid(videos) {
       videoGrid.innerHTML = '';
       if (videos.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/40 font-black uppercase">검색 결과가 없습니다.</div>`;
+        videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/40 font-black uppercase">${translations['yt.no_results'] || '검색 결과가 없습니다.'}</div>`;
         return;
       }
       const levelColors = { '1': 'bg-green-500/20 text-green-400', '2': 'bg-blue-500/20 text-blue-400', '3': 'bg-purple-500/20 text-purple-400' };
@@ -382,6 +493,12 @@
           : `<div class="w-full h-full flex items-center justify-center text-4xl bg-white/5">📱</div>`;
 
         const levelColor = levelColors[v.level] || 'bg-white/10 text-white/40';
+
+        // 저장된 진도 표시
+        const savedPos = localStorage.getItem(`tube_pos_${v.id}`);
+        const progressBadge = (savedPos && hasVideo)
+          ? `<div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-orange-500/80 text-[9px] font-black text-white rounded-full">▶ ${formatTime(parseFloat(savedPos))}</div>`
+          : '';
 
         card.innerHTML = `
           <div class="shorts-thumb">
@@ -398,6 +515,7 @@
             <div class="absolute top-2 left-2">
               <span class="px-2 py-0.5 ${levelColor} text-[9px] font-black rounded-full backdrop-blur uppercase">Lv.${v.level}</span>
             </div>
+            ${progressBadge}
           </div>
           <div class="p-3">
             <h3 class="text-xs font-black text-white leading-snug line-clamp-2 ${!hasVideo ? 'text-white/40' : ''}">${v.title}</h3>
@@ -408,41 +526,84 @@
       });
     }
 
-    // ── 검색 ──────────────────────────────────────────────
-    function doSearch() {
+    // ── 검색 + 레벨 필터 ────────────────────────────────
+    function applyFilters() {
       const q = searchInput.value.trim().toLowerCase();
-      if (!q) { renderGrid(allVideos); return; }
-      const filtered = allVideos.filter(v =>
+      let filtered = allVideos;
+      if (activeLevel !== 'all') filtered = filtered.filter(v => v.level === activeLevel);
+      if (q) filtered = filtered.filter(v =>
         (v.title && v.title.toLowerCase().includes(q)) ||
-        (v.description && v.description.toLowerCase().includes(q)) ||
-        (v.level && v.level === q)
+        (v.description && v.description.toLowerCase().includes(q))
       );
       renderGrid(filtered);
     }
+
+    function doSearch() { applyFilters(); }
+
     searchBtn.onclick = doSearch;
-    showAllBtn.onclick = () => { searchInput.value = ''; renderGrid(allVideos); };
+    showAllBtn.onclick = () => {
+      searchInput.value = '';
+      activeLevel = 'all';
+      document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.level === 'all'));
+      sessionStorage.removeItem('tube_search');
+      sessionStorage.removeItem('tube_level');
+      renderGrid(allVideos);
+    };
     searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        activeLevel = btn.dataset.level;
+        document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+        sessionStorage.setItem('tube_level', activeLevel);
+        applyFilters();
+      };
+    });
 
     // ── 플레이어 초기화 ──────────────────────────────────
     function initPlayer(v) {
+      currentVideoId = v.id;
       document.getElementById('player-title').innerText = v.title;
       document.getElementById('player-desc').innerText = v.description || '';
 
       videoEl.src = v.video_url;
       videoEl.load();
-      videoEl.play().catch(() => {});
       currentSpeed = 1.0;
       speedLabel.innerText = '1.0x';
       videoEl.playbackRate = 1.0;
 
       transcripts = [];
       currentSubtitleIndex = -1;
+      autoPauseFired = false;
       captionsContainer.innerHTML = '';
 
+      // 재생 위치 복원 (loadedmetadata 후)
+      videoEl.addEventListener('loadedmetadata', () => {
+        const saved = localStorage.getItem(`tube_pos_${currentVideoId}`);
+        if (saved) {
+          const pos = parseFloat(saved);
+          if (pos > 3 && pos < videoEl.duration - 3) {
+            videoEl.currentTime = pos;
+            showToast(`${translations['yt.resume_at'] || '이어서 재생:'} ${formatTime(pos)}`, 'info');
+          }
+        }
+        videoEl.play().catch(() => {});
+      }, { once: true });
+
+      // 자막 로드
       fetch(`/api/tube/transcripts/${v.id}`)
-        .then(r => r.json())
-        .then(data => { if (data.success && data.transcripts) transcripts = data.transcripts; })
-        .catch(() => {});
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          if (data.success && data.transcripts) {
+            transcripts = data.transcripts;
+          } else {
+            showToast(translations['yt.captions_failed'] || '자막을 불러오지 못했어요.', 'warn');
+          }
+        })
+        .catch(() => showToast(translations['yt.captions_failed'] || '자막을 불러오지 못했어요.', 'warn'));
 
       lobby.classList.add('hidden');
       playerScreen.classList.remove('hidden');
@@ -456,6 +617,9 @@
     videoEl.addEventListener('pause', () => {
       playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
     });
+    videoEl.addEventListener('ended', () => {
+      if (currentVideoId) localStorage.removeItem(`tube_pos_${currentVideoId}`);
+    });
     videoEl.addEventListener('timeupdate', () => {
       const cur = videoEl.currentTime;
       const dur = videoEl.duration || 0;
@@ -463,6 +627,13 @@
         progressFill.style.width = `${(cur / dur) * 100}%`;
         timeCurrent.innerText = formatTime(cur);
         timeTotal.innerText = formatTime(dur);
+      }
+      // 재생 위치 주기적 저장 (2초 디바운스)
+      if (currentVideoId && !videoEl.paused && dur > 0) {
+        clearTimeout(saveProgressTimer);
+        saveProgressTimer = setTimeout(() => {
+          localStorage.setItem(`tube_pos_${currentVideoId}`, cur.toFixed(1));
+        }, 2000);
       }
       handleTimeUpdate(cur);
     });
@@ -474,7 +645,7 @@
 
     progressWrapper.addEventListener('click', e => {
       const rect = progressWrapper.getBoundingClientRect();
-      const ratio = (e.clientX - rect.left) / rect.width;
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       videoEl.currentTime = ratio * (videoEl.duration || 0);
     });
 
@@ -501,32 +672,33 @@
       return `${m}:${s}`;
     }
 
-    // ── 자막 처리 ──────────────────────────────────────
+    // ── 자막 처리 (auto-pause 버그 수정) ────────────────
     function handleTimeUpdate(time) {
       if (!transcripts.length) return;
 
-      if (currentSubtitleIndex !== -1 && autoPauseToggle.checked) {
-        const cur = transcripts[currentSubtitleIndex];
-        if (time >= cur.end && time < cur.end + 0.3) {
-          videoEl.pause();
-          videoEl.currentTime = cur.end;
-          return;
-        }
-      }
-
       const active = transcripts.findIndex(s => time >= s.start && time <= s.end);
+
       if (active !== currentSubtitleIndex) {
         currentSubtitleIndex = active;
+        autoPauseFired = false;
         renderCaptions(active);
+      }
+
+      if (currentSubtitleIndex !== -1 && autoPauseToggle.checked && !autoPauseFired) {
+        const cur = transcripts[currentSubtitleIndex];
+        if (time >= cur.end) {
+          autoPauseFired = true;
+          videoEl.pause();
+          videoEl.currentTime = cur.end;
+        }
       }
     }
 
     function renderCaptions(index) {
-      const container = document.getElementById('captions-container');
-      if (!container) return;
-      container.innerHTML = '';
+      captionsContainer.innerHTML = '';
       if (index === -1) return;
       const line = transcripts[index];
+      if (!line) return;
       const box = document.createElement('div');
       box.className = 'caption-box';
       const lineWrapper = document.createElement('div');
@@ -541,11 +713,18 @@
         const addLabel = translations['yt.add_to_vocab'] || '+ 어휘 저장';
         tooltip.innerHTML = `
           <div class="text-[10px] uppercase font-black text-orange-500 mb-1 tracking-widest">${wordObj.pos}</div>
-          <div class="text-lg font-bold text-white mb-1 leading-tight">${wordObj.label}</div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-lg font-bold text-white leading-tight">${wordObj.label}</span>
+            <button class="tts-btn p-1 rounded-md bg-white/10 hover:bg-orange-500/30 transition-colors text-sm" title="발음 듣기">🔊</button>
+          </div>
           <div class="text-sm font-medium text-white/80">${wordObj.mean}</div>
           <button class="mt-3 w-full py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-colors save-vocab-btn">${addLabel}</button>
         `;
-        span.appendChild(tooltip);
+
+        tooltip.querySelector('.tts-btn').onclick = (ev) => {
+          ev.stopPropagation();
+          playWordTTS(wordObj.label);
+        };
 
         span.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -568,7 +747,7 @@
       transEl.innerText = line.trans;
       box.appendChild(lineWrapper);
       box.appendChild(transEl);
-      container.appendChild(box);
+      captionsContainer.appendChild(box);
     }
 
     // ── 어휘 저장 ──────────────────────────────────────
@@ -577,28 +756,37 @@
       const card = document.createElement('div');
       card.className = 'bg-white/5 border border-white/10 rounded-xl p-3 flex justify-between items-start hover:bg-white/10 transition-colors group';
       card.innerHTML = `
-        <div>
+        <div class="flex-1 min-w-0 mr-2">
           <h4 class="text-sm font-black text-white mb-0.5 group-hover:text-orange-400 transition-colors">${wordObj.label}</h4>
           <p class="text-xs text-white/50">${wordObj.mean || wordObj.meaning || ''}</p>
         </div>
-        <span class="text-white/20 text-xs">🔊</span>
+        <button class="tts-word-btn p-1.5 rounded-lg bg-white/10 hover:bg-orange-500/30 text-white/40 hover:text-orange-400 transition-all text-sm flex-shrink-0" title="발음 듣기">🔊</button>
       `;
-      if (vocabList.firstChild) vocabList.insertBefore(card, vocabList.firstChild);
-      else vocabList.appendChild(card);
+      card.querySelector('.tts-word-btn').onclick = () => playWordTTS(wordObj.label);
+      if (vocabList.firstChild && vocabList.firstChild !== vocabEmpty) {
+        vocabList.insertBefore(card, vocabList.firstChild);
+      } else {
+        vocabList.insertBefore(card, vocabEmpty);
+      }
       const wordsLabel = translations['yt.words_count'] || 'words';
       vocabCountEl.innerText = `${savedVocab.length} ${wordsLabel}`;
     }
 
     function addToVocab(wordObj) {
-      if (savedVocab.find(w => w.label === wordObj.label)) return;
+      if (savedVocab.find(w => w.label === wordObj.label)) {
+        showToast(translations['yt.already_saved'] || '이미 저장된 단어예요.', 'warn');
+        return;
+      }
       savedVocab.push(wordObj);
       renderVocabCard(wordObj);
+      showToast(`'${wordObj.label}' ${translations['yt.word_saved'] || '저장됨!'}`, 'success');
       const fd = new FormData();
       fd.append('label', wordObj.label);
       fd.append('pos', wordObj.pos || '');
       fd.append('meaning', wordObj.mean || '');
       fd.append('source', 'tube');
-      fetch('/api/tube/vocab', { method: 'POST', body: fd }).catch(() => {});
+      fetch('/api/tube/vocab', { method: 'POST', body: fd })
+        .catch(() => showToast(translations['yt.save_failed'] || '저장 오류', 'error'));
     }
 
     async function loadSavedVocab() {
@@ -613,7 +801,7 @@
             }
           });
         }
-      } catch(e) {}
+      } catch {}
     }
 
     // ── 뒤로 가기 ──────────────────────────────────────
@@ -623,6 +811,10 @@
       captionsContainer.innerHTML = '';
       transcripts = [];
       currentSubtitleIndex = -1;
+      autoPauseFired = false;
+      // 검색/필터 상태 세션에 저장
+      sessionStorage.setItem('tube_search', searchInput.value);
+      sessionStorage.setItem('tube_level', activeLevel);
       playerScreen.classList.add('hidden');
       lobby.classList.remove('hidden');
     };

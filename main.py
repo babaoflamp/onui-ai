@@ -45,6 +45,10 @@ from pathlib import Path
 import time
 
 
+# Module-level cache for transcripts (loaded once on first request)
+_tube_transcripts_cache: dict | None = None
+
+
 # Pydantic model for adding a new OnuiTube video
 class OnuiTubeVideo(BaseModel):
     id: str
@@ -6470,16 +6474,49 @@ async def add_tube_video(video: OnuiTubeVideo):
 
 @app.get("/api/tube/transcripts/{video_id}")
 async def get_tube_transcripts(video_id: str):
-    """특정 비디오의 자막 데이터 반환"""
+    """특정 비디오의 자막 데이터 반환 (파일을 최초 1회만 읽어 모듈 캐시에 저장)"""
+    global _tube_transcripts_cache
     try:
-        path = "data/onui-tube-transcripts.json"
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                all_transcripts = json.load(f)
-            trans = all_transcripts.get(video_id)
-            if trans:
-                return JSONResponse(content={"success": True, "transcripts": trans})
-        return JSONResponse(status_code=404, content={"error": "Transcripts not found"})
+        if _tube_transcripts_cache is None:
+            path = "data/onui-tube-transcripts.json"
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    _tube_transcripts_cache = json.load(f)
+            else:
+                _tube_transcripts_cache = {}
+        trans = _tube_transcripts_cache.get(video_id)
+        if trans:
+            return JSONResponse(content={"success": True, "transcripts": trans})
+        return JSONResponse(status_code=404, content={"success": False, "error": "Transcripts not found"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+@app.get("/api/tube/vocab/export")
+async def export_vocab_csv(request: Request):
+    """저장된 어휘 목록을 CSV 파일로 내보내기"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"error": "로그인이 필요합니다."})
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            rows = conn.execute(
+                "SELECT label, pos, meaning, saved_at FROM user_saved_vocab WHERE user_id=? ORDER BY saved_at DESC",
+                (user["user_id"],),
+            ).fetchall()
+        finally:
+            conn.close()
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["Word", "Part of Speech", "Meaning", "Saved At"])
+        for row in rows:
+            writer.writerow(row)
+        return Response(
+            content=output.getvalue().encode("utf-8-sig"),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=onui-vocab.csv"},
+        )
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
