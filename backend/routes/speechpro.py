@@ -169,6 +169,41 @@ async def get_speechpro_sentences_by_level(request: Request, level: str):
         )
 
 
+@router.get("/api/speechpro/precomputed")
+async def get_speechpro_precomputed(request: Request, text: str):
+    """Return precomputed syllables/FST for a given sentence text."""
+    get_or_build_precomputed = _get_state(
+        request, "get_or_build_speechpro_precomputed_sentence"
+    )
+    if not callable(get_or_build_precomputed):
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Precomputed sentence finder not configured"},
+        )
+    target = (text or "").strip()
+    if not target:
+        return JSONResponse(status_code=400, content={"error": "text is required"})
+    try:
+        preset = get_or_build_precomputed(target)
+        if not preset:
+            return JSONResponse(content={"found": False, "text": target})
+        return JSONResponse(
+            content={
+                "found": True,
+                "text": target,
+                "syll_ltrs": preset.get("syll_ltrs", ""),
+                "syll_phns": preset.get("syll_phns", ""),
+                "fst": preset.get("fst", ""),
+                "source": preset.get("source", "precomputed"),
+            }
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Failed to get precomputed sentence", "details": str(e)},
+        )
+
+
 # ==========================================
 # SpeechPro API
 # ==========================================
@@ -328,6 +363,7 @@ async def speechpro_evaluate(
     syll_phns: str = Form(None),
     fst: str = Form(None),
     include_ai: str = Form("true"),
+    fast_mode: str = Form("false"),
 ):
     """통합 발음 평가 API (프리셋 우선 + full workflow fallback)."""
     start_time = time.time()
@@ -340,6 +376,7 @@ async def speechpro_evaluate(
         return str(value).strip().lower() in ("1", "true", "yes", "y", "on")
 
     include_ai_feedback = _parse_bool(include_ai, True)
+    fast_mode_enabled = _parse_bool(fast_mode, False)
 
     logger = _get_state(request, "logger")
     if logger is None:
@@ -359,13 +396,12 @@ async def speechpro_evaluate(
 
     convert_audio = _get_state(request, "convert_audio_bytes_to_wav16")
     find_preset = _get_state(request, "find_precomputed_sentence")
+    get_or_build_precomputed = _get_state(
+        request, "get_or_build_speechpro_precomputed_sentence"
+    )
     generate_feedback = _get_state(request, "generate_pronunciation_feedback")
 
-    if (
-        not callable(convert_audio)
-        or not callable(find_preset)
-        or not callable(generate_feedback)
-    ):
+    if not callable(convert_audio) or not callable(generate_feedback):
         return JSONResponse(
             status_code=500,
             content={"error": "SpeechPro helpers not configured", "success": False},
@@ -373,7 +409,8 @@ async def speechpro_evaluate(
 
     try:
         upload_dir = _ensure_audio_upload_dir()
-        _cleanup_old_audio_uploads(upload_dir, days=30)
+        if not fast_mode_enabled:
+            _cleanup_old_audio_uploads(upload_dir, days=30)
 
         audio_content_raw = await audio.read()
         text = text.strip()
@@ -387,20 +424,21 @@ async def speechpro_evaluate(
 
         saved_audio_path = None
         saved_meta_path = None
-        try:
-            ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-            ext = os.path.splitext(audio.filename or "")[1].lower()
-            if not ext or len(ext) > 6 or not ext.startswith("."):
-                ext = ".wav"
-            safe_name = f"{ts}_{uuid.uuid4().hex}{ext}"
-            saved_audio_path = upload_dir / safe_name
-            with open(saved_audio_path, "wb") as f:
-                f.write(audio_content_raw)
-        except Exception as save_err:
-            saved_audio_path = None
-            saved_meta_path = None
-            if logger:
-                logger.warning("[SpeechPro] failed to persist upload: %s", save_err)
+        if not fast_mode_enabled:
+            try:
+                ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+                ext = os.path.splitext(audio.filename or "")[1].lower()
+                if not ext or len(ext) > 6 or not ext.startswith("."):
+                    ext = ".wav"
+                safe_name = f"{ts}_{uuid.uuid4().hex}{ext}"
+                saved_audio_path = upload_dir / safe_name
+                with open(saved_audio_path, "wb") as f:
+                    f.write(audio_content_raw)
+            except Exception as save_err:
+                saved_audio_path = None
+                saved_meta_path = None
+                if logger:
+                    logger.warning("[SpeechPro] failed to persist upload: %s", save_err)
 
         try:
             audio_content = convert_audio(audio_content_raw)
@@ -412,7 +450,7 @@ async def speechpro_evaluate(
         recognized_text = None
 
         # 1) OpenAI Whisper
-        if stt_client:
+        if stt_client and not fast_mode_enabled:
             logger.info("[STT] backend=openai whisper-1 start")
             tmp_path = None
             try:
@@ -446,6 +484,7 @@ async def speechpro_evaluate(
         # 2) Google STT fallback
         if (
             recognized_text is None
+            and not fast_mode_enabled
             and google_speech_available
             and callable(get_google_speech_client)
             and google_speech_module
@@ -493,7 +532,10 @@ async def speechpro_evaluate(
                 "source": "client-precomputed",
             }
         else:
-            preset = find_preset(text)
+            if callable(get_or_build_precomputed):
+                preset = get_or_build_precomputed(text)
+            elif callable(find_preset):
+                preset = find_preset(text)
 
         if preset and preset.get("fst"):
             # scorejson은 id 캐시 가능성이 있어 고정 id 반복 사용을 피함
@@ -558,32 +600,33 @@ async def speechpro_evaluate(
             if ai_feedback:
                 response_data["ai_feedback"] = ai_feedback
 
-            try:
-                if saved_audio_path:
-                    saved_meta_path = saved_audio_path.with_suffix(".json")
-                    meta = {
-                        "created_at": datetime.utcnow().isoformat() + "Z",
-                        "text": text,
-                        "recognized_text": recognized_text,
-                        "saved_audio": str(saved_audio_path),
-                        "include_ai_feedback": include_ai_feedback,
-                        "ai_feedback_present": bool(ai_feedback),
-                        "overall_score": response_data.get("overall_score"),
-                        "success": True,
-                        "source": response_data.get("source"),
-                        "request_id": response_data.get("model", {}).get("id"),
-                    }
-                    with open(saved_meta_path, "w", encoding="utf-8") as mf:
-                        import json
+            if not fast_mode_enabled:
+                try:
+                    if saved_audio_path:
+                        saved_meta_path = saved_audio_path.with_suffix(".json")
+                        meta = {
+                            "created_at": datetime.utcnow().isoformat() + "Z",
+                            "text": text,
+                            "recognized_text": recognized_text,
+                            "saved_audio": str(saved_audio_path),
+                            "include_ai_feedback": include_ai_feedback,
+                            "ai_feedback_present": bool(ai_feedback),
+                            "overall_score": response_data.get("overall_score"),
+                            "success": True,
+                            "source": response_data.get("source"),
+                            "request_id": response_data.get("model", {}).get("id"),
+                        }
+                        with open(saved_meta_path, "w", encoding="utf-8") as mf:
+                            import json
 
-                        json.dump(meta, mf, ensure_ascii=False, indent=2)
-                if saved_audio_path:
-                    response_data["saved_audio_path"] = str(saved_audio_path)
-                if saved_meta_path:
-                    response_data["metadata_path"] = str(saved_meta_path)
-            except Exception as meta_err:
-                if logger:
-                    logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
+                            json.dump(meta, mf, ensure_ascii=False, indent=2)
+                    if saved_audio_path:
+                        response_data["saved_audio_path"] = str(saved_audio_path)
+                    if saved_meta_path:
+                        response_data["metadata_path"] = str(saved_meta_path)
+                except Exception as meta_err:
+                    if logger:
+                        logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
 
             # ------------------------------------------------------------------
             # LMS: 성적 자동 저장 (preset path) — 로그인 사용자만, 실패 무시
@@ -716,33 +759,34 @@ async def speechpro_evaluate(
                     "[Evaluate] AI feedback failed (full workflow): %s", fb_err
                 )
 
-        try:
-            if saved_audio_path:
-                saved_meta_path = saved_audio_path.with_suffix(".json")
-                meta = {
-                    "created_at": datetime.utcnow().isoformat() + "Z",
-                    "text": text,
-                    "recognized_text": recognized_text,
-                    "saved_audio": str(saved_audio_path),
-                    "include_ai_feedback": include_ai_feedback,
-                    "ai_feedback_present": bool(result.get("ai_feedback")),
-                    "overall_score": result.get("overall_score"),
-                    "success": bool(result.get("success")),
-                    "source": result.get("source"),
-                    "request_id": result.get("model", {}).get("id")
-                    or result.get("score", {}).get("id"),
-                }
-                with open(saved_meta_path, "w", encoding="utf-8") as mf:
-                    import json
+        if not fast_mode_enabled:
+            try:
+                if saved_audio_path:
+                    saved_meta_path = saved_audio_path.with_suffix(".json")
+                    meta = {
+                        "created_at": datetime.utcnow().isoformat() + "Z",
+                        "text": text,
+                        "recognized_text": recognized_text,
+                        "saved_audio": str(saved_audio_path),
+                        "include_ai_feedback": include_ai_feedback,
+                        "ai_feedback_present": bool(result.get("ai_feedback")),
+                        "overall_score": result.get("overall_score"),
+                        "success": bool(result.get("success")),
+                        "source": result.get("source"),
+                        "request_id": result.get("model", {}).get("id")
+                        or result.get("score", {}).get("id"),
+                    }
+                    with open(saved_meta_path, "w", encoding="utf-8") as mf:
+                        import json
 
-                    json.dump(meta, mf, ensure_ascii=False, indent=2)
-            if saved_audio_path:
-                result["saved_audio_path"] = str(saved_audio_path)
-            if saved_meta_path:
-                result["metadata_path"] = str(saved_meta_path)
-        except Exception as meta_err:
-            if logger:
-                logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
+                        json.dump(meta, mf, ensure_ascii=False, indent=2)
+                if saved_audio_path:
+                    result["saved_audio_path"] = str(saved_audio_path)
+                if saved_meta_path:
+                    result["metadata_path"] = str(saved_meta_path)
+            except Exception as meta_err:
+                if logger:
+                    logger.warning("[SpeechPro] failed to write metadata: %s", meta_err)
 
         # ------------------------------------------------------------------
         # LMS: 성적 자동 저장 (full_workflow path) — 로그인 사용자만, 실패 무시

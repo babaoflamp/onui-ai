@@ -1,4 +1,5 @@
 import os
+import io
 import shutil
 import csv
 import sqlite3
@@ -33,6 +34,7 @@ from difflib import SequenceMatcher
 import requests
 import json
 import re
+import uuid
 import uvicorn
 import asyncio
 import subprocess
@@ -331,6 +333,9 @@ TTS_PREWARM_ON_STARTUP = os.getenv("TTS_PREWARM_ON_STARTUP", "").lower() in (
     "true",
     "yes",
 )
+SPEECHPRO_PREWARM_ON_STARTUP = os.getenv(
+    "SPEECHPRO_PREWARM_ON_STARTUP", "true"
+).lower() in ("1", "true", "yes")
 TTS_CACHE = {}
 WORD_IMAGE_CACHE_PATH = Path(
     os.getenv("WORD_IMAGE_CACHE_PATH", "data/word_image_cache.json")
@@ -2075,6 +2080,9 @@ app.state.db_path = DB_PATH
 app.state.get_word_score_history = _get_word_score_history
 app.state.get_sentence_score_history = _get_sentence_score_history
 app.state.find_vocab_id_by_word = _find_vocab_id_by_word
+app.state.get_or_build_speechpro_precomputed_sentence = lambda text: globals()[
+    "get_or_build_speechpro_precomputed_sentence"
+](text)
 app.state.oauth = oauth
 app.state.store_user_signup = _store_user_signup
 app.state.get_user_by_google_id = _get_user_by_google_id
@@ -2197,6 +2205,8 @@ def startup_event():
         logger.error(f"User DB init failed: {e}")
     if TTS_PREWARM_ON_STARTUP:
         threading.Thread(target=_prewarm_tts_cache_for_sentences, daemon=True).start()
+    if SPEECHPRO_PREWARM_ON_STARTUP:
+        threading.Thread(target=_prewarm_speechpro_score_for_demo, daemon=True).start()
 
     # Start session cleanup background task
     threading.Thread(target=_cleanup_expired_sessions, daemon=True).start()
@@ -2253,6 +2263,8 @@ def load_json_data(filename):
 
 
 _SPEECHPRO_SENTENCES_CACHE: list | None = None
+_SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE: dict[str, dict] = {}
+_SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK = threading.Lock()
 
 
 def load_speechpro_precomputed_sentences():
@@ -2317,6 +2329,118 @@ def find_precomputed_sentence(text: str):
         if normalize_spaces(item.get("sentenceKr", "")) == normalized:
             return item
     return None
+
+
+def get_or_build_speechpro_precomputed_sentence(text: str):
+    """Get precomputed payload for text, building it once via GTP/Model if needed."""
+    normalized = normalize_spaces(text or "")
+    if not normalized:
+        return None
+
+    preset = find_precomputed_sentence(normalized)
+    if preset and preset.get("syll_ltrs") and preset.get("syll_phns") and preset.get("fst"):
+        return preset
+
+    with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
+        cached = _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE.get(normalized)
+        if cached:
+            return cached
+
+    try:
+        request_id = f"precompute_{int(time.time())}_{uuid.uuid4().hex[:8]}"
+        gtp_result = call_speechpro_gtp(normalized, request_id=request_id)
+        if gtp_result.error_code != 0:
+            logger.warning(
+                "[SPEECHPRO_PRECOMPUTE] gtp error code=%s text=%s",
+                gtp_result.error_code,
+                normalized,
+            )
+            return None
+        model_result = call_speechpro_model(
+            text=normalized,
+            syll_ltrs=gtp_result.syll_ltrs,
+            syll_phns=gtp_result.syll_phns,
+            request_id=request_id,
+        )
+        if model_result.error_code != 0:
+            logger.warning(
+                "[SPEECHPRO_PRECOMPUTE] model error code=%s text=%s",
+                model_result.error_code,
+                normalized,
+            )
+            return None
+        built = {
+            "sentenceKr": normalized,
+            "syll_ltrs": model_result.syll_ltrs,
+            "syll_phns": model_result.syll_phns,
+            "fst": model_result.fst,
+            "source": "runtime-precomputed",
+        }
+        with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
+            _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[normalized] = built
+        return built
+    except Exception as e:
+        logger.warning("[SPEECHPRO_PRECOMPUTE] failed text=%s error=%s", normalized, e)
+        return None
+
+
+def _generate_silence_wav_bytes(
+    duration_ms: int = 300, sample_rate: int = 16000, channels: int = 1
+) -> bytes:
+    """Generate a tiny WAV payload for warmup requests."""
+    frame_count = max(1, int(sample_rate * duration_ms / 1000))
+    pcm_silence = b"\x00\x00" * frame_count * channels
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(2)  # 16-bit PCM
+        wf.setframerate(sample_rate)
+        wf.writeframes(pcm_silence)
+    return buf.getvalue()
+
+
+def _prewarm_speechpro_score_for_demo() -> None:
+    """Warm up SpeechPro score path once to reduce first-request latency."""
+    try:
+        preset = get_or_build_speechpro_precomputed_sentence("안녕하세요.")
+        if not preset or not preset.get("fst"):
+            # Fallback: build from first available sentence text.
+            for item in load_speechpro_precomputed_sentences():
+                sentence = (item.get("sentenceKr") or "").strip()
+                if not sentence:
+                    continue
+                preset = get_or_build_speechpro_precomputed_sentence(sentence)
+                if preset and preset.get("fst"):
+                    break
+        if not preset:
+            logger.warning("[SPEECHPRO_PREWARM] No valid preset found; skipped")
+            return
+        fst = preset.get("fst") or ""
+        syll_ltrs = preset.get("syll_ltrs") or ""
+        syll_phns = preset.get("syll_phns") or ""
+        if not fst or not syll_ltrs or not syll_phns:
+            logger.warning("[SPEECHPRO_PREWARM] Preset missing data; skipped")
+            return
+        text = (preset.get("sentenceKr") or "안녕하세요.").strip()
+        warmup_audio = _generate_silence_wav_bytes(duration_ms=300)
+        start = time.perf_counter()
+        result = call_speechpro_score(
+            text=text,
+            syll_ltrs=syll_ltrs,
+            syll_phns=syll_phns,
+            fst=fst,
+            audio_data=warmup_audio,
+            request_id=f"prewarm_{int(time.time())}",
+        )
+        elapsed = time.perf_counter() - start
+        logger.info(
+            "[SPEECHPRO_PREWARM] done score=%.2f error_code=%s elapsed=%.3fs",
+            float(result.score or 0),
+            result.error_code,
+            elapsed,
+        )
+    except Exception as e:
+        logger.warning("[SPEECHPRO_PREWARM] failed: %s", e)
 
 
 async def _generate_pronunciation_feedback(

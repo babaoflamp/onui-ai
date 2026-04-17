@@ -663,10 +663,32 @@ Intelligence{% endblock %} {% block extra_css %}
     const scoreDisplay = document.getElementById("demo-score");
     const scoreCircle = document.getElementById("score-circle");
     const feedbackText = null; // AI feedback removed for speed
+    const DEMO_TEXT = "안녕하세요.";
+    let demoPrecomputed = null;
 
     let mediaRecorder;
     let audioChunks = [];
     let isRecording = false;
+
+    (async function loadDemoPrecomputed() {
+      try {
+        const url = `/api/speechpro/precomputed?text=${encodeURIComponent(DEMO_TEXT)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (
+          data &&
+          data.found &&
+          data.syll_ltrs &&
+          data.syll_phns &&
+          data.fst
+        ) {
+          demoPrecomputed = data;
+        }
+      } catch (_) {
+        // Precomputed fetch failure is non-fatal; API will fallback.
+      }
+    })();
 
     recordBtn.addEventListener("click", async () => {
       if (!isRecording) {
@@ -719,9 +741,15 @@ Intelligence{% endblock %} {% block extra_css %}
     async function sendAudioFeedback() {
       const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
       const formData = new FormData();
-      formData.append("text", "안녕하세요, 반갑습니다!");
+      formData.append("text", DEMO_TEXT);
       formData.append("audio", audioBlob, "demo.wav");
       formData.append("include_ai", "false");
+      formData.append("fast_mode", "true");
+      if (demoPrecomputed) {
+        formData.append("syll_ltrs", demoPrecomputed.syll_ltrs || "");
+        formData.append("syll_phns", demoPrecomputed.syll_phns || "");
+        formData.append("fst", demoPrecomputed.fst || "");
+      }
 
       try {
         const response = await fetch("/api/speechpro/evaluate", {
