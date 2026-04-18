@@ -1,235 +1,399 @@
-{% extends "base.html" %} {% block title %}맞춤형 교재 생성 - 오누이 한국어{% endblock %}
+{% extends "base.html" %}
+{% block title %}AI Textbook - 오누이 한국어{% endblock %}
+
 {% block extra_css %}
 <style>
-  .glass-main-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  /* ── 전체 페이지 높이 고정 (스크롤 없음) ── */
+  #main-content { padding: 16px 24px !important; }
+
+  .tb-app {
+    height: calc(100vh - 100px);
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 12px;
   }
-  .glass-sub-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
+
+  /* ── 공통 패널 ── */
+  .tb-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
-  .input-dark {
-    background: rgba(0, 0, 0, 0.3) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
+  .tb-panel-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
   }
-  .input-dark:focus {
-    border-color: rgba(249, 115, 22, 0.5) !important;
-    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
+  .tb-panel-header h2 {
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
   }
-  #contentResult .dialogue-text { color: #fff; font-size: 1.1rem; font-weight: 600; }
-  #contentResult .pronunciation-text { color: rgba(255,255,255,0.5); font-style: italic; font-size: 0.85rem; }
-  .vocab-pill {
-    background: rgba(249, 115, 22, 0.1);
-    border: 1px solid rgba(249, 115, 22, 0.3);
-    color: #fb923c;
+  .tb-scroll { flex: 1; overflow-y: auto; padding: 16px; }
+  .tb-scroll::-webkit-scrollbar { width: 4px; }
+  .tb-scroll::-webkit-scrollbar-track { background: transparent; }
+  .tb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* ── 좌측: input + 결과 ── */
+  .config-row {
+    display: grid;
+    grid-template-columns: 1fr 110px 130px;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .config-row input, .config-row select {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .config-row input:focus, .config-row select:focus { border-color: rgba(249,115,22,0.5); }
+  .config-row select { cursor: pointer; }
+  .gen-btn {
+    background: linear-gradient(135deg, #f97316, #ec4899);
+    color: white;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px;
+  }
+  .gen-btn:hover { opacity: 0.9; transform: scale(1.02); }
+  .gen-btn:active { transform: scale(0.97); }
+  .gen-btn.stop { background: rgba(239,68,68,0.8); }
+
+  /* ── 대화 카드 ── */
+  .dialogue-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
     transition: all 0.3s;
   }
-  .vocab-pill:hover { background: rgba(249, 115, 22, 0.2); transform: scale(1.05); }
-  .prose { color: rgba(255,255,255,0.8); }
-  .prose strong { color: #fff; }
-
-  /* 대화 재생 하이라이트 */
-  .dialogue-item { transition: all 0.3s ease; }
-  .dialogue-item.playing {
+  .dialogue-card.playing {
+    border-color: rgba(249,115,22,0.4);
+    background: rgba(249,115,22,0.06);
     border-left: 3px solid #f97316;
-    background: rgba(249, 115, 22, 0.06);
-    border-color: rgba(249, 115, 22, 0.3);
   }
+  .dialogue-card .speaker { font-size: 9px; font-weight: 900; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .dialogue-card .d-text { font-size: 14px; font-weight: 700; color: white; line-height: 1.5; }
+  .dialogue-card .d-pron { font-size: 11px; color: rgba(255,255,255,0.35); font-style: italic; margin-top: 4px; }
+  .tts-btn { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.05); border: none; cursor: pointer; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; transition: background 0.2s; flex-shrink: 0; }
+  .tts-btn:hover { background: #f97316; }
 
-  /* 퀴즈 빈칸 */
-  .quiz-blank {
-    background: rgba(255,255,255,0.05);
-    border: none;
-    border-bottom: 2px solid rgba(255,255,255,0.3);
+  /* ── 단어 태그 ── */
+  .vocab-tag {
+    display: inline-block;
+    background: rgba(249,115,22,0.12);
+    border: 1px solid rgba(249,115,22,0.25);
     color: #fb923c;
-    width: 90px;
-    padding: 2px 4px;
-    outline: none;
-    text-align: center;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
     font-weight: 700;
-    border-radius: 0;
+    margin: 3px;
+  }
+
+  /* ── 액션 버튼 바 ── */
+  .action-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .action-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.6);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 8px 4px;
+    cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.2;
   }
-  .quiz-blank:focus { width: 120px; border-bottom-color: #f97316; }
-  .quiz-blank.correct { border-bottom-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.1); }
-  .quiz-blank.wrong { border-bottom-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+  .action-btn:hover { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.3); color: #fb923c; }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .action-btn span:first-child { font-size: 16px; }
 
-  /* 레벨업 배너 */
+  /* ── 코치 채팅 ── */
+  .coach-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .coach-scroll::-webkit-scrollbar { width: 4px; }
+  .coach-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .coach-bubble-ai { display: flex; gap: 8px; align-items: flex-start; }
+  .coach-bubble-user { display: flex; justify-content: flex-end; }
+  .bubble-ai-text { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px 14px 14px 4px; padding: 10px 14px; font-size: 13px; color: rgba(255,255,255,0.8); max-width: 85%; line-height: 1.5; }
+  .bubble-user-text { background: #f97316; border-radius: 14px 14px 4px 14px; padding: 10px 14px; font-size: 13px; color: white; max-width: 85%; line-height: 1.5; }
+  .coach-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  .coach-input-row input {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .coach-input-row input:focus { border-color: rgba(249,115,22,0.5); }
+  .send-btn {
+    background: #f97316;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: #ea6c0a; }
+
+  /* ── 퀴즈 ── */
+  .quiz-wrap {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .quiz-wrap.open { max-height: 400px; overflow-y: auto; }
+  .quiz-inner { padding: 12px 16px; }
+  .quiz-q { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.6; }
+  .quiz-blank { background: rgba(255,255,255,0.05); border: none; border-bottom: 2px solid rgba(255,255,255,0.25); color: #fb923c; width: 80px; padding: 1px 4px; outline: none; text-align: center; font-weight: 700; font-size: 13px; border-radius: 0; transition: all 0.2s; }
+  .quiz-blank:focus { width: 100px; border-bottom-color: #f97316; }
+  .quiz-blank.correct { border-bottom-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.08); }
+  .quiz-blank.wrong { border-bottom-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.06); }
+  .quiz-hint { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 4px; }
+  .quiz-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .quiz-check-btn { flex: 1; background: #f97316; color: white; border: none; border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 900; cursor: pointer; }
+  .quiz-close-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); border-radius: 10px; padding: 9px 14px; font-size: 12px; font-weight: 900; cursor: pointer; }
+  .quiz-score { text-align: center; font-size: 14px; font-weight: 900; color: white; margin-top: 8px; }
+
+  /* ── 장면 이미지 ── */
+  #scene-image-wrap img { width: 100%; border-radius: 12px; object-fit: cover; max-height: 160px; margin-bottom: 12px; }
+
+  /* ── 레벨업 배너 ── */
   #levelup-banner {
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    margin: 8px 16px;
+    padding: 10px 14px;
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.25);
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: none;
   }
-  #levelup-banner.show { transform: translateY(0); opacity: 1; }
+  #levelup-banner.show { display: block; }
+  #levelup-banner p { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 8px; }
+  .levelup-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .levelup-btn { font-size: 11px; font-weight: 900; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: none; transition: all 0.2s; }
 
-  /* 저장 목록 카드 */
-  .saved-card { transition: all 0.3s; }
-  .saved-card:hover { border-color: rgba(249,115,22,0.3); transform: translateY(-2px); }
+  /* ── 저장 목록 (좌측 하단 토글) ── */
+  .saved-list-wrap {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .saved-list-wrap.open { max-height: 220px; overflow-y: auto; }
+  .saved-inner { padding: 10px 16px; }
+  .saved-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .saved-item:last-child { border-bottom: none; }
+  .saved-item-img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .saved-item-info { flex: 1; min-width: 0; }
+  .saved-item-topic { font-size: 13px; font-weight: 800; color: white; truncate: ellipsis; white-space: nowrap; overflow: hidden; }
+  .saved-item-meta { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+  .saved-load-btn { font-size: 11px; font-weight: 900; padding: 4px 10px; background: rgba(249,115,22,0.15); color: #fb923c; border-radius: 6px; cursor: pointer; border: none; flex-shrink: 0; }
+  .saved-del-btn { font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border-radius: 6px; cursor: pointer; border: none; flex-shrink: 0; }
+  .saved-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; cursor: pointer; }
+  .saved-toggle-row:hover { background: rgba(255,255,255,0.02); }
+  .saved-toggle-label { font-size: 10px; font-weight: 900; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 0.1em; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto pt-0 pb-12 px-4">
-  <!-- Header -->
-  <div class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
-    <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full group-hover:bg-orange-500/30 transition-all duration-700"></div>
-    <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-pink-500/20 blur-[80px] rounded-full group-hover:bg-pink-500/30 transition-all duration-700"></div>
-    <div class="md:w-3/5 relative z-10 text-center md:text-left mb-6 md:mb-0">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
-        <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
-        AI Learning Studio
-      </div>
-      <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
-        AI <span class="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent italic pb-2 pr-2">Textbook</span>
-      </h1>
-      <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="tx.desc">
-        AI generates customized dialogue and vocabulary based on your interests and level. Create your own learning content.
-      </p>
+<div class="tb-app">
+
+  <!-- ══ 좌측: 입력 + 결과 ══════════════════════════════════ -->
+  <div class="tb-panel">
+    <!-- 헤더 -->
+    <div class="tb-panel-header" style="background: linear-gradient(90deg, rgba(249,115,22,0.08), transparent);">
+      <span style="font-size:16px;">📖</span>
+      <h2>AI Textbook <span style="color:#f97316;font-style:italic;text-transform:none;font-size:11px;">· 맞춤형 한국어 교재</span></h2>
     </div>
-    <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-      <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
-        <img src="/static/images/onui-pure-idol.webp" alt="Content Generation AI" class="w-full h-full object-cover" loading="lazy">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+
+    <!-- 설정 바 -->
+    <div class="config-row">
+      <input id="topic" type="text" value="김치" placeholder="주제 (예: 여행, 음식, 직장...)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();generateContent();}" />
+      <select id="level">
+        <option value="초급">🟢 초급</option>
+        <option value="중급" selected>🟡 중급</option>
+        <option value="고급">🔴 고급</option>
+      </select>
+      <button id="gen-btn" class="gen-btn" onclick="toggleGeneration()">
+        <span id="gen-icon">🪄</span><span id="gen-label">생성</span>
+      </button>
+    </div>
+
+    <!-- 결과 영역 (스크롤) -->
+    <div class="tb-scroll" id="result-scroll">
+      <div id="result-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:rgba(255,255,255,0.15);">
+        <span style="font-size:48px;">✨</span>
+        <p style="font-size:13px;font-weight:700;">주제를 입력하고 생성 버튼을 눌러보세요</p>
       </div>
+      <div id="result-content" style="display:none;">
+        <div id="scene-image-wrap" class="hidden"></div>
+        <div id="dialogue-area"></div>
+        <div id="vocab-area" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- 저장 목록 토글 -->
+    <div class="saved-toggle-row" onclick="toggleSavedList()" id="saved-toggle-row" style="display:none;">
+      <span class="saved-toggle-label">📚 내 저장 목록 <span id="saved-count"></span></span>
+      <span id="saved-chevron" style="color:rgba(255,255,255,0.2);font-size:12px;">▲</span>
+    </div>
+    <div class="saved-list-wrap" id="saved-list-wrap">
+      <div class="saved-inner" id="saved-list"></div>
     </div>
   </div>
 
-  <!-- Generate Card -->
-  <div class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8">
-    <section class="mb-10">
-      <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-6 flex items-center gap-2">
-        <span>🎯</span> CONFIGURATION
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div class="md:col-span-5">
-          <input id="topic" type="text" placeholder="무엇을 공부하고 싶으세요? (예: 김치, 여행)" value="김치" data-i18n="tx.topic_placeholder"
-            class="w-full input-dark px-6 py-4 rounded-2xl text-base outline-none transition-all"
-            onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }" />
-        </div>
-        <div class="md:col-span-2">
-          <select id="level" class="w-full input-dark px-4 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer">
-            <option value="초급" data-i18n="sp.level_beg">Beginner</option>
-            <option value="중급" selected data-i18n="sp.level_int">Intermediate</option>
-            <option value="고급" data-i18n="sp.level_adv">Advanced</option>
-          </select>
-        </div>
-        <div class="md:col-span-5">
-          <button id="generateBtn" onclick="toggleGeneration()"
-            class="w-full py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl font-black text-base shadow-2xl hover:scale-[1.03] active:scale-95 transition-all">
-            🪄 GENERATE
-          </button>
-        </div>
-      </div>
-    </section>
+  <!-- ══ 우측: 액션 + 코치 + 퀴즈 ══════════════════════════ -->
+  <div class="tb-panel">
+    <!-- 액션 버튼 바 -->
+    <div class="action-bar">
+      <button class="action-btn" onclick="speakDialogue()" id="btn-listen">
+        <span>🔊</span><span>전체 듣기</span>
+      </button>
+      <button class="action-btn" onclick="generateSceneImage()" id="btn-image">
+        <span>🖼️</span><span>이미지 생성</span>
+      </button>
+      <button class="action-btn" onclick="toggleQuiz()" id="btn-quiz">
+        <span>🧩</span><span>퀴즈</span>
+      </button>
+      <button class="action-btn" onclick="saveTextbook()" id="btn-save">
+        <span>💾</span><span>저장</span>
+      </button>
+    </div>
 
-    <div id="contentResult" class="hidden pt-10 border-t border-white/5"></div>
-
-    <!-- 퀴즈 섹션 (동적으로 표시) -->
-    <div id="quiz-section" class="hidden pt-10 border-t border-white/5 mt-10">
-      <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6 flex items-center gap-2">
-        <span>🧩</span> QUIZ
-      </h3>
-      <div id="quiz-questions" class="space-y-6"></div>
-      <div class="flex gap-3 mt-8">
-        <button onclick="checkAnswers()" class="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-black hover:bg-orange-600 transition-all">정답 확인</button>
-        <button onclick="document.getElementById('quiz-section').classList.add('hidden')" class="px-6 py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black hover:bg-white/10 transition-all">닫기</button>
+    <!-- 레벨업 배너 -->
+    <div id="levelup-banner">
+      <p>🎉 잘 들으셨나요! 다음 단계로 도전해보세요.</p>
+      <div class="levelup-btns">
+        <button id="btn-harder" class="levelup-btn" onclick="levelUpHarder()" style="background:rgba(249,115,22,0.8);color:white;">더 어렵게 ↑</button>
+        <button class="levelup-btn" onclick="newTopic()" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);">새 주제</button>
+        <button class="levelup-btn" onclick="toggleQuiz()" style="background:rgba(139,92,246,0.3);color:#c4b5fd;">🧩 퀴즈</button>
       </div>
-      <div id="quiz-score" class="hidden mt-6 text-center text-white font-black text-lg"></div>
+    </div>
+
+    <!-- 코치 메시지 -->
+    <div class="coach-scroll" id="coach-messages">
+      <div class="coach-bubble-ai">
+        <span style="font-size:20px;flex-shrink:0;">🤖</span>
+        <div class="bubble-ai-text">교재를 생성한 후 질문해 주세요! 문법, 어휘, 문화 등 무엇이든 물어보세요.</div>
+      </div>
+    </div>
+
+    <!-- 코치 입력 -->
+    <div class="coach-input-row">
+      <input id="coach-input" type="text" placeholder="질문을 입력하세요... 😊"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();sendCoach();}" />
+      <button class="send-btn" onclick="sendCoach()">전송</button>
+    </div>
+
+    <!-- 퀴즈 영역 -->
+    <div class="quiz-wrap" id="quiz-wrap">
+      <div class="quiz-inner">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;">🧩 퀴즈</span>
+          <button onclick="toggleQuiz()" style="background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:16px;">×</button>
+        </div>
+        <div id="quiz-questions"></div>
+        <div class="quiz-actions">
+          <button class="quiz-check-btn" onclick="checkAnswers()">정답 확인</button>
+        </div>
+        <div id="quiz-score" class="quiz-score" style="display:none;"></div>
+      </div>
     </div>
   </div>
-
-  <!-- 레벨업 배너 -->
-  <div id="levelup-banner" class="hidden mb-8 p-6 bg-gradient-to-r from-orange-500/20 to-pink-500/20 border border-orange-500/30 rounded-[32px]">
-    <p class="text-white font-black text-center mb-4">🎉 잘 들으셨나요! 다음 단계에 도전해보세요.</p>
-    <div class="flex gap-3 justify-center flex-wrap">
-      <button id="levelup-harder-btn" onclick="levelUpHarder()" class="px-6 py-3 bg-orange-500 text-white rounded-xl font-black hover:bg-orange-600 transition-all">같은 주제 더 어렵게 ↑</button>
-      <button onclick="newTopic()" class="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-black hover:bg-white/20 transition-all">새 주제로</button>
-      <button onclick="document.getElementById('quiz-section').classList.remove('hidden'); loadQuiz();" class="px-6 py-3 bg-purple-500/30 border border-purple-500/40 text-purple-300 rounded-xl font-black hover:bg-purple-500/40 transition-all">🧩 퀴즈로 마무리</button>
-    </div>
-  </div>
-
-  <!-- Interactive AI Coach -->
-  <section class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8">
-    <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-2 flex items-center gap-2">
-      <span>💬</span> INTERACTIVE COACH
-    </h2>
-    <p class="text-sm text-white/60 mb-6 font-medium" data-i18n="tx.coach_desc">생성된 교재 내용에 대해 AI 코치에게 자유롭게 질문하세요.</p>
-    <div id="coachMessages" class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar mb-6 pr-1">
-      <div class="flex gap-3">
-        <span class="text-2xl">🤖</span>
-        <div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white/80 max-w-[85%]">
-          교재를 생성한 후 질문해 주세요! 문법, 어휘, 문화 등 무엇이든 물어보세요.
-        </div>
-      </div>
-    </div>
-    <div class="flex gap-3">
-      <input id="testPrompt" type="text"
-        class="flex-1 input-dark px-6 py-4 rounded-2xl text-base outline-none transition-all"
-        placeholder="질문을 입력하세요... 😊" data-i18n="tx.coach_placeholder"
-        onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }" />
-      <button onclick="testModel()" class="px-8 py-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition font-black shadow-lg">전송</button>
-    </div>
-  </section>
-
-  <!-- 내 저장 목록 -->
-  <section id="saved-section" class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8 hidden">
-    <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-6 flex items-center gap-2">
-      <span>📚</span> 내 저장 목록
-    </h2>
-    <div id="saved-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-  </section>
-
-  <!-- Tips -->
-  <footer class="p-8 glass-sub-card rounded-[32px]">
-    <div class="text-xs font-black text-white/40 uppercase tracking-widest mb-4">💡 PRO TIPS</div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-white/60 leading-relaxed">
-      <p>• <strong>Topic</strong>: <span data-i18n="tx.tip_topic">Feel free to enter any topic like food, daily life, or culture.</span></p>
-      <p>• <strong>Interaction</strong>: <span data-i18n="tx.tip_interact">Ask questions about the generated textbook, and AI will explain grammar and nuances in detail.</span></p>
-    </div>
-  </footer>
 </div>
 
 <script>
-  (function loadMarkdownLibs() {
-    ["https://cdn.jsdelivr.net/npm/marked/marked.min.js", "https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"].forEach(src => {
+  (function() {
+    ["https://cdn.jsdelivr.net/npm/marked/marked.min.js","https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"].forEach(src => {
       const s = document.createElement("script"); s.src = src; s.async = true; document.head.appendChild(s);
     });
   })();
 
-  function jsEsc(s) { return (s||"").toString().replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\"/g,'\\"').replace(/\n/g," ").replace(/\r/g," "); }
+  function jsEsc(s) { return (s||"").toString().replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\"/g,'\\"').replace(/\n/g," "); }
 
-  let abortController = null;
-  let isGenerating = false;
-  let currentTopic = "";
-  let currentLevel = "중급";
-  let currentDialogue = [];
-  let currentVocabulary = [];
-  let currentImageUrl = null;
-  let currentAudio = null;
-  let isSpeakingDialogue = false;
+  let isGenerating = false, abortController = null;
+  let currentTopic = "", currentLevel = "중급";
+  let currentDialogue = [], currentVocabulary = [];
+  let currentImageUrl = null, currentAudio = null, isSpeaking = false;
   let coachHistory = [];
 
-  // ── Generation ─────────────────────────────────────────────────────────────
-  function toggleGeneration() { if (isGenerating) stopGeneration(); else generateContent(); }
+  // ── 생성 ────────────────────────────────────────────────────────
+  function toggleGeneration() { isGenerating ? stopGeneration() : generateContent(); }
 
   function stopGeneration() {
     if (abortController) { abortController.abort(); abortController = null; }
-    isGenerating = false; updateGenerateButtonState(false);
-    const stopMsg = translations['tx.gen_stopped'] || "Generation stopped.";
-    document.getElementById("contentResult").innerHTML = `<div class="text-sm text-white/40">${stopMsg}</div>`;
+    isGenerating = false; setBtnState(false);
   }
 
-  function updateGenerateButtonState(generating) {
-    const btn = document.getElementById("generateBtn");
-    if (!btn) return;
-    isGenerating = generating;
-    btn.innerHTML = generating ? "⏹️ STOP" : "🪄 GENERATE";
+  function setBtnState(on) {
+    isGenerating = on;
+    document.getElementById("gen-icon").textContent = on ? "⏹️" : "🪄";
+    document.getElementById("gen-label").textContent = on ? "중지" : "생성";
+    document.getElementById("gen-btn").className = "gen-btn" + (on ? " stop" : "");
   }
 
   async function generateContent() {
@@ -237,373 +401,279 @@
     currentLevel = document.getElementById("level").value;
     if (!currentTopic) return;
 
-    const resultDiv = document.getElementById("contentResult");
     abortController = new AbortController();
-    updateGenerateButtonState(true);
+    setBtnState(true);
     currentImageUrl = null;
-    document.getElementById("quiz-section").classList.add("hidden");
-    document.getElementById("levelup-banner").classList.add("hidden");
-    document.getElementById("levelup-banner").classList.remove("show");
+    currentDialogue = []; currentVocabulary = [];
+    hideLevelUp(); hideQuiz();
 
-    const startTime = performance.now();
-    const loadingMsg = translations['tx.gen_loading'] || "AI is creating your textbook...";
-    resultDiv.innerHTML = `<div class="flex items-center gap-3 py-10 justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div><span class="text-white font-bold">${loadingMsg}</span></div>`;
-    resultDiv.classList.remove("hidden");
+    document.getElementById("result-placeholder").style.display = "none";
+    document.getElementById("result-content").style.display = "block";
+    document.getElementById("scene-image-wrap").innerHTML = "";
+    document.getElementById("scene-image-wrap").classList.add("hidden");
+    document.getElementById("dialogue-area").innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:40px 0;justify-content:center;"><div style="width:24px;height:24px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div><span style="color:rgba(255,255,255,0.4);font-size:13px;font-weight:700;">AI가 교재를 만들고 있어요...</span></div>`;
+    document.getElementById("vocab-area").innerHTML = "";
 
-    const formData = new FormData();
-    formData.append("topic", currentTopic);
-    formData.append("level", currentLevel);
-    formData.append("backend", "ollama");
-    formData.append("model", "exaone3.5:2.4b");
+    const fd = new FormData();
+    fd.append("topic", currentTopic); fd.append("level", currentLevel);
+    fd.append("backend", "ollama"); fd.append("model", "exaone3.5:2.4b");
 
     try {
-      const res = await fetch("/api/generate-content", { method: "POST", body: formData, signal: abortController.signal });
+      const res = await fetch("/api/generate-content", { method:"POST", body:fd, signal:abortController.signal });
       const data = await res.json();
-      const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
 
-      let jsonObj = data;
+      let obj = data;
       if (data.text) {
-        try {
-          const m = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-          jsonObj = JSON.parse(m ? m[1] : data.text);
-        } catch(e) { jsonObj = data; }
+        try { const m = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i); obj = JSON.parse(m ? m[1] : data.text); } catch(e) {}
       }
 
-      if (!jsonObj.dialogue) {
-        resultDiv.innerHTML = `<pre class="text-xs p-6 glass-sub-card text-orange-400 rounded-2xl">${JSON.stringify(data, null, 2)}</pre>`;
-        updateGenerateButtonState(false);
-        return;
+      if (!obj.dialogue) {
+        document.getElementById("dialogue-area").innerHTML = `<pre style="font-size:11px;color:#f97316;padding:12px;">${JSON.stringify(data,null,2)}</pre>`;
+        setBtnState(false); return;
       }
 
-      currentDialogue = jsonObj.dialogue;
-      currentVocabulary = jsonObj.vocabulary || [];
+      currentDialogue = obj.dialogue;
+      currentVocabulary = obj.vocabulary || [];
 
-      let dialogueHtml = "";
-      jsonObj.dialogue.forEach((d, idx) => {
-        const avatar = idx % 2 === 0 ? "👨‍🎓" : "👩‍🏫";
-        dialogueHtml += `
-          <div class="glass-sub-card p-6 rounded-[24px] dialogue-item" data-text='${jsEsc(d.text)}' data-speaker='${jsEsc(d.speaker || "")}'>
-            <div class="flex items-start gap-5">
-              <span class="text-3xl">${avatar}</span>
-              <div class="flex-1">
-                <p class="text-[10px] font-black text-white/30 uppercase mb-2">${d.speaker || (idx % 2 === 0 ? "Student" : "Teacher")}</p>
-                <p class="dialogue-text">${d.text}</p>
-                <div class="mt-4 flex items-center gap-3">
-                  <button onclick="speakText('${jsEsc(d.text)}')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-orange-500 transition-all">🔊</button>
-                  <span class="pronunciation-text">${d.pronunciation || ""}</span>
-                </div>
+      // 대화 렌더링
+      document.getElementById("dialogue-area").innerHTML = obj.dialogue.map((d, i) => `
+        <div class="dialogue-card" data-text='${jsEsc(d.text)}'>
+          <div style="display:flex;align-items:flex-start;gap:8px;">
+            <span style="font-size:18px;flex-shrink:0;">${i%2===0?"👨‍🎓":"👩‍🏫"}</span>
+            <div style="flex:1;">
+              <div class="speaker">${d.speaker || (i%2===0?"Student":"Teacher")}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                <button class="tts-btn" onclick="speakText('${jsEsc(d.text)}')">🔊</button>
+                <span class="d-text">${d.text}</span>
               </div>
+              ${d.pronunciation ? `<div class="d-pron">${d.pronunciation}</div>` : ""}
             </div>
-          </div>`;
-      });
-
-      const vocabHtml = currentVocabulary.map(w => `<span class="px-6 py-3 rounded-full vocab-pill font-bold text-sm">${w}</span>`).join('');
-
-      resultDiv.innerHTML = `
-        <div class="space-y-10">
-          <div class="text-[10px] text-white/30 font-black uppercase tracking-widest text-right">Created in ${elapsed}s</div>
-
-          <!-- 장면 이미지 영역 -->
-          <div id="scene-image-wrap" class="hidden">
-            <img id="scene-image" src="" alt="scene" class="w-full rounded-[24px] object-cover max-h-64" />
           </div>
+        </div>`).join("");
 
-          <section>
-            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Dialogue</h3>
-            <div class="grid gap-4">${dialogueHtml}</div>
-          </section>
+      // 어휘 렌더링
+      document.getElementById("vocab-area").innerHTML = `
+        <div style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Vocabulary</div>
+        ${currentVocabulary.map(w=>`<span class="vocab-tag">${w}</span>`).join("")}`;
 
-          <section>
-            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Vocabulary</h3>
-            <div class="flex flex-wrap gap-3">${vocabHtml}</div>
-          </section>
-
-          <!-- 액션 버튼 -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 border-t border-white/5">
-            <button onclick="speakDialogue()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
-              🔊 전체 듣기
-            </button>
-            <button id="img-btn" onclick="generateSceneImage()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
-              🖼️ 이미지 생성
-            </button>
-            <button onclick="loadQuiz()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
-              🧩 퀴즈 시작
-            </button>
-            <button onclick="saveTextbook()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
-              💾 저장
-            </button>
-          </div>
-        </div>`;
-
-      updateGenerateButtonState(false);
+      setBtnState(false);
       loadSavedTextbooks();
-    } catch (e) {
+    } catch(e) {
       if (e.name !== "AbortError") {
-        updateGenerateButtonState(false);
-        resultDiv.innerHTML = `<div class="p-6 glass-sub-card text-red-400 font-bold">Error: ${e.message}</div>`;
+        document.getElementById("dialogue-area").innerHTML = `<div style="color:#f87171;font-size:13px;padding:12px;">오류: ${e.message}</div>`;
+        setBtnState(false);
       }
     }
   }
 
-  // ── TTS ────────────────────────────────────────────────────────────────────
+  // ── TTS ─────────────────────────────────────────────────────────
   async function playTTS(text) {
     if (!text) return;
     try {
-      const res = await fetch("/api/tts/generate", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, speaker: 0 })
-      });
+      const res = await fetch("/api/tts/generate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text, speaker:0}) });
       const blob = await res.blob();
       const audio = new Audio(URL.createObjectURL(blob));
-      currentAudio = audio;
-      await audio.play();
+      currentAudio = audio; await audio.play();
       return new Promise(r => { audio.onended = r; audio.onerror = r; });
-    } catch (e) { console.error(e); }
+    } catch(e) { console.error(e); }
   }
 
   function speakText(txt) { if(currentAudio) currentAudio.pause(); playTTS(txt); }
 
   async function speakDialogue() {
-    if (isSpeakingDialogue) { isSpeakingDialogue = false; if(currentAudio) currentAudio.pause(); return; }
-    isSpeakingDialogue = true;
-    const items = [...document.querySelectorAll(".dialogue-item")];
-    for (let i = 0; i < items.length; i++) {
-      if (!isSpeakingDialogue) break;
-      items.forEach(el => el.classList.remove("playing"));
-      items[i].classList.add("playing");
-      items[i].scrollIntoView({ behavior: "smooth", block: "nearest" });
-      await playTTS(items[i].getAttribute("data-text"));
+    if (isSpeaking) { isSpeaking = false; if(currentAudio) currentAudio.pause(); document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊"; return; }
+    if (!currentDialogue.length) return;
+    isSpeaking = true;
+    document.getElementById("btn-listen").querySelector("span:first-child").textContent="⏸️";
+    const cards = [...document.querySelectorAll(".dialogue-card")];
+    for (let i = 0; i < cards.length; i++) {
+      if (!isSpeaking) break;
+      cards.forEach(c => c.classList.remove("playing"));
+      cards[i].classList.add("playing");
+      cards[i].scrollIntoView({ behavior:"smooth", block:"nearest" });
+      await playTTS(cards[i].dataset.text);
     }
-    items.forEach(el => el.classList.remove("playing"));
-    isSpeakingDialogue = false;
-    showLevelUpBanner();
+    cards.forEach(c => c.classList.remove("playing"));
+    isSpeaking = false;
+    document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊";
+    showLevelUp();
   }
 
-  // ── 레벨업 배너 ────────────────────────────────────────────────────────────
-  function showLevelUpBanner() {
-    const banner = document.getElementById("levelup-banner");
-    const harderBtn = document.getElementById("levelup-harder-btn");
-    banner.classList.remove("hidden");
-    if (currentLevel === "고급") {
-      harderBtn.classList.add("hidden");
-    } else {
-      harderBtn.classList.remove("hidden");
-    }
-    requestAnimationFrame(() => banner.classList.add("show"));
+  // ── 레벨업 ──────────────────────────────────────────────────────
+  function showLevelUp() {
+    const b = document.getElementById("levelup-banner");
+    const harder = document.getElementById("btn-harder");
+    b.classList.add("show");
+    harder.style.display = currentLevel === "고급" ? "none" : "";
   }
-
+  function hideLevelUp() { document.getElementById("levelup-banner").classList.remove("show"); }
   function levelUpHarder() {
-    const levels = ["초급", "중급", "고급"];
-    const nextIdx = Math.min(levels.indexOf(currentLevel) + 1, 2);
-    document.getElementById("level").value = levels[nextIdx];
-    document.getElementById("levelup-banner").classList.add("hidden");
-    generateContent();
+    const lvls = ["초급","중급","고급"];
+    document.getElementById("level").value = lvls[Math.min(lvls.indexOf(currentLevel)+1, 2)];
+    hideLevelUp(); generateContent();
   }
+  function newTopic() { document.getElementById("topic").value = ""; document.getElementById("topic").focus(); hideLevelUp(); }
 
-  function newTopic() {
-    document.getElementById("topic").value = "";
-    document.getElementById("topic").focus();
-    document.getElementById("levelup-banner").classList.add("hidden");
-    document.getElementById("levelup-banner").classList.remove("show");
-  }
-
-  // ── 이미지 생성 ────────────────────────────────────────────────────────────
+  // ── 이미지 생성 ─────────────────────────────────────────────────
   async function generateSceneImage() {
-    const btn = document.getElementById("img-btn");
+    if (!currentTopic) return;
+    const btn = document.getElementById("btn-image");
     btn.disabled = true;
-    btn.textContent = "⏳ 생성 중...";
+    btn.querySelector("span:first-child").textContent = "⏳";
     try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ situation: currentTopic, style: "illustration" })
-      });
+      const res = await fetch("/api/generate-image", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({situation:currentTopic, style:"illustration"}) });
       const data = await res.json();
       if (data.success && data.image_url) {
         currentImageUrl = data.image_url;
         const wrap = document.getElementById("scene-image-wrap");
-        const img = document.getElementById("scene-image");
-        img.src = data.image_url;
+        wrap.innerHTML = `<img src="${data.image_url}" alt="scene" />`;
         wrap.classList.remove("hidden");
-        btn.textContent = "🖼️ 이미지 재생성";
-      } else {
-        btn.textContent = "🖼️ 이미지 생성 실패";
-      }
-    } catch (e) {
-      btn.textContent = "🖼️ 오류 발생";
-    }
+        btn.querySelector("span:first-child").textContent = "🖼️";
+      } else { btn.querySelector("span:first-child").textContent = "❌"; }
+    } catch(e) { btn.querySelector("span:first-child").textContent = "❌"; }
     btn.disabled = false;
   }
 
-  // ── 퀴즈 ───────────────────────────────────────────────────────────────────
+  // ── 퀴즈 ────────────────────────────────────────────────────────
+  function toggleQuiz() {
+    const wrap = document.getElementById("quiz-wrap");
+    const isOpen = wrap.classList.contains("open");
+    if (isOpen) { wrap.classList.remove("open"); return; }
+    wrap.classList.add("open");
+    if (!currentDialogue.length) { document.getElementById("quiz-questions").innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">먼저 교재를 생성해주세요.</p>`; return; }
+    loadQuiz();
+  }
+  function hideQuiz() { document.getElementById("quiz-wrap").classList.remove("open"); }
+
   async function loadQuiz() {
-    if (!currentDialogue.length) {
-      alert("먼저 교재를 생성해주세요!");
-      return;
-    }
-    const quizSection = document.getElementById("quiz-section");
-    const questionsDiv = document.getElementById("quiz-questions");
-    const scoreDiv = document.getElementById("quiz-score");
-    quizSection.classList.remove("hidden");
-    scoreDiv.classList.add("hidden");
-    questionsDiv.innerHTML = `<div class="flex items-center gap-3 py-6 justify-center"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div><span class="text-white/60 text-sm">퀴즈 생성 중...</span></div>`;
-    quizSection.scrollIntoView({ behavior: "smooth", block: "start" });
-
+    const qDiv = document.getElementById("quiz-questions");
+    document.getElementById("quiz-score").style.display = "none";
+    qDiv.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;color:rgba(255,255,255,0.3);font-size:12px;"><div style="width:16px;height:16px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div>퀴즈 생성 중...</div>`;
     try {
-      const res = await fetch("/api/textbook/quiz", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dialogue: currentDialogue })
-      });
+      const res = await fetch("/api/textbook/quiz", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({dialogue:currentDialogue}) });
       const data = await res.json();
-      const questions = data.questions || [];
-
-      if (!questions.length) {
-        questionsDiv.innerHTML = `<p class="text-white/40 text-sm">퀴즈를 생성하지 못했습니다.</p>`;
-        return;
-      }
-
-      questionsDiv.innerHTML = questions.map((q, i) => {
+      const qs = data.questions || [];
+      if (!qs.length) { qDiv.innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">퀴즈를 생성하지 못했습니다.</p>`; return; }
+      qDiv.innerHTML = qs.map((q,i) => {
         const parts = q.display.split("___");
-        return `
-          <div class="glass-sub-card p-5 rounded-2xl">
-            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3">Q${i+1}</p>
-            <p class="text-white text-base leading-relaxed mb-2">
-              ${parts[0]}<input class="quiz-blank" data-answer="${jsEsc(q.blank_word)}" placeholder="   " />${parts[1] || ""}
-            </p>
-            <p class="text-white/30 text-xs mt-2">💡 ${q.hint || ""}</p>
-          </div>`;
-      }).join('');
-    } catch (e) {
-      questionsDiv.innerHTML = `<p class="text-red-400 text-sm">오류: ${e.message}</p>`;
-    }
+        return `<div class="quiz-q">Q${i+1}. ${parts[0]}<input class="quiz-blank" data-answer="${jsEsc(q.blank_word)}" placeholder="  " />${parts[1]||""}<div class="quiz-hint">💡 ${q.hint||""}</div></div>`;
+      }).join("");
+    } catch(e) { qDiv.innerHTML = `<p style="color:#f87171;font-size:12px;">${e.message}</p>`; }
   }
 
   function checkAnswers() {
-    const blanks = document.querySelectorAll(".quiz-blank");
     let correct = 0;
-    blanks.forEach(b => {
-      const answer = b.dataset.answer.trim();
-      const userInput = b.value.trim();
-      b.classList.remove("correct", "wrong");
-      if (userInput === answer) {
-        b.classList.add("correct");
-        correct++;
-      } else {
-        b.classList.add("wrong");
-        b.setAttribute("placeholder", answer);
-      }
+    document.querySelectorAll(".quiz-blank").forEach(b => {
+      b.classList.remove("correct","wrong");
+      if (b.value.trim() === b.dataset.answer.trim()) { b.classList.add("correct"); correct++; }
+      else { b.classList.add("wrong"); b.setAttribute("placeholder", b.dataset.answer); }
     });
-    const scoreDiv = document.getElementById("quiz-score");
-    scoreDiv.classList.remove("hidden");
-    const emoji = correct === blanks.length ? "🎉" : correct >= blanks.length / 2 ? "👍" : "💪";
-    scoreDiv.innerHTML = `${emoji} <span class="text-orange-400">${correct}</span> / ${blanks.length} 정답`;
+    const total = document.querySelectorAll(".quiz-blank").length;
+    const sc = document.getElementById("quiz-score");
+    sc.style.display = "block";
+    sc.innerHTML = `${correct===total?"🎉":correct>=total/2?"👍":"💪"} <span style="color:#f97316;">${correct}</span>/${total} 정답`;
   }
 
-  // ── 저장 ───────────────────────────────────────────────────────────────────
+  // ── 저장 ────────────────────────────────────────────────────────
   function saveTextbook() {
-    if (!currentDialogue.length) { alert("먼저 교재를 생성해주세요!"); return; }
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]");
-    saved.unshift({
-      id: Date.now(),
-      topic: currentTopic,
-      level: currentLevel,
-      dialogue: currentDialogue,
-      vocabulary: currentVocabulary,
-      imageUrl: currentImageUrl,
-      savedAt: new Date().toISOString()
-    });
-    localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0, 20)));
+    if (!currentDialogue.length) return;
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
+    saved.unshift({ id:Date.now(), topic:currentTopic, level:currentLevel, dialogue:currentDialogue, vocabulary:currentVocabulary, imageUrl:currentImageUrl, savedAt:new Date().toISOString() });
+    localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0,20)));
     loadSavedTextbooks();
-    if (window.ToastManager) ToastManager.success("교재가 저장됐습니다! 📚");
+    document.getElementById("btn-save").querySelector("span:first-child").textContent = "✅";
+    setTimeout(() => { document.getElementById("btn-save").querySelector("span:first-child").textContent = "💾"; }, 1500);
   }
 
   function deleteSaved(id) {
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]").filter(s => s.id !== id);
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]").filter(s=>s.id!==id);
     localStorage.setItem("saved_textbooks", JSON.stringify(saved));
     loadSavedTextbooks();
   }
 
   function restoreSaved(id) {
-    const entry = JSON.parse(localStorage.getItem("saved_textbooks") || "[]").find(s => s.id === id);
+    const entry = JSON.parse(localStorage.getItem("saved_textbooks")||"[]").find(s=>s.id===id);
     if (!entry) return;
     document.getElementById("topic").value = entry.topic;
     document.getElementById("level").value = entry.level;
-    currentTopic = entry.topic;
-    currentLevel = entry.level;
-    currentDialogue = entry.dialogue;
-    currentVocabulary = entry.vocabulary;
-    currentImageUrl = entry.imageUrl;
+    currentTopic = entry.topic; currentLevel = entry.level;
+    currentDialogue = entry.dialogue; currentVocabulary = entry.vocabulary; currentImageUrl = entry.imageUrl;
     generateContent();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function toggleSavedList() {
+    const wrap = document.getElementById("saved-list-wrap");
+    const chevron = document.getElementById("saved-chevron");
+    const isOpen = wrap.classList.contains("open");
+    wrap.classList.toggle("open");
+    chevron.textContent = isOpen ? "▲" : "▼";
   }
 
   function loadSavedTextbooks() {
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]");
-    const section = document.getElementById("saved-section");
-    const list = document.getElementById("saved-list");
-    if (!saved.length) { section.classList.add("hidden"); return; }
-    section.classList.remove("hidden");
-    list.innerHTML = saved.map(s => {
-      const date = new Date(s.savedAt).toLocaleDateString("ko-KR");
-      const levelMap = { "초급": "🟢", "중급": "🟡", "고급": "🔴" };
-      return `
-        <div class="saved-card glass-sub-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
-          ${s.imageUrl ? `<img src="${s.imageUrl}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" />` : `<div class="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-2xl flex-shrink-0">📖</div>`}
-          <div class="flex-1 min-w-0">
-            <p class="text-white font-black truncate">${s.topic}</p>
-            <p class="text-white/40 text-xs mt-0.5">${levelMap[s.level] || ""} ${s.level} · ${date}</p>
-          </div>
-          <div class="flex gap-2 flex-shrink-0">
-            <button onclick="restoreSaved(${s.id})" class="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-xs font-black hover:bg-orange-500/30 transition-all">불러오기</button>
-            <button onclick="deleteSaved(${s.id})" class="px-3 py-1.5 bg-white/5 text-white/40 rounded-lg text-xs font-black hover:bg-red-500/20 hover:text-red-400 transition-all">삭제</button>
-          </div>
-        </div>`;
-    }).join('');
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
+    const toggleRow = document.getElementById("saved-toggle-row");
+    if (!saved.length) { toggleRow.style.display = "none"; return; }
+    toggleRow.style.display = "flex";
+    document.getElementById("saved-count").textContent = `(${saved.length})`;
+    const lv = {"초급":"🟢","중급":"🟡","고급":"🔴"};
+    document.getElementById("saved-list").innerHTML = saved.map(s => {
+      const date = new Date(s.savedAt).toLocaleDateString("ko-KR",{month:"short",day:"numeric"});
+      return `<div class="saved-item">
+        <div class="saved-item-img">${s.imageUrl?`<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`:"📖"}</div>
+        <div class="saved-item-info"><div class="saved-item-topic">${s.topic}</div><div class="saved-item-meta">${lv[s.level]||""} ${s.level} · ${date}</div></div>
+        <button class="saved-load-btn" onclick="restoreSaved(${s.id})">불러오기</button>
+        <button class="saved-del-btn" onclick="deleteSaved(${s.id})">×</button>
+      </div>`;
+    }).join("");
   }
 
-  // ── AI Coach ───────────────────────────────────────────────────────────────
-  function appendCoachBubble(role, content) {
-    const msgs = document.getElementById("coachMessages");
-    const isUser = role === "user";
+  // ── AI 코치 ─────────────────────────────────────────────────────
+  function appendBubble(role, html) {
+    const msgs = document.getElementById("coach-messages");
     const div = document.createElement("div");
-    div.className = `flex gap-3 ${isUser ? "justify-end" : ""}`;
-    div.innerHTML = isUser
-      ? `<div class="bg-orange-500 rounded-2xl px-5 py-3 text-sm text-white max-w-[85%]">${content}</div>`
-      : `<span class="text-2xl">🤖</span><div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white/80 max-w-[85%]">${content}</div>`;
+    if (role === "user") {
+      div.className = "coach-bubble-user";
+      div.innerHTML = `<div class="bubble-user-text">${html}</div>`;
+    } else {
+      div.className = "coach-bubble-ai";
+      div.innerHTML = `<span style="font-size:20px;flex-shrink:0;">🤖</span><div class="bubble-ai-text">${html}</div>`;
+    }
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
   }
 
-  async function testModel() {
-    const input = document.getElementById("testPrompt");
+  async function sendCoach() {
+    const input = document.getElementById("coach-input");
     const prompt = input.value.trim();
     if (!prompt) return;
     input.value = "";
-    const dialogueItems = [...document.querySelectorAll(".dialogue-item")].map(el => el.getAttribute("data-text")).join("\n");
-    appendCoachBubble("user", prompt);
-    coachHistory.push({ role: "user", content: prompt });
-    const msgs = document.getElementById("coachMessages");
+    appendBubble("user", prompt);
+    coachHistory.push({role:"user", content:prompt});
     const typing = document.createElement("div");
-    typing.className = "flex gap-3"; typing.id = "coach-typing";
-    typing.innerHTML = `<span class="text-2xl">🤖</span><div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white/40 animate-pulse">생각중...</div>`;
-    msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
+    typing.className = "coach-bubble-ai"; typing.id = "coach-typing";
+    typing.innerHTML = `<span style="font-size:20px;">🤖</span><div class="bubble-ai-text" style="color:rgba(255,255,255,0.3);">생각중...</div>`;
+    document.getElementById("coach-messages").appendChild(typing);
+    document.getElementById("coach-messages").scrollTop = 9999;
+    const ctx = currentDialogue.map(d=>d.text).join("\n");
     try {
-      const res = await fetch("/api/chat/test", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, backend: "ollama", model: "exaone3.5:2.4b", history: coachHistory.slice(-10), system_context: dialogueItems })
-      });
+      const res = await fetch("/api/chat/test", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({prompt, backend:"ollama", model:"exaone3.5:2.4b", history:coachHistory.slice(-10), system_context:ctx}) });
       const data = await res.json();
       document.getElementById("coach-typing")?.remove();
-      const reply = data.text || JSON.stringify(data, null, 2);
-      const safeReply = window.marked ? DOMPurify.sanitize(marked.parse(reply)) : reply;
-      appendCoachBubble("assistant", safeReply);
-      coachHistory.push({ role: "assistant", content: reply });
-    } catch (e) {
+      const reply = data.text || JSON.stringify(data);
+      const safe = window.marked ? DOMPurify.sanitize(marked.parse(reply)) : reply;
+      appendBubble("assistant", safe);
+      coachHistory.push({role:"assistant", content:reply});
+    } catch(e) {
       document.getElementById("coach-typing")?.remove();
-      appendCoachBubble("assistant", "오류가 발생했습니다: " + e.message);
+      appendBubble("assistant", "오류: "+e.message);
     }
   }
 
-  // 페이지 로드 시 저장 목록 복원
+  // ── spin 애니메이션 ─────────────────────────────────────────────
+  const style = document.createElement("style");
+  style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
+  document.head.appendChild(style);
+
   document.addEventListener("DOMContentLoaded", loadSavedTextbooks);
 </script>
 {% endblock %}
