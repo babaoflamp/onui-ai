@@ -115,7 +115,7 @@
   </div>
 
   <div class="h-full flex items-center justify-center pb-12">
-    <div id="lobby" class="w-full max-w-6xl bg-white/5 border border-white/10 p-10 md:p-16 rounded-[48px] backdrop-blur-xl relative overflow-hidden">
+    <div id="lobby" class="w-full max-w-6xl bg-white/5 border border-white/10 p-6 md:p-10 rounded-[48px] backdrop-blur-xl relative overflow-hidden">
       <div class="absolute -top-24 -left-24 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full"></div>
       <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-slate-500/10 blur-[100px] rounded-full"></div>
 
@@ -125,7 +125,7 @@
           <p class="text-white/40 font-medium" data-i18n="vc.select_situation">Select a situation to start your AI voice conversation</p>
         </div>
 
-        <div id="scenario-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="scenario-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           <div class="col-span-full py-20 text-center">
             <div class="text-white/20 font-black uppercase tracking-[0.3em] animate-pulse" data-i18n="vc.loading_scenarios">Loading Scenarios...</div>
           </div>
@@ -221,18 +221,17 @@
       const callWithLabel = translations['vc.call_with'] || "Call with";
       scenarios.forEach(s => {
         const btn = document.createElement('button');
-        btn.className = 'group relative w-full aspect-square md:aspect-auto md:h-64 p-8 bg-white/5 border border-white/10 rounded-[40px] flex flex-col items-center justify-center gap-6 hover:bg-white/10 hover:border-orange-500/50 hover:shadow-[0_20px_60px_rgba(249,115,22,0.15)] transition-all duration-500 text-center overflow-hidden';
+        btn.className = 'group relative w-full bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/40 hover:shadow-[0_20px_40px_rgba(249,115,22,0.15)] transition-all duration-500 text-left';
         btn.innerHTML = `
-          <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-          <div class="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-orange-500/30 transition-all duration-700 shadow-2xl">
-            <img src="${s.avatar_url}" onerror="this.src='/static/images/onui-pure-idol.png'" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+          <div class="relative aspect-square overflow-hidden bg-white/5">
+            <img src="${s.avatar_url}" onerror="this.src='/static/images/onui-pure-idol.png'" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg shadow-lg">▶</div>
+            </div>
           </div>
-          <div class="relative">
-            <h4 class="text-xl md:text-2xl font-black text-white mb-2 group-hover:text-orange-400 transition-colors duration-500 line-clamp-1">${s.title}</h4>
-            <p class="text-white/40 text-xs font-bold uppercase tracking-widest italic group-hover:text-white/60 transition-colors duration-500">${callWithLabel} ${s.tutor_name}</p>
-          </div>
-          <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-500">
-            <span class="text-2xl text-orange-500">▶️</span>
+          <div class="p-3">
+            <h4 class="text-sm font-black text-white truncate leading-tight">${s.title}</h4>
+            <p class="text-orange-400 font-bold text-[10px] uppercase tracking-widest truncate mt-0.5">${s.tutor_name}</p>
           </div>
         `;
         btn.onclick = () => startCall(s);
