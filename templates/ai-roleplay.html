@@ -31,16 +31,14 @@
     }
     .scenario-card {
         background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border-radius: 16px;
     }
     .scenario-card:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-4px);
+        border-color: rgba(249, 115, 22, 0.4);
+        box-shadow: 0 20px 40px rgba(249, 115, 22, 0.15);
     }
     @keyframes pulse-neon {
         0%, 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
@@ -84,7 +82,7 @@
     </div>
 
     <!-- Scenario Selection -->
-    <div id="scenario-selection" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+    <div id="scenario-selection" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
         <!-- Scenarios will be loaded here via JS -->
     </div>
 
@@ -245,18 +243,20 @@
     function renderScenarios() {
         const container = document.getElementById('scenario-selection');
         container.innerHTML = scenarios.map((s, idx) => `
-            <div onclick="startRoleplay('${s.id}')" class="scenario-card cursor-pointer p-8 flex flex-col group animate-in fade-in slide-in-from-bottom-8 duration-700" style="animation-delay: ${idx * 0.1}s">
-                <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-white/5 overflow-hidden transition-all duration-500 ${s.image ? 'bg-black/20 group-hover:border-orange-500/20' : 'bg-white/5 group-hover:bg-orange-500 group-hover:border-orange-500/20'}">
+            <div onclick="startRoleplay('${s.id}')" class="scenario-card cursor-pointer group animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden" style="animation-delay: ${idx * 0.04}s">
+                <div class="relative aspect-square overflow-hidden bg-white/5">
                     ${s.image
-                        ? `<img src="${s.image}" alt="${s.title}" class="w-full h-full object-cover" loading="lazy">`
-                        : s.title.split(' ')[0]
+                        ? `<img src="${s.image}" alt="${s.title}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" loading="lazy">`
+                        : `<div class="w-full h-full flex items-center justify-center text-5xl">${s.title.split(' ')[0]}</div>`
                     }
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg shadow-lg">▶</div>
+                    </div>
+                    <span class="absolute top-2 left-2 px-2 py-0.5 bg-black/50 text-white/70 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-sm">${s.level}</span>
                 </div>
-                <h3 class="text-2xl font-black text-white mb-2 tracking-tight group-hover:text-orange-500 transition-colors">${s.title.substring(s.title.indexOf(' ') + 1)}</h3>
-                <p class="text-white/40 text-sm mb-6 line-clamp-3 leading-relaxed font-medium">${s.description}</p>
-                <div class="mt-auto flex justify-between items-center pt-6 border-t border-white/5">
-                    <span class="px-3 py-1 bg-white/5 text-white/50 rounded-full text-[10px] font-black uppercase tracking-widest">${s.level}</span>
-                    <span class="text-orange-500 font-black text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">Start Session ➜</span>
+                <div class="p-3">
+                    <h3 class="text-sm font-black text-white truncate leading-tight">${s.title.substring(s.title.indexOf(' ') + 1)}</h3>
+                    <p class="text-white/40 text-[10px] mt-0.5 truncate">${s.description}</p>
                 </div>
             </div>
         `).join('');
