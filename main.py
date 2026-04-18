@@ -5897,9 +5897,8 @@ async def stt_scorefile(
 
 
 @app.get("/sentence-evaluation")
-def sentence_evaluation_page(request: Request):
-    """문장 학습 페이지"""
-    return templates.TemplateResponse(request, "sentence-evaluation.html")
+def sentence_evaluation_redirect():
+    return RedirectResponse(url="/speechpro-practice", status_code=301)
 
 
 @app.post("/api/chatbot")

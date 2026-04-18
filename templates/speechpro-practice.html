@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}AI 발음 종합 평가 테스트 - 오누이 AI{% endblock %}
+{% extends "base.html" %} {% block title %}AI 발음 평가 - 오누이 한국어{% endblock %}
 {% block extra_css %}
 <style>
   .glass-main-card {
@@ -8,62 +8,71 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
-  
   .glass-sub-card {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
   }
-  
-  .glass-sub-card:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
   .input-dark {
     background: rgba(0, 0, 0, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
   }
-  
   .input-dark:focus {
     border-color: rgba(249, 115, 22, 0.5) !important;
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
   }
-
   .waveform-bar {
     width: 3px;
     background: #f97316;
     border-radius: 99px;
     animation: wave-bounce 1s infinite ease-in-out;
   }
-
   @keyframes wave-bounce {
     0%, 100% { height: 4px; }
     50% { height: 24px; }
   }
-
   .custom-scrollbar::-webkit-scrollbar { width: 4px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  .result-tab.active { color: #f97316; border-bottom: 2px solid #f97316; }
 
-  /* Tab Styles */
-  .result-tab.active {
-    color: #f97316;
-    border-bottom: 2px solid #f97316;
+  /* Mode Tabs */
+  .mode-tab {
+    padding: 10px 28px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.4);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
   }
+  .mode-tab.active {
+    background: rgba(249, 115, 22, 0.15);
+    border-color: rgba(249, 115, 22, 0.4);
+    color: #f97316;
+  }
+  .mode-tab:not(.active):hover {
+    color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.05);
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin 0.8s linear infinite; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div id="alertsContainer"></div>
 <div class="max-w-4xl mx-auto pt-0 pb-12 px-4">
-  <!-- Premium Header Section -->
+
+  <!-- Header -->
   <div class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
-    <!-- Background Glows -->
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full group-hover:bg-orange-500/30 transition-all duration-700"></div>
     <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-pink-500/20 blur-[80px] rounded-full group-hover:bg-pink-500/30 transition-all duration-700"></div>
-
     <div class="md:w-3/5 relative z-10 text-center md:text-left mb-6 md:mb-0">
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
         <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
@@ -76,62 +85,76 @@
         Perfect your Korean pronunciation with phoneme-level analysis and real-time feedback.
       </p>
     </div>
-
     <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-        <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
-            <img src="/static/images/onui-pure-idol.png" alt="SpeechPro AI" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        </div>
+      <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+        <img src="/static/images/onui-pure-idol.png" alt="SpeechPro AI" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Main Interaction Area -->
+  <!-- Main Card -->
   <div class="glass-main-card rounded-[40px] p-8 lg:p-12">
-    
-    <!-- Step Indicator -->
-    <div class="mb-16 flex items-center justify-between max-w-2xl mx-auto relative z-10">
-      <div class="flex flex-col items-center flex-1">
-        <div class="w-14 h-14 rounded-full bg-orange-500 text-white flex items-center justify-center font-black text-xl mb-3 shadow-[0_0_20px_rgba(249,115,22,0.4)]" id="step-1">1</div>
-        <span class="text-[10px] font-bold text-white tracking-widest uppercase opacity-60">SELECT</span>
-      </div>
-      <div class="flex-1 h-px bg-white/10 mx-4" id="step-line-1"></div>
-      <div class="flex flex-col items-center flex-1 text-white/20">
-        <div class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl mb-3" id="step-2">2</div>
-        <span class="text-[10px] font-bold tracking-widest uppercase">RECORD</span>
-      </div>
-      <div class="flex-1 h-px bg-white/10 mx-4" id="step-line-2"></div>
-      <div class="flex flex-col items-center flex-1 text-white/20">
-        <div class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl mb-3" id="step-3">3</div>
-        <span class="text-[10px] font-bold tracking-widest uppercase">EVALUATE</span>
-      </div>
+
+    <!-- Mode Tabs -->
+    <div class="flex items-center gap-3 mb-10 p-1 bg-white/5 rounded-full w-fit">
+      <button id="tab-guided" class="mode-tab active" onclick="switchMode('guided')">📚 추천 문장</button>
+      <button id="tab-free" class="mode-tab" onclick="switchMode('free')">✏️ 직접 입력</button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-12">
-      <!-- Left side: Sentence Selection -->
-      <aside class="space-y-6">
-        <div>
-          <label class="block text-xs font-black text-white/40 uppercase tracking-widest mb-4">Level Filter</label>
-          <select id="level-filter" class="w-full input-dark px-5 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer">
-            <option value="" data-i18n="sp.all_levels">All Levels</option>
-            <option value="A1">초급 1 (A1)</option>
-            <option value="A2">초급 2 (A2)</option>
-            <option value="B1">중급 1 (B1)</option>
-            <option value="B2">중급 2 (B2)</option>
-            <option value="C1">고급 1 (C1)</option>
-            <option value="C2">고급 2 (C2)</option>
-          </select>
+
+      <!-- Left Panel -->
+      <aside>
+        <!-- GUIDED: Level filter + sentence list -->
+        <div id="panel-guided" class="space-y-6">
+          <div>
+            <label class="block text-xs font-black text-white/40 uppercase tracking-widest mb-4">Level Filter</label>
+            <select id="level-filter" class="w-full input-dark px-5 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer">
+              <option value="" data-i18n="sp.all_levels">All Levels</option>
+              <option value="A1">초급 1 (A1)</option>
+              <option value="A2">초급 2 (A2)</option>
+              <option value="B1">중급 1 (B1)</option>
+              <option value="B2">중급 2 (B2)</option>
+              <option value="C1">고급 1 (C1)</option>
+              <option value="C2">고급 2 (C2)</option>
+            </select>
+          </div>
+          <div class="pt-2">
+            <label class="block text-xs font-black text-white/40 uppercase tracking-widest mb-4">Available Sentences</label>
+            <div id="sentence-list" class="max-h-[400px] overflow-y-auto custom-scrollbar pr-2 space-y-3"></div>
+            <button id="load-more-sentences" class="w-full mt-4 py-3 text-xs font-bold text-white/40 hover:text-white bg-white/5 rounded-xl border border-white/5 hidden">LOAD MORE</button>
+          </div>
         </div>
 
-        <select id="evaluation-text" class="hidden"></select>
-
-        <div class="pt-2">
-          <label class="block text-xs font-black text-white/40 uppercase tracking-widest mb-4">Available Sentences</label>
-          <div id="sentence-list" class="max-h-[400px] overflow-y-auto custom-scrollbar pr-2 space-y-3"></div>
-          <button id="load-more-sentences" class="w-full mt-4 py-3 text-xs font-bold text-white/40 hover:text-white bg-white/5 rounded-xl border border-white/5 hidden">LOAD MORE</button>
+        <!-- FREE: Text input + selected display -->
+        <div id="panel-free" class="hidden space-y-6">
+          <div>
+            <label class="block text-xs font-black text-white/40 uppercase tracking-widest mb-4">연습할 문장 입력</label>
+            <div class="flex flex-col gap-3">
+              <input type="text" id="custom-sentence"
+                placeholder="예) 오늘 날씨가 정말 좋네요."
+                class="w-full input-dark px-5 py-4 rounded-2xl text-base outline-none transition-all"
+                onkeydown="if(event.key==='Enter') setCustomSentence()" />
+              <button onclick="setCustomSentence()"
+                class="w-full py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
+                연습 시작 →
+              </button>
+            </div>
+          </div>
+          <div class="glass-sub-card rounded-[24px] p-6">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-[10px] font-black text-orange-500/60 uppercase tracking-widest">📌 선택된 문장</span>
+              <button onclick="playTTS()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-all text-base">🔊</button>
+            </div>
+            <div id="free-sentence-display" class="text-xl font-bold text-white/50 leading-tight">
+              문장을 입력해주세요 👆
+            </div>
+          </div>
         </div>
       </aside>
 
-      <!-- Right side: Recording Area -->
+      <!-- Right Panel: Recording (shared) -->
       <section class="flex flex-col">
         <div class="flex-1 glass-sub-card rounded-[32px] p-8 flex flex-col items-center justify-center text-center relative">
           <div id="recording-visualizer" class="mb-10 w-full">
@@ -140,20 +163,19 @@
               <span id="status-text" class="text-[10px] font-black text-white/60 uppercase tracking-widest" data-i18n="sp.ready">READY</span>
             </div>
             <div class="flex items-center justify-center gap-8">
-               <div id="waveform" class="hidden flex items-end gap-1.5 h-10">
-                 <div class="waveform-bar" style="animation-delay: 0s"></div>
-                 <div class="waveform-bar" style="animation-delay: 0.2s"></div>
-                 <div class="waveform-bar" style="animation-delay: 0.1s"></div>
-               </div>
-               <div id="recording-timer-display" class="text-6xl font-black text-white tracking-tighter">00:00</div>
-               <div id="waveform-right" class="hidden flex items-end gap-1.5 h-10 rotate-180">
-                 <div class="waveform-bar" style="animation-delay: 0s"></div>
-                 <div class="waveform-bar" style="animation-delay: 0.2s"></div>
-                 <div class="waveform-bar" style="animation-delay: 0.1s"></div>
-               </div>
+              <div id="waveform" class="hidden flex items-end gap-1.5 h-10">
+                <div class="waveform-bar" style="animation-delay:0s"></div>
+                <div class="waveform-bar" style="animation-delay:0.2s"></div>
+                <div class="waveform-bar" style="animation-delay:0.1s"></div>
+              </div>
+              <div id="recording-timer-display" class="text-6xl font-black text-white tracking-tighter">00:00</div>
+              <div id="waveform-right" class="hidden flex items-end gap-1.5 h-10 rotate-180">
+                <div class="waveform-bar" style="animation-delay:0s"></div>
+                <div class="waveform-bar" style="animation-delay:0.2s"></div>
+                <div class="waveform-bar" style="animation-delay:0.1s"></div>
+              </div>
             </div>
           </div>
-          <div id="countdown-display" class="absolute inset-0 flex items-center justify-center text-9xl font-black text-orange-500 z-20 hidden">3</div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md">
             <button id="start-recording" class="py-5 bg-white text-black rounded-2xl font-black text-lg shadow-2xl disabled:opacity-20" disabled data-i18n="sp.btn_record">START RECORD</button>
             <button id="stop-recording" class="py-5 bg-red-500 text-white rounded-2xl font-black text-lg shadow-2xl hidden" data-i18n="sp.btn_stop">STOP</button>
@@ -161,7 +183,9 @@
           </div>
           <audio id="audio-playback" class="hidden"></audio>
         </div>
-        <button id="evaluate-button" class="mt-6 py-6 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-[24px] font-black text-2xl shadow-[0_0_30px_rgba(249,115,22,0.3)] disabled:opacity-20">EVALUATE NOW</button>
+        <button id="evaluate-button" class="mt-6 py-6 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-[24px] font-black text-2xl shadow-[0_0_30px_rgba(249,115,22,0.3)] disabled:opacity-20" disabled>
+          🪄 AI 발음 평가
+        </button>
       </section>
     </div>
   </div>
@@ -172,96 +196,83 @@
   <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeResults()"></div>
   <div class="relative w-full max-w-5xl max-h-[90vh] glass-main-card rounded-[40px] p-10 overflow-y-auto custom-scrollbar">
     <div class="flex justify-between items-center mb-10">
-        <h2 class="text-3xl font-black text-white tracking-tight">Evaluation Report</h2>
-        <button id="close-results-btn" class="text-white/60 hover:text-white text-2xl">✕</button>
+      <h2 class="text-3xl font-black text-white tracking-tight">Evaluation Report</h2>
+      <button onclick="closeResults()" class="text-white/60 hover:text-white text-2xl">✕</button>
     </div>
     <div class="flex gap-8 mb-10 border-b border-white/5">
-        <button id="tab-score" class="result-tab active pb-4 text-sm font-black uppercase tracking-widest" data-tab="score" data-i18n="sp.tab_dashboard">Dashboard</button>
-        <button id="tab-analysis" class="result-tab text-white/40 pb-4 text-sm font-black uppercase tracking-widest" data-tab="analysis" data-i18n="sp.tab_analysis">Detailed Analysis</button>
-        <button id="tab-ai" class="result-tab text-white/40 pb-4 text-sm font-black uppercase tracking-widest" data-tab="ai" data-i18n="sp.tab_feedback">AI Feedback</button>
+      <button class="result-tab active pb-4 text-sm font-black uppercase tracking-widest" data-tab="score" data-i18n="sp.tab_dashboard">Dashboard</button>
+      <button class="result-tab text-white/40 pb-4 text-sm font-black uppercase tracking-widest" data-tab="analysis" data-i18n="sp.tab_analysis">Detailed Analysis</button>
+      <button class="result-tab text-white/40 pb-4 text-sm font-black uppercase tracking-widest" data-tab="ai" data-i18n="sp.tab_feedback">AI Coach</button>
     </div>
+
+    <!-- Dashboard tab -->
     <div id="result-content-score" class="result-step">
-        <div class="glass-sub-card rounded-3xl p-10 text-center">
-            <div class="text-8xl font-black text-orange-500 mb-4"><span id="overall-score">0</span><span class="text-3xl text-white/40">/100</span></div>
-            <p id="score-feedback" class="text-xl text-white/80 font-bold mb-8"></p>
-            <div class="w-full bg-white/5 rounded-full h-4 mb-10 overflow-hidden"><div id="score-bar" class="h-full bg-orange-500 transition-all duration-1000" style="width: 0%"></div></div>
-            <button id="view-details-btn" class="px-8 py-4 bg-white/10 text-white rounded-xl font-bold hover:bg-white/20" data-i18n="sp.view_details">View Details →</button>
+      <div class="glass-sub-card rounded-3xl p-10 text-center">
+        <div class="text-8xl font-black text-orange-500 mb-4"><span id="overall-score">0</span><span class="text-3xl text-white/40">/100</span></div>
+        <p id="score-feedback" class="text-xl text-white/80 font-bold mb-8"></p>
+        <div class="w-full bg-white/5 rounded-full h-4 mb-10 overflow-hidden">
+          <div id="score-bar" class="h-full bg-orange-500 transition-all duration-1000" style="width:0%"></div>
         </div>
+        <button onclick="switchTab('analysis')" class="px-8 py-4 bg-white/10 text-white rounded-xl font-bold hover:bg-white/20" data-i18n="sp.view_details">View Details →</button>
+      </div>
     </div>
+
+    <!-- Analysis tab -->
     <div id="result-content-analysis" class="result-step hidden"></div>
-    <div id="result-content-ai" class="result-step hidden"></div>
+
+    <!-- AI Coach tab -->
+    <div id="result-content-ai" class="result-step hidden">
+      <div class="glass-sub-card p-8 rounded-3xl min-h-[200px] flex flex-col justify-center" id="ai-coach-wrap">
+        <div class="flex items-center justify-center gap-3 text-white/40">
+          <div class="w-5 h-5 rounded-full border-2 border-white/30 border-t-white/80 spinner"></div>
+          <span class="text-sm font-bold">AI 코치 분석 중...</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Original JS Logic Preserved and Re-integrated -->
 <script>
   const appState = {
-    mediaRecorder: null, recordedChunks: [], recordingStartTime: null, recordingTimer: null,
-    selectedSentence: null, latestAiFeedbackText: "", latestAiFeedbackScore: 0,
-    sentenceAll: [], sentenceOffset: 0, sentenceLimit: 20, hasMoreSentences: true,
-    reset() {
-      this.mediaRecorder = null; this.recordedChunks = []; this.recordingStartTime = null;
-      this.recordingTimer = null; this.latestAiFeedbackText = "";
-    }
+    mode: 'guided',
+    mediaRecorder: null,
+    recordedChunks: [],
+    recordedBlob: null,
+    recordingStartTime: null,
+    recordingTimer: null,
+    selectedSentence: null,  // guided: {sentenceKr, fst, ...} | free: string
+    sentenceAll: [],
+    sentenceOffset: 0,
+    sentenceLimit: 20,
+    hasMoreSentences: true,
   };
 
-  async function startRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      document.getElementById("start-recording").classList.add("hidden");
-      appState.mediaRecorder = new MediaRecorder(stream);
-      appState.recordedChunks = [];
-      appState.recordingStartTime = Date.now();
-      appState.mediaRecorder.ondataavailable = e => appState.recordedChunks.push(e.data);
-      appState.mediaRecorder.onstop = () => {
-        const blob = new Blob(appState.recordedChunks, { type: "audio/wav" });
-        document.getElementById("audio-playback").src = URL.createObjectURL(blob);
-        document.getElementById("evaluate-button").disabled = false;
-      };
-      appState.mediaRecorder.start();
-      document.getElementById("stop-recording").classList.remove("hidden");
-      document.getElementById("status-text").textContent = "RECORDING";
-      document.getElementById("waveform").classList.remove("hidden");
-      document.getElementById("waveform-right").classList.remove("hidden");
-      startTimer();
-    } catch (e) { alert("Mic error: " + e.message); }
-  }
-
-  function stopRecording() {
-    if (appState.mediaRecorder) {
-      appState.mediaRecorder.stop();
-      appState.mediaRecorder.stream.getTracks().forEach(t => t.stop());
-      document.getElementById("stop-recording").classList.add("hidden");
-      document.getElementById("start-recording").classList.remove("hidden");
-      document.getElementById("play-recording").disabled = false;
-      document.getElementById("status-text").textContent = "DONE";
-      document.getElementById("waveform").classList.add("hidden");
-      document.getElementById("waveform-right").classList.add("hidden");
-      stopTimer();
+  // ── Mode switching ──────────────────────────────────────
+  function switchMode(mode) {
+    appState.mode = mode;
+    document.getElementById('tab-guided').classList.toggle('active', mode === 'guided');
+    document.getElementById('tab-free').classList.toggle('active', mode === 'free');
+    document.getElementById('panel-guided').classList.toggle('hidden', mode !== 'guided');
+    document.getElementById('panel-free').classList.toggle('hidden', mode !== 'free');
+    // reset recording state on mode switch
+    appState.selectedSentence = null;
+    document.getElementById('start-recording').disabled = true;
+    document.getElementById('evaluate-button').disabled = true;
+    document.getElementById('play-recording').disabled = true;
+    document.getElementById('recording-timer-display').textContent = '00:00';
+    document.getElementById('status-text').textContent = 'READY';
+    if (mode === 'free') {
+      setTimeout(() => document.getElementById('custom-sentence').focus(), 100);
     }
   }
 
-  function playRecording() {
-    const audio = document.getElementById("audio-playback");
-    if (audio.src) {
-      audio.currentTime = 0; // 처음부터 재생
-      audio.play();
-    }
-  }
-
-  function startTimer() {
-    appState.recordingTimer = setInterval(() => {
-      const sec = Math.floor((Date.now() - appState.recordingStartTime) / 1000);
-      document.getElementById("recording-timer-display").textContent = 
-        `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
-    }, 1000);
-  }
-  function stopTimer() { clearInterval(appState.recordingTimer); }
+  // ── Guided: sentence list ───────────────────────────────
+  const LEVEL_KR = { A1:'초급1', A2:'초급2', B1:'중급1', B2:'중급2', C1:'고급1', C2:'고급2' };
 
   async function loadSentences(isMore = false) {
     if (!isMore) { appState.sentenceOffset = 0; appState.sentenceAll = []; }
     let url = `/api/speechpro/sentences?limit=${appState.sentenceLimit}&offset=${appState.sentenceOffset}`;
-    const lvl = document.getElementById("level-filter").value;
+    const lvl = document.getElementById('level-filter').value;
     if (lvl) url += `&level=${lvl}`;
     const res = await fetch(url);
     const payload = await res.json();
@@ -270,17 +281,13 @@
     appState.sentenceOffset += newItems.length;
     appState.hasMoreSentences = newItems.length >= appState.sentenceLimit;
     renderSentenceList();
-    const loadMoreBtn = document.getElementById('load-more-sentences');
-    if (loadMoreBtn) loadMoreBtn.classList.toggle('hidden', !appState.hasMoreSentences);
+    document.getElementById('load-more-sentences').classList.toggle('hidden', !appState.hasMoreSentences);
   }
 
-  const LEVEL_KR = { A1:'초급1', A2:'초급2', B1:'중급1', B2:'중급2', C1:'고급1', C2:'고급2' };
-
   function renderSentenceList() {
-    const list = document.getElementById('sentence-list');
-    list.innerHTML = appState.sentenceAll.map((s, i) => `
-      <button class="glass-sub-card w-full text-left p-4 rounded-2xl text-sm text-white/80 hover:text-white transition-all border border-white/5 mb-2" onclick="selectSentence(${i})">
-        <span class="text-[10px] font-black text-orange-500/60 mr-2">${LEVEL_KR[s.level] || s.level}</span> ${s.sentenceKr || s.sentence}
+    document.getElementById('sentence-list').innerHTML = appState.sentenceAll.map((s, i) => `
+      <button class="glass-sub-card w-full text-left p-4 rounded-2xl text-sm text-white/80 hover:text-white transition-all border border-white/5" onclick="selectSentence(${i})">
+        <span class="text-[10px] font-black text-orange-500/60 mr-2">${LEVEL_KR[s.level] || s.level}</span>${s.sentenceKr || s.sentence}
       </button>
     `).join('');
   }
@@ -289,98 +296,207 @@
     appState.selectedSentence = appState.sentenceAll[idx];
     document.getElementById('start-recording').disabled = false;
     document.querySelectorAll('#sentence-list button').forEach((b, i) => {
-      b.style.borderColor = i === idx ? 'rgba(249, 115, 22, 0.5)' : 'rgba(255,255,255,0.05)';
-      b.style.background = i === idx ? 'rgba(249, 115, 22, 0.1)' : 'rgba(255,255,255,0.02)';
+      b.style.borderColor = i === idx ? 'rgba(249,115,22,0.5)' : 'rgba(255,255,255,0.05)';
+      b.style.background  = i === idx ? 'rgba(249,115,22,0.1)' : 'rgba(255,255,255,0.02)';
     });
   }
 
+  // ── Free: custom input ──────────────────────────────────
+  function setCustomSentence() {
+    const val = document.getElementById('custom-sentence').value.trim();
+    if (!val) return;
+    appState.selectedSentence = val;
+    document.getElementById('free-sentence-display').textContent = val;
+    document.getElementById('free-sentence-display').style.color = 'white';
+    document.getElementById('start-recording').disabled = false;
+  }
+
+  async function playTTS() {
+    const text = typeof appState.selectedSentence === 'string' ? appState.selectedSentence : null;
+    if (!text) return;
+    try {
+      const res = await fetch('/api/tts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const blob = await res.blob();
+      new Audio(URL.createObjectURL(blob)).play();
+    } catch (e) { console.error(e); }
+  }
+
+  // ── Recording ───────────────────────────────────────────
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      appState.mediaRecorder = new MediaRecorder(stream);
+      appState.recordedChunks = [];
+      appState.recordingStartTime = Date.now();
+      appState.mediaRecorder.ondataavailable = e => appState.recordedChunks.push(e.data);
+      appState.mediaRecorder.onstop = () => {
+        appState.recordedBlob = new Blob(appState.recordedChunks, { type: 'audio/wav' });
+        document.getElementById('audio-playback').src = URL.createObjectURL(appState.recordedBlob);
+        document.getElementById('evaluate-button').disabled = false;
+        document.getElementById('play-recording').disabled = false;
+      };
+      appState.mediaRecorder.start();
+      document.getElementById('start-recording').classList.add('hidden');
+      document.getElementById('stop-recording').classList.remove('hidden');
+      document.getElementById('status-text').textContent = 'RECORDING';
+      document.getElementById('status-dot').style.background = '#ef4444';
+      document.getElementById('waveform').classList.remove('hidden');
+      document.getElementById('waveform-right').classList.remove('hidden');
+      startTimer();
+    } catch (e) { alert('마이크 오류: ' + e.message); }
+  }
+
+  function stopRecording() {
+    if (!appState.mediaRecorder) return;
+    appState.mediaRecorder.stop();
+    appState.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    document.getElementById('stop-recording').classList.add('hidden');
+    document.getElementById('start-recording').classList.remove('hidden');
+    document.getElementById('status-text').textContent = 'DONE';
+    document.getElementById('status-dot').style.background = '#22c55e';
+    document.getElementById('waveform').classList.add('hidden');
+    document.getElementById('waveform-right').classList.add('hidden');
+    stopTimer();
+  }
+
+  function playRecording() {
+    const audio = document.getElementById('audio-playback');
+    if (audio.src) { audio.currentTime = 0; audio.play(); }
+  }
+
+  function startTimer() {
+    appState.recordingTimer = setInterval(() => {
+      const sec = Math.floor((Date.now() - appState.recordingStartTime) / 1000);
+      document.getElementById('recording-timer-display').textContent =
+        `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+    }, 1000);
+  }
+  function stopTimer() { clearInterval(appState.recordingTimer); }
+
+  // ── Evaluate ────────────────────────────────────────────
   async function evaluatePronunciation() {
-    const audio = document.getElementById("audio-playback");
-    if (!audio.src) return;
-    const blob = await fetch(audio.src).then(r => r.blob());
+    if (!appState.recordedBlob) return;
+    const btn = document.getElementById('evaluate-button');
+    btn.disabled = true;
+    btn.textContent = '분석 중...';
+    document.getElementById('status-text').textContent = 'ANALYSING';
+
     const fd = new FormData();
-    fd.append("text", appState.selectedSentence.sentenceKr || appState.selectedSentence.sentence);
-    fd.append("audio", blob, "rec.wav");
-    if (appState.selectedSentence.fst) {
-      fd.append("syll_ltrs", appState.selectedSentence.syll_ltrs);
-      fd.append("syll_phns", appState.selectedSentence.syll_phns);
-      fd.append("fst", appState.selectedSentence.fst);
+    fd.append('audio', appState.recordedBlob, 'rec.wav');
+
+    if (appState.mode === 'guided' && appState.selectedSentence) {
+      const s = appState.selectedSentence;
+      fd.append('text', s.sentenceKr || s.sentence);
+      if (s.fst) {
+        fd.append('syll_ltrs', s.syll_ltrs);
+        fd.append('syll_phns', s.syll_phns);
+        fd.append('fst', s.fst);
+      }
+    } else {
+      const text = typeof appState.selectedSentence === 'string' ? appState.selectedSentence : '';
+      fd.append('text', text);
     }
-    
-    document.getElementById("status-text").textContent = "ANALYSING";
+
     let result;
     try {
-      const res = await fetch("/api/speechpro/evaluate", { method: "POST", body: fd });
+      const res = await fetch('/api/speechpro/evaluate', { method: 'POST', body: fd });
       result = await res.json();
     } catch (e) {
-      document.getElementById("status-text").textContent = "DONE";
-      alert("평가 요청 실패: " + e.message);
+      btn.disabled = false; btn.textContent = '🪄 AI 발음 평가';
+      document.getElementById('status-text').textContent = 'DONE';
+      alert('평가 요청 실패: ' + e.message);
       return;
     }
-    document.getElementById("status-text").textContent = "DONE";
+
+    btn.disabled = false; btn.textContent = '🪄 AI 발음 평가';
+    document.getElementById('status-text').textContent = 'DONE';
+
     if (result.success) {
       showResults(result);
     } else {
-      alert("평가 오류: " + (result.error || result.message || "알 수 없는 오류"));
+      alert('평가 오류: ' + (result.error || result.message || '알 수 없는 오류'));
     }
   }
 
+  // ── Results modal ───────────────────────────────────────
   function showResults(res) {
     const score = Math.round(res.overall_score || 0);
-    document.getElementById("overall-score").textContent = score;
-    document.getElementById("score-bar").style.width = score + "%";
-    
-    // 탭 초기화
-    switchTab('score');
+    document.getElementById('overall-score').textContent = score;
+    document.getElementById('score-bar').style.width = score + '%';
+    document.getElementById('score-feedback').textContent =
+      score >= 80 ? 'Excellent! 🌟' : score >= 60 ? 'Good Effort! 👍' : 'Keep Practicing! 💪';
 
-    // 1. Dashboard Feedback
-    document.getElementById("score-feedback").textContent = score >= 80 ? "Excellent Job! 🌟" : 
-                                                            score >= 60 ? "Good Effort! 👍" : "Keep Practicing! 💪";
-
-    // 2. Detailed Analysis Populate (Phoneme mapping)
-    const analysisContainer = document.getElementById("result-content-analysis");
+    // Analysis tab
+    const analysisEl = document.getElementById('result-content-analysis');
     if (res.score && res.score.details) {
-      const details = res.score.details;
+      const d = res.score.details;
       const accuracy = res.score.accuracy_percentage || 0;
-      const fluency = details.fluency ? (details.fluency.correct_syllable_count / (details.fluency.total_syllable_count || 1)) * 100 : 0;
-      
-      analysisContainer.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div class="glass-sub-card p-6 rounded-2xl">
-            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Accuracy Rate</p>
+      const fluency = d.fluency
+        ? Math.round((d.fluency.correct_syllable_count / (d.fluency.total_syllable_count || 1)) * 100)
+        : 0;
+      const syllables = d.syllables || [];
+      analysisEl.innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="glass-sub-card p-6 rounded-2xl text-center">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">정확도</p>
             <p class="text-3xl font-black text-white">${Math.round(accuracy)}%</p>
           </div>
-          <div class="glass-sub-card p-6 rounded-2xl">
-            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Fluency Rate</p>
-            <p class="text-3xl font-black text-white">${Math.round(fluency)}%</p>
+          <div class="glass-sub-card p-6 rounded-2xl text-center">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">유창도</p>
+            <p class="text-3xl font-black text-white">${fluency}%</p>
           </div>
         </div>
-        <div class="mt-4">
-          <p class="text-xs font-black text-white/40 uppercase tracking-widest mb-4">Syllable Breakdown</p>
-          <div class="space-y-3">
-            ${(details.syllables || []).map(s => `
-              <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
-                <span class="text-lg font-bold text-white">${s.syllable}</span>
-                <span class="text-sm font-bold ${s.score >= 80 ? 'text-green-400' : 'text-orange-400'}">${Math.round(s.score)}%</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
+        ${syllables.length > 0 ? `
+          <p class="text-xs font-black text-white/40 uppercase tracking-widest mb-4">음절 분석</p>
+          <div class="flex flex-wrap gap-2">
+            ${syllables.map(s => `
+              <div class="px-3 py-2 rounded-xl text-center ${s.score >= 80 ? 'bg-green-500/20 border border-green-500/30' : 'bg-orange-500/20 border border-orange-500/30'}">
+                <p class="text-lg font-black text-white">${s.syllable}</p>
+                <p class="text-[10px] font-bold ${s.score >= 80 ? 'text-green-400' : 'text-orange-400'}">${Math.round(s.score)}%</p>
+              </div>`).join('')}
+          </div>` : '<p class="text-white/40 text-sm">음절 데이터가 없습니다.</p>'}
       `;
+    } else {
+      analysisEl.innerHTML = '<p class="text-white/40 text-sm p-4">분석 데이터가 없습니다.</p>';
     }
 
-    // 3. AI Feedback Populate
-    const aiContainer = document.getElementById("result-content-ai");
-    aiContainer.innerHTML = `
-      <div class="glass-sub-card p-8 rounded-3xl min-h-[200px] flex flex-col justify-center">
-        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">AI Feedback Report</p>
-        <p class="text-lg text-white/90 font-medium leading-relaxed italic">
-          "${res.ai_feedback || 'AI 피드백이 준비되지 않았습니다. 잠시 후 다시 시도해주세요.'}"
-        </p>
-      </div>
-    `;
+    // AI Coach tab: show immediately if available, else async fetch
+    const aiWrap = document.getElementById('ai-coach-wrap');
+    if (res.ai_feedback) {
+      renderAiFeedback(res.ai_feedback);
+    } else {
+      aiWrap.innerHTML = `
+        <div class="flex items-center justify-center gap-3 text-white/40">
+          <div class="w-5 h-5 rounded-full border-2 border-white/30 border-t-white/80 spinner"></div>
+          <span class="text-sm font-bold">AI 코치 분석 중...</span>
+        </div>`;
+      // async fetch feedback
+      const evalText = appState.mode === 'guided' && appState.selectedSentence
+        ? (appState.selectedSentence.sentenceKr || appState.selectedSentence.sentence)
+        : (typeof appState.selectedSentence === 'string' ? appState.selectedSentence : '');
+      fetch('/api/speechpro/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: res.overall_score, text: evalText, details: res.score })
+      })
+      .then(r => r.json())
+      .then(fb => renderAiFeedback(fb.feedback || fb.message || '피드백을 불러올 수 없습니다.'))
+      .catch(() => renderAiFeedback('AI 코치 연결에 실패했습니다.'));
+    }
 
-    document.getElementById("results-modal").classList.remove("hidden");
+    switchTab('score');
+    document.getElementById('results-modal').classList.remove('hidden');
+  }
+
+  function renderAiFeedback(text) {
+    document.getElementById('ai-coach-wrap').innerHTML = `
+      <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">AI Coach Feedback</p>
+      <p class="text-lg text-white/90 font-medium leading-relaxed italic">"${text}"</p>
+    `;
   }
 
   function switchTab(tabId) {
@@ -389,31 +505,27 @@
       t.classList.add('text-white/40');
     });
     document.querySelectorAll('.result-step').forEach(s => s.classList.add('hidden'));
-
-    const activeTab = document.querySelector(`[data-tab="${tabId}"]`);
-    activeTab.classList.add('active', 'text-orange-500');
-    activeTab.classList.remove('text-white/40');
+    const activeTab = document.querySelector(`.result-tab[data-tab="${tabId}"]`);
+    if (activeTab) {
+      activeTab.classList.add('active', 'text-orange-500');
+      activeTab.classList.remove('text-white/40');
+    }
     document.getElementById(`result-content-${tabId}`).classList.remove('hidden');
   }
 
-  function closeResults() { document.getElementById("results-modal").classList.add("hidden"); }
+  function closeResults() { document.getElementById('results-modal').classList.add('hidden'); }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // ── Init ────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
     loadSentences();
-    document.getElementById("level-filter").addEventListener("change", () => loadSentences());
-    document.getElementById("start-recording").addEventListener("click", startRecording);
-    document.getElementById("stop-recording").addEventListener("click", stopRecording);
-    document.getElementById("evaluate-button").addEventListener("click", evaluatePronunciation);
-    document.getElementById("play-recording").addEventListener("click", playRecording);
-    document.getElementById("close-results-btn").addEventListener("click", closeResults);
-
-    // Tab Listeners
-    document.querySelectorAll('.result-tab').forEach(tab => {
-        tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
-    });
-
-    document.getElementById("view-details-btn").addEventListener("click", () => switchTab('analysis'));
-    document.getElementById("load-more-sentences").addEventListener("click", () => loadSentences(true));
+    document.getElementById('level-filter').addEventListener('change', () => loadSentences());
+    document.getElementById('start-recording').addEventListener('click', startRecording);
+    document.getElementById('stop-recording').addEventListener('click', stopRecording);
+    document.getElementById('play-recording').addEventListener('click', playRecording);
+    document.getElementById('evaluate-button').addEventListener('click', evaluatePronunciation);
+    document.querySelectorAll('.result-tab').forEach(t =>
+      t.addEventListener('click', () => switchTab(t.getAttribute('data-tab')))
+    );
   });
 </script>
 {% endblock %}
