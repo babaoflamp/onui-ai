@@ -154,8 +154,9 @@
     transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .song-card:hover {
-    transform: translateY(-8px);
-    background: rgba(255,255,255,0.08);
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
   }
 </style>
 {% endblock %}
@@ -194,7 +195,7 @@
        <span class="flex items-center justify-center w-8 h-8 bg-indigo-500 rounded-lg text-sm">🎵</span>
        <span data-i18n="bt.select_stage">Select Your Stage</span>
     </h2>
-    <div id="song-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div id="song-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       <!-- Songs will be injected here -->
       <div class="col-span-full py-20 text-center text-white/20 font-black uppercase tracking-widest animate-pulse" data-i18n="bt.loading_playlist">Loading Playlist...</div>
     </div>
@@ -317,15 +318,17 @@
 
           function renderLobby() {
           songGrid.innerHTML = songs.map((s, idx) => `
-        <div onclick="startSong(${idx})" class="song-card suno-card p-6 flex items-center gap-6 cursor-pointer group">
-           <div class="relative w-24 h-24 flex-shrink-0">
-             <img src="${s.image_url}" onerror="this.src='/static/images/kpop-banner.svg'" class="w-full h-full object-cover rounded-2xl shadow-lg group-hover:scale-105 transition-all duration-500" />
-           </div>
-           <div class="flex-1 overflow-hidden">
-             <h3 class="text-xl font-black text-white mb-1 truncate">${s.title}</h3>
-             <p class="text-indigo-400 font-bold text-sm uppercase tracking-widest">${s.artist}</p>
-           </div>
-           <div class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/20"> → </div>
+        <div onclick="startSong(${idx})" class="song-card suno-card cursor-pointer group overflow-hidden" style="animation-delay:${idx*0.04}s">
+          <div class="relative aspect-square overflow-hidden bg-white/5">
+            <img src="${s.image_url}" onerror="this.src='/static/images/kpop-banner.svg'" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-lg shadow-lg">▶</div>
+            </div>
+          </div>
+          <div class="p-3">
+            <h3 class="text-sm font-black text-white truncate leading-tight">${s.title}</h3>
+            <p class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest truncate mt-0.5">${s.artist}</p>
+          </div>
         </div>
       `).join('');
     }
