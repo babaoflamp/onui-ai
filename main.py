@@ -6275,62 +6275,138 @@ async def translate_voice_text(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/voice-call/stt")
+async def voice_call_stt(file: UploadFile = File(...)):
+    """Voice Call용 STT: 오디오 → 한국어 텍스트"""
+    tmp_path = None
+    try:
+        suffix = ".webm"
+        ct = file.content_type or ""
+        if "wav" in ct:
+            suffix = ".wav"
+        elif "mp4" in ct or "m4a" in ct:
+            suffix = ".m4a"
+        elif "ogg" in ct:
+            suffix = ".ogg"
+
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False, dir=str(APP_TMP_DIR)) as tmp:
+            tmp_path = tmp.name
+            tmp.write(await file.read())
+
+        text = ""
+        if OPENAI_API_KEY and client:
+            with open(tmp_path, "rb") as f:
+                resp = client.audio.transcriptions.create(
+                    model="whisper-1", file=f, language="ko"
+                )
+            text = resp.text.strip()
+        elif google_stt_client:
+            import subprocess
+            wav_path = tmp_path + ".wav"
+            subprocess.run(["ffmpeg", "-y", "-i", tmp_path, "-ar", "16000", "-ac", "1", wav_path],
+                           capture_output=True)
+            from google.cloud import speech
+            with open(wav_path, "rb") as f:
+                audio = speech.RecognitionAudio(content=f.read())
+            config = speech.RecognitionConfig(
+                encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+                sample_rate_hertz=16000, language_code="ko-KR"
+            )
+            result = google_stt_client.recognize(config=config, audio=audio)
+            text = " ".join(r.alternatives[0].transcript for r in result.results)
+        else:
+            return JSONResponse(status_code=501, content={"error": "STT not configured"})
+
+        return JSONResponse(content={"success": True, "text": text})
+    except Exception as e:
+        logger.error(f"Voice Call STT error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
 @app.post("/api/voice-call/chat")
 async def voice_call_chat_api(request: Request):
-    """AI Voice Call용 대화 API"""
+    """AI Voice Call 턴제 대화 API — AI 응답 + 한국어 피드백 반환"""
     try:
         data = await request.json()
         user_message = data.get("message", "").strip()
         scenario_id = data.get("scenario_id", "starbucks")
         history = data.get("history", [])
+        is_first = data.get("is_first", False)
 
-        # Load scenario info
-        scenarios = []
         with open("data/voice-call.json", "r", encoding="utf-8") as f:
             scenarios = json.load(f)
         scenario = next((s for s in scenarios if s["id"] == scenario_id), scenarios[0])
 
-        system_prompt = f"""{scenario["system_prompt"]}
-        
-        규칙:
-        1. 반드시 한국어로만 짧게 대화하세요 (1-2문장).
-        2. 학습자가 자연스럽게 대답할 수 있도록 질문을 섞어주세요.
-        """
+        history_text = "\n".join(
+            f"{'AI' if h['role']=='assistant' else '학습자'}: {h['content']}"
+            for h in history[-6:]
+        )
 
-        prompt = f"사용자 메시지: {user_message}\n\n최근 대화 기록:\n"
-        for h in history[-5:]:
-            prompt += f"{h['role']}: {h['content']}\n"
+        if is_first:
+            # 첫 턴: 시나리오에 맞는 첫 질문 생성
+            system_prompt = f"""당신은 한국어 학습을 도와주는 AI 튜터입니다.
+시나리오: {scenario.get('title', '')}
+{scenario.get('system_prompt', '')}
+
+학습자에게 시나리오에 맞는 첫 번째 한국어 질문/말을 건네주세요.
+- 반드시 한국어로만 말하세요 (1-2문장)
+- 자연스럽고 친절한 구어체로
+- 학습자가 대답할 수 있도록 질문 형태로 끝내세요"""
+            prompt = "시작 질문을 해주세요."
+        else:
+            system_prompt = f"""당신은 한국어 학습을 도와주는 AI 튜터입니다.
+시나리오: {scenario.get('title', '')}
+{scenario.get('system_prompt', '')}
+
+[대화 규칙]
+1. reply: 시나리오에 맞는 자연스러운 한국어 응답 (1-2문장, 반드시 질문으로 끝내기)
+2. feedback: 학습자의 한국어에서 개선할 점 1가지 (없으면 간단한 칭찬). 한국어로 짧게.
+
+반드시 아래 JSON 형식으로만 응답하세요:
+{{"reply": "AI의 자연스러운 한국어 응답", "feedback": "학습 피드백 한 문장"}}"""
+            prompt = f"대화 기록:\n{history_text}\n\n학습자: {user_message}"
 
         backend = (os.getenv("MODEL_BACKEND") or "gemini").strip().lower()
+        raw = ""
 
-        reply_text = ""
         if backend == "gemini" and GEMINI_API_KEY and gemini_client:
             resp = gemini_client.models.generate_content(
                 model=GEMINI_MODEL, contents=f"{system_prompt}\n\n{prompt}"
             )
-            reply_text = resp.text.strip()
+            raw = resp.text.strip()
         elif backend == "openai" and OPENAI_API_KEY and client:
             resp = client.chat.completions.create(
                 model=OPENAI_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt},
-                ],
+                messages=[{"role": "system", "content": system_prompt},
+                           {"role": "user", "content": prompt}],
             )
-            reply_text = resp.choices[0].message.content.strip()
+            raw = resp.choices[0].message.content.strip()
         else:
-            payload = {
-                "model": OLLAMA_MODEL,
-                "prompt": f"{system_prompt}\n\n{prompt}",
-                "stream": False,
-            }
-            r = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=60)
-            reply_text = r.json().get("response", "").strip()
+            r = requests.post(f"{OLLAMA_URL}/api/generate",
+                              json={"model": OLLAMA_MODEL, "prompt": f"{system_prompt}\n\n{prompt}", "stream": False},
+                              timeout=60)
+            raw = r.json().get("response", "").strip()
 
-        return JSONResponse(content={"success": True, "reply": reply_text})
+        if is_first:
+            return JSONResponse(content={"success": True, "reply": raw, "feedback": ""})
+
+        # JSON 파싱 시도
+        try:
+            m = re.search(r'\{[\s\S]*\}', raw)
+            parsed = json.loads(m.group()) if m else {}
+            reply = parsed.get("reply", raw)
+            feedback = parsed.get("feedback", "")
+        except Exception:
+            reply = raw
+            feedback = ""
+
+        return JSONResponse(content={"success": True, "reply": reply, "feedback": feedback})
 
     except Exception as e:
-        logger.error(f"Voice Call Error: {e}")
+        logger.error(f"Voice Call Chat Error: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
