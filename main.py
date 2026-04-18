@@ -6219,6 +6219,29 @@ async def get_voice_call_scenarios():
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/voice-call/translate")
+async def translate_voice_text(request: Request):
+    """AI 발화 번역 (한국어 → 사용자 언어)"""
+    try:
+        body = await request.json()
+        text = body.get("text", "").strip()
+        target = body.get("target", "en")
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "text required"})
+        lang_names = {"en": "English", "ja": "Japanese", "zh": "Chinese (Simplified)"}
+        target_name = lang_names.get(target, "English")
+        prompt = f"Translate the following Korean text to {target_name}. Return only the translation with no explanation:\n{text}"
+        if gemini_client:
+            response = gemini_client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt
+            )
+            return {"translation": response.text.strip()}
+        return JSONResponse(status_code=503, content={"error": "Gemini not available"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @app.post("/api/voice-call/chat")
 async def voice_call_chat_api(request: Request):
     """AI Voice Call용 대화 API"""

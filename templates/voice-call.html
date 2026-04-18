@@ -149,7 +149,7 @@
       </div>
 
       <div class="w-full px-6 mt-6 z-10">
-        <div id="transcript-log" class="max-h-36 overflow-y-auto flex flex-col gap-2 text-sm rounded-2xl bg-white/5 px-4 py-3 border border-white/5">
+        <div id="transcript-log" class="max-h-56 overflow-y-auto flex flex-col gap-2 text-sm rounded-2xl bg-white/5 px-4 py-3 border border-white/5">
           <p class="text-white/30 text-center text-xs italic" data-i18n="vc.initial_hint">Say hello when you're ready!</p>
         </div>
       </div>
@@ -166,7 +166,7 @@
           </button>
         </div>
 
-        <p class="text-white/30 text-xs font-bold uppercase tracking-widest" data-i18n="vc.hold_to_speak">Hold to Speak</p>
+        <p class="text-white/30 text-xs font-bold uppercase tracking-widest" data-i18n="vc.tap_to_talk">탭하여 말하기</p>
       </div>
     </div>
   </div>
@@ -365,9 +365,9 @@
     }
 
     function finishHangup() {
-      // 트랜스크립트 수집
+      // 트랜스크립트 수집 (말풍선 wrapper의 첫 번째 div = bubble)
       const log = document.getElementById('transcript-log');
-      const lines = log ? [...log.querySelectorAll('p')].map(p => p.textContent) : [];
+      const lines = log ? [...log.querySelectorAll('div > div:first-child')].map(b => b.textContent) : [];
 
       closeWebSocket();
       stopMic();
@@ -394,12 +394,16 @@
           <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:32px;max-width:500px;width:90%;max-height:70vh;overflow-y:auto;">
             <h3 style="font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;">통화 종료</h3>
             <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:20px;">⏱ ${dur} · ${lines.length}개 발화</p>
-            <div style="space-y:8px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">
+            <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;">
               ${lines.slice(-6).map(l => `<p style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">${l}</p>`).join('')}
             </div>
-            <button onclick="this.closest('div[style]').parentElement.remove();location.reload();" style="margin-top:20px;width:100%;padding:12px;background:linear-gradient(to right,#f97316,#ec4899);color:#fff;font-weight:900;border-radius:12px;cursor:pointer;">확인</button>
+            <div style="display:flex;gap:8px;margin-top:20px;">
+              <button id="modal-download-btn" style="flex:1;padding:12px;background:rgba(255,255,255,0.1);color:#fff;font-weight:700;border-radius:12px;cursor:pointer;font-size:13px;">대화 저장 💾</button>
+              <button onclick="this.closest('div[style]').parentElement.remove();location.reload();" style="flex:2;padding:12px;background:linear-gradient(to right,#f97316,#ec4899);color:#fff;font-weight:900;border-radius:12px;cursor:pointer;">확인</button>
+            </div>
           </div>`;
         document.body.appendChild(modal);
+        document.getElementById('modal-download-btn').onclick = () => downloadTranscript(lines, currentScenario?.title, dur);
       } else {
         location.reload();
       }
@@ -460,15 +464,36 @@
     function appendTranscript(role, text) {
       const log = document.getElementById('transcript-log');
       if (!log || !text.trim()) return;
-      // 힌트 메시지 제거 (첫 번째 실제 발화 시)
       const hint = log.querySelector('[data-i18n="vc.initial_hint"]');
       if (hint) hint.remove();
-      const el = document.createElement('p');
-      el.className = role === 'ai'
-        ? 'text-orange-300 font-semibold text-right leading-snug'
-        : 'text-white/70 text-left leading-snug';
-      el.textContent = role === 'ai' ? `"${text}"` : text;
-      log.appendChild(el);
+
+      const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      const wrapper = document.createElement('div');
+      wrapper.className = role === 'ai' ? 'flex flex-col items-end gap-0.5' : 'flex flex-col items-start gap-0.5';
+
+      const bubble = document.createElement('div');
+      bubble.className = role === 'ai'
+        ? 'bg-orange-500/20 text-orange-200 px-3 py-2 rounded-2xl rounded-tr-sm text-sm leading-snug'
+        : 'bg-white/10 text-white/80 px-3 py-2 rounded-2xl rounded-tl-sm text-sm leading-snug';
+      bubble.textContent = text;
+
+      const meta = document.createElement('span');
+      meta.className = 'text-white/20 text-[10px] px-1';
+      meta.textContent = time;
+
+      wrapper.appendChild(bubble);
+      wrapper.appendChild(meta);
+
+      if (role === 'ai') {
+        const translateBtn = document.createElement('button');
+        translateBtn.className = 'text-white/30 text-[10px] px-1 hover:text-orange-300 transition-colors';
+        translateBtn.textContent = '번역 보기';
+        translateBtn.dataset.text = text;
+        translateBtn.onclick = toggleTranslation;
+        wrapper.appendChild(translateBtn);
+      }
+
+      log.appendChild(wrapper);
       log.scrollTop = log.scrollHeight;
     }
 
@@ -546,6 +571,50 @@
       if (scriptProcessor) { scriptProcessor.disconnect(); scriptProcessor = null; }
       if (audioCtx) { audioCtx.close(); audioCtx = null; }
       if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    }
+
+    async function toggleTranslation(e) {
+      const btn = e.currentTarget;
+      const wrapper = btn.parentElement;
+      const transEl = wrapper.querySelector('.translation-text');
+      if (transEl) {
+        transEl.remove();
+        btn.textContent = '번역 보기';
+        return;
+      }
+      btn.textContent = '번역 중...';
+      const targetLang = localStorage.getItem('app_lang') || 'en';
+      try {
+        const res = await fetch('/api/voice-call/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: btn.dataset.text, target: targetLang })
+        });
+        const data = await res.json();
+        const div = document.createElement('div');
+        div.className = 'translation-text text-white/40 text-xs px-3 py-1 italic text-right';
+        div.textContent = data.translation;
+        btn.before(div);
+        btn.textContent = '번역 숨기기';
+      } catch {
+        btn.textContent = '번역 보기';
+      }
+    }
+
+    function downloadTranscript(lines, scenarioTitle, duration) {
+      const content = [
+        '[Onui Korean - AI 영상통화]',
+        `시나리오: ${scenarioTitle || ''}`,
+        `통화 시간: ${duration}`,
+        `날짜: ${new Date().toLocaleDateString('ko-KR')}`,
+        '---',
+        ...lines
+      ].join('\n');
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `onui-call-${Date.now()}.txt`;
+      a.click();
     }
 
     function float32ToInt16(float32Array) {
@@ -627,14 +696,10 @@
       }
     }
 
-    // ── Mic button (hold to talk) ─────────────────────────────────────────────
-    micBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setListening(true); });
-    micBtn.addEventListener('mouseup', () => setListening(false));
-    micBtn.addEventListener('mouseleave', () => { if (isListening) setListening(false); });
-
-    // Touch support
-    micBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setListening(true); });
-    micBtn.addEventListener('touchend', (e) => { e.preventDefault(); setListening(false); });
+    // ── Mic button (tap to toggle) ────────────────────────────────────────────
+    micBtn.addEventListener('click', () => {
+      setListening(!isListening);
+    });
 
     document.getElementById('end-call-btn').onclick = endCall;
 
