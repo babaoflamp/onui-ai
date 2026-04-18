@@ -246,7 +246,7 @@
             <div onclick="startRoleplay('${s.id}')" class="scenario-card cursor-pointer group animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden" style="animation-delay: ${idx * 0.04}s">
                 <div class="relative aspect-square overflow-hidden bg-black">
                     ${s.image
-                        ? `<img src="${s.image}" alt="${s.title}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" loading="lazy">`
+                        ? `<img src="${s.image}" alt="${s.title}" class="w-full h-full object-contain group-hover:scale-105 transition-all duration-500 p-2" loading="lazy">`
                         : `<div class="w-full h-full flex items-center justify-center text-5xl">${s.title.split(' ')[0]}</div>`
                     }
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
