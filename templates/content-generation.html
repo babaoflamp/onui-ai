@@ -8,51 +8,78 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
-  
   .glass-sub-card {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
   }
-
   .input-dark {
     background: rgba(0, 0, 0, 0.3) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
   }
-  
   .input-dark:focus {
     border-color: rgba(249, 115, 22, 0.5) !important;
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2) !important;
   }
-
   #contentResult .dialogue-text { color: #fff; font-size: 1.1rem; font-weight: 600; }
   #contentResult .pronunciation-text { color: rgba(255,255,255,0.5); font-style: italic; font-size: 0.85rem; }
-  
   .vocab-pill {
     background: rgba(249, 115, 22, 0.1);
     border: 1px solid rgba(249, 115, 22, 0.3);
     color: #fb923c;
     transition: all 0.3s;
   }
-  .vocab-pill:hover {
-    background: rgba(249, 115, 22, 0.2);
-    transform: scale(1.05);
-  }
-
+  .vocab-pill:hover { background: rgba(249, 115, 22, 0.2); transform: scale(1.05); }
   .prose { color: rgba(255,255,255,0.8); }
   .prose strong { color: #fff; }
+
+  /* 대화 재생 하이라이트 */
+  .dialogue-item { transition: all 0.3s ease; }
+  .dialogue-item.playing {
+    border-left: 3px solid #f97316;
+    background: rgba(249, 115, 22, 0.06);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  /* 퀴즈 빈칸 */
+  .quiz-blank {
+    background: rgba(255,255,255,0.05);
+    border: none;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+    color: #fb923c;
+    width: 90px;
+    padding: 2px 4px;
+    outline: none;
+    text-align: center;
+    font-weight: 700;
+    border-radius: 0;
+    transition: all 0.2s;
+  }
+  .quiz-blank:focus { width: 120px; border-bottom-color: #f97316; }
+  .quiz-blank.correct { border-bottom-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.1); }
+  .quiz-blank.wrong { border-bottom-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08); }
+
+  /* 레벨업 배너 */
+  #levelup-banner {
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  #levelup-banner.show { transform: translateY(0); opacity: 1; }
+
+  /* 저장 목록 카드 */
+  .saved-card { transition: all 0.3s; }
+  .saved-card:hover { border-color: rgba(249,115,22,0.3); transform: translateY(-2px); }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto pt-0 pb-12 px-4">
-  <!-- Premium Header Section -->
+  <!-- Header -->
   <div class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
-    <!-- Background Glows -->
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full group-hover:bg-orange-500/30 transition-all duration-700"></div>
     <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-pink-500/20 blur-[80px] rounded-full group-hover:bg-pink-500/30 transition-all duration-700"></div>
-
     <div class="md:w-3/5 relative z-10 text-center md:text-left mb-6 md:mb-0">
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
         <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
@@ -65,55 +92,74 @@
         AI generates customized dialogue and vocabulary based on your interests and level. Create your own learning content.
       </p>
     </div>
-
     <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
-        <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
-            <img src="/static/images/onui-pure-idol.webp" alt="Content Generation AI" class="w-full h-full object-cover" loading="lazy">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        </div>
+      <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+        <img src="/static/images/onui-pure-idol.webp" alt="Content Generation AI" class="w-full h-full object-cover" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+      </div>
     </div>
   </div>
 
+  <!-- Generate Card -->
   <div class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8">
-    <!-- Configuration Section -->
     <section class="mb-10">
       <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-6 flex items-center gap-2">
         <span>🎯</span> CONFIGURATION
       </h2>
-
       <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
         <div class="md:col-span-5">
-           <input id="topic" type="text" placeholder="무엇을 공부하고 싶으세요? (예: 김치, 여행)" value="김치" data-i18n="tx.topic_placeholder"
-             class="w-full input-dark px-6 py-4 rounded-2xl text-base outline-none transition-all"
-             onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }" />
+          <input id="topic" type="text" placeholder="무엇을 공부하고 싶으세요? (예: 김치, 여행)" value="김치" data-i18n="tx.topic_placeholder"
+            class="w-full input-dark px-6 py-4 rounded-2xl text-base outline-none transition-all"
+            onkeydown="if (event.key === 'Enter') { event.preventDefault(); if (document.getElementById('topic').value.trim()) generateContent(); }" />
         </div>
         <div class="md:col-span-2">
-           <select id="level" class="w-full input-dark px-4 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer">
-              <option value="초급" data-i18n="sp.level_beg">Beginner</option>
-              <option value="중급" selected data-i18n="sp.level_int">Intermediate</option>
-              <option value="고급" data-i18n="sp.level_adv">Advanced</option>
-           </select>
+          <select id="level" class="w-full input-dark px-4 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer">
+            <option value="초급" data-i18n="sp.level_beg">Beginner</option>
+            <option value="중급" selected data-i18n="sp.level_int">Intermediate</option>
+            <option value="고급" data-i18n="sp.level_adv">Advanced</option>
+          </select>
         </div>
         <div class="md:col-span-5">
-           <button id="generateBtn" onclick="toggleGeneration()"
-             class="w-full py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl font-black text-base shadow-2xl hover:scale-[1.03] active:scale-95 transition-all">
-             🪄 GENERATE
-           </button>
+          <button id="generateBtn" onclick="toggleGeneration()"
+            class="w-full py-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-2xl font-black text-base shadow-2xl hover:scale-[1.03] active:scale-95 transition-all">
+            🪄 GENERATE
+          </button>
         </div>
       </div>
     </section>
 
     <div id="contentResult" class="hidden pt-10 border-t border-white/5"></div>
+
+    <!-- 퀴즈 섹션 (동적으로 표시) -->
+    <div id="quiz-section" class="hidden pt-10 border-t border-white/5 mt-10">
+      <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6 flex items-center gap-2">
+        <span>🧩</span> QUIZ
+      </h3>
+      <div id="quiz-questions" class="space-y-6"></div>
+      <div class="flex gap-3 mt-8">
+        <button onclick="checkAnswers()" class="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-black hover:bg-orange-600 transition-all">정답 확인</button>
+        <button onclick="document.getElementById('quiz-section').classList.add('hidden')" class="px-6 py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl font-black hover:bg-white/10 transition-all">닫기</button>
+      </div>
+      <div id="quiz-score" class="hidden mt-6 text-center text-white font-black text-lg"></div>
+    </div>
   </div>
 
-  <!-- Interactive AI Coach (Multi-turn Chat) -->
+  <!-- 레벨업 배너 -->
+  <div id="levelup-banner" class="hidden mb-8 p-6 bg-gradient-to-r from-orange-500/20 to-pink-500/20 border border-orange-500/30 rounded-[32px]">
+    <p class="text-white font-black text-center mb-4">🎉 잘 들으셨나요! 다음 단계에 도전해보세요.</p>
+    <div class="flex gap-3 justify-center flex-wrap">
+      <button id="levelup-harder-btn" onclick="levelUpHarder()" class="px-6 py-3 bg-orange-500 text-white rounded-xl font-black hover:bg-orange-600 transition-all">같은 주제 더 어렵게 ↑</button>
+      <button onclick="newTopic()" class="px-6 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-black hover:bg-white/20 transition-all">새 주제로</button>
+      <button onclick="document.getElementById('quiz-section').classList.remove('hidden'); loadQuiz();" class="px-6 py-3 bg-purple-500/30 border border-purple-500/40 text-purple-300 rounded-xl font-black hover:bg-purple-500/40 transition-all">🧩 퀴즈로 마무리</button>
+    </div>
+  </div>
+
+  <!-- Interactive AI Coach -->
   <section class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8">
     <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-2 flex items-center gap-2">
       <span>💬</span> INTERACTIVE COACH
     </h2>
     <p class="text-sm text-white/60 mb-6 font-medium" data-i18n="tx.coach_desc">생성된 교재 내용에 대해 AI 코치에게 자유롭게 질문하세요.</p>
-
-    <!-- Chat Messages -->
     <div id="coachMessages" class="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar mb-6 pr-1">
       <div class="flex gap-3">
         <span class="text-2xl">🤖</span>
@@ -122,21 +168,24 @@
         </div>
       </div>
     </div>
-
-    <!-- Input -->
     <div class="flex gap-3">
       <input id="testPrompt" type="text"
         class="flex-1 input-dark px-6 py-4 rounded-2xl text-base outline-none transition-all"
         placeholder="질문을 입력하세요... 😊" data-i18n="tx.coach_placeholder"
         onkeydown="if (event.key === 'Enter') { event.preventDefault(); testModel(); }" />
-      <button onclick="testModel()"
-        class="px-8 py-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition font-black shadow-lg">
-        전송
-      </button>
+      <button onclick="testModel()" class="px-8 py-4 bg-orange-500 text-white rounded-2xl hover:bg-orange-600 transition font-black shadow-lg">전송</button>
     </div>
   </section>
 
-  <!-- Usage Tips -->
+  <!-- 내 저장 목록 -->
+  <section id="saved-section" class="glass-main-card rounded-[40px] p-8 lg:p-10 mb-8 hidden">
+    <h2 class="text-xs font-black text-white/40 uppercase tracking-widest mb-6 flex items-center gap-2">
+      <span>📚</span> 내 저장 목록
+    </h2>
+    <div id="saved-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+  </section>
+
+  <!-- Tips -->
   <footer class="p-8 glass-sub-card rounded-[32px]">
     <div class="text-xs font-black text-white/40 uppercase tracking-widest mb-4">💡 PRO TIPS</div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-white/60 leading-relaxed">
@@ -147,19 +196,26 @@
 </div>
 
 <script>
-  // Preservation of all original logic
   (function loadMarkdownLibs() {
-    const scripts = ["https://cdn.jsdelivr.net/npm/marked/marked.min.js", "https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"];
-    scripts.forEach(src => {
-      const scr = document.createElement("script"); scr.src = src; scr.async = true; document.head.appendChild(scr);
+    ["https://cdn.jsdelivr.net/npm/marked/marked.min.js", "https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"].forEach(src => {
+      const s = document.createElement("script"); s.src = src; s.async = true; document.head.appendChild(s);
     });
   })();
 
-  function jsEsc(s) { return (s || "").toString().replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\"/g, '\\"').replace(/\n/g, " ").replace(/\r/g, " "); }
+  function jsEsc(s) { return (s||"").toString().replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/\"/g,'\\"').replace(/\n/g," ").replace(/\r/g," "); }
 
   let abortController = null;
   let isGenerating = false;
+  let currentTopic = "";
+  let currentLevel = "중급";
+  let currentDialogue = [];
+  let currentVocabulary = [];
+  let currentImageUrl = null;
+  let currentAudio = null;
+  let isSpeakingDialogue = false;
+  let coachHistory = [];
 
+  // ── Generation ─────────────────────────────────────────────────────────────
   function toggleGeneration() { if (isGenerating) stopGeneration(); else generateContent(); }
 
   function stopGeneration() {
@@ -173,32 +229,30 @@
     const btn = document.getElementById("generateBtn");
     if (!btn) return;
     isGenerating = generating;
-    if (generating) {
-      btn.innerHTML = "⏹️ STOP";
-      btn.classList.replace("bg-white", "bg-red-500");
-      btn.classList.replace("text-black", "text-white");
-    } else {
-      btn.innerHTML = "🪄 GENERATE";
-      btn.classList.replace("bg-red-500", "bg-white");
-      btn.classList.replace("text-white", "text-black");
-    }
+    btn.innerHTML = generating ? "⏹️ STOP" : "🪄 GENERATE";
   }
 
   async function generateContent() {
-    const topic = document.getElementById("topic").value;
-    const level = document.getElementById("level").value;
+    currentTopic = document.getElementById("topic").value.trim();
+    currentLevel = document.getElementById("level").value;
+    if (!currentTopic) return;
+
     const resultDiv = document.getElementById("contentResult");
     abortController = new AbortController();
     updateGenerateButtonState(true);
-    const startTime = performance.now();
+    currentImageUrl = null;
+    document.getElementById("quiz-section").classList.add("hidden");
+    document.getElementById("levelup-banner").classList.add("hidden");
+    document.getElementById("levelup-banner").classList.remove("show");
 
+    const startTime = performance.now();
     const loadingMsg = translations['tx.gen_loading'] || "AI is creating your textbook...";
     resultDiv.innerHTML = `<div class="flex items-center gap-3 py-10 justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div><span class="text-white font-bold">${loadingMsg}</span></div>`;
     resultDiv.classList.remove("hidden");
 
     const formData = new FormData();
-    formData.append("topic", topic);
-    formData.append("level", level);
+    formData.append("topic", currentTopic);
+    formData.append("level", currentLevel);
     formData.append("backend", "ollama");
     formData.append("model", "exaone3.5:2.4b");
 
@@ -206,66 +260,84 @@
       const res = await fetch("/api/generate-content", { method: "POST", body: formData, signal: abortController.signal });
       const data = await res.json();
       const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
-      
-      let jsonObj = data; // Simplified for this overhaul, keeping base parse logic in mind
+
+      let jsonObj = data;
       if (data.text) {
-          try {
-             const m = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-             jsonObj = JSON.parse(m ? m[1] : data.text);
-          } catch(e) { jsonObj = data; }
+        try {
+          const m = data.text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+          jsonObj = JSON.parse(m ? m[1] : data.text);
+        } catch(e) { jsonObj = data; }
       }
 
       if (!jsonObj.dialogue) {
-          resultDiv.innerHTML = `<pre class="text-xs p-6 glass-sub-card text-orange-400 rounded-2xl">${JSON.stringify(data, null, 2)}</pre>`;
-          return;
+        resultDiv.innerHTML = `<pre class="text-xs p-6 glass-sub-card text-orange-400 rounded-2xl">${JSON.stringify(data, null, 2)}</pre>`;
+        updateGenerateButtonState(false);
+        return;
       }
 
-      let html = `
-        <div class="space-y-10">
-          <div class="text-[10px] text-white/30 font-black uppercase tracking-widest text-right">Created in ${elapsed}s</div>
-          
-          <section>
-            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Dialogue</h3>
-            <div class="grid gap-4">
-      `;
+      currentDialogue = jsonObj.dialogue;
+      currentVocabulary = jsonObj.vocabulary || [];
 
+      let dialogueHtml = "";
       jsonObj.dialogue.forEach((d, idx) => {
-        const avatar = (idx % 2 === 0) ? "👨‍🎓" : "👩‍🏫";
-        html += `
-          <div class="glass-sub-card p-6 rounded-[24px] dialogue-item" data-text='${jsEsc(d.text)}'>
+        const avatar = idx % 2 === 0 ? "👨‍🎓" : "👩‍🏫";
+        dialogueHtml += `
+          <div class="glass-sub-card p-6 rounded-[24px] dialogue-item" data-text='${jsEsc(d.text)}' data-speaker='${jsEsc(d.speaker || "")}'>
             <div class="flex items-start gap-5">
               <span class="text-3xl">${avatar}</span>
               <div class="flex-1">
                 <p class="text-[10px] font-black text-white/30 uppercase mb-2">${d.speaker || (idx % 2 === 0 ? "Student" : "Teacher")}</p>
                 <p class="dialogue-text">${d.text}</p>
                 <div class="mt-4 flex items-center gap-3">
-                   <button onclick="speakText('${jsEsc(d.text)}')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-orange-500 transition-all">🔊</button>
-                   <span class="pronunciation-text">${d.pronunciation || ""}</span>
+                  <button onclick="speakText('${jsEsc(d.text)}')" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-orange-500 transition-all">🔊</button>
+                  <span class="pronunciation-text">${d.pronunciation || ""}</span>
                 </div>
               </div>
             </div>
-          </div>
-        `;
+          </div>`;
       });
 
-      html += `</div></section>
+      const vocabHtml = currentVocabulary.map(w => `<span class="px-6 py-3 rounded-full vocab-pill font-bold text-sm">${w}</span>`).join('');
+
+      resultDiv.innerHTML = `
+        <div class="space-y-10">
+          <div class="text-[10px] text-white/30 font-black uppercase tracking-widest text-right">Created in ${elapsed}s</div>
+
+          <!-- 장면 이미지 영역 -->
+          <div id="scene-image-wrap" class="hidden">
+            <img id="scene-image" src="" alt="scene" class="w-full rounded-[24px] object-cover max-h-64" />
+          </div>
+
           <section>
-            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Vocabulary</h3>
-            <div class="flex flex-wrap gap-3">
-              ${jsonObj.vocabulary.map(word => `<span class="px-6 py-3 rounded-full vocab-pill font-bold text-sm">${word}</span>`).join('')}
-            </div>
+            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Dialogue</h3>
+            <div class="grid gap-4">${dialogueHtml}</div>
           </section>
 
-          <div class="flex gap-4 pt-6">
-            <button id="dialogueSpeakBtn" onclick="speakDialogue()" class="flex-1 py-5 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-3">
-               <span>🔊</span> 전체 대화 듣기
+          <section>
+            <h3 class="text-xs font-black text-orange-500/60 uppercase tracking-widest mb-6">Vocabulary</h3>
+            <div class="flex flex-wrap gap-3">${vocabHtml}</div>
+          </section>
+
+          <!-- 액션 버튼 -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 border-t border-white/5">
+            <button onclick="speakDialogue()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
+              🔊 전체 듣기
+            </button>
+            <button id="img-btn" onclick="generateSceneImage()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
+              🖼️ 이미지 생성
+            </button>
+            <button onclick="loadQuiz()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
+              🧩 퀴즈 시작
+            </button>
+            <button onclick="saveTextbook()" class="py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-sm">
+              💾 저장
             </button>
           </div>
-        </div>
-      `;
-      resultDiv.innerHTML = html;
+        </div>`;
+
       updateGenerateButtonState(false);
-    } catch (e) { 
+      loadSavedTextbooks();
+    } catch (e) {
       if (e.name !== "AbortError") {
         updateGenerateButtonState(false);
         resultDiv.innerHTML = `<div class="p-6 glass-sub-card text-red-400 font-bold">Error: ${e.message}</div>`;
@@ -273,32 +345,222 @@
     }
   }
 
-  let currentAudio = null;
+  // ── TTS ────────────────────────────────────────────────────────────────────
   async function playTTS(text) {
     if (!text) return;
     try {
-      const response = await fetch("/api/tts/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch("/api/tts/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, speaker: 0 })
       });
-      const blob = await response.blob();
+      const blob = await res.blob();
       const audio = new Audio(URL.createObjectURL(blob));
       currentAudio = audio;
       await audio.play();
-      return new Promise(r => audio.onended = r);
+      return new Promise(r => { audio.onended = r; audio.onerror = r; });
     } catch (e) { console.error(e); }
   }
 
   function speakText(txt) { if(currentAudio) currentAudio.pause(); playTTS(txt); }
 
   async function speakDialogue() {
-    const items = document.querySelectorAll(".dialogue-item");
-    for (const item of items) { await playTTS(item.getAttribute("data-text")); }
+    if (isSpeakingDialogue) { isSpeakingDialogue = false; if(currentAudio) currentAudio.pause(); return; }
+    isSpeakingDialogue = true;
+    const items = [...document.querySelectorAll(".dialogue-item")];
+    for (let i = 0; i < items.length; i++) {
+      if (!isSpeakingDialogue) break;
+      items.forEach(el => el.classList.remove("playing"));
+      items[i].classList.add("playing");
+      items[i].scrollIntoView({ behavior: "smooth", block: "nearest" });
+      await playTTS(items[i].getAttribute("data-text"));
+    }
+    items.forEach(el => el.classList.remove("playing"));
+    isSpeakingDialogue = false;
+    showLevelUpBanner();
   }
 
-  let coachHistory = [];
+  // ── 레벨업 배너 ────────────────────────────────────────────────────────────
+  function showLevelUpBanner() {
+    const banner = document.getElementById("levelup-banner");
+    const harderBtn = document.getElementById("levelup-harder-btn");
+    banner.classList.remove("hidden");
+    if (currentLevel === "고급") {
+      harderBtn.classList.add("hidden");
+    } else {
+      harderBtn.classList.remove("hidden");
+    }
+    requestAnimationFrame(() => banner.classList.add("show"));
+  }
 
+  function levelUpHarder() {
+    const levels = ["초급", "중급", "고급"];
+    const nextIdx = Math.min(levels.indexOf(currentLevel) + 1, 2);
+    document.getElementById("level").value = levels[nextIdx];
+    document.getElementById("levelup-banner").classList.add("hidden");
+    generateContent();
+  }
+
+  function newTopic() {
+    document.getElementById("topic").value = "";
+    document.getElementById("topic").focus();
+    document.getElementById("levelup-banner").classList.add("hidden");
+    document.getElementById("levelup-banner").classList.remove("show");
+  }
+
+  // ── 이미지 생성 ────────────────────────────────────────────────────────────
+  async function generateSceneImage() {
+    const btn = document.getElementById("img-btn");
+    btn.disabled = true;
+    btn.textContent = "⏳ 생성 중...";
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ situation: currentTopic, style: "illustration" })
+      });
+      const data = await res.json();
+      if (data.success && data.image_url) {
+        currentImageUrl = data.image_url;
+        const wrap = document.getElementById("scene-image-wrap");
+        const img = document.getElementById("scene-image");
+        img.src = data.image_url;
+        wrap.classList.remove("hidden");
+        btn.textContent = "🖼️ 이미지 재생성";
+      } else {
+        btn.textContent = "🖼️ 이미지 생성 실패";
+      }
+    } catch (e) {
+      btn.textContent = "🖼️ 오류 발생";
+    }
+    btn.disabled = false;
+  }
+
+  // ── 퀴즈 ───────────────────────────────────────────────────────────────────
+  async function loadQuiz() {
+    if (!currentDialogue.length) {
+      alert("먼저 교재를 생성해주세요!");
+      return;
+    }
+    const quizSection = document.getElementById("quiz-section");
+    const questionsDiv = document.getElementById("quiz-questions");
+    const scoreDiv = document.getElementById("quiz-score");
+    quizSection.classList.remove("hidden");
+    scoreDiv.classList.add("hidden");
+    questionsDiv.innerHTML = `<div class="flex items-center gap-3 py-6 justify-center"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div><span class="text-white/60 text-sm">퀴즈 생성 중...</span></div>`;
+    quizSection.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    try {
+      const res = await fetch("/api/textbook/quiz", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dialogue: currentDialogue })
+      });
+      const data = await res.json();
+      const questions = data.questions || [];
+
+      if (!questions.length) {
+        questionsDiv.innerHTML = `<p class="text-white/40 text-sm">퀴즈를 생성하지 못했습니다.</p>`;
+        return;
+      }
+
+      questionsDiv.innerHTML = questions.map((q, i) => {
+        const parts = q.display.split("___");
+        return `
+          <div class="glass-sub-card p-5 rounded-2xl">
+            <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3">Q${i+1}</p>
+            <p class="text-white text-base leading-relaxed mb-2">
+              ${parts[0]}<input class="quiz-blank" data-answer="${jsEsc(q.blank_word)}" placeholder="   " />${parts[1] || ""}
+            </p>
+            <p class="text-white/30 text-xs mt-2">💡 ${q.hint || ""}</p>
+          </div>`;
+      }).join('');
+    } catch (e) {
+      questionsDiv.innerHTML = `<p class="text-red-400 text-sm">오류: ${e.message}</p>`;
+    }
+  }
+
+  function checkAnswers() {
+    const blanks = document.querySelectorAll(".quiz-blank");
+    let correct = 0;
+    blanks.forEach(b => {
+      const answer = b.dataset.answer.trim();
+      const userInput = b.value.trim();
+      b.classList.remove("correct", "wrong");
+      if (userInput === answer) {
+        b.classList.add("correct");
+        correct++;
+      } else {
+        b.classList.add("wrong");
+        b.setAttribute("placeholder", answer);
+      }
+    });
+    const scoreDiv = document.getElementById("quiz-score");
+    scoreDiv.classList.remove("hidden");
+    const emoji = correct === blanks.length ? "🎉" : correct >= blanks.length / 2 ? "👍" : "💪";
+    scoreDiv.innerHTML = `${emoji} <span class="text-orange-400">${correct}</span> / ${blanks.length} 정답`;
+  }
+
+  // ── 저장 ───────────────────────────────────────────────────────────────────
+  function saveTextbook() {
+    if (!currentDialogue.length) { alert("먼저 교재를 생성해주세요!"); return; }
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]");
+    saved.unshift({
+      id: Date.now(),
+      topic: currentTopic,
+      level: currentLevel,
+      dialogue: currentDialogue,
+      vocabulary: currentVocabulary,
+      imageUrl: currentImageUrl,
+      savedAt: new Date().toISOString()
+    });
+    localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0, 20)));
+    loadSavedTextbooks();
+    if (window.ToastManager) ToastManager.success("교재가 저장됐습니다! 📚");
+  }
+
+  function deleteSaved(id) {
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]").filter(s => s.id !== id);
+    localStorage.setItem("saved_textbooks", JSON.stringify(saved));
+    loadSavedTextbooks();
+  }
+
+  function restoreSaved(id) {
+    const entry = JSON.parse(localStorage.getItem("saved_textbooks") || "[]").find(s => s.id === id);
+    if (!entry) return;
+    document.getElementById("topic").value = entry.topic;
+    document.getElementById("level").value = entry.level;
+    currentTopic = entry.topic;
+    currentLevel = entry.level;
+    currentDialogue = entry.dialogue;
+    currentVocabulary = entry.vocabulary;
+    currentImageUrl = entry.imageUrl;
+    generateContent();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function loadSavedTextbooks() {
+    const saved = JSON.parse(localStorage.getItem("saved_textbooks") || "[]");
+    const section = document.getElementById("saved-section");
+    const list = document.getElementById("saved-list");
+    if (!saved.length) { section.classList.add("hidden"); return; }
+    section.classList.remove("hidden");
+    list.innerHTML = saved.map(s => {
+      const date = new Date(s.savedAt).toLocaleDateString("ko-KR");
+      const levelMap = { "초급": "🟢", "중급": "🟡", "고급": "🔴" };
+      return `
+        <div class="saved-card glass-sub-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
+          ${s.imageUrl ? `<img src="${s.imageUrl}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" />` : `<div class="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-2xl flex-shrink-0">📖</div>`}
+          <div class="flex-1 min-w-0">
+            <p class="text-white font-black truncate">${s.topic}</p>
+            <p class="text-white/40 text-xs mt-0.5">${levelMap[s.level] || ""} ${s.level} · ${date}</p>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="restoreSaved(${s.id})" class="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg text-xs font-black hover:bg-orange-500/30 transition-all">불러오기</button>
+            <button onclick="deleteSaved(${s.id})" class="px-3 py-1.5 bg-white/5 text-white/40 rounded-lg text-xs font-black hover:bg-red-500/20 hover:text-red-400 transition-all">삭제</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── AI Coach ───────────────────────────────────────────────────────────────
   function appendCoachBubble(role, content) {
     const msgs = document.getElementById("coachMessages");
     const isUser = role === "user";
@@ -316,30 +578,18 @@
     const prompt = input.value.trim();
     if (!prompt) return;
     input.value = "";
-
-    const backend = "ollama";
-    const model = "exaone3.5:2.4b";
-
-    // 교재 컨텍스트 추출
     const dialogueItems = [...document.querySelectorAll(".dialogue-item")].map(el => el.getAttribute("data-text")).join("\n");
-
     appendCoachBubble("user", prompt);
     coachHistory.push({ role: "user", content: prompt });
-
-    // 생각중 표시
     const msgs = document.getElementById("coachMessages");
     const typing = document.createElement("div");
-    typing.className = "flex gap-3";
-    typing.id = "coach-typing";
+    typing.className = "flex gap-3"; typing.id = "coach-typing";
     typing.innerHTML = `<span class="text-2xl">🤖</span><div class="bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-sm text-white/40 animate-pulse">생각중...</div>`;
-    msgs.appendChild(typing);
-    msgs.scrollTop = msgs.scrollHeight;
-
+    msgs.appendChild(typing); msgs.scrollTop = msgs.scrollHeight;
     try {
       const res = await fetch("/api/chat/test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, backend, model, history: coachHistory.slice(-10), system_context: dialogueItems })
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, backend: "ollama", model: "exaone3.5:2.4b", history: coachHistory.slice(-10), system_context: dialogueItems })
       });
       const data = await res.json();
       document.getElementById("coach-typing")?.remove();
@@ -352,6 +602,8 @@
       appendCoachBubble("assistant", "오류가 발생했습니다: " + e.message);
     }
   }
-</script>
 
+  // 페이지 로드 시 저장 목록 복원
+  document.addEventListener("DOMContentLoaded", loadSavedTextbooks);
+</script>
 {% endblock %}

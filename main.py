@@ -6219,6 +6219,40 @@ async def get_voice_call_scenarios():
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/textbook/quiz")
+async def generate_textbook_quiz(request: Request):
+    """AI Textbook 대화에서 빈칸 채우기 퀴즈 생성"""
+    try:
+        body = await request.json()
+        dialogue = body.get("dialogue", [])
+        if not dialogue:
+            return JSONResponse(status_code=400, content={"error": "dialogue required"})
+
+        dialogue_text = "\n".join([f"{d.get('speaker','')}: {d.get('text','')}" for d in dialogue])
+        prompt = f"""다음 한국어 대화에서 빈칸 채우기 문제 4개를 만들어주세요.
+각 문제는 대화의 한 문장에서 핵심 단어 1개를 빈칸(___)으로 만들어야 합니다.
+
+대화:
+{dialogue_text}
+
+반드시 아래 JSON 형식으로만 반환하세요 (설명 없이):
+{{"questions": [{{"sentence": "전체 원문 문장", "blank_word": "정답 단어", "display": "빈칸이 ___로 표시된 문장", "hint": "English meaning hint"}}]}}"""
+
+        if gemini_client:
+            response = gemini_client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt
+            )
+            raw = response.text.strip()
+            m = re.search(r'\{[\s\S]*\}', raw)
+            if m:
+                parsed = json.loads(m.group())
+                return JSONResponse(content=parsed)
+        return JSONResponse(status_code=503, content={"error": "Gemini not available"})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 @app.post("/api/voice-call/translate")
 async def translate_voice_text(request: Request):
     """AI 발화 번역 (한국어 → 사용자 언어)"""
