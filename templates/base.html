@@ -211,11 +211,10 @@
         padding: 12px 0;
       }
 
-      body.sidebar-collapsed .nav-item span:first-child {
+      body.sidebar-collapsed .nav-item > span:first-child {
         opacity: 1 !important;
         display: inline-block !important;
         margin-right: 0 !important;
-        font-size: 1.4rem !important;
       }
 
       body.sidebar-collapsed .nav-item span:not(:first-child) {
@@ -377,10 +376,13 @@
       /* Profile Dropdown Styles */
       .profile-dropdown {
         position: absolute;
-        left: calc(var(--sidebar-width) - 10px);
-        bottom: 20px;
+        top: 100%; /* Position below the trigger */
+        left: 0; /* Align left with the trigger */
+        right: auto; /* Remove right constraint */
+        margin-top: 8px; /* Some space below the trigger */
         background: rgba(20, 20, 20, 0.95);
         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 16px;
         width: 180px;
@@ -390,6 +392,10 @@
         z-index: 100;
         animation: menu-pop 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
+
+#lang-selector-btn #current-lang-label {
+  display: none !important;
+}
 
       @keyframes menu-pop {
         from {
@@ -458,6 +464,7 @@
 
       #sidebar-auth-section {
         display: none;
+        position: relative;
       }
 
       /* Layout normalization: unify left start across pages within page-shell */
@@ -500,6 +507,119 @@
         </button>
       </div>
 
+      <div class="py-1 px-4 border-b border-white/5 relative">
+        <!-- Guest: Integrated Sign Up / Sign In Capsule -->
+        <div id="sidebar-guest-section" class="px-2">
+          <div class="flex items-center gap-2">
+            <div class="flex-1 flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+              <a
+                href="/signup"
+                class="flex-1 py-3 text-center text-white text-[10px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all border-r border-white/5"
+                data-i18n="auth.signup"
+              >
+                Sign Up
+              </a>
+              <a
+                href="/login"
+                class="flex-1 py-3 text-center text-white/50 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
+                data-i18n="auth.login"
+              >
+                Sign In
+              </a>
+            </div>
+            <div class="relative">
+              <button
+                id="lang-selector-btn-guest"
+                class="flex-shrink-0 flex items-center justify-center px-2 py-2 rounded-xl hover:bg-white/10 transition-colors"
+              >
+                <span id="current-lang-flag-guest" class="fi rounded-sm" style="font-size:1.4rem"></span>
+              </button>
+              <div id="lang-dropdown-guest" class="absolute right-0 mt-2 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100]">
+                <button onclick="changeLang('ko')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-kr rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('en')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-us rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('ja')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-jp rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('zh')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-cn rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User: Profile Card with Dropdown Trigger and Language Selector -->
+        <div id="sidebar-auth-section" class="flex flex-col gap-2"> <!-- Changed to flex-col and gap -->
+          <div class="flex items-center justify-between"> <!-- New wrapper for horizontal alignment -->
+            <!-- Profile Trigger -->
+            <button
+              id="profile-trigger"
+              class="flex-1 flex items-center gap-3 py-1 px-3 hover:bg-white/5 rounded-2xl transition group text-left"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center font-bold text-white shadow-lg"
+              >
+                U
+              </div>
+              <div class="flex-1 overflow-hidden">
+                <p id="dashboardNickname" class="text-sm font-bold truncate">
+                  User
+                </p>
+                <p
+                  class="text-[9px] text-gray-500 font-black uppercase tracking-wider group-hover:text-orange-400 transition"
+                  data-i18n="auth.options"
+                >
+                  Options ▾
+                </p>
+              </div>
+            </button>
+
+            <!-- Language Selector Button -->
+            <div class="relative"> <!-- Wrapper for language button and its dropdown -->
+              <button
+                id="lang-selector-btn"
+                class="flex-shrink-0 flex items-center justify-center px-2 py-2 rounded-xl hover:bg-white/10 transition-colors"
+              >
+                <span id="current-lang-flag" class="fi rounded-sm" style="font-size:1.4rem"></span>
+              </button>
+              <!-- Language Dropdown -->
+              <div id="lang-dropdown" class="absolute right-0 mt-2 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top">
+                <button onclick="changeLang('ko')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-kr rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('en')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-us rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('ja')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-jp rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+                <button onclick="changeLang('zh')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
+                  <span class="fi fi-cn rounded-sm" style="font-size:1.4rem"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Dropdown Menu (moved outside the flex container to handle position:absolute better) -->
+          <div id="profile-menu" class="profile-dropdown">
+            <a href="/mypage" class="dropdown-item">Profile</a>
+            <div class="h-px bg-white/5 my-1"></div>
+            <button
+              id="logout-btn"
+              class="dropdown-item w-full text-left text-red-400 hover:text-red-300"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
       <!-- 2. Menu Navigation -->
       <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pt-4">
         <!-- 🏠 Explore -->
@@ -511,10 +631,38 @@
             Explore
           </div>
           <a href="/dashboard" class="nav-item">
-            <span>🏠</span> <span data-i18n="nav.home">Home</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-home" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-home)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" />
+</svg> <span data-i18n="nav.home">Home</span>
           </a>
           <a href="/daily-expression" class="nav-item">
-            <span>✨</span> <span data-i18n="nav.daily_expression">Daily Expression</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-daily-expression" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-daily-expression)" d="M12 18v-5.25m0 0a6.002 6.002 0 00-5.36-1.554L8.25 10.5m4.75-1.75a6.002 6.002 0 005.36 1.554L15.75 10.5m-3.75-7.5V4.5m0 0c-1.518 0-2.909.43-4.084 1.173L6 4.5M12 4.5c1.518 0 2.909.43 4.084 1.173L18 4.5M6 18H4.5m1.5 0h12m0 0h1.5M12 12.75a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5z" />
+</svg> <span data-i18n="nav.daily_expression">Daily Expression</span>
           </a>
         </div>
 
@@ -528,33 +676,145 @@
           </div>
           <a href="/video-learning" class="nav-item group relative">
             <span>
-              🎬
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-onuitube" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onuitube)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z" />
+</svg>
               <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse blur-[1px] group-[.sidebar-collapsed]:hidden"></span>
             </span>
             <span data-i18n="nav.onuitube">OnuiTube</span>
           </a>
           <a href="/onui-beats" class="nav-item">
-            <span>🎵</span> <span data-i18n="nav.onui_beats">Onui Beats</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-onui-beats" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onui-beats)" d="M9 12H4.5M9 12V6M9 12l2.25 2.25M9 12l-2.25 2.25M12 18h4.5M12 18v-6M12 18l2.25-2.25M12 18l-2.25-2.25M18 12h-4.5M18 12v6M18 12l-2.25 2.25M18 12l2.25 2.25" />
+</svg> <span data-i18n="nav.onui_beats">Onui Beats</span>
           </a>
           <a href="/voice-call" class="nav-item">
-            <span>📞</span> <span data-i18n="nav.voice_call">AI Voice Call</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-ai-voice-call" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-voice-call)" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.355c0-.7-.457-1.354-1.138-1.559l-5.176-1.56a1.125 1.125 0 00-1.31.32l-2.022 2.021a2.822 2.822 0 01-3.636-3.636l2.022-2.022a1.125 1.125 0 00.32-1.31l-1.56-5.176c-.205-.682-.859-1.138-1.559-1.138H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+</svg> <span data-i18n="nav.voice_call">AI Voice Call</span>
           </a>
           <a href="/onui-grammar" class="nav-item">
-            <span>✏️</span> <span data-i18n="nav.messenger">Onui Grammar</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-onui-grammar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onui-grammar)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+</svg> <span data-i18n="nav.messenger">Onui Grammar</span>
           </a>
 
           <a href="/roleplay" class="nav-item">
-            <span>🎭</span> <span data-i18n="nav.roleplay">AI Roleplay</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-ai-roleplay" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-roleplay)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75" />
+</svg> <span data-i18n="nav.roleplay">AI Roleplay</span>
           </a>
           <a href="/content-generation" class="nav-item">
-            <span>📘</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-ai-textbook" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-textbook)" d="M12 10.5v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-3.75 9.375v4.562a2.25 2.25 0 01-2.25 2.25H2.25" />
+</svg>
             <span data-i18n="nav.content_generation">AI Textbook</span>
           </a>
           <a href="/speechpro-practice" class="nav-item">
-            <span>🎤</span> <span data-i18n="nav.pron_test">SpeechPro Eval</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-speechpro-eval" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-speechpro-eval)" d="M12 18.75a6 6 0 006-6v-1.5m-6 6a6 6 0 01-6-6v-1.5m6 6v3.75m-3.75 0h7.5M12 10.5a3 3 0 11-6 0v-1.5a3 3 0 116 0V12h1.5v-1.5a4.5 4.5 0 10-9 0V12a4.5 4.5 0 109 0z" />
+</svg> <span data-i18n="nav.pron_test">SpeechPro Eval</span>
           </a>
           <a href="/sentence-evaluation" class="nav-item">
-            <span>✍️</span> <span data-i18n="nav.sentence_evaluation">Sentence Evaluation</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-sentence-evaluation" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-sentence-evaluation)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+</svg> <span data-i18n="nav.sentence_evaluation">Sentence Evaluation</span>
           </a>
         </div>
 
@@ -567,72 +827,26 @@
             Library
           </div>
           <a href="/learning-progress" class="nav-item">
-            <span>📊</span> <span data-i18n="nav.progress">Learning Report</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-learning-report" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-learning-report)" d="M3 13.125l4.5 4.5 9-9m0 0l-4.5-4.5m4.5 4.5V5.25A2.25 2.25 0 0014.25 3h-3.75a2.25 2.25 0 00-2.25 2.25v7.875m9 0V18a2.25 2.25 0 01-2.25 2.25H12M4.5 13.125H3m1.5 0h16.5m-3.75 4.5H12M9 13.125h.008V13h-.008" />
+</svg> <span data-i18n="nav.progress">Learning Report</span>
           </a>
         </div>
       </div>
 
-      <!-- 3. Bottom Auth Section -->
-      <div class="p-4 border-t border-white/5 relative">
-        <!-- Guest: Integrated Sign Up / Sign In Capsule -->
-        <div id="sidebar-guest-section" class="px-2">
-          <div
-            class="flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl"
-          >
-            <a
-              href="/signup"
-              class="flex-1 py-3 text-center text-white text-[10px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all border-r border-white/5"
-              data-i18n="auth.signup"
-            >
-              Sign Up
-            </a>
-            <a
-              href="/login"
-              class="flex-1 py-3 text-center text-white/50 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all"
-              data-i18n="auth.login"
-            >
-              Sign In
-            </a>
-          </div>
-        </div>
 
-        <!-- User: Profile Card with Dropdown Trigger -->
-        <div id="sidebar-auth-section">
-          <button
-            id="profile-trigger"
-            class="w-full flex items-center gap-3 p-3 hover:bg-white/5 rounded-2xl transition group text-left"
-          >
-            <div
-              class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center font-bold text-white shadow-lg"
-            >
-              U
-            </div>
-            <div class="flex-1 overflow-hidden">
-              <p id="dashboardNickname" class="text-sm font-bold truncate">
-                User
-              </p>
-              <p
-                class="text-[9px] text-gray-500 font-black uppercase tracking-wider group-hover:text-orange-400 transition"
-                data-i18n="auth.options"
-              >
-                Options ▾
-              </p>
-            </div>
-          </button>
-
-          <!-- Floating Dropdown Menu -->
-          <div id="profile-menu" class="profile-dropdown">
-            <a href="/mypage" class="dropdown-item">Profile</a>
-            <div class="h-px bg-white/5 my-1"></div>
-            <button
-              id="logout-btn"
-              class="dropdown-item w-full text-left text-red-400 hover:text-red-300"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
     </nav>
 
     <!-- Main Content Area -->
@@ -653,41 +867,7 @@
               >
             </div>
           </div>
-          <div class="flex items-center gap-6 relative">
-            <button
-              id="lang-selector-btn"
-              class="text-xs font-black text-gray-500 hover:text-white tracking-widest uppercase transition-colors flex items-center gap-2"
-            >
-              <span data-i18n="lang.label">Lang:</span>
-              <span id="current-lang-flag" class="fi fis rounded-sm"></span>
-              <span id="current-lang-label" class="text-orange-500">EN</span>
-              <span class="text-[8px] opacity-40">▼</span>
-            </button>
 
-            <!-- Language Dropdown -->
-            <div id="lang-dropdown" class="absolute top-full right-0 mt-3 w-40 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top-right">
-              <button onclick="changeLang('ko')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span class="fi fi-kr fis rounded-sm text-lg"></span>
-                <span>한국어</span>
-                <span id="lang-check-ko" class="text-orange-500 hidden">✓</span>
-              </button>
-              <button onclick="changeLang('en')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span class="fi fi-us fis rounded-sm text-lg"></span>
-                <span>ENGLISH</span>
-                <span id="lang-check-en" class="text-orange-500 hidden">✓</span>
-              </button>
-              <button onclick="changeLang('ja')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span class="fi fi-jp fis rounded-sm text-lg"></span>
-                <span>日本語</span>
-                <span id="lang-check-ja" class="text-orange-500 hidden">✓</span>
-              </button>
-              <button onclick="changeLang('zh')" class="w-full px-5 py-2.5 text-left text-[10px] font-black text-white/50 hover:text-white hover:bg-white/5 transition-all flex items-center justify-between group">
-                <span class="fi fi-cn fis rounded-sm text-lg"></span>
-                <span>中文</span>
-                <span id="lang-check-zh" class="text-orange-500 hidden">✓</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -747,11 +927,11 @@
 
         if (token) {
           if (guestSec) guestSec.style.display = "none";
-          if (authSec) authSec.style.display = "block";
+          if (authSec) authSec.style.display = "flex";
           const nick = localStorage.getItem("user_nickname") || "Learner";
           if (nicknameEl) nicknameEl.textContent = nick;
         } else {
-          if (guestSec) guestSec.style.display = "block";
+          if (guestSec) guestSec.style.display = "flex";
           if (authSec) authSec.style.display = "none";
         }
 
@@ -768,14 +948,20 @@
         if (lbl) lbl.textContent = lang.toUpperCase();
         const flagEl = document.getElementById("current-lang-flag");
         if (flagEl) {
-          flagEl.className = "fi fis rounded-sm " + (flagMap[lang] || "fi-un");
+          flagEl.className = "fi rounded-sm " + (flagMap[lang] || "fi-un");
+          flagEl.style.fontSize = "1.4rem";
+        }
+        const flagElGuest = document.getElementById("current-lang-flag-guest");
+        if (flagElGuest) {
+          flagElGuest.className = "fi rounded-sm " + (flagMap[lang] || "fi-un");
+          flagElGuest.style.fontSize = "1.4rem";
         }
         ["ko","en","ja","zh"].forEach(l => {
           const el = document.getElementById("lang-check-" + l);
           if (el) el.classList.toggle("hidden", l !== lang);
         });
 
-        // Language Dropdown Toggle
+        // Language Dropdown Toggle (auth)
         const langBtn = document.getElementById("lang-selector-btn");
         const langDropdown = document.getElementById("lang-dropdown");
         if (langBtn && langDropdown) {
@@ -784,6 +970,17 @@
             langDropdown.classList.toggle("hidden");
           });
           document.addEventListener("click", () => langDropdown.classList.add("hidden"));
+        }
+
+        // Language Dropdown Toggle (guest)
+        const langBtnGuest = document.getElementById("lang-selector-btn-guest");
+        const langDropdownGuest = document.getElementById("lang-dropdown-guest");
+        if (langBtnGuest && langDropdownGuest) {
+          langBtnGuest.addEventListener("click", (e) => {
+            e.stopPropagation();
+            langDropdownGuest.classList.toggle("hidden");
+          });
+          document.addEventListener("click", () => langDropdownGuest.classList.add("hidden"));
         }
 
         // Profile Dropdown Toggle
@@ -804,10 +1001,12 @@
       });
 
       function changeLang(lang) {
+        ["lang-dropdown", "lang-dropdown-guest"].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add("hidden");
+        });
         if (typeof setAppLang === "function") {
           setAppLang(lang);
-          const dropdown = document.getElementById("lang-dropdown");
-          if (dropdown) dropdown.classList.add("hidden");
         } else {
           localStorage.setItem("app_lang", lang);
           location.reload();

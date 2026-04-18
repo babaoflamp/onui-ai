@@ -133,6 +133,47 @@
     });
   }
 
+  // ── IndexedDB TTS Cache ──────────────────────────────
+  const DB_NAME = 'OnuiTTSCache';
+  const STORE_NAME = 'audio_cache';
+  const DB_VERSION = 1;
+
+  async function getDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME);
+        }
+      };
+      request.onsuccess = (e) => resolve(e.target.result);
+      request.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  async function getCachedAudio(text) {
+    try {
+      const db = await getDB();
+      return new Promise((resolve) => {
+        const transaction = db.transaction(STORE_NAME, 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(text);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => resolve(null);
+      });
+    } catch { return null; }
+  }
+
+  async function saveAudioToCache(text, blob) {
+    try {
+      const db = await getDB();
+      const transaction = db.transaction(STORE_NAME, 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      store.put(blob, text);
+    } catch (e) { console.warn('Cache save failed:', e); }
+  }
+
   // TTS
   async function playTTS(text) {
     if (!text) return;
@@ -147,16 +188,28 @@
     ttsIcon.textContent = '⏸';
 
     try {
-      const resp = await fetch('/api/tts/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, language_code: 'ko' })
-      });
+      // 1. 로컬 캐시 확인
+      let audioBlob = await getCachedAudio(text);
+      let isFromCache = !!audioBlob;
 
-      if (!resp.ok) throw new Error('TTS failed');
+      if (!audioBlob) {
+        // 2. 캐시 없으면 서버 요청
+        const resp = await fetch('/api/tts/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, language_code: 'ko' })
+        });
 
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
+        if (!resp.ok) throw new Error('TTS failed');
+        audioBlob = await resp.blob();
+        
+        // 3. 서버 응답 로컬 캐시에 저장
+        await saveAudioToCache(text, audioBlob);
+      } else {
+        console.log(`[TTS] Playing from local cache: "${text.substring(0, 15)}..."`);
+      }
+
+      const url = URL.createObjectURL(audioBlob);
       const audio = new Audio(url);
       currentAudio = audio;
 

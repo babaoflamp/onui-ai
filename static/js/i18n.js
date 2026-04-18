@@ -15,8 +15,9 @@ function syncLangUI(lang) {
     const flagClasses = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
     
     // Update all flags
-    document.querySelectorAll("[id='current-lang-flag']").forEach(el => {
-        el.className = "fi fis rounded-sm " + (flagClasses[lang] || "fi-un");
+    document.querySelectorAll("[id^='current-lang-flag']").forEach(el => {
+        el.className = "fi rounded-sm " + (flagClasses[lang] || "fi-un");
+        el.style.fontSize = "1.4rem";
     });
 
     // Update all labels/names

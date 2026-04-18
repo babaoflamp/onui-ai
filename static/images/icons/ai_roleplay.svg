@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-ai-roleplay" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-roleplay)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75" />
+</svg>

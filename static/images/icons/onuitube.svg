@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
+  <defs>
+    <linearGradient id="iconGradient-onuitube" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="20%" stop-color="#fb923c"/>
+      <stop offset="40%" stop-color="#f472b6"/>
+      <stop offset="60%" stop-color="#93c5fd"/>
+      <stop offset="80%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+    </linearGradient>
+  </defs>
+  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onuitube)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z" />
+</svg>

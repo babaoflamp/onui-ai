@@ -59,18 +59,23 @@ async def download_and_save_image(image_url: str, filename: str) -> str:
     """
     try:
         filepath = UPLOAD_DIR / filename
+        # Ensure directory exists
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(image_url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            # Using a simple integer for timeout to avoid potential aiohttp constructor issues
+            async with session.get(image_url, timeout=30) as response:
                 if response.status == 200:
                     content = await response.read()
-                    async with aiofiles.open(filepath, 'wb') as f:
+                    # Cast Path to string for aiofiles
+                    async with aiofiles.open(str(filepath), 'wb') as f:
                         await f.write(content)
 
                     logger.info(f"Image saved to {filepath}")
                     return f"/uploads/images/{filename}"
                 else:
-                    raise Exception(f"Failed to download image: HTTP {response.status}")
+                    error_text = await response.text()
+                    raise Exception(f"Failed to download image: HTTP {response.status} - {error_text[:100]}")
 
     except Exception as e:
         logger.error(f"Error downloading image: {e}")

@@ -183,16 +183,104 @@ Intelligence{% endblock %} {% block extra_css %}
   }
 
   .glass-sub-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(8, 8, 12, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
     transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .glass-sub-card:hover {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(20, 20, 28, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
     transform: translateY(-12px) scale(1.03);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 255, 255, 0.06);
+  }
+
+  /* 📊 Stats Bar */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 40px;
+    padding: 20px 36px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 0 28px;
+  }
+
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+
+  /* 🍱 Bento Grid */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+  }
+
+  .bento-tube {
+    grid-column: span 8;
+    grid-row: span 2;
+    min-height: 420px;
+  }
+
+  .bento-mid {
+    grid-column: span 4;
+    min-height: 196px;
+  }
+
+  .bento-sm {
+    grid-column: span 3;
+    min-height: 184px;
+  }
+
+  .bento-wide {
+    grid-column: span 6;
+    min-height: 160px;
+  }
+
+  @media (max-width: 900px) {
+    .bento-tube { grid-column: span 12; min-height: 300px; grid-row: span 1; }
+    .bento-mid  { grid-column: span 12; }
+    .bento-sm   { grid-column: span 6; }
+    .bento-wide { grid-column: span 12; }
+  }
+
+  @media (max-width: 480px) {
+    .bento-sm   { grid-column: span 12; }
+    .stats-bar  { gap: 0; padding: 16px 20px; flex-wrap: wrap; gap: 8px 0; }
+    .stat-item  { padding: 0 16px; }
   }
 </style>
 {% endblock %} {% block content %}
@@ -251,10 +339,10 @@ Intelligence{% endblock %} {% block extra_css %}
 <div class="max-w-6xl mx-auto px-4">
   <!-- ⚡ Hero Section -->
   <section class="hero-container">
-    <div
-      class="inline-block px-3 py-1 bg-white/5 rounded-full text-[10px] font-black tracking-[0.2em] text-orange-500 uppercase mb-8 border border-white/10"
-    >
-      Next-Gen Speech AI
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-[11px] font-black tracking-[0.2em] uppercase mb-8 shadow-[0_0_24px_rgba(249,115,22,0.15)]">
+      <span class="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></span>
+      AI-Powered Korean Learning
     </div>
 
     <h1 class="hero-title text-center flex flex-row items-baseline justify-center gap-x-4 whitespace-nowrap">
@@ -263,14 +351,47 @@ Intelligence{% endblock %} {% block extra_css %}
     </h1>
 
     <p class="hero-subtitle" data-i18n="land.hero_subtitle">
-      AI 오누이와 함께하는 가장 진보된 한국어 발음 교정 솔루션.
-      당신의 목소리가 데이터와 만나 완성되는 경험을 시작하세요.
+      발음부터 문법, 회화까지 — AI 오누이와 함께하는 가장 몰입적인 한국어 학습 경험
     </p>
 
+    <!-- CTA Buttons -->
+    <div class="flex items-center gap-4 mt-6 flex-wrap justify-center">
+      <button onclick="openAuthModal('signup')" class="btn-suno-primary flex items-center gap-2">
+        <span data-i18n="land.cta_start">무료로 시작하기</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+      </button>
+      <button onclick="document.getElementById('demo-section').scrollIntoView({behavior:'smooth'})" class="btn-suno-secondary flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span data-i18n="land.cta_demo">데모 체험</span>
+      </button>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-num">500<span class="text-orange-500 text-xl">+</span></span>
+        <span class="stat-label" data-i18n="land.stat1">학습 문장</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">9</span>
+        <span class="stat-label" data-i18n="land.stat2">학습 모드</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">4</span>
+        <span class="stat-label" data-i18n="land.stat3">지원 언어</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num text-orange-400">AI</span>
+        <span class="stat-label" data-i18n="land.stat4">실시간 분석</span>
+      </div>
+    </div>
   </section>
 
   <!-- 🎤 SpeechPro Playground -->
-  <section class="pb-6 flex justify-center">
+  <section id="demo-section" class="pb-10 flex justify-center">
     <div class="glass-main-card w-full max-w-4xl p-6 md:p-8 text-center relative overflow-hidden group rounded-[40px]">
       <!-- Glow effect -->
       <div class="absolute -top-24 -right-24 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full group-hover:bg-orange-500/20 transition-all duration-700"></div>
@@ -357,103 +478,140 @@ Intelligence{% endblock %} {% block extra_css %}
     </div>
   </div>
 
-  <!-- 🎨 Visual Features Grid (Total 9 Power Points) -->
-  <section class="max-w-6xl mx-auto px-4 pb-20">
-    <div class="glass-main-card p-8 md:p-16 rounded-[60px] border border-white/10 relative overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.4)]">
-      <!-- Background glow for the container -->
-      <div class="absolute -top-24 -left-24 w-96 h-96 bg-orange-500/5 blur-[120px] rounded-full"></div>
-      
-      <div class="relative z-10">
-        <!-- Section Header -->
-        <div class="text-center mb-4">
-          <h2 class="text-4xl md:text-5xl font-black text-white mb-0 tracking-tighter" data-i18n="land.features_title">
-            CORE FEATURES
-          </h2>
-          <p class="text-white/40 text-lg font-medium max-w-2xl mx-auto" data-i18n="land.features_subtitle">
-            Experience the most powerful AI-driven Korean learning tools.
-          </p>
+  <!-- 🍱 Bento Features -->
+  <section class="max-w-6xl mx-auto px-4 pb-24">
+    <!-- Section Header -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white/40 mb-4">
+        CORE FEATURES
+      </div>
+      <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-3" data-i18n="land.features_title">
+        모든 한국어 학습, 한곳에서
+      </h2>
+      <p class="text-white/40 text-base font-medium max-w-lg mx-auto" data-i18n="land.features_subtitle">
+        AI가 이끄는 9가지 몰입형 학습 경험을 만나보세요.
+      </p>
+    </div>
+
+    <div class="bento-grid">
+      <!-- 1. OnuiTube — Large Hero Card (col-span-8, row-span-2) -->
+      <div class="bento-tube glass-sub-card rounded-[32px] overflow-hidden group hover:border-pink-500/20 transition-all duration-500 reveal-card relative cursor-pointer" onclick="window.location.href='/video-learning'" style="animation-delay: 0.1s">
+        <div class="absolute inset-0 bg-gradient-to-br from-pink-900/30 via-black/20 to-black/85 z-10"></div>
+        <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 to-transparent z-10"></div>
+        <img src="/static/images/landing/feature_onuitube.webp" alt="Onui Tube" loading="lazy" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 group-hover:scale-105 transition-all duration-700">
+        <div class="relative z-20 h-full p-8 flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-pink-500/20 border border-pink-500/30 rounded-full text-[10px] font-black text-pink-300 uppercase tracking-widest">
+              <span class="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse"></span>
+              HD Video Learning
+            </div>
+            <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/20 transition-all border border-white/20">
+              <svg class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <span class="px-2 py-0.5 bg-orange-500/20 text-orange-300 text-[9px] font-black rounded-full border border-orange-500/20">LEVEL 1–2</span>
+              <span class="px-2 py-0.5 bg-white/10 text-white/50 text-[9px] font-black rounded-full">10 VIDEOS</span>
+            </div>
+            <h3 class="text-3xl font-black text-white mb-2 tracking-tight" data-i18n="land.feature5_title">Onui Tube</h3>
+            <p class="text-white/75 text-sm leading-relaxed max-w-sm" data-i18n="land.feature5_desc">Watch educational VODs with dual subtitles and an integrated real-time click dictionary.</p>
+          </div>
         </div>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- 1. Onui Tube -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-pink-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.1s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-pink-500/30 transition-all">
-              <img src="/static/images/landing/feature_onuitube.webp" alt="Onui Tube" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature5_title">Onui Tube</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature5_desc">Watch educational VODs with dual subtitles and an integrated real-time click dictionary.</p>
+      <!-- 2. Beats — Medium Right Top -->
+      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-blue-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/beats'" style="animation-delay: 0.2s">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full group-hover:bg-blue-500/20 transition-all duration-700"></div>
+        <div class="relative z-10 h-full flex flex-col justify-between">
+          <div class="w-11 h-11 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+            <span class="text-xl">🎵</span>
           </div>
-
-          <!-- 2. Onui Beats -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-blue-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.2s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-blue-500/30 transition-all">
-              <img src="/static/images/landing/feature_onuibeats.webp" alt="Onui Beats" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature2_title">Onui Beats</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature2_desc">Learn Korean vocabulary the fun way by filling in lyrics to your favorite K-Pop rhythms.</p>
+          <div>
+            <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature2_title">Onui Beats</h3>
+            <p class="text-white/65 text-sm leading-relaxed" data-i18n="land.feature2_desc">Learn Korean vocabulary the fun way by filling in lyrics to your favorite K-Pop rhythms.</p>
           </div>
+        </div>
+      </div>
 
-          <!-- 3. AI Voice Call -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-orange-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.3s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-orange-500/30 transition-all">
-              <img src="/static/images/landing/feature_voicecall.webp" alt="AI Voice Call" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature1_title">AI Voice Call</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature1_desc">Practice real-time conversations with AI tutors to build speaking confidence and natural flow.</p>
+      <!-- 3. Voice Call — Medium Right Bottom -->
+      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-orange-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/voice-call'" style="animation-delay: 0.3s">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] rounded-full group-hover:bg-orange-500/20 transition-all duration-700"></div>
+        <div class="relative z-10 h-full flex flex-col justify-between">
+          <div class="w-11 h-11 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+            <span class="text-xl">📞</span>
           </div>
-
-          <!-- 4. Onui Grammar -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-teal-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.4s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-teal-500/30 transition-all">
-              <img src="/static/images/landing/feature_messenger.webp" alt="Onui Grammar" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature6_title">Onui Grammar</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature6_desc">Chat with AI friends and receive real-time grammar corrections and natural expression tips.</p>
+          <div>
+            <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature1_title">AI Voice Call</h3>
+            <p class="text-white/65 text-sm leading-relaxed" data-i18n="land.feature1_desc">Practice real-time conversations with AI tutors to build speaking confidence and natural flow.</p>
           </div>
+        </div>
+      </div>
 
-          <!-- 5. AI Roleplay -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-green-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.5s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-green-500/30 transition-all">
-              <img src="/static/images/landing/feature_roleplay.webp" alt="AI Roleplay" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature4_title">AI Roleplay</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature4_desc">Become the protagonist in dozens of real-world scenarios, from ordering coffee to business meetings.</p>
+      <!-- 4. Grammar -->
+      <div class="bento-sm glass-sub-card rounded-[32px] p-6 group hover:border-teal-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/messenger'" style="animation-delay: 0.4s">
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-teal-500/8 blur-[50px] rounded-full group-hover:bg-teal-500/15 transition-all duration-700"></div>
+        <div class="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mb-4">
+          <span class="text-lg">✍️</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature6_title">Onui Grammar</h3>
+        <p class="text-white/65 text-xs leading-relaxed line-clamp-3" data-i18n="land.feature6_desc">Chat with AI and receive real-time grammar corrections and natural expression tips.</p>
+      </div>
+
+      <!-- 5. Roleplay -->
+      <div class="bento-sm glass-sub-card rounded-[32px] p-6 group hover:border-green-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/roleplay'" style="animation-delay: 0.5s">
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-green-500/8 blur-[50px] rounded-full group-hover:bg-green-500/15 transition-all duration-700"></div>
+        <div class="w-10 h-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-4">
+          <span class="text-lg">🎭</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature4_title">AI Roleplay</h3>
+        <p class="text-white/65 text-xs leading-relaxed line-clamp-3" data-i18n="land.feature4_desc">Become the protagonist in dozens of real-world scenarios, from ordering coffee to business meetings.</p>
+      </div>
+
+      <!-- 6. Textbook -->
+      <div class="bento-sm glass-sub-card rounded-[32px] p-6 group hover:border-indigo-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/content-generation'" style="animation-delay: 0.6s">
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-indigo-500/8 blur-[50px] rounded-full group-hover:bg-indigo-500/15 transition-all duration-700"></div>
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-4">
+          <span class="text-lg">📚</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature8_title">AI Textbook</h3>
+        <p class="text-white/65 text-xs leading-relaxed line-clamp-3" data-i18n="land.feature8_desc">Generate personalized learning materials tailored specifically to your interests and level.</p>
+      </div>
+
+      <!-- 7. Precision Analysis -->
+      <div class="bento-sm glass-sub-card rounded-[32px] p-6 group hover:border-purple-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/sentence-evaluation'" style="animation-delay: 0.7s">
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-purple-500/8 blur-[50px] rounded-full group-hover:bg-purple-500/15 transition-all duration-700"></div>
+        <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-4">
+          <span class="text-lg">🔬</span>
+        </div>
+        <h3 class="text-base font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature3_title">Precision Analysis</h3>
+        <p class="text-white/65 text-xs leading-relaxed line-clamp-3" data-i18n="land.feature3_desc">Perfect your pronunciation with phoneme-level assessments that catch even the smallest errors.</p>
+      </div>
+
+      <!-- 8. Daily Expressions — Wide -->
+      <div class="bento-wide glass-sub-card rounded-[32px] p-7 group hover:border-yellow-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/daily-expression'" style="animation-delay: 0.8s">
+        <div class="absolute top-0 right-0 w-48 h-48 bg-yellow-500/5 blur-[80px] rounded-full group-hover:bg-yellow-500/10 transition-all duration-700"></div>
+        <div class="relative z-10 flex items-center gap-5">
+          <div class="w-12 h-12 rounded-2xl bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center shrink-0">
+            <span class="text-2xl">💬</span>
           </div>
-
-          <!-- 6. AI Textbook -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-indigo-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.6s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-indigo-500/30 transition-all">
-              <img src="/static/images/landing/feature_textbook.webp" alt="AI Textbook" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature8_title">AI Textbook</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature8_desc">Generate personalized learning materials tailored specifically to your interests and level.</p>
+          <div>
+            <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature7_title">Daily Expressions</h3>
+            <p class="text-white/65 text-sm leading-relaxed" data-i18n="land.feature7_desc">Master essential phrases and Korean culture through curated daily cards and insights.</p>
           </div>
+        </div>
+      </div>
 
-          <!-- 7. Precision Analysis -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-purple-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.7s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-purple-500/30 transition-all">
-              <img src="/static/images/landing/feature_precision.webp" alt="Precision Analysis" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature3_title">Precision Analysis</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature3_desc">Perfect your pronunciation with phoneme-level assessments that catch even the smallest errors.</p>
+      <!-- 9. Growth Reports — Wide -->
+      <div class="bento-wide glass-sub-card rounded-[32px] p-7 group hover:border-red-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer" onclick="window.location.href='/learning-progress'" style="animation-delay: 0.9s">
+        <div class="absolute top-0 right-0 w-48 h-48 bg-red-500/5 blur-[80px] rounded-full group-hover:bg-red-500/10 transition-all duration-700"></div>
+        <div class="relative z-10 flex items-center gap-5">
+          <div class="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
+            <span class="text-2xl">📈</span>
           </div>
-
-          <!-- 8. Daily Expressions -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-yellow-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.8s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-yellow-500/30 transition-all">
-              <img src="/static/images/landing/feature_daily.webp" alt="Daily Expressions" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature7_title">Daily Expressions</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature7_desc">Master essential phrases and Korean culture through curated daily cards and insights.</p>
-          </div>
-
-          <!-- 9. Growth Reports -->
-          <div class="glass-sub-card p-6 rounded-[32px] group hover:border-red-500/20 transition-all duration-500 reveal-card" style="animation-delay: 0.9s">
-            <div class="w-full h-32 rounded-2xl mb-6 overflow-hidden border border-white/5 bg-black/20 group-hover:border-red-500/30 transition-all">
-              <img src="/static/images/landing/feature_reports.webp" alt="Growth Reports" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700">
-            </div>
-            <h3 class="text-xl font-black text-white mb-3 tracking-tight" data-i18n="land.feature9_title">Growth Reports</h3>
-            <p class="text-white/40 text-sm leading-relaxed" data-i18n="land.feature9_desc">Receive detailed weekly reports analyzing your study time, accuracy, and fluency progress.</p>
+          <div>
+            <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature9_title">Growth Reports</h3>
+            <p class="text-white/65 text-sm leading-relaxed" data-i18n="land.feature9_desc">Receive detailed weekly reports analyzing your study time, accuracy, and fluency progress.</p>
           </div>
         </div>
       </div>

@@ -12,23 +12,28 @@
     overflow: hidden;
   }
 
-  /* 9:16 세로형 비디오 컨테이너 */
+  /* 9:16 세로형 비디오 컨테이너 (Padding Hack) */
   .video-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 9 / 16;
+    max-width: 360px;
+    height: 0;
+    padding-bottom: 177.77%; /* 16/9 * 100 */
     background: #000;
     border-radius: 20px;
     overflow: hidden;
-    max-width: 360px;
     margin: 0 auto;
   }
 
   #video-player {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
     display: block;
+    background: #000;
   }
 
   /* 자막 오버레이 */
@@ -77,31 +82,19 @@
     margin-top: 4px;
   }
 
-  .word-tooltip {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%) translateY(8px);
-    background: rgba(20, 20, 20, 0.96);
-    border: 1px solid rgba(255,255,255,0.12);
-    padding: 14px 16px;
-    border-radius: 12px;
-    width: max-content;
-    max-width: 260px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s;
-    pointer-events: none;
-    z-index: 50;
+  .panel-word {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    transition: background 0.15s;
+    line-height: 1.5;
   }
-
-  .caption-word.active .word-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
-  }
+  .panel-word:hover { background: rgba(249,115,22,0.35); }
+  .panel-word.active { background: rgba(249,115,22,0.55); }
 
   /* 커스텀 비디오 컨트롤바 */
   .video-controls {
@@ -130,30 +123,86 @@
     width: 0%;
     transition: width 0.1s linear;
   }
-
-  /* 세로형 카드 썸네일 비율 */
-  .shorts-thumb {
+  /* 로비 세로형 카드 (전체 비율 고정) */
+  .shorts-card {
     position: relative;
     width: 100%;
-    aspect-ratio: 9 / 16;
-    overflow: hidden;
-    background: #111;
-  }
-
-  /* 로비 세로형 카드 */
-  .shorts-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    height: 0;
+    padding-bottom: 177.77%; /* 9:16 비율 강제 */
+    background: #000;
+    border: none; /* 외곽선 제거하여 빈틈 방지 */
     border-radius: 20px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     cursor: pointer;
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Safari border-radius bug fix */
   }
+
   .shorts-card:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(255,255,255,0.18);
     transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 16px 36px rgba(0,0,0,0.4);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+  }
+
+  .shorts-card .card-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 썸네일 이미지 - 카드 전체를 채움 */
+  .shorts-thumb {
+    position: absolute;
+    top: -1px; /* 1px 오버랩하여 빈틈 제거 */
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .shorts-thumb img {
+    width: 102% !important; /* 미세한 빈틈 방지를 위해 2% 더 크게 설정 */
+    height: 102% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+  }
+
+  /* 정보 오버레이 (하단 완전 블랙) */
+  .card-overlay {
+    position: absolute;
+    bottom: -1px;
+    left: -1px;
+    right: -1px;
+    padding: 16px 14px 14px;
+    background: #000; /* 완전 블랙 */
+    z-index: 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* 정보 오버레이 (상단 완전 블랙) */
+  .card-overlay-top {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    padding: 14px 14px 14px;
+    background: #000; /* 완전 블랙 */
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   .shorts-card.coming-soon {
     opacity: 0.45;
@@ -298,6 +347,7 @@
         <p id="player-desc" class="text-xs text-white/40 mt-1 truncate max-w-xs">...</p>
       </div>
 
+      <!-- 단어 툴팁 오버레이 (video-wrapper overflow:hidden 밖에 위치) -->
       <!-- 비디오 컨테이너 -->
       <div class="video-wrapper" id="video-wrapper">
         <video id="video-player" playsinline preload="auto"></video>
@@ -308,12 +358,25 @@
           <div class="progress-bar-wrapper" id="progress-wrapper">
             <div class="progress-bar-fill" id="progress-fill"></div>
           </div>
-          <div class="flex items-center justify-between">
-            <button id="btn-rewind-sentence" class="text-white/60 hover:text-white p-1 transition-colors" title="현재 문장 다시 듣기">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/></svg>
+          <div class="flex items-center justify-between gap-1">
+            <!-- 처음으로 -->
+            <button id="btn-restart" class="text-white/60 hover:text-white p-1 transition-colors" title="처음부터 다시 재생">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
             </button>
-            <button id="btn-play-pause" class="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">
+            <!-- 이전 문장 -->
+            <button id="btn-prev-sentence" class="text-white/60 hover:text-white p-1 transition-colors" title="이전 문장">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <!-- 현재 문장 다시 -->
+            <button id="btn-rewind-sentence" class="text-white/60 hover:text-white p-1 transition-colors" title="현재 문장 다시 듣기">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/></svg>
+            </button>
+            <button id="btn-play-pause" class="w-9 h-9 bg-white text-black rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">
               <svg id="play-icon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <!-- 다음 문장 -->
+            <button id="btn-next-sentence" class="text-white/60 hover:text-white p-1 transition-colors" title="다음 문장">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </button>
             <div class="text-[10px] font-black text-white/40 tabular-nums">
               <span id="time-current">0:00</span> / <span id="time-total">0:00</span>
@@ -323,9 +386,29 @@
       </div>
     </div>
 
-    <!-- 어휘 패널 -->
+    <!-- 우측 패널: 자막 + 단어장 -->
     <div class="flex-1 suno-card flex flex-col p-5 min-h-[200px] lg:min-h-0 lg:max-h-[640px]">
-      <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+
+      <!-- 현재 자막 섹션 -->
+      <div id="subtitle-panel" class="mb-4 pb-4 border-b border-white/10">
+        <div id="subtitle-panel-words" class="flex flex-wrap gap-1.5 mb-2 min-h-[32px]">
+          <span class="text-xs text-white/30 self-center">영상을 재생하면 자막이 여기 표시됩니다</span>
+        </div>
+        <div id="subtitle-panel-trans" class="text-xs text-orange-400 font-medium min-h-[1.2em]"></div>
+        <!-- 선택 단어 상세 -->
+        <div id="word-detail" class="hidden mt-3 p-3 bg-white/5 rounded-xl border border-white/10">
+          <div id="word-detail-pos" class="text-[10px] uppercase font-black text-orange-500 mb-1 tracking-widest"></div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="word-detail-label" class="text-lg font-bold text-white leading-tight"></span>
+            <button id="word-detail-tts" class="p-1 rounded-md bg-white/10 hover:bg-orange-500/30 transition-colors text-sm">🔊</button>
+          </div>
+          <div id="word-detail-mean" class="text-sm text-white/80 mb-3"></div>
+          <button id="word-detail-save" class="w-full py-1.5 bg-orange-500/20 hover:bg-orange-500/40 text-orange-300 text-xs font-bold rounded-lg transition-colors">+ 단어장에 추가</button>
+        </div>
+      </div>
+
+      <!-- 단어장 -->
+      <div class="flex items-center justify-between mb-3">
         <h2 class="text-base font-black text-white flex items-center gap-2">
           <span>📚</span> <span data-i18n="yt.my_vocab">My Vocabulary</span>
         </h2>
@@ -336,8 +419,8 @@
       </div>
       <div id="vocab-list" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 pr-1">
         <div id="vocab-empty" class="h-full flex flex-col items-center justify-center text-center opacity-50 py-8">
-          <span class="text-3xl mb-2">🖱️</span>
-          <p class="text-sm font-bold text-white" data-i18n="yt.click_hint">자막에서 단어를 클릭하세요!</p>
+          <span class="text-3xl mb-2">📖</span>
+          <p class="text-sm font-bold text-white" data-i18n="yt.click_hint">단어를 클릭해 저장하세요!</p>
           <p class="text-xs text-white/50 mt-1" data-i18n="yt.saved_words">저장한 단어가 여기 표시됩니다.</p>
         </div>
       </div>
@@ -370,6 +453,14 @@
     const vocabList         = document.getElementById('vocab-list');
     const vocabEmpty        = document.getElementById('vocab-empty');
     const vocabCountEl      = document.getElementById('vocab-count');
+    const subtitlePanelWords = document.getElementById('subtitle-panel-words');
+    const subtitlePanelTrans = document.getElementById('subtitle-panel-trans');
+    const wordDetail        = document.getElementById('word-detail');
+    const wordDetailPos     = document.getElementById('word-detail-pos');
+    const wordDetailLabel   = document.getElementById('word-detail-label');
+    const wordDetailMean    = document.getElementById('word-detail-mean');
+    const wordDetailTts     = document.getElementById('word-detail-tts');
+    const wordDetailSave    = document.getElementById('word-detail-save');
     const autoPauseToggle   = document.getElementById('auto-pause-toggle');
     const btnBack           = document.getElementById('btn-back-lobby');
     const btnSpeed          = document.getElementById('btn-playback-speed');
@@ -381,6 +472,9 @@
     const timeCurrent       = document.getElementById('time-current');
     const timeTotal         = document.getElementById('time-total');
     const btnRewind         = document.getElementById('btn-rewind-sentence');
+    const btnPrev           = document.getElementById('btn-prev-sentence');
+    const btnNext           = document.getElementById('btn-next-sentence');
+    const btnRestart        = document.getElementById('btn-restart');
     const searchInput       = document.getElementById('search-input');
     const searchBtn         = document.getElementById('search-btn');
     const showAllBtn        = document.getElementById('show-all-btn');
@@ -425,6 +519,37 @@
       handleTimeUpdate(videoEl.currentTime);
       console.log(`[OnuiTube] transcript_offset: ${currentOffset}`);
     };
+
+    // ── 우측 패널 자막 + 단어 상세 ──────────────────────
+    function renderSubtitlePanel(line) {
+      subtitlePanelWords.innerHTML = '';
+      subtitlePanelTrans.textContent = line ? line.trans : '';
+      wordDetail.classList.add('hidden');
+      if (!line) return;
+      line.words.forEach((wordObj) => {
+        const span = document.createElement('span');
+        span.className = 'panel-word';
+        span.textContent = wordObj.label;
+        span.addEventListener('click', () => {
+          document.querySelectorAll('.panel-word.active').forEach(el => el.classList.remove('active'));
+          span.classList.add('active');
+          showWordDetail(wordObj);
+        });
+        subtitlePanelWords.appendChild(span);
+      });
+      // 첫 번째 단어 자동 선택
+      const first = subtitlePanelWords.querySelector('.panel-word');
+      if (first) { first.classList.add('active'); showWordDetail(line.words[0]); }
+    }
+
+    function showWordDetail(wordObj) {
+      wordDetailPos.textContent = wordObj.pos || '';
+      wordDetailLabel.textContent = wordObj.label;
+      wordDetailMean.textContent = wordObj.mean || '';
+      wordDetailTts.onclick = () => playWordTTS(wordObj.label);
+      wordDetailSave.onclick = () => { addToVocab(wordObj); };
+      wordDetail.classList.remove('hidden');
+    }
 
     // ── TTS 발음 재생 ────────────────────────────────────
     async function playWordTTS(word) {
@@ -509,44 +634,45 @@
         videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/40 font-black uppercase">${translations['yt.no_results'] || '검색 결과가 없습니다.'}</div>`;
         return;
       }
-      const levelColors = { '1': 'bg-green-500/20 text-green-400', '2': 'bg-blue-500/20 text-blue-400', '3': 'bg-purple-500/20 text-purple-400' };
+      const levelColors = { '1': 'bg-green-500 text-white', '2': 'bg-blue-500 text-white', '3': 'bg-purple-500 text-white' };
       videos.forEach((v, idx) => {
         const hasVideo = v.video_url && v.video_url.trim() !== '';
         const card = document.createElement('div');
-        card.className = `shorts-card ${hasVideo ? '' : 'coming-soon'} animate-in fade-in slide-in-from-bottom-4 duration-500`;
+        card.className = `shorts-card group ${hasVideo ? '' : 'coming-soon'} animate-in fade-in slide-in-from-bottom-4 duration-500`;
         card.style.animationDelay = `${idx * 0.04}s`;
 
         const posterHtml = v.poster_url
-          ? `<img src="${v.poster_url}" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-4xl bg-white/5\\'>📱</div>'" class="w-full h-full object-cover" alt="${v.title}" loading="lazy">`
+          ? `<img src="${v.poster_url}" class="w-full h-full object-cover" alt="${v.title}" loading="lazy">`
           : `<div class="w-full h-full flex items-center justify-center text-4xl bg-white/5">📱</div>`;
 
         const levelColor = levelColors[v.level] || 'bg-white/10 text-white/40';
-
-        // 저장된 진도 표시
         const savedPos = localStorage.getItem(`tube_pos_${v.id}`);
-        const progressBadge = (savedPos && hasVideo)
-          ? `<div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-orange-500/80 text-[9px] font-black text-white rounded-full">▶ ${formatTime(parseFloat(savedPos))}</div>`
-          : '';
 
         card.innerHTML = `
-          <div class="shorts-thumb">
-            ${posterHtml}
+          <div class="card-content">
+            <div class="shorts-thumb">${posterHtml}</div>
+            
+            <!-- 상단 오버레이 (레벨 & 진행도) -->
+            <div class="card-overlay-top">
+              <span class="px-2 py-0.5 ${levelColor} text-[9px] font-black rounded-full shadow-sm">Lv.${v.level}</span>
+              ${savedPos ? `<span class="text-[9px] font-black text-orange-400 drop-shadow-lg">▶ ${formatTime(parseFloat(savedPos))}</span>` : ''}
+            </div>
+
+            <!-- 하단 오버레이 (제목) -->
+            <div class="card-overlay">
+              <h3 class="text-xs font-black text-white leading-tight line-clamp-2 drop-shadow-md">${v.title}</h3>
+            </div>
+
+            <!-- 재생 아이콘 (호버 시) -->
             ${hasVideo
-              ? `<div class="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 flex items-center justify-center transition-all duration-300">
-                   <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+              ? `<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                   <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-2xl scale-90 group-hover:scale-100 transition-transform">
                      <svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                    </div>
                  </div>`
-              : `<div class="absolute inset-0 flex items-center justify-center">
+              : `<div class="absolute inset-0 flex items-center justify-center z-10">
                    <span class="px-2 py-1 bg-black/60 backdrop-blur text-[10px] font-black text-white/60 rounded-full uppercase tracking-widest">준비 중</span>
                  </div>`}
-            <div class="absolute top-2 left-2">
-              <span class="px-2 py-0.5 ${levelColor} text-[9px] font-black rounded-full backdrop-blur uppercase">Lv.${v.level}</span>
-            </div>
-            ${progressBadge}
-          </div>
-          <div class="p-3">
-            <h3 class="text-xs font-black text-white leading-snug line-clamp-2 ${!hasVideo ? 'text-white/40' : ''}">${v.title}</h3>
           </div>
         `;
         if (hasVideo) card.onclick = () => initPlayer(v);
@@ -596,6 +722,11 @@
       document.getElementById('player-desc').innerText = v.description || '';
 
       videoEl.src = v.video_url;
+      if (v.poster_url) {
+        videoEl.poster = v.poster_url;
+      } else {
+        videoEl.removeAttribute('poster');
+      }
       videoEl.load();
       currentSpeed = 1.0;
       speedLabel.innerText = '1.0x';
@@ -689,12 +820,31 @@
       speedLabel.innerText = `${currentSpeed}x`;
     };
 
+    btnRestart.onclick = () => {
+      videoEl.currentTime = 0;
+      videoEl.play();
+    };
+
     btnRewind.onclick = () => {
       if (!transcripts.length) return;
       const cur = videoEl.currentTime;
       let target = null;
       for (const t of transcripts) { if ((t.end + currentOffset) + 1 >= cur) { target = t; break; } }
       if (target) { videoEl.currentTime = target.start + currentOffset; videoEl.play(); }
+    };
+
+    btnPrev.onclick = () => {
+      if (!transcripts.length) return;
+      const idx = currentSubtitleIndex > 0 ? currentSubtitleIndex - 1 : 0;
+      videoEl.currentTime = (transcripts[idx]?.start ?? 0) + currentOffset;
+      videoEl.play();
+    };
+
+    btnNext.onclick = () => {
+      if (!transcripts.length) return;
+      const idx = Math.min(currentSubtitleIndex + 1, transcripts.length - 1);
+      videoEl.currentTime = (transcripts[idx]?.start ?? 0) + currentOffset;
+      videoEl.play();
     };
 
     function formatTime(sec) {
@@ -712,6 +862,7 @@
       if (active !== currentSubtitleIndex) {
         currentSubtitleIndex = active;
         autoPauseFired = false;
+        document.querySelectorAll('.caption-word.active').forEach(el => el.classList.remove('active'));
         renderCaptions(active);
       }
 
@@ -739,34 +890,16 @@
         span.className = 'caption-word relative';
         span.innerText = wordObj.label;
 
-        const tooltip = document.createElement('div');
-        tooltip.className = 'word-tooltip flex flex-col items-start text-left';
-        const addLabel = translations['yt.add_to_vocab'] || '+ 어휘 저장';
-        tooltip.innerHTML = `
-          <div class="text-[10px] uppercase font-black text-orange-500 mb-1 tracking-widest">${wordObj.pos}</div>
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-lg font-bold text-white leading-tight">${wordObj.label}</span>
-            <button class="tts-btn p-1 rounded-md bg-white/10 hover:bg-orange-500/30 transition-colors text-sm" title="발음 듣기">🔊</button>
-          </div>
-          <div class="text-sm font-medium text-white/80">${wordObj.mean}</div>
-          <button class="mt-3 w-full py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-colors save-vocab-btn">${addLabel}</button>
-        `;
-
-        tooltip.querySelector('.tts-btn').onclick = (ev) => {
-          ev.stopPropagation();
-          playWordTTS(wordObj.label);
-        };
-
         span.addEventListener('click', (e) => {
           e.stopPropagation();
-          videoEl.pause();
-          document.querySelectorAll('.caption-word.active').forEach(el => { if (el !== span) el.classList.remove('active'); });
-          span.classList.toggle('active');
-          tooltip.querySelector('.save-vocab-btn').onclick = (ev) => {
-            ev.stopPropagation();
-            addToVocab(wordObj);
-            span.classList.remove('active');
-          };
+          // 패널에서 해당 단어 선택
+          const panelSpan = Array.from(subtitlePanelWords.querySelectorAll('.panel-word'))
+            .find(s => s.textContent === wordObj.label);
+          if (panelSpan) {
+            document.querySelectorAll('.panel-word.active').forEach(el => el.classList.remove('active'));
+            panelSpan.classList.add('active');
+          }
+          showWordDetail(wordObj);
         });
 
         lineWrapper.appendChild(span);
@@ -779,6 +912,9 @@
       box.appendChild(lineWrapper);
       box.appendChild(transEl);
       captionsContainer.appendChild(box);
+
+      // 패널 업데이트
+      renderSubtitlePanel(line);
     }
 
     // ── 어휘 저장 ──────────────────────────────────────
