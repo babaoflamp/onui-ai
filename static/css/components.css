@@ -3,6 +3,71 @@
    ============================================ */
 
 /* ==========================================
+   Design Tokens (Material 3 inspired, dark theme)
+   색상·타이포 스케일의 단일 원천.
+   기존 --accent 는 base.html 에서 정의되므로 fallback 만 선언.
+   ========================================== */
+:root {
+  /* Brand */
+  --color-primary: var(--accent, #fb923c);
+  --color-primary-hover: #f97316;
+  --color-primary-container: rgba(251, 146, 60, 0.12);
+  --color-on-primary: #1a0a00;
+
+  /* Surface elevation (dark theme — Material 3 tonal surfaces) */
+  --color-surface: #060606;
+  --color-surface-1: rgba(255, 255, 255, 0.03);
+  --color-surface-2: rgba(255, 255, 255, 0.05);
+  --color-surface-3: rgba(255, 255, 255, 0.08);
+  --color-surface-4: rgba(255, 255, 255, 0.11);
+
+  /* Foreground (on-surface) */
+  --color-on-surface: rgba(255, 255, 255, 0.95);
+  --color-on-surface-variant: rgba(255, 255, 255, 0.72);
+  --color-on-surface-muted: rgba(255, 255, 255, 0.55);
+
+  /* Semantic (WCAG AA on dark bg) */
+  --color-success: #34d399;
+  --color-success-container: rgba(16, 185, 129, 0.14);
+  --color-error: #f87171;
+  --color-error-container: rgba(239, 68, 68, 0.14);
+  --color-warning: #fbbf24;
+  --color-warning-container: rgba(234, 179, 8, 0.14);
+  --color-info: #60a5fa;
+  --color-info-container: rgba(59, 130, 246, 0.14);
+
+  /* Outline */
+  --color-outline: rgba(255, 255, 255, 0.14);
+  --color-outline-variant: rgba(255, 255, 255, 0.08);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Elevation shadow (dark surface) */
+  --elevation-1: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --elevation-2: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --elevation-3: 0 16px 40px rgba(0, 0, 0, 0.5);
+
+  /* Motion */
+  --motion-fast: 150ms;
+  --motion-med: 250ms;
+  --motion-slow: 400ms;
+  --motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Typography scale (Material 3 — condensed) */
+  --font-display: clamp(2rem, 4vw, 2.75rem);  /* Display */
+  --font-headline: 1.5rem;                     /* Headline */
+  --font-title: 1.125rem;                      /* Title */
+  --font-body: 0.9375rem;                      /* Body */
+  --font-label: 0.8125rem;                     /* Label */
+  --font-label-sm: 0.6875rem;                  /* Label Small */
+}
+
+/* ==========================================
    버튼 스타일
    ========================================== */
 
@@ -27,8 +92,9 @@ input[type="submit"]:not([class*="bg-"]) {
 
 .btn-primary,
 .btn:not(.btn-secondary):not(.btn-danger):not(.btn-ghost) {
-  background: linear-gradient(135deg, var(--accent), #ff9a56);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary), #ff9a56);
+  color: var(--color-on-primary);
+  min-height: 44px;
 }
 
 .btn-primary:hover:not(:disabled),
@@ -54,13 +120,14 @@ input[type="submit"]:not([class*="bg-"]) {
 
 /* Secondary 버튼 */
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface-2);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline);
+  min-height: 44px;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-surface-3);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -139,9 +206,9 @@ input[type="submit"]:disabled {
   display: inline-block;
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid rgba(0, 0, 0, 0.1);
+  border: 3px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
-  border-top-color: var(--accent);
+  border-top-color: var(--color-primary);
   animation: spin 0.8s linear infinite;
 }
 
@@ -195,8 +262,8 @@ input[type="submit"]:disabled {
 .loading-overlay-spinner {
   width: 3rem;
   height: 3rem;
-  border: 4px solid #e5e7eb;
-  border-top-color: var(--accent);
+  border: 4px solid rgba(255, 255, 255, 0.12);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -204,21 +271,29 @@ input[type="submit"]:disabled {
 
 .loading-overlay-text {
   font-size: 1rem;
-  color: var(--text-sub);
+  color: var(--color-on-surface-variant);
   font-weight: 600;
 }
 
 /* ==========================================
-   에러/알림 메시지
+   에러/알림 메시지 (Dark theme)
    ========================================== */
 
 .alert {
-  padding: 1rem;
-  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
   border-left: 4px solid;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
+  background: var(--color-surface-2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-on-surface);
+}
+
+.alert[role="alert"] {
+  /* Announced to assistive tech — keep polite by default */
 }
 
 .alert-icon {
@@ -229,79 +304,62 @@ input[type="submit"]:disabled {
 
 .alert-content {
   flex: 1;
+  min-width: 0;
 }
 
 .alert-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.25rem;
+  color: var(--color-on-surface);
 }
 
 .alert-message {
   font-size: 0.875rem;
   line-height: 1.5;
+  color: var(--color-on-surface-variant);
 }
 
 /* Success */
 .alert-success {
-  background-color: #ecfdf5;
-  border-color: #10b981;
-  color: #047857;
+  background-color: var(--color-success-container);
+  border-color: var(--color-success);
 }
-
-.alert-success .alert-title {
-  color: #059669;
-}
-
-.alert-success .alert-message {
-  color: #047857;
+.alert-success .alert-title,
+.alert-success .alert-icon {
+  color: var(--color-success);
 }
 
 /* Error */
 .alert-error {
-  background-color: #fef2f2;
-  border-color: #ef4444;
-  color: #b91c1c;
+  background-color: var(--color-error-container);
+  border-color: var(--color-error);
 }
-
-.alert-error .alert-title {
-  color: #dc2626;
-}
-
-.alert-error .alert-message {
-  color: #b91c1c;
+.alert-error .alert-title,
+.alert-error .alert-icon {
+  color: var(--color-error);
 }
 
 /* Warning */
 .alert-warning {
-  background-color: #fefce8;
-  border-color: #eab308;
-  color: #92400e;
+  background-color: var(--color-warning-container);
+  border-color: var(--color-warning);
 }
-
-.alert-warning .alert-title {
-  color: #ca8a04;
-}
-
-.alert-warning .alert-message {
-  color: #92400e;
+.alert-warning .alert-title,
+.alert-warning .alert-icon {
+  color: var(--color-warning);
 }
 
 /* Info */
 .alert-info {
-  background-color: #eff6ff;
-  border-color: #3b82f6;
-  color: #1e40af;
+  background-color: var(--color-info-container);
+  border-color: var(--color-info);
 }
-
-.alert-info .alert-title {
-  color: #1d4ed8;
-}
-
-.alert-info .alert-message {
-  color: #1e40af;
+.alert-info .alert-title,
+.alert-info .alert-icon {
+  color: var(--color-info);
 }
 
 /* 닫기 버튼 */
@@ -330,13 +388,18 @@ input[type="submit"]:disabled {
   bottom: 2rem;
   right: 2rem;
   padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  background: white;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-md);
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-outline);
+  color: var(--color-on-surface);
+  box-shadow: var(--elevation-2);
   display: flex;
   align-items: center;
   gap: 1rem;
   min-width: 300px;
+  max-width: min(420px, calc(100vw - 4rem));
   z-index: 999;
   animation: slideIn 0.3s ease;
 }
@@ -368,23 +431,23 @@ input[type="submit"]:disabled {
 }
 
 .toast-success {
-  border-left: 4px solid #10b981;
-  color: #047857;
+  border-left: 4px solid var(--color-success);
+  background: var(--color-success-container);
 }
 
 .toast-error {
-  border-left: 4px solid #ef4444;
-  color: #b91c1c;
+  border-left: 4px solid var(--color-error);
+  background: var(--color-error-container);
 }
 
 .toast-warning {
-  border-left: 4px solid #eab308;
-  color: #92400e;
+  border-left: 4px solid var(--color-warning);
+  background: var(--color-warning-container);
 }
 
 .toast-info {
-  border-left: 4px solid #3b82f6;
-  color: #1e40af;
+  border-left: 4px solid var(--color-info);
+  background: var(--color-info-container);
 }
 
 /* Mobile */

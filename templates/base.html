@@ -56,11 +56,13 @@
 
     <style>
       :root {
+        /* Legacy aliases kept for backward compatibility.
+           Canonical tokens live in static/css/components.css :root. */
         --bg-main: #060606;
         --bg-sidebar: rgba(18, 18, 18, 0.75);
         --bg-glass: rgba(255, 255, 255, 0.03);
         --text-main: #ffffff;
-        --text-sub: #a0a0a0;
+        --text-sub: rgba(255, 255, 255, 0.72); /* was #a0a0a0 — AA compliant on #060606 */
         --accent: #fb923c;
         --sidebar-width: 240px;
         --sidebar-collapsed-width: 80px;
