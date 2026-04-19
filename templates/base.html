@@ -538,6 +538,25 @@
     <!-- Skip to main content (accessibility) -->
     <a href="#main-content" class="skip-link" data-i18n="a11y.skip_to_content">Skip to main content</a>
 
+    <!-- Shared SVG gradient for all nav icons.
+         One <linearGradient> + one pair of <animate> elements drive every
+         sidebar icon via stroke="url(#navIconGradient)". Replaces 10
+         duplicated per-icon defs blocks (~6KB + 20 animations). -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="navIconGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffedd5"/>
+          <stop offset="20%" stop-color="#fb923c"/>
+          <stop offset="40%" stop-color="#f472b6"/>
+          <stop offset="60%" stop-color="#93c5fd"/>
+          <stop offset="80%" stop-color="#fb923c"/>
+          <stop offset="100%" stop-color="#ffedd5"/>
+          <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
+          <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
+        </linearGradient>
+      </defs>
+    </svg>
+
     <!-- Animated Global Background Glow (Subtle Orange) -->
     <div class="fixed inset-0 z-[0] overflow-hidden pointer-events-none" aria-hidden="true">
       <div class="absolute top-[-15%] left-[-15%] w-[60%] h-[60%] bg-orange-500/25 rounded-full blur-[140px] animate-blob-float"></div>
@@ -707,37 +726,11 @@
             Explore
           </div>
           <a href="/dashboard" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-home" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-home)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25" />
 </svg> <span data-i18n="nav.home">Home</span>
           </a>
           <a href="/daily-expression" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-daily-expression" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-daily-expression)" d="M12 18v-5.25m0 0a6.002 6.002 0 00-5.36-1.554L8.25 10.5m4.75-1.75a6.002 6.002 0 005.36 1.554L15.75 10.5m-3.75-7.5V4.5m0 0c-1.518 0-2.909.43-4.084 1.173L6 4.5M12 4.5c1.518 0 2.909.43 4.084 1.173L18 4.5M6 18H4.5m1.5 0h12m0 0h1.5M12 12.75a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18v-5.25m0 0a6.002 6.002 0 00-5.36-1.554L8.25 10.5m4.75-1.75a6.002 6.002 0 005.36 1.554L15.75 10.5m-3.75-7.5V4.5m0 0c-1.518 0-2.909.43-4.084 1.173L6 4.5M12 4.5c1.518 0 2.909.43 4.084 1.173L18 4.5M6 18H4.5m1.5 0h12m0 0h1.5M12 12.75a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5z" />
 </svg> <span data-i18n="nav.daily_expression">Daily Expression</span>
           </a>
         </div>
@@ -752,127 +745,36 @@
           </div>
           <a href="/video-learning" class="nav-item group relative">
             <span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-onuitube" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onuitube)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z" />
 </svg>
               <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse blur-[1px] group-[.sidebar-collapsed]:hidden"></span>
             </span>
             <span data-i18n="nav.onuitube">OnuiTube</span>
           </a>
           <a href="/onui-beats" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-onui-beats" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onui-beats)" d="M9 12H4.5M9 12V6M9 12l2.25 2.25M9 12l-2.25 2.25M12 18h4.5M12 18v-6M12 18l2.25-2.25M12 18l-2.25-2.25M18 12h-4.5M18 12v6M18 12l-2.25 2.25M18 12l2.25 2.25" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M9 12H4.5M9 12V6M9 12l2.25 2.25M9 12l-2.25 2.25M12 18h4.5M12 18v-6M12 18l2.25-2.25M12 18l-2.25-2.25M18 12h-4.5M18 12v6M18 12l-2.25 2.25M18 12l2.25 2.25" />
 </svg> <span data-i18n="nav.onui_beats">Onui Beats</span>
           </a>
           <a href="/voice-call" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-ai-voice-call" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-voice-call)" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.355c0-.7-.457-1.354-1.138-1.559l-5.176-1.56a1.125 1.125 0 00-1.31.32l-2.022 2.021a2.822 2.822 0 01-3.636-3.636l2.022-2.022a1.125 1.125 0 00.32-1.31l-1.56-5.176c-.205-.682-.859-1.138-1.559-1.138H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.355c0-.7-.457-1.354-1.138-1.559l-5.176-1.56a1.125 1.125 0 00-1.31.32l-2.022 2.021a2.822 2.822 0 01-3.636-3.636l2.022-2.022a1.125 1.125 0 00.32-1.31l-1.56-5.176c-.205-.682-.859-1.138-1.559-1.138H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
 </svg> <span data-i18n="nav.voice_call">AI Voice Call</span>
           </a>
           <a href="/onui-grammar" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-onui-grammar" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-onui-grammar)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
 </svg> <span data-i18n="nav.messenger">Onui Grammar</span>
           </a>
 
           <a href="/roleplay" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-ai-roleplay" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-roleplay)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75" />
 </svg> <span data-i18n="nav.roleplay">AI Roleplay</span>
           </a>
           <a href="/content-generation" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-ai-textbook" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-ai-textbook)" d="M12 10.5v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-3.75 9.375v4.562a2.25 2.25 0 01-2.25 2.25H2.25" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 10.5v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-3.75 9.375v4.562a2.25 2.25 0 01-2.25 2.25H2.25" />
 </svg>
             <span data-i18n="nav.content_generation">AI Textbook</span>
           </a>
           <a href="/speechpro-practice" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-speechpro-eval" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-speechpro-eval)" d="M12 18.75a6 6 0 006-6v-1.5m-6 6a6 6 0 01-6-6v-1.5m6 6v3.75m-3.75 0h7.5M12 10.5a3 3 0 11-6 0v-1.5a3 3 0 116 0V12h1.5v-1.5a4.5 4.5 0 10-9 0V12a4.5 4.5 0 109 0z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18.75a6 6 0 006-6v-1.5m-6 6a6 6 0 01-6-6v-1.5m6 6v3.75m-3.75 0h7.5M12 10.5a3 3 0 11-6 0v-1.5a3 3 0 116 0V12h1.5v-1.5a4.5 4.5 0 10-9 0V12a4.5 4.5 0 109 0z" />
 </svg> <span data-i18n="nav.pron_test">SpeechPro Eval</span>
           </a>
         </div>
@@ -886,20 +788,7 @@
             Library
           </div>
           <a href="/learning-progress" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">
-  <defs>
-    <linearGradient id="iconGradient-learning-report" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffedd5"/>
-      <stop offset="20%" stop-color="#fb923c"/>
-      <stop offset="40%" stop-color="#f472b6"/>
-      <stop offset="60%" stop-color="#93c5fd"/>
-      <stop offset="80%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ffedd5"/>
-      <animate attributeName="x1" from="-100%" to="200%" dur="4s" repeatCount="indefinite" />
-      <animate attributeName="x2" from="0%" to="300%" dur="4s" repeatCount="indefinite" />
-    </linearGradient>
-  </defs>
-  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#iconGradient-learning-report)" d="M3 13.125l4.5 4.5 9-9m0 0l-4.5-4.5m4.5 4.5V5.25A2.25 2.25 0 0014.25 3h-3.75a2.25 2.25 0 00-2.25 2.25v7.875m9 0V18a2.25 2.25 0 01-2.25 2.25H12M4.5 13.125H3m1.5 0h16.5m-3.75 4.5H12M9 13.125h.008V13h-.008" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6">  <path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M3 13.125l4.5 4.5 9-9m0 0l-4.5-4.5m4.5 4.5V5.25A2.25 2.25 0 0014.25 3h-3.75a2.25 2.25 0 00-2.25 2.25v7.875m9 0V18a2.25 2.25 0 01-2.25 2.25H12M4.5 13.125H3m1.5 0h16.5m-3.75 4.5H12M9 13.125h.008V13h-.008" />
 </svg> <span data-i18n="nav.progress">Learning Report</span>
           </a>
         </div>
