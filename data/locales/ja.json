@@ -697,5 +697,8 @@
   "auth.profile": "プロフィール",
   "auth.signout": "ログアウト",
   "dash.report": "レポート",
-  "common.retry": "再試行"
+  "common.retry": "再試行",
+  "dash.start_now": "今すぐ始める",
+  "common.error_title": "問題が発生しました",
+  "common.offline": "オフラインのようです。"
 }

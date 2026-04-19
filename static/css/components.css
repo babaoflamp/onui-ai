@@ -450,6 +450,134 @@ input[type="submit"]:disabled {
   background: var(--color-info-container);
 }
 
+/* ==========================================
+   빈 상태 / 로딩 스켈레톤 / 에러-복구
+   (Material Feedback, Google perceived performance)
+   ========================================== */
+
+/* Empty state — 일러스트 + 제목 + 설명 + CTA 3단 구성 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  gap: 0.75rem;
+  background: var(--color-surface-1);
+  border: 1px dashed var(--color-outline);
+  border-radius: var(--radius-xl);
+  color: var(--color-on-surface);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  opacity: 0.85;
+}
+
+.empty-state__title {
+  font-size: var(--font-title);
+  font-weight: 800;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.empty-state__desc {
+  font-size: var(--font-body);
+  color: var(--color-on-surface-variant);
+  max-width: 42ch;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.empty-state__action {
+  margin-top: 0.75rem;
+}
+
+/* Skeleton 로더 — 실제 카드 모양을 모사해 인지 로딩 시간 단축 */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton--text {
+  height: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton--title {
+  height: 1.25rem;
+  width: 70%;
+  margin-bottom: 1rem;
+}
+
+.skeleton--block {
+  height: 12rem;
+  border-radius: var(--radius-xl);
+}
+
+.skeleton-card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 12rem;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* Error-recovery panel — offline/timeout 등 복구 플로우 */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  gap: 0.75rem;
+  background: var(--color-error-container);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-lg);
+  color: var(--color-on-surface);
+}
+
+.error-state__title {
+  font-size: var(--font-title);
+  font-weight: 800;
+  color: var(--color-error);
+  margin: 0;
+}
+
+.error-state__desc {
+  font-size: var(--font-body);
+  color: var(--color-on-surface-variant);
+  max-width: 42ch;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Mobile */
 @media (max-width: 640px) {
   .toast {

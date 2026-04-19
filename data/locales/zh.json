@@ -697,5 +697,8 @@
   "auth.profile": "个人资料",
   "auth.signout": "退出登录",
   "dash.report": "报告",
-  "common.retry": "重试"
+  "common.retry": "重试",
+  "dash.start_now": "立即开始",
+  "common.error_title": "出现问题",
+  "common.offline": "您似乎处于离线状态。"
 }
