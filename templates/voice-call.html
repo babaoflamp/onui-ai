@@ -236,8 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderScenarios() {
-    document.getElementById('scenario-list').innerHTML = scenarios.map(s => `
-      <button class="scenario-card text-left" onclick="startCall(${JSON.stringify(JSON.stringify(s))})">
+    const list = document.getElementById('scenario-list');
+    list.innerHTML = '';
+    scenarios.forEach((s, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'scenario-card text-left';
+      btn.innerHTML = `
         <div class="relative aspect-square overflow-hidden bg-white/5">
           <img src="${s.avatar_url}" onerror="this.src='/static/images/onui-pure-idol.png'"
                class="w-full h-full object-cover hover:scale-105 transition-all duration-500" />
@@ -248,14 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="p-3">
           <h4 class="text-sm font-black text-white truncate">${s.title}</h4>
           <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest truncate mt-0.5">${s.tutor_name}</p>
-        </div>
-      </button>
-    `).join('');
+        </div>`;
+      btn.addEventListener('click', () => startCall(s));
+      list.appendChild(btn);
+    });
   }
 
   // ── Call lifecycle ─────────────────────────────────────────────────────
-  window.startCall = async function(scenarioJson) {
-    currentScenario = JSON.parse(scenarioJson);
+  async function startCall(scenario) {
+    currentScenario = scenario;
     history = [];
     seconds = 0;
     lobby.classList.add('hidden');
