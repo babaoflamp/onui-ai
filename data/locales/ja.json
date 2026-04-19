@@ -168,7 +168,6 @@
   "land.feature9_desc": "学習時間、正確度、流暢さなど全ての成長データを精密分析した週間レポートを提供します。",
   "land.hero_type1": "韓国語学習を",
   "land.hero_type2": "魔法のように。",
-
   "log.welcome": "ようこそ！",
   "log.subtitle": "ログインして学習を続けましょう",
   "log.email": "メールアドレス",
@@ -693,5 +692,10 @@
   "speechpro.ai_summary_title": "AI 総合フィードバック",
   "speechpro.generating_ai": "AI フィードバックを生成中です...",
   "speechpro.btn_view_details": "詳細分析を見る →",
-  "speechpro.btn_help_title": "SpeechProのメリットを見る"
+  "speechpro.btn_help_title": "SpeechProのメリットを見る",
+  "a11y.skip_to_content": "本文へスキップ",
+  "auth.profile": "プロフィール",
+  "auth.signout": "ログアウト",
+  "dash.report": "レポート",
+  "common.retry": "再試行"
 }

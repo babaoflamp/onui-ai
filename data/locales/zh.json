@@ -168,7 +168,6 @@
   "land.feature9_desc": "提供学习时间、准确度、流利度等全方位成长数据的每周精密分析报告。",
   "land.hero_type1": "韩语学习，",
   "land.hero_type2": "如魔法般。",
-
   "log.welcome": "欢迎回来！",
   "log.subtitle": "登录后继续您的学习",
   "log.email": "邮箱地址",
@@ -693,5 +692,10 @@
   "speechpro.ai_summary_title": "AI综合反馈",
   "speechpro.generating_ai": "正在生成AI反馈...",
   "speechpro.btn_view_details": "查看详细分析 →",
-  "speechpro.btn_help_title": "查看SpeechPro优点"
+  "speechpro.btn_help_title": "查看SpeechPro优点",
+  "a11y.skip_to_content": "跳到主要内容",
+  "auth.profile": "个人资料",
+  "auth.signout": "退出登录",
+  "dash.report": "报告",
+  "common.retry": "重试"
 }
