@@ -1,0 +1,236 @@
+  .suno-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  /* 9:16 세로형 비디오 컨테이너 (Padding Hack) */
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    height: 0;
+    padding-bottom: 177.77%; /* 16/9 * 100 */
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 0 auto;
+  }
+
+  #video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+    background: #000;
+  }
+
+  /* 자막 오버레이 */
+  .captions-layer {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 20;
+    pointer-events: none;
+    padding: 0 12px;
+  }
+
+  .caption-box {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    padding: 10px 18px 8px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto;
+    max-width: 100%;
+  }
+
+  .caption-word {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    display: inline-block;
+    position: relative;
+  }
+
+  .caption-word:hover {
+    background: rgba(249, 115, 22, 0.45);
+  }
+
+  .caption-translation {
+    font-size: 0.9rem;
+    color: #fb923c;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .panel-word {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    transition: background 0.15s;
+    line-height: 1.5;
+  }
+  .panel-word:hover { background: rgba(249,115,22,0.35); }
+  .panel-word.active { background: rgba(249,115,22,0.55); }
+
+  /* 커스텀 비디오 컨트롤바 */
+  .video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    padding: 12px 16px 14px;
+    z-index: 15;
+  }
+
+  .progress-bar-wrapper {
+    width: 100%;
+    height: 5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #f97316, #ec4899);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  /* 로비 세로형 카드 (전체 비율 고정) */
+  .shorts-card {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 177.77%; /* 9:16 비율 강제 */
+    background: #000;
+    border: none; /* 외곽선 제거하여 빈틈 방지 */
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    cursor: pointer;
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* Safari border-radius bug fix */
+  }
+
+  .shorts-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.6);
+  }
+
+  .shorts-card .card-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 썸네일 이미지 - 카드 전체를 채움 */
+  .shorts-thumb {
+    position: absolute;
+    top: -1px; /* 1px 오버랩하여 빈틈 제거 */
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .shorts-thumb img {
+    width: 102% !important; /* 미세한 빈틈 방지를 위해 2% 더 크게 설정 */
+    height: 102% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+  }
+
+  /* 정보 오버레이 (하단 완전 블랙) */
+  .card-overlay {
+    position: absolute;
+    bottom: -1px;
+    left: -1px;
+    right: -1px;
+    padding: 16px 14px 14px;
+    background: #000; /* 완전 블랙 */
+    z-index: 2;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* 정보 오버레이 (상단 완전 블랙) */
+  .card-overlay-top {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    padding: 14px 14px 14px;
+    background: #000; /* 완전 블랙 */
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .shorts-card.coming-soon {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .shorts-card.coming-soon:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* 레벨 필터 버튼 */
+  .level-filter-btn {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .level-filter-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+  .level-filter-btn.active {
+    background: linear-gradient(to right, #f97316, #ec4899);
+    color: white;
+    border-color: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }

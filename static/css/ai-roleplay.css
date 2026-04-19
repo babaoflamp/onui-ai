@@ -1,0 +1,45 @@
+    .chat-container {
+        height: 600px;
+        max-height: 70vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .chat-container::-webkit-scrollbar { width: 4px; }
+    .chat-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+    .message-user {
+        background: linear-gradient(135deg, #f97316, #ec4899);
+        color: white;
+        align-self: flex-end;
+        border-radius: 20px 20px 4px 20px;
+        box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+    }
+    .message-ai {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        align-self: flex-start;
+        border-radius: 20px 20px 20px 4px;
+    }
+    .scenario-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border-radius: 16px;
+    }
+    .scenario-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(249, 115, 22, 0.4);
+        box-shadow: 0 20px 40px rgba(249, 115, 22, 0.15);
+    }
+    @keyframes pulse-neon {
+        0%, 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.6); }
+    }
+    .recording-pulse {
+        animation: pulse-neon 1.5s infinite;
+        background: #f97316 !important;
+        color: white !important;
+    }
