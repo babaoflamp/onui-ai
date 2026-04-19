@@ -1003,6 +1003,6 @@
         });
       }
     </script>
-    <script>document.getElementById("footer-year").textContent = new Date().getFullYear();</script>
+    <script>const _fy = document.getElementById("footer-year"); if (_fy) _fy.textContent = new Date().getFullYear();</script>
   </body>
 </html>
