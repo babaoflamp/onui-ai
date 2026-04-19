@@ -12,9 +12,6 @@
   "nav.content_generation": "AIレッスンメーカー",
   "nav.pron_test": "発音スコア測定",
   "nav.progress": "学習レポート",
-  "nav.group_explore": "はじめる",
-  "nav.group_learning": "学習",
-  "nav.group_library": "ライブラリ",
   "nav.badge_rec": "おすすめ",
   "nav.pron_ai": "AI 発音矯正",
   "nav.ai_freepron": "自由入力の発音評価",
@@ -700,5 +697,10 @@
   "common.retry": "再試行",
   "dash.start_now": "今すぐ始める",
   "common.error_title": "問題が発生しました",
-  "common.offline": "オフラインのようです。"
+  "common.offline": "オフラインのようです。",
+  "nav.group_daily": "毎日",
+  "nav.group_speak": "話す",
+  "nav.group_study": "学習",
+  "nav.group_media": "メディア",
+  "nav.group_progress": "進捗"
 }

@@ -12,9 +12,6 @@
   "nav.content_generation": "AI课程制作器",
   "nav.pron_test": "发音分数测量",
   "nav.progress": "我的学习报告",
-  "nav.group_explore": "开始",
-  "nav.group_learning": "学习",
-  "nav.group_library": "资料库",
   "nav.badge_rec": "推荐",
   "nav.pron_ai": "AI 发音矫正",
   "nav.ai_freepron": "自由输入发音评测",
@@ -700,5 +697,10 @@
   "common.retry": "重试",
   "dash.start_now": "立即开始",
   "common.error_title": "出现问题",
-  "common.offline": "您似乎处于离线状态。"
+  "common.offline": "您似乎处于离线状态。",
+  "nav.group_daily": "每日",
+  "nav.group_speak": "口语",
+  "nav.group_study": "学习",
+  "nav.group_media": "媒体",
+  "nav.group_progress": "进度"
 }
