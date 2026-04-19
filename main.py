@@ -2155,6 +2155,9 @@ allowed_origins = [
     "https://brainlessly-unequestrian-ember.ngrok-free.dev",
     # 개발 중 다른 포트에서 테스트 시 필요하면 추가
     "http://localhost:5173",  # Vite dev server (if needed)
+    "https://onuiai.kr",
+    "https://www.onuiai.kr",
+    "http://onuiai.kr",
 ]
 
 app.add_middleware(

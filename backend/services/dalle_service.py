@@ -16,9 +16,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 try:
-    import google.generativeai as genai
+    from google import genai as _genai_new
 except Exception:
-    genai = None
+    _genai_new = None
 
 # .env 파일 로드
 load_dotenv()
@@ -305,7 +305,7 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
         return {"success": False, "error": "GEMINI_API_KEY not configured"}
     
     # SDK 사용 여부 확인
-    sdk_available = bool(genai and hasattr(genai, "GenerativeModel"))
+    sdk_available = bool(_genai_new and hasattr(_genai_new, "Client"))
     model_name = os.getenv("GEMINI_IMAGE_MODEL", DALLE_MODEL) # DALLE_MODEL might be fallback
 
     # 만약 환경변수에 이미 모델이 설정되어 있다면 우선 사용
@@ -313,18 +313,15 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
         model_name = "gemini-2.5-flash-image"
 
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
-        
         logger.info(f"Generating Gemini image using model: {model_name}")
-        
-        # Prefer SDK first
+
+        # Prefer SDK first (google.genai)
         if sdk_available:
             try:
-                model = genai.GenerativeModel(model_name)
-                # 이미지 생성은 일반 텍스트 생성과 동일한 인터페이스 사용 (Imagen 모델의 경우)
+                _client = _genai_new.Client(api_key=GEMINI_API_KEY)
                 resp = await asyncio.get_event_loop().run_in_executor(
                     None,
-                    lambda: model.generate_content(prompt),
+                    lambda: _client.models.generate_content(model=model_name, contents=prompt),
                 )
 
                 image_base64, mime_type = _extract_gemini_image_base64(resp)

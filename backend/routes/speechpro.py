@@ -560,13 +560,22 @@ async def speechpro_evaluate(
             }
 
             speechpro_start = time.time()
-            score_result = call_speechpro_score(
-                text=text,
-                syll_ltrs=preset.get("syll_ltrs", ""),
-                syll_phns=preset.get("syll_phns", ""),
-                fst=preset.get("fst", ""),
-                audio_data=audio_content,
-                request_id=request_id,
+            _score_text = text
+            _score_syll_ltrs = preset.get("syll_ltrs", "")
+            _score_syll_phns = preset.get("syll_phns", "")
+            _score_fst = preset.get("fst", "")
+            _score_audio = audio_content
+            _score_rid = request_id
+            score_result = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: call_speechpro_score(
+                    text=_score_text,
+                    syll_ltrs=_score_syll_ltrs,
+                    syll_phns=_score_syll_phns,
+                    fst=_score_fst,
+                    audio_data=_score_audio,
+                    request_id=_score_rid,
+                ),
             )
             speechpro_time = time.time() - speechpro_start
 

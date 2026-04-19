@@ -82,15 +82,72 @@ GOOGLE_CLIENT_SECRET=your_client_secret
 ```bash
 # 개발 서버 (hot reload, 포트 9002)
 source .venv/bin/activate
-python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
-```
-
-```bash
-# 재시작 스크립트 (기존 프로세스 자동 종료 후 재시작)
-./restart.sh
+python -m uvicorn main:app --host 127.0.0.1 --port 9002 --reload
 ```
 
 브라우저에서 `http://localhost:9002` 접속
+
+---
+
+## 프로덕션 배포
+
+### 서비스 URL
+
+| 환경 | URL |
+|---|---|
+| 프로덕션 (커스텀 도메인) | `https://onuiai.kr` |
+| 보조 (ngrok 터널) | `https://onui-ai.ngrok.app` |
+
+### PM2로 서비스 관리
+
+```bash
+./start-service.sh    # onui-ai + ngrok 시작 (PM2)
+./stop-service.sh     # 서비스 중지
+
+pm2 status            # 프로세스 상태 확인
+pm2 logs onui-ai      # 애플리케이션 로그
+pm2 restart onui-ai   # 재시작
+```
+
+PM2 설정: `ecosystem.config.js` / 로그: `logs/pm2-out.log`, `logs/pm2-error.log`
+
+### nginx + SSL 설정 (onuiai.kr)
+
+```
+onuiai.kr (DNS A → 공인 IP)
+  └→ nginx (80/443, SSL termination, Let's Encrypt)
+       └→ uvicorn (127.0.0.1:9002)
+           ↑
+          ngrok (보조 터널, 직접 9002 연결)
+```
+
+최초 도메인 설정 시:
+
+**1. DNS 설정** — 도메인 등록 업체에서 A 레코드 등록:
+```
+A  @    <서버 공인 IP>
+A  www  <서버 공인 IP>
+```
+
+**2. 설치 스크립트 실행** (DNS 전파 후):
+```bash
+sudo bash scripts/setup-domain.sh
+```
+
+스크립트가 자동 처리하는 항목:
+- UFW 방화벽 80/443 포트 오픈
+- nginx + certbot 설치
+- nginx 리버스 프록시 설정 (WebSocket `/ws/`, static 파일 직접 서빙, 50MB 업로드)
+- Let's Encrypt SSL 인증서 발급 및 자동 갱신
+- 정적 파일 디렉터리 ACL 권한 설정
+
+nginx 설정 파일: `nginx-onuiai.kr.conf`
+
+**SSL 인증서 수동 갱신:**
+```bash
+sudo certbot renew --dry-run   # 갱신 테스트
+sudo certbot renew             # 실제 갱신
+```
 
 ---
 
