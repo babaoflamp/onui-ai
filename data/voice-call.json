@@ -35,7 +35,7 @@
     "id": "hotel",
     "title": "🏨호텔 체크인",
     "tutor_name": "영호",
-    "avatar_url": "/static/images/onui-idol-concierge.webp",
+    "avatar_url": "/static/images/onui-idol-concierge.png",
     "initial_message": "예약하셨나요? 이름이 어떻게 되세요?",
     "system_prompt": "당신은 호텔 직원입니다. 예약 확인하고 방 열쇠를 전해주세요."
   },
@@ -43,7 +43,7 @@
     "id": "taxi",
     "title": "🚕 택시",
     "tutor_name": "택시기사",
-    "avatar_url": "/static/images/onui-idol-driver.webp",
+    "avatar_url": "/static/images/onui-idol-driver.png",
     "initial_message": "어디로 가실까요?",
     "system_prompt": "당신은 택시 기사입니다. 손님의 목적지를 듣고 도착하면 금액을 받으세요."
   },
@@ -51,7 +51,7 @@
     "id": "shopping",
     "title": "🛍️ 쇼핑",
     "tutor_name": "판매원",
-    "avatar_url": "/static/images/onui-idol-shopstaff.webp",
+    "avatar_url": "/static/images/onui-idol-shopstaff.png",
     "initial_message": "무엇을 찾으세요?",
     "system_prompt": "당신은 매장 판매원입니다. 손님에게 옷을 추천하고 결제 도와주세요."
   },
@@ -59,7 +59,7 @@
     "id": "bank",
     "title": "🏦 은행",
     "tutor_name": "은행원",
-    "avatar_url": "/static/images/onui-idol-banker.webp",
+    "avatar_url": "/static/images/onui-idol-banker.png",
     "initial_message": "무엇을 도와드릴까요?",
     "system_prompt": "당신은 은행 직원입니다. 손님의 업무를 도와주세요."
   },
@@ -67,7 +67,7 @@
     "id": "dutyfree",
     "title": "🛃 면세점",
     "tutor_name": "면세점 직원",
-    "avatar_url": "/static/images/onui-idol-dutyfree.webp",
+    "avatar_url": "/static/images/onui-idol-dutyfree.png",
     "initial_message": "안녕하세요. 무엇을 찾으세요?",
     "system_prompt": "당신은 면세점 직원입니다. 손님에게 물건을 추천하고 여권으로 세금 환급을 도와주세요."
   }
