@@ -1,5 +1,8 @@
 import logging
+import json
+import os
 import sqlite3
+import time
 import urllib.parse
 
 from fastapi import APIRouter, HTTPException, Request
@@ -17,6 +20,22 @@ def _require_callable(request: Request, state_name: str, label: str):
     return fn
 
 
+def _append_json_record(path: str, record: dict):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    rows = []
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                rows = json.load(f)
+        except Exception:
+            rows = []
+    if not isinstance(rows, list):
+        rows = []
+    rows.append(record)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(rows, f, ensure_ascii=False, indent=2)
+
+
 @router.post("/api/signup")
 async def signup(request: Request):
     payload = await request.json()
@@ -29,6 +48,35 @@ async def signup(request: Request):
 async def landing_intake(request: Request):
     """Backward compatibility: reuse signup handler."""
     return await signup(request)
+
+
+@router.post("/api/landing-intent")
+async def landing_intent(request: Request):
+    payload = await request.json()
+    goal = str(payload.get("goal") or "").strip()
+    level = str(payload.get("level") or "").strip()
+    reason = str(payload.get("reason") or "").strip()
+    native_lang = str(payload.get("native_lang") or "").strip()
+    if not goal:
+        raise HTTPException(status_code=400, detail="goal is required")
+
+    record = {
+        "goal": goal,
+        "level": level,
+        "reason": reason,
+        "native_lang": native_lang,
+        "ts": time.time(),
+    }
+    _append_json_record("data/landing_intent.json", record)
+
+    logger = _get_state(request, "logger") or logging.getLogger(__name__)
+    logger.info(
+        "[LANDING_INTENT] goal=%s level=%s lang=%s",
+        goal,
+        level or "-",
+        native_lang or "-",
+    )
+    return {"success": True}
 
 
 @router.get("/api/login/google")

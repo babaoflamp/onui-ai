@@ -338,6 +338,12 @@ Intelligence{% endblock %} {% block extra_css %}
       발음부터 문법, 회화까지 — AI 오누이와 함께하는 가장 몰입적인 한국어 학습 경험
     </p>
 
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-2">
+      <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag1">K-Culture Learners</span>
+      <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag2">New Korea Residents</span>
+      <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag3">Workplace Beginners</span>
+    </div>
+
     <!-- CTA Buttons -->
     <div class="flex items-center gap-4 mt-6 flex-wrap justify-center">
       <button onclick="openAuthModal('signup')" class="btn-suno-primary flex items-center gap-2">
@@ -557,20 +563,8 @@ Intelligence{% endblock %} {% block extra_css %}
         </div>
       </div>
 
-      <!-- 2. Beats — Medium Right Top -->
-      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-blue-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/beats'" style="animation-delay: 0.2s">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full group-hover:bg-blue-500/20 transition-all duration-700 z-0"></div>
-        <div class="relative z-10 w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <span class="text-2xl">🎵</span>
-        </div>
-        <div class="relative z-10">
-          <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature2_title">Onui Beats</h3>
-          <p class="text-white/60 text-sm leading-relaxed" data-i18n="land.feature2_desc">Learn Korean vocabulary the fun way by filling in lyrics to your favorite K-Pop rhythms.</p>
-        </div>
-      </div>
-
-      <!-- 3. Voice Call — Medium Right Bottom -->
-      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-orange-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/voice-call'" style="animation-delay: 0.3s">
+      <!-- 2. Voice Call — Medium Right Top -->
+      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-orange-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/voice-call'" style="animation-delay: 0.2s">
         <div class="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[60px] rounded-full group-hover:bg-orange-500/20 transition-all duration-700 z-0"></div>
         <div class="relative z-10 w-12 h-12 rounded-2xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
           <span class="text-2xl">📞</span>
@@ -581,8 +575,20 @@ Intelligence{% endblock %} {% block extra_css %}
         </div>
       </div>
 
+      <!-- 3. Roleplay — Medium Right Bottom -->
+      <div class="bento-mid glass-sub-card rounded-[32px] p-7 group hover:border-green-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/roleplay'" style="animation-delay: 0.3s">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 blur-[60px] rounded-full group-hover:bg-green-500/20 transition-all duration-700 z-0"></div>
+        <div class="relative z-10 w-12 h-12 rounded-2xl bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <span class="text-2xl">🎭</span>
+        </div>
+        <div class="relative z-10">
+          <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature4_title">AI Roleplay</h3>
+          <p class="text-white/60 text-sm leading-relaxed" data-i18n="land.feature4_desc">Become the protagonist in dozens of real-world scenarios, from ordering coffee to business meetings.</p>
+        </div>
+      </div>
+
       <!-- 4. Grammar -->
-      <div class="bento-sm glass-sub-card rounded-[32px] p-7 group hover:border-teal-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/messenger'" style="animation-delay: 0.4s">
+      <div class="bento-sm glass-sub-card rounded-[32px] p-7 group hover:border-teal-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/onui-grammar'" style="animation-delay: 0.4s">
         <div class="absolute bottom-0 right-0 w-24 h-24 bg-teal-500/8 blur-[50px] rounded-full group-hover:bg-teal-500/15 transition-all duration-700 z-0"></div>
         <div class="relative z-10 w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
           <span class="text-2xl">✍️</span>
@@ -593,15 +599,15 @@ Intelligence{% endblock %} {% block extra_css %}
         </div>
       </div>
 
-      <!-- 5. Roleplay -->
-      <div class="bento-sm glass-sub-card rounded-[32px] p-7 group hover:border-green-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/roleplay'" style="animation-delay: 0.5s">
-        <div class="absolute bottom-0 right-0 w-24 h-24 bg-green-500/8 blur-[50px] rounded-full group-hover:bg-green-500/15 transition-all duration-700 z-0"></div>
-        <div class="relative z-10 w-12 h-12 rounded-2xl bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <span class="text-2xl">🎭</span>
+      <!-- 5. Beats -->
+      <div class="bento-sm glass-sub-card rounded-[32px] p-7 group hover:border-blue-500/20 transition-all duration-500 reveal-card overflow-hidden relative cursor-pointer flex flex-col justify-between" onclick="window.location.href='/onui-beats'" style="animation-delay: 0.5s">
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-blue-500/8 blur-[50px] rounded-full group-hover:bg-blue-500/15 transition-all duration-700 z-0"></div>
+        <div class="relative z-10 w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <span class="text-2xl">🎵</span>
         </div>
         <div class="relative z-10">
-          <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature4_title">AI Roleplay</h3>
-          <p class="text-white/60 text-sm leading-relaxed line-clamp-3" data-i18n="land.feature4_desc">Become the protagonist in dozens of real-world scenarios, from ordering coffee to business meetings.</p>
+          <h3 class="text-xl font-black text-white mb-1.5 tracking-tight" data-i18n="land.feature2_title">Onui Beats</h3>
+          <p class="text-white/60 text-sm leading-relaxed line-clamp-3" data-i18n="land.feature2_desc">Learn Korean vocabulary the fun way by filling in lyrics to your favorite K-Pop rhythms.</p>
         </div>
       </div>
 
@@ -862,6 +868,28 @@ Intelligence{% endblock %} {% block extra_css %}
         <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Password</label>
         <input type="password" name="password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="land.intent_goal_label">Goal</label>
+          <select name="intent_goal" required class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-4 py-3 text-white outline-none transition-all font-bold">
+            <option value="" disabled selected data-i18n="land.intent_goal_placeholder">Select your goal</option>
+            <option value="daily_conversation" data-i18n="land.intent_goal_daily">Daily Conversation</option>
+            <option value="k_culture" data-i18n="land.intent_goal_kculture">K-Culture & Content</option>
+            <option value="workplace" data-i18n="land.intent_goal_work">Workplace Korean</option>
+            <option value="topik" data-i18n="land.intent_goal_topik">TOPIK Prep</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="land.intent_level_label">Level</label>
+          <select name="intent_level" required class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-4 py-3 text-white outline-none transition-all font-bold">
+            <option value="" disabled selected data-i18n="land.intent_level_placeholder">Select level</option>
+            <option value="beginner" data-i18n="land.intent_level_beginner">Beginner</option>
+            <option value="elementary" data-i18n="land.intent_level_elementary">Elementary</option>
+            <option value="intermediate" data-i18n="land.intent_level_intermediate">Intermediate</option>
+            <option value="advanced" data-i18n="land.intent_level_advanced">Advanced</option>
+          </select>
+        </div>
+      </div>
       <button type="submit" class="w-full py-5 bg-orange-500 text-white rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(249,115,22,0.3)]">
         CREATE ACCOUNT
       </button>
@@ -891,6 +919,26 @@ Intelligence{% endblock %} {% block extra_css %}
     const url = type === 'login' ? '/api/login' : '/api/signup';
     
     try {
+      if (type === 'signup') {
+        const intentPayload = {
+          goal: payload.intent_goal || "",
+          level: payload.intent_level || "",
+          reason: "landing_signup",
+          native_lang: localStorage.getItem("app_lang") || "en"
+        };
+        delete payload.intent_goal;
+        delete payload.intent_level;
+        try {
+          await fetch('/api/landing-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(intentPayload)
+          });
+        } catch (_) {
+          // Non-blocking: signup must continue even when intent logging fails.
+        }
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1314,7 +1362,10 @@ Intelligence{% endblock %} {% block extra_css %}
 
     window.closeDemoModal = function() {
       document.getElementById("demo-modal").classList.add("hidden");
-      document.getElementById("status-text").innerText = "클릭하여 녹음 시작";
+      const statusText = document.getElementById("demo-status");
+      if (statusText) {
+        statusText.innerText = translations['land.click_record'] || "클릭하여 녹음 시작";
+      }
     };
 </script>
 {% endblock %}

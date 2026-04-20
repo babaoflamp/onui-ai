@@ -1106,10 +1106,32 @@ def _init_user_db():
         _ensure_lms_tables(conn)
         _ensure_admin_logging_tables(conn)
         _ensure_saved_vocab_table(conn)
+        _ensure_saved_textbooks_table(conn)
         _ensure_credits_columns(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
+
+
+def _ensure_saved_textbooks_table(conn):
+    """AI 레슨 메이커에서 생성된 교재를 저장하기 위한 테이블 생성."""
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS saved_textbooks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            topic TEXT NOT NULL,
+            level TEXT,
+            dialogue TEXT,
+            vocabulary TEXT,
+            image_url TEXT,
+            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_saved_textbooks_user
+            ON saved_textbooks(user_id, saved_at);
+        """
+    )
+    conn.commit()
 
 
 def _ensure_admin_logging_tables(conn):
@@ -3209,6 +3231,72 @@ async def admin_summary(request: Request):
             "nickname": admin["nickname"],
         },
         "stats": stats,
+    }
+
+
+@app.get("/api/admin/landing-intent-summary")
+async def admin_landing_intent_summary(request: Request, limit: int = 5):
+    """관리자: 랜딩 인텐트(목표/레벨) 집계 요약."""
+    admin = _require_role(request, {ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN})
+    limit = max(1, min(limit, 20))
+
+    events = []
+    path = Path("data/landing_intent.json")
+    if path.exists():
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+            if isinstance(loaded, list):
+                events = [x for x in loaded if isinstance(x, dict)]
+        except Exception:
+            events = []
+
+    goal_counts = {}
+    level_counts = {}
+    reason_counts = {}
+    for row in events:
+        goal = str(row.get("goal") or "unknown").strip() or "unknown"
+        level = str(row.get("level") or "unknown").strip() or "unknown"
+        reason = str(row.get("reason") or "unknown").strip() or "unknown"
+        goal_counts[goal] = goal_counts.get(goal, 0) + 1
+        level_counts[level] = level_counts.get(level, 0) + 1
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+
+    def _top_items(counts: Dict[str, int]):
+        return [
+            {"key": k, "count": v}
+            for k, v in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[
+                :limit
+            ]
+        ]
+
+    recent = events[-limit:]
+    recent.reverse()
+    recent_items = [
+        {
+            "goal": str(x.get("goal") or "unknown"),
+            "level": str(x.get("level") or "unknown"),
+            "reason": str(x.get("reason") or ""),
+            "native_lang": str(x.get("native_lang") or ""),
+            "ts": x.get("ts"),
+        }
+        for x in recent
+    ]
+
+    logger.info(
+        "[ADMIN_LANDING_INTENT] %s retrieved intent summary (events=%s)",
+        admin["email"],
+        len(events),
+    )
+    return {
+        "success": True,
+        "stats": {
+            "total_events": len(events),
+            "top_goals": _top_items(goal_counts),
+            "top_levels": _top_items(level_counts),
+            "top_reasons": _top_items(reason_counts),
+            "recent": recent_items,
+        },
     }
 
 
@@ -6406,6 +6494,110 @@ async def generate_textbook_quiz(request: Request):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
+@app.post("/api/textbooks")
+async def save_textbook_endpoint(request: Request):
+    """생성된 교재를 서버 DB에 저장"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    
+    try:
+        body = await request.json()
+        topic = body.get("topic", "").strip()
+        level = body.get("level", "")
+        dialogue = body.get("dialogue", [])
+        vocabulary = body.get("vocabulary", [])
+        image_url = body.get("imageUrl", "")
+
+        if not topic or not dialogue:
+            return JSONResponse(status_code=400, content={"success": False, "message": "필수 데이터가 누락되었습니다."})
+
+        conn = sqlite3.connect(DB_PATH)
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO saved_textbooks (user_id, topic, level, dialogue, vocabulary, image_url)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    user["user_id"],
+                    topic,
+                    level,
+                    json.dumps(dialogue, ensure_ascii=False),
+                    json.dumps(vocabulary, ensure_ascii=False),
+                    image_url
+                )
+            )
+            conn.commit()
+            new_id = cursor.lastrowid
+            return JSONResponse(content={"success": True, "id": new_id})
+        finally:
+            conn.close()
+    except Exception as e:
+        logger.error(f"Save textbook failed: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+
+
+@app.get("/api/textbooks")
+async def list_textbooks_endpoint(request: Request):
+    """현재 사용자의 저장된 교재 목록 반환"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, topic, level, dialogue, vocabulary, image_url, saved_at FROM saved_textbooks WHERE user_id = ? ORDER BY saved_at DESC LIMIT 50",
+            (user["user_id"],)
+        )
+        rows = cursor.fetchall()
+        
+        results = []
+        for r in rows:
+            results.append({
+                "id": r["id"],
+                "topic": r["topic"],
+                "level": r["level"],
+                "dialogue": json.loads(r["dialogue"]),
+                "vocabulary": json.loads(r["vocabulary"]),
+                "imageUrl": r["image_url"],
+                "savedAt": r["saved_at"]
+            })
+        return JSONResponse(content={"success": True, "textbooks": results})
+    except Exception as e:
+        logger.error(f"List textbooks failed: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+    finally:
+        conn.close()
+
+
+@app.delete("/api/textbooks/{textbook_id}")
+async def delete_textbook_endpoint(request: Request, textbook_id: int):
+    """저장된 교재 삭제"""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        cursor = conn.cursor()
+        # 소유권 확인 후 삭제
+        cursor.execute("DELETE FROM saved_textbooks WHERE id = ? AND user_id = ?", (textbook_id, user["user_id"]))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return JSONResponse(status_code=404, content={"success": False, "message": "교재를 찾을 수 없거나 권한이 없습니다."})
+        return JSONResponse(content={"success": True})
+    except Exception as e:
+        logger.error(f"Delete textbook failed: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+    finally:
+        conn.close()
+
+
 @app.post("/api/voice-call/translate")
 async def translate_voice_text(request: Request):
     """AI 발화 번역 (한국어 → 사용자 언어)"""
@@ -7451,8 +7643,11 @@ async def generate_image(request: Request):
             f"Image generation request - situation: {situation}, style: {style}, quality: {quality}"
         )
 
-        # 한국어 프롬프트를 영어로 최적화
-        enhanced_prompt = enhance_prompt_for_korean_learning(situation, style)
+        # 한국어 상황 설명을 영어 프롬프트로 번역 (DALL-E 최적화)
+        english_situation = await translate_korean_to_english_prompt(situation)
+        
+        # 스타일 및 교육용 컨텍스트 추가
+        enhanced_prompt = enhance_prompt_for_korean_learning(english_situation, style)
 
         # DALL-E API 호출 (로컬 저장 포함)
         result = await generate_image_dall_e(

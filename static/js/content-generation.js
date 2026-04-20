@@ -34,6 +34,7 @@
 
     abortController = new AbortController();
     setBtnState(true);
+    setActionBtnsEnabled(false);
     currentImageUrl = null;
     currentDialogue = []; currentVocabulary = [];
     hideLevelUp(); hideQuiz();
@@ -59,7 +60,7 @@
       }
 
       if (!obj.dialogue) {
-        document.getElementById("dialogue-area").innerHTML = `<pre style="font-size:11px;color:#f97316;padding:12px;">${translations["cg.err_prefix"] || "Error"}: ${JSON.stringify(data,null,2)}</pre>`;
+        document.getElementById("dialogue-area").innerHTML = `<pre style="font-size:12px;color:#f97316;padding:12px;">${translations["cg.err_prefix"] || "Error"}: ${JSON.stringify(data,null,2)}</pre>`;
         setBtnState(false); return;
       }
 
@@ -88,6 +89,8 @@
         ${currentVocabulary.map(w=>`<span class="vocab-tag">${w}</span>`).join("")}`;
 
       setBtnState(false);
+      setActionBtnsEnabled(true);
+      fetchCredits();
       loadSavedTextbooks();
     } catch(e) {
       if (e.name !== "AbortError") {
@@ -112,10 +115,19 @@
   function speakText(txt) { if(currentAudio) currentAudio.pause(); playTTS(txt); }
 
   async function speakDialogue() {
-    if (isSpeaking) { isSpeaking = false; if(currentAudio) currentAudio.pause(); document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊"; return; }
+    if (isSpeaking) {
+      isSpeaking = false;
+      if(currentAudio) currentAudio.pause();
+      const icon = document.getElementById("btn-listen").querySelector(".ac-icon");
+      if (icon) icon.textContent = "🔊";
+      return;
+    }
     if (!currentDialogue.length) { showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요."); return; }
     isSpeaking = true;
-    document.getElementById("btn-listen").querySelector("span:first-child").textContent="⏸️";
+    const listenBtn = document.getElementById("btn-listen");
+    const icon = listenBtn.querySelector(".ac-icon");
+    if (icon) icon.textContent = "⏸️";
+
     const cards = [...document.querySelectorAll(".dialogue-card")];
     for (let i = 0; i < cards.length; i++) {
       if (!isSpeaking) break;
@@ -126,7 +138,7 @@
     }
     cards.forEach(c => c.classList.remove("playing"));
     isSpeaking = false;
-    document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊";
+    if (icon) icon.textContent = "🔊";
     showLevelUp();
   }
 
@@ -152,26 +164,31 @@
       return;
     }
     const btn = document.getElementById("btn-image");
+    const styleSelect = document.getElementById("image-style");
+    const selectedStyle = styleSelect ? styleSelect.value : "illustration";
+    const icon = btn.querySelector(".ac-icon");
+    
     const wrap = document.getElementById("scene-image-wrap");
     btn.disabled = true;
-    btn.querySelector("span:first-child").textContent = "⏳";
+    if (icon) icon.textContent = "⏳";
     wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 0;"><div style="width:32px;height:32px;border-radius:50%;border:3px solid rgba(249,115,22,0.3);border-top-color:#f97316;animation:spin 0.8s linear infinite;"></div><span style="color:rgba(255,255,255,0.35);font-size:12px;font-weight:700;">${translations["cg.btn_image"] || "이미지 생성"} ...</span></div>`;
     wrap.classList.remove("hidden");
     try {
-      const res = await fetch("/api/generate-image", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({situation:currentTopic, style:"illustration"}) });
+      const res = await fetch("/api/generate-image", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({situation:currentTopic, style:selectedStyle}) });
       const data = await res.json();
       if (data.success && data.image_url) {
         currentImageUrl = data.image_url;
         wrap.innerHTML = `<img src="${data.image_url}" alt="scene" />`;
-        btn.querySelector("span:first-child").textContent = "🖼️";
+        if (icon) icon.textContent = "🖼️";
+        fetchCredits();
       } else {
         wrap.classList.add("hidden");
-        btn.querySelector("span:first-child").textContent = "❌";
+        if (icon) icon.textContent = "❌";
         showToast(data.message || translations["cg.err_image_failed"] || "이미지 생성에 실패했습니다.");
       }
     } catch(e) {
       wrap.classList.add("hidden");
-      btn.querySelector("span:first-child").textContent = "❌";
+      if (icon) icon.textContent = "❌";
       showToast(translations["cg.err_image_error"] || "이미지 생성 중 오류가 발생했습니다.");
     }
     btn.disabled = false;
@@ -203,6 +220,7 @@
     try {
       const res = await fetch("/api/textbook/quiz", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({dialogue:currentDialogue}) });
       const data = await res.json();
+      fetchCredits();
       const qs = data.questions || [];
       if (!qs.length) { qDiv.innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">${translations["cg.err_quiz_failed"] || "퀴즈를 생성하지 못했습니다."}</p>`; return; }
       qDiv.innerHTML = qs.map((q,i) => {
@@ -225,31 +243,94 @@
     sc.innerHTML = `${correct===total?"🎉":correct>=total/2?"👍":"💪"} <span style="color:#f97316;">${correct}</span>/${total} ${translations["cg.quiz_correct_label"] || "정답"}`;
   }
 
-  // ── 저장 ────────────────────────────────────────────────────────
-  function saveTextbook() {
+  // ── 저장 및 서버 연동 ───────────────────────────────────────────
+  let fetchedTextbooks = [];
+
+  async function saveTextbook() {
     if (!currentDialogue.length) { showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요."); return; }
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
-    saved.unshift({ id:Date.now(), topic:currentTopic, level:currentLevel, dialogue:currentDialogue, vocabulary:currentVocabulary, imageUrl:currentImageUrl, savedAt:new Date().toISOString() });
-    localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0,20)));
-    loadSavedTextbooks();
-    document.getElementById("btn-save").querySelector("span:first-child").textContent = "✅";
-    setTimeout(() => { document.getElementById("btn-save").querySelector("span:first-child").textContent = "💾"; }, 1500);
+    
+    const icon = document.getElementById("btn-save").querySelector(".ac-icon");
+    if (icon) icon.textContent = "⏳";
+
+    try {
+      const res = await fetch("/api/textbooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: currentTopic,
+          level: currentLevel,
+          dialogue: currentDialogue,
+          vocabulary: currentVocabulary,
+          imageUrl: currentImageUrl
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (icon) icon.textContent = "✅";
+        loadSavedTextbooks(); // 목록 새로고침
+        setTimeout(() => { if (icon) icon.textContent = "💾"; }, 1500);
+      } else {
+        throw new Error(data.message || "저장 실패");
+      }
+    } catch(e) {
+      if (icon) icon.textContent = "❌";
+      showToast("서버 저장 실패: " + e.message);
+      setTimeout(() => { if (icon) icon.textContent = "💾"; }, 1500);
+    }
   }
 
-  function deleteSaved(id) {
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]").filter(s=>s.id!==id);
-    localStorage.setItem("saved_textbooks", JSON.stringify(saved));
-    loadSavedTextbooks();
+  async function deleteSaved(id) {
+    if (!confirm("이 교재를 정말 삭제할까요?")) return;
+    try {
+      const res = await fetch(`/api/textbooks/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) loadSavedTextbooks();
+      else showToast("삭제 실패: " + data.message);
+    } catch(e) { showToast("삭제 중 오류 발생"); }
   }
 
   function restoreSaved(id) {
-    const entry = JSON.parse(localStorage.getItem("saved_textbooks")||"[]").find(s=>s.id===id);
+    const entry = fetchedTextbooks.find(s => s.id === id);
     if (!entry) return;
+    
     document.getElementById("topic").value = entry.topic;
     document.getElementById("level").value = entry.level;
     currentTopic = entry.topic; currentLevel = entry.level;
-    currentDialogue = entry.dialogue; currentVocabulary = entry.vocabulary; currentImageUrl = entry.imageUrl;
-    generateContent();
+    currentDialogue = entry.dialogue; currentVocabulary = entry.vocabulary || []; currentImageUrl = entry.imageUrl || null;
+    hideLevelUp(); hideQuiz();
+
+    document.getElementById("result-placeholder").style.display = "none";
+    document.getElementById("result-content").style.display = "block";
+
+    const wrap = document.getElementById("scene-image-wrap");
+    if (entry.imageUrl) {
+      wrap.innerHTML = `<img src="${entry.imageUrl}" alt="scene" />`;
+      wrap.classList.remove("hidden");
+    } else {
+      wrap.innerHTML = ""; wrap.classList.add("hidden");
+    }
+
+    document.getElementById("dialogue-area").innerHTML = entry.dialogue.map((d, i) => `
+      <div class="dialogue-card" data-text='${jsEsc(d.text)}'>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <span style="font-size:18px;flex-shrink:0;">${i%2===0?"👨‍🎓":"👩‍🏫"}</span>
+          <div style="flex:1;">
+            <div class="speaker">${d.speaker||(i%2===0?(translations["cg.speaker_student"]||"Student"):(translations["cg.speaker_teacher"]||"Teacher"))}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+              <button class="tts-btn" onclick="speakText('${jsEsc(d.text)}')">🔊</button>
+              <span class="d-text">${d.text}</span>
+            </div>
+            ${d.pronunciation?`<div class="d-pron">${d.pronunciation}</div>`:""}
+          </div>
+        </div>
+      </div>`).join("");
+
+    document.getElementById("vocab-area").innerHTML = `
+      <div style="font-size:12px;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">${translations["cg.vocab_header"]||"Vocabulary"}</div>
+      ${(entry.vocabulary||[]).map(w=>`<span class="vocab-tag">${w}</span>`).join("")}`;
+
+    setActionBtnsEnabled(true);
+    showToast("교재를 불러왔습니다.");
   }
 
   function toggleSavedList() {
@@ -260,28 +341,38 @@
     chevron.textContent = isOpen ? "▲" : "▼";
   }
 
-  function loadSavedTextbooks() {
-    const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
-    const toggleRow = document.getElementById("saved-toggle-row");
-    if (!saved.length) { toggleRow.style.display = "none"; return; }
-    toggleRow.style.display = "flex";
-    document.getElementById("saved-count").textContent = `(${saved.length})`;
-    const lv = {"초급":"🟢","중급":"🟡","고급":"🔴"};
-    const lvLabel = {
-      "초급": translations["cg.level_beginner"] || "초급",
-      "중급": translations["cg.level_intermediate"] || "중급",
-      "고급": translations["cg.level_advanced"] || "고급",
-    };
-    const lang = localStorage.getItem("app_lang") || "ko";
-    document.getElementById("saved-list").innerHTML = saved.map(s => {
-      const date = new Date(s.savedAt).toLocaleDateString(lang === "ko" ? "ko-KR" : lang, {month:"short",day:"numeric"});
-      return `<div class="saved-item">
-        <div class="saved-item-img">${s.imageUrl?`<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`:"📖"}</div>
-        <div class="saved-item-info"><div class="saved-item-topic">${s.topic}</div><div class="saved-item-meta">${lv[s.level]||""} ${lvLabel[s.level]||s.level} · ${date}</div></div>
-        <button class="saved-load-btn" onclick="restoreSaved(${s.id})">${translations["cg.btn_load"] || "불러오기"}</button>
-        <button class="saved-del-btn" onclick="deleteSaved(${s.id})">×</button>
-      </div>`;
-    }).join("");
+  async function loadSavedTextbooks() {
+    try {
+      const res = await fetch("/api/textbooks");
+      const data = await res.json();
+      if (!data.success) return;
+      
+      const saved = data.textbooks || [];
+      fetchedTextbooks = saved;
+      
+      const toggleRow = document.getElementById("saved-toggle-row");
+      if (!saved.length) { toggleRow.style.display = "none"; return; }
+      toggleRow.style.display = "flex";
+      document.getElementById("saved-count").textContent = `(${saved.length})`;
+      
+      const lv = {"초급":"🟢","중급":"🟡","고급":"🔴"};
+      const lvLabel = {
+        "초급": translations["cg.level_beginner"] || "초급",
+        "중급": translations["cg.level_intermediate"] || "중급",
+        "고급": translations["cg.level_advanced"] || "고급",
+      };
+      const lang = localStorage.getItem("app_lang") || "ko";
+      
+      document.getElementById("saved-list").innerHTML = saved.map(s => {
+        const date = new Date(s.savedAt).toLocaleDateString(lang === "ko" ? "ko-KR" : lang, {month:"short",day:"numeric"});
+        return `<div class="saved-item">
+          <div class="saved-item-img">${s.imageUrl?`<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`:"📖"}</div>
+          <div class="saved-item-info"><div class="saved-item-topic">${s.topic}</div><div class="saved-item-meta">${lv[s.level]||""} ${lvLabel[s.level]||s.level} · ${date}</div></div>
+          <button class="saved-load-btn" onclick="restoreSaved(${s.id})">${translations["cg.btn_load"] || "불러오기"}</button>
+          <button class="saved-del-btn" onclick="deleteSaved(${s.id})">×</button>
+        </div>`;
+      }).join("");
+    } catch(e) { console.error("Load textbooks failed", e); }
   }
 
   // ── AI 코치 ─────────────────────────────────────────────────────
@@ -293,7 +384,7 @@
       div.innerHTML = `<div class="bubble-user-text">${html}</div>`;
     } else {
       div.className = "coach-bubble-ai";
-      div.innerHTML = `<span style="font-size:20px;flex-shrink:0;">🤖</span><div class="bubble-ai-text">${html}</div>`;
+      div.innerHTML = `<span style="font-size:18px;flex-shrink:0;">🤖</span><div class="bubble-ai-text">${html}</div>`;
     }
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
@@ -320,6 +411,7 @@
       const safe = window.marked ? DOMPurify.sanitize(marked.parse(reply)) : reply;
       appendBubble("assistant", safe);
       coachHistory.push({role:"assistant", content:reply});
+      fetchCredits();
     } catch(e) {
       document.getElementById("coach-typing")?.remove();
       appendBubble("assistant", (translations["cg.err_prefix"] || "오류") + ": " + e.message);
@@ -331,4 +423,40 @@
   style.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
   document.head.appendChild(style);
 
-  document.addEventListener("DOMContentLoaded", loadSavedTextbooks);
+  // ── 크레딧 ─────────────────────────────────────────────────────
+  async function fetchCredits() {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+    try {
+      const res = await fetch("/api/credits", { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.success) updateCreditBar(data.remaining, data.daily_limit);
+    } catch(e) {}
+  }
+
+  function updateCreditBar(remaining, total) {
+    const el = document.getElementById("credit-remaining");
+    const fill = document.getElementById("credit-bar-fill");
+    const totalEl = document.getElementById("credit-total");
+    if (!el) return;
+    el.textContent = remaining;
+    if (totalEl) totalEl.textContent = total;
+    const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+    if (fill) {
+      fill.style.width = pct + "%";
+      const color = pct > 50 ? "bg-orange-500" : pct > 20 ? "bg-yellow-500" : "bg-red-500";
+      fill.className = "h-full rounded-full transition-all duration-500 " + color;
+    }
+  }
+
+  function setActionBtnsEnabled(enabled) {
+    ["btn-listen","btn-image","btn-quiz","btn-save"].forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? "1" : "0.4";
+      btn.style.pointerEvents = enabled ? "" : "none";
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => { loadSavedTextbooks(); fetchCredits(); setActionBtnsEnabled(false); });

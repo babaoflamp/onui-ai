@@ -2,7 +2,7 @@
 {% block title %}AI 레슨 메이커 - 오누이 한국어{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/content-generation.css" />
+<link rel="stylesheet" href="/static/css/content-generation.css?v=2" />
 {% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
     <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-amber-500/20 blur-[80px] rounded-full group-hover:bg-amber-500/30 transition-all duration-700"></div>
 
     <div class="md:w-3/5 relative z-10 text-center md:text-left mb-4 md:mb-0">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[11px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
         <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
         <span data-i18n="cg.badge">AI Lesson Maker</span>
       </div>
@@ -30,7 +30,7 @@
       <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700 bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center">
         <span class="text-3xl">📖</span>
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        <div class="absolute bottom-2 left-0 right-0 text-center text-white font-black text-[10px] italic tracking-tighter" data-i18n="cg.lesson_label">My Lesson</div>
+        <div class="absolute bottom-2 left-0 right-0 text-center text-white font-black text-[11px] italic tracking-tighter" data-i18n="cg.lesson_label">My Lesson</div>
       </div>
     </div>
   </div>
@@ -42,12 +42,12 @@
     <!-- 헤더 -->
     <div class="tb-panel-header" style="background: linear-gradient(90deg, rgba(249,115,22,0.08), transparent);">
       <span style="font-size:16px;">📖</span>
-      <h2><span data-i18n="cg.panel_header">AI 레슨 메이커</span> <span style="color:#f97316;font-style:italic;text-transform:none;font-size:11px;" data-i18n="cg.panel_sub">· 나만의 맞춤 레슨</span></h2>
+      <h2><span data-i18n="cg.panel_header">AI 레슨 메이커</span> <span style="color:#f97316;font-style:italic;text-transform:none;font-size:12px;" data-i18n="cg.panel_sub">· 나만의 맞춤 레슨</span></h2>
     </div>
 
     <!-- 설정 바 -->
     <div class="config-row">
-      <input id="topic" type="text" value="김치" placeholder="주제 (예: 여행, 음식, 직장...)" data-i18n="cg.topic_placeholder"
+      <input id="topic" type="text" value="" placeholder="레슨 주제를 입력하세요 (예: K-POP, 여행, 요리...)" data-i18n="cg.topic_placeholder"
         onkeydown="if(event.key==='Enter'){event.preventDefault();generateContent();}" />
       <select id="level">
         <option value="초급" data-i18n="cg.level_beginner">🟢 초급</option>
@@ -63,7 +63,7 @@
     <div class="tb-scroll" id="result-scroll">
       <div id="result-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:rgba(255,255,255,0.15);">
         <span style="font-size:48px;">✨</span>
-        <p style="font-size:13px;font-weight:700;" data-i18n="cg.empty_prompt">주제를 입력하고 생성 버튼을 눌러보세요</p>
+        <p style="font-size:14px;font-weight:700;" data-i18n="cg.empty_prompt">주제를 입력하고 생성 버튼을 눌러보세요</p>
       </div>
       <div id="result-content" style="display:none;">
         <div id="scene-image-wrap" class="hidden"></div>
@@ -75,7 +75,7 @@
     <!-- 저장 목록 토글 -->
     <div class="saved-toggle-row" onclick="toggleSavedList()" id="saved-toggle-row" style="display:none;">
       <span class="saved-toggle-label"><span data-i18n="cg.saved_list">📚 내 저장 목록</span> <span id="saved-count"></span></span>
-      <span id="saved-chevron" style="color:rgba(255,255,255,0.2);font-size:12px;">▲</span>
+      <span id="saved-chevron" style="color:rgba(255,255,255,0.2);font-size:11px;">▲</span>
     </div>
     <div class="saved-list-wrap" id="saved-list-wrap">
       <div class="saved-inner" id="saved-list"></div>
@@ -84,20 +84,71 @@
 
   <!-- ══ 우측: 액션 + 코치 + 퀴즈 ══════════════════════════ -->
   <div class="tb-panel">
-    <!-- 액션 버튼 바 -->
-    <div class="action-bar">
-      <button class="action-btn" onclick="speakDialogue()" id="btn-listen">
-        <span>🔊</span><span data-i18n="cg.btn_listen">전체 듣기</span>
-      </button>
-      <button class="action-btn" onclick="generateSceneImage()" id="btn-image">
-        <span>🖼️</span><span data-i18n="cg.btn_image">이미지 생성</span>
-      </button>
-      <button class="action-btn" onclick="toggleQuiz()" id="btn-quiz">
-        <span>🧩</span><span data-i18n="cg.btn_quiz">퀴즈</span>
-      </button>
-      <button class="action-btn" onclick="saveTextbook()" id="btn-save">
-        <span>💾</span><span data-i18n="cg.btn_save">저장</span>
-      </button>
+    <!-- 크레딧 바 -->
+    <div id="credit-bar" class="flex items-center gap-2 px-4 py-2 border-b border-white/5 text-xs font-bold flex-shrink-0">
+      <span class="text-white/30">⚡</span>
+      <span class="text-white/50" id="credit-remaining">—</span>
+      <span class="text-white/20">/</span>
+      <span class="text-white/20" id="credit-total">50</span>
+      <span class="text-white/20">daily credits</span>
+      <div class="ml-auto flex-shrink-0 w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div id="credit-bar-fill" class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width:100%"></div>
+      </div>
+    </div>
+    <!-- 액션 버튼 그리드 -->
+    <div class="action-grid">
+      <!-- 듣기 -->
+      <div class="action-card-wrap">
+        <button class="action-card h-full" onclick="speakDialogue()" id="btn-listen">
+          <div class="ac-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🔊</div>
+          <div class="ac-info">
+            <span class="ac-title" data-i18n="cg.btn_listen">전체 듣기</span>
+            <span class="ac-cost">무료</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- 이미지 생성 (통합 카드) -->
+      <div class="action-card-unified" id="image-card-container">
+        <button class="ac-main" onclick="generateSceneImage()" id="btn-image">
+          <div class="ac-icon" style="background:rgba(249,115,22,0.15);color:#fb923c;">🖼️</div>
+          <div class="ac-info">
+            <span class="ac-title" data-i18n="cg.btn_image">이미지 생성</span>
+            <span class="ac-cost cost-req">-10⚡ 크레딧</span>
+          </div>
+        </button>
+        <div class="ac-options">
+          <select id="image-style" class="image-style-select-inline">
+            <option value="illustration" selected>🎨 일러스트 화풍</option>
+            <option value="anime">🎎 애니메이션 화풍</option>
+            <option value="photorealistic">📸 실사 사진풍</option>
+            <option value="sketch">✏️ 연필 스케치풍</option>
+            <option value="3d-render">🧊 3D 렌더링풍</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 퀴즈 -->
+      <div class="action-card-wrap">
+        <button class="action-card h-full" onclick="toggleQuiz()" id="btn-quiz">
+          <div class="ac-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;">🧩</div>
+          <div class="ac-info">
+            <span class="ac-title" data-i18n="cg.btn_quiz">AI 퀴즈 풀기</span>
+            <span class="ac-cost cost-req">-2⚡ 크레딧</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- 저장 -->
+      <div class="action-card-wrap">
+        <button class="action-card h-full" onclick="saveTextbook()" id="btn-save">
+          <div class="ac-icon" style="background:rgba(34,197,94,0.15);color:#4ade80;">💾</div>
+          <div class="ac-info">
+            <span class="ac-title" data-i18n="cg.btn_save">내 교재 저장</span>
+            <span class="ac-cost">무료</span>
+          </div>
+        </button>
+      </div>
     </div>
 
     <!-- 레벨업 배너 -->
@@ -129,7 +180,7 @@
     <div class="quiz-wrap" id="quiz-wrap">
       <div class="quiz-inner">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;" data-i18n="cg.quiz_header">🧩 퀴즈</span>
+          <span style="font-size:12px;font-weight:900;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;" data-i18n="cg.quiz_header">🧩 퀴즈</span>
           <button onclick="toggleQuiz()" style="background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:16px;">×</button>
         </div>
         <div id="quiz-questions"></div>
@@ -146,5 +197,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/content-generation.js" defer></script>
+<script src="/static/js/content-generation.js?v=2" defer></script>
 {% endblock %}

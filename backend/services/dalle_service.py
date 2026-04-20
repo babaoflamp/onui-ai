@@ -416,21 +416,18 @@ def enhance_prompt_for_korean_learning(
     """
     # 스타일 매핑
     style_descriptions = {
-        "watercolor": "watercolor painting style, soft and flowing",
-        "illustration": "illustration style, clean and educational",
-        "cartoon": "cartoon style, cheerful and colorful",
-        "realistic": "photorealistic style, professional photography",
-        "oil-painting": "oil painting style, rich textures and brushstrokes",
-        "pencil-sketch": "detailed pencil sketch, line art, grayscale",
-        "digital-art": "digital art style, modern and vibrant",
-        "anime": "anime style, Japanese animation aesthetic",
-        "vintage": "vintage style, retro colors and aged look",
-        "minimalist": "minimalist style, simple and clean composition",
-        "pop-art": "pop art style, bold colors and graphic elements",
-        "3d-render": "3D rendered style, polished and dimensional"
+        "watercolor": "soft watercolor painting, bleeding colors, artistic and traditional",
+        "illustration": "clean modern digital illustration, flat design, educational and friendly, bright colors",
+        "cartoon": "cheerful 2D cartoon style, thick outlines, vibrant and playful",
+        "photorealistic": "high-quality professional photography, photorealistic, 8k resolution, realistic lighting and textures",
+        "oil-painting": "classic oil painting style, visible thick brushstrokes, rich textures, artistic",
+        "sketch": "detailed pencil sketch, fine line art, hand-drawn on paper, artistic grayscale",
+        "digital-art": "modern digital art style, smooth gradients, vibrant and cinematic",
+        "anime": "high-quality anime style, Japanese animation aesthetic, cel-shaded, expressive",
+        "3d-render": "modern 3D rendered style, Octane render, 4k, polished and dimensional, like a Pixar movie"
     }
 
-    style_desc = style_descriptions.get(style, "watercolor painting style")
+    style_desc = style_descriptions.get(style, "illustration style, clean and educational")
 
     # 한국 학습 컨텍스트 추가
     enhanced_prompt = f"{korean_situation}, {style_desc}, "
