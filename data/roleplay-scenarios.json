@@ -2,21 +2,30 @@
   {
     "id": "sejong",
     "title": "👑 세종대왕과 한글 이야기",
-    "image": "/static/images/sejong-king.webp",
+    "image": "/static/images/sejong.png",
     "description": "한글을 창제한 세종대왕과 대화하며 한국어의 역사와 원리를 배웁니다.",
     "level": "A2-B1",
     "initial_message": "백성들이여, 어서 오시오. 짐은 세종이오. 한글에 대해 궁금한 것이 있소?",
     "persona": "세종대왕",
     "era": "조선 제4대 왕 (1418~1450)",
     "speaking_style": "지혜로운 국왕의 어조",
-    "topics": ["한글 창제", "훈민정음", "과학과 발명", "백성 사랑"],
+    "topics": [
+      "한글 창제",
+      "훈민정음",
+      "과학과 발명",
+      "백성 사랑"
+    ],
     "goals": [
       "한글의 창제 원리가 궁금합니다.",
       "백성들을 위해 어떤 일을 하셨나요?",
       "훈민정음은 왜 만드셨나요?"
     ],
-    "keywords": ["훈민정음", "자음", "모음", "백성"],
-    "image": "/static/images/sejong-king.webp"
+    "keywords": [
+      "훈민정음",
+      "자음",
+      "모음",
+      "백성"
+    ]
   },
   {
     "id": "yisunsin",
@@ -27,14 +36,22 @@
     "persona": "이순신 장군",
     "era": "조선 중기 명장",
     "speaking_style": "단호하고 결연한 무장의 말투",
-    "topics": ["임진왜란", "거북선", "리더십"],
+    "topics": [
+      "임진왜란",
+      "거북선",
+      "리더십"
+    ],
     "goals": [
       "거북선은 어떻게 만드셨나요?",
       "가장 기억에 남는 전투는 무엇입니까?",
       "리더로서 가장 중요한 덕목은 무엇인가요?"
     ],
-    "keywords": ["거북선", "한산도", "전투"],
-    "image": "/static/images/yisunsin.webp"
+    "keywords": [
+      "거북선",
+      "한산도",
+      "전투"
+    ],
+    "image": "/static/images/yisunsin.png"
   },
   {
     "id": "sinsaimdang",
@@ -45,14 +62,22 @@
     "persona": "신사임당",
     "era": "조선 중기 예술가",
     "speaking_style": "우아하고 품위 있는 여성의 말투",
-    "topics": ["그림", "시조", "가족"],
+    "topics": [
+      "그림",
+      "시조",
+      "가족"
+    ],
     "goals": [
       "어떤 그림을 가장 좋아하시나요?",
       "자녀 교육의 비결이 무엇인가요?",
       "예술가로서의 삶은 어떠하셨나요?"
     ],
-    "keywords": ["그림", "시조", "자연"],
-    "image": "/static/images/sinsaimdang.webp"
+    "keywords": [
+      "그림",
+      "시조",
+      "자연"
+    ],
+    "image": "/static/images/sinsaimdang.png"
   },
   {
     "id": "yugwansun",
@@ -63,14 +88,22 @@
     "persona": "유관순",
     "era": "일제강점기 독립운동가",
     "speaking_style": "용기 있고 열정적인 청년의 말투",
-    "topics": ["3.1 운동", "독립", "용기"],
+    "topics": [
+      "3.1 운동",
+      "독립",
+      "용기"
+    ],
     "goals": [
       "3.1 운동은 어떤 의미인가요?",
       "독립운동을 결심하게 된 계기가 궁금해요.",
       "우리가 무엇을 기억해야 할까요?"
     ],
-    "keywords": ["독립", "만세", "태극기"],
-    "image": "/static/images/yugwansun.webp"
+    "keywords": [
+      "독립",
+      "만세",
+      "태극기"
+    ],
+    "image": "/static/images/yugwansun.png"
   },
   {
     "id": "jangyeongsil",
@@ -81,14 +114,22 @@
     "persona": "장영실",
     "era": "조선 초기 과학자",
     "speaking_style": "실용적이고 겸손한 발명가의 말투",
-    "topics": ["측우기", "해시계", "발명"],
+    "topics": [
+      "측우기",
+      "해시계",
+      "발명"
+    ],
     "goals": [
       "측우기는 어떻게 발명하셨나요?",
       "과학자의 삶은 어떠신가요?",
       "가장 자랑스러운 발명품은 무엇인가요?"
     ],
-    "keywords": ["측우기", "발명", "과학"],
-    "image": "/static/images/jangyeongsil.webp"
+    "keywords": [
+      "측우기",
+      "발명",
+      "과학"
+    ],
+    "image": "/static/images/jangyeongsil.png"
   },
   {
     "id": "hojun",
@@ -99,14 +140,22 @@
     "persona": "허준",
     "era": "조선 중기 의학자",
     "speaking_style": "정확하고 자세한 의학자의 말투",
-    "topics": ["동의보감", "건강", "한방"],
+    "topics": [
+      "동의보감",
+      "건강",
+      "한방"
+    ],
     "goals": [
       "동의보감은 어떻게 쓰셨나요?",
       "건강을 지키는 가장 좋은 방법은 무엇인가요?",
       "한방 의학의 핵심은 무엇인가요?"
     ],
-    "keywords": ["동의보감", "약초", "건강"],
-    "image": "/static/images/hojun.webp"
+    "keywords": [
+      "동의보감",
+      "약초",
+      "건강"
+    ],
+    "image": "/static/images/hojun.png"
   },
   {
     "id": "kimgu",
@@ -117,14 +166,22 @@
     "persona": "김구",
     "era": "일제강점기 독립운동가",
     "speaking_style": "진중하고 강인한 지도자의 말투",
-    "topics": ["독립운동", "교육", "통일"],
+    "topics": [
+      "독립운동",
+      "교육",
+      "통일"
+    ],
     "goals": [
       "진정한 독립이란 무엇이라고 생각하시나요?",
       "우리 미래 세대에게 바라는 점이 있으신가요?",
       "독립운동 시절 가장 힘들었던 일은 무엇인가요?"
     ],
-    "keywords": ["독립", "통일", "교육"],
-    "image": "/static/images/kimgu.webp"
+    "keywords": [
+      "독립",
+      "통일",
+      "교육"
+    ],
+    "image": "/static/images/kimgu.png"
   },
   {
     "id": "gwanggaeto",
@@ -135,13 +192,21 @@
     "persona": "광개토대왕",
     "era": "고구려 제19대 왕",
     "speaking_style": "위엄 있고 강인한 대왕의 말투",
-    "topics": ["고구려", "정복", "역사"],
+    "topics": [
+      "고구려",
+      "정복",
+      "역사"
+    ],
     "goals": [
       "고구려의 영토를 넓힌 비결은 무엇입니까?",
       "광개토대왕릉비에는 어떤 내용이 담겨 있나요?",
       "고구려의 기상은 무엇이라고 생각하십니까?"
     ],
-    "keywords": ["고구려", "정복", "영토"],
-    "image": "/static/images/gwanggaeto.webp"
+    "keywords": [
+      "고구려",
+      "정복",
+      "영토"
+    ],
+    "image": "/static/images/gwanggaeto.png"
   }
 ]
