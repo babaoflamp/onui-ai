@@ -27,7 +27,7 @@
     "id": "restaurant",
     "title": "🍽️ 식당",
     "tutor_name": "민수",
-    "avatar_url": "/static/images/onui-idol-waiter.webp",
+    "avatar_url": "/static/images/onui-idol-waiter.png",
     "initial_message": "손님, 메뉴를 보고 주문해 주세요.",
     "system_prompt": "당신은 식당 점원입니다. 손님의 주문을 받고 음식을 서빙해 주세요."
   },
