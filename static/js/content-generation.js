@@ -152,22 +152,25 @@
       return;
     }
     const btn = document.getElementById("btn-image");
+    const wrap = document.getElementById("scene-image-wrap");
     btn.disabled = true;
     btn.querySelector("span:first-child").textContent = "⏳";
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 0;"><div style="width:32px;height:32px;border-radius:50%;border:3px solid rgba(249,115,22,0.3);border-top-color:#f97316;animation:spin 0.8s linear infinite;"></div><span style="color:rgba(255,255,255,0.35);font-size:12px;font-weight:700;">${translations["cg.btn_image"] || "이미지 생성"} ...</span></div>`;
+    wrap.classList.remove("hidden");
     try {
       const res = await fetch("/api/generate-image", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({situation:currentTopic, style:"illustration"}) });
       const data = await res.json();
       if (data.success && data.image_url) {
         currentImageUrl = data.image_url;
-        const wrap = document.getElementById("scene-image-wrap");
         wrap.innerHTML = `<img src="${data.image_url}" alt="scene" />`;
-        wrap.classList.remove("hidden");
         btn.querySelector("span:first-child").textContent = "🖼️";
       } else {
+        wrap.classList.add("hidden");
         btn.querySelector("span:first-child").textContent = "❌";
         showToast(data.message || translations["cg.err_image_failed"] || "이미지 생성에 실패했습니다.");
       }
     } catch(e) {
+      wrap.classList.add("hidden");
       btn.querySelector("span:first-child").textContent = "❌";
       showToast(translations["cg.err_image_error"] || "이미지 생성 중 오류가 발생했습니다.");
     }
