@@ -23,16 +23,18 @@ document.getElementById("character-selector").addEventListener("click", (e) => {
 });
 document.addEventListener("click", () => characterDropdown.classList.add("hidden"));
 
+const charKeyMap = { chaeon: "msg.char_chaewon", teacher: "msg.char_youngja", barista: "msg.char_minsu", doctor: "msg.char_drpark" };
+
 function selectCharacter(id, name, avatar, role) {
   currentCharacter = { id, name, role, avatar };
   document.getElementById("current-avatar").src = avatar;
-  document.getElementById("current-name").textContent = name;
+  document.getElementById("current-name").textContent = (charKeyMap[id] && translations[charKeyMap[id]]) || name;
   characterDropdown.classList.add("hidden");
   chatHistory = [
     { role: "assistant", content: `${name}(이/가) 도와드릴게요! 무엇을 말씀해 주시겠어요? 😊` },
   ];
   chatBody.innerHTML =
-    '<div class="text-center text-xs font-bold text-white/30 uppercase tracking-widest my-4">Today</div>';
+    `<div class="text-center text-xs font-bold text-white/30 uppercase tracking-widest my-4">${translations["msg.today"] || "Today"}</div>`;
   addMessage("assistant", chatHistory[0].content);
 }
 
@@ -61,7 +63,7 @@ function addCorrection(correction) {
   card.className = "correction-card";
   card.innerHTML = `
     <div class="flex items-center gap-2 mb-2">
-      <span class="text-red-400 text-xs font-black uppercase tracking-widest">🖋️ Grammar Correction</span>
+      <span class="text-red-400 text-xs font-black uppercase tracking-widest">${translations["msg.correction_label"] || "🖋️ Grammar Correction"}</span>
     </div>
     <p class="text-white/60 text-sm line-through decoration-red-500 mb-1">${correction.original}</p>
     <p class="text-white font-bold text-sm">${correction.corrected}</p>

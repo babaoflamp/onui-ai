@@ -73,7 +73,7 @@
   <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
     <div>
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
-        Personal Studio
+        <span data-i18n="my.studio">Personal Studio</span>
       </div>
       <h1 class="text-4xl font-black text-white mb-2 tracking-tighter">
         My <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">Profile</span>
@@ -111,19 +111,19 @@
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <span class="label-text">Joined</span>
+          <span class="label-text" data-i18n="my.joined">Joined</span>
           <p class="info-value" id="profileCreated"></p>
         </div>
         <div>
-          <span class="label-text">Native Language</span>
+          <span class="label-text" data-i18n="my.native_lang">Native Language</span>
           <p class="info-value" id="profileNativeLang">-</p>
         </div>
         <div>
-          <span class="label-text">Affiliation</span>
+          <span class="label-text" data-i18n="my.affiliation">Affiliation</span>
           <p class="info-value" id="profileAffiliation">-</p>
         </div>
         <div>
-          <span class="label-text">Study Time</span>
+          <span class="label-text" data-i18n="my.study_time">Study Time</span>
           <p class="info-value" id="profileTimePref">-</p>
         </div>
       </div>
@@ -132,20 +132,20 @@
     <!-- Learning Status -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="glass-main-card rounded-[32px] p-8">
-            <h3 class="text-xs font-black text-white/30 uppercase tracking-widest mb-6">Learning Goals</h3>
+            <h3 class="text-xs font-black text-white/30 uppercase tracking-widest mb-6" data-i18n="my.learning_goals">Learning Goals</h3>
             <div class="space-y-6">
                 <div>
-                    <span class="label-text">Primary Goal</span>
-                    <p class="text-white font-bold" id="profileGoal">미설정</p>
+                    <span class="label-text" data-i18n="my.primary_goal">Primary Goal</span>
+                    <p class="text-white font-bold" id="profileGoal" data-i18n="my.not_set">미설정</p>
                 </div>
                 <div>
-                    <span class="label-text">Target Exam</span>
-                    <p class="text-white font-bold" id="profileExamLevel">미설정</p>
+                    <span class="label-text" data-i18n="my.target_exam">Target Exam</span>
+                    <p class="text-white font-bold" id="profileExamLevel" data-i18n="my.not_set">미설정</p>
                 </div>
             </div>
         </div>
         <div class="glass-main-card rounded-[32px] p-8">
-            <h3 class="text-xs font-black text-white/30 uppercase tracking-widest mb-6">Interests</h3>
+            <h3 class="text-xs font-black text-white/30 uppercase tracking-widest mb-6" data-i18n="my.interests">Interests</h3>
             <div id="profileInterests" class="flex flex-wrap gap-2"></div>
         </div>
     </div>
@@ -160,28 +160,28 @@
       <form id="editProfileForm" class="space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
-            <label class="label-text ml-1">Nickname</label>
+            <label class="label-text ml-1" data-i18n="sig.name">Nickname</label>
             <input name="nickname" type="text" maxlength="50" class="w-full input-dark outline-none" />
           </div>
           <div class="space-y-2">
-            <label class="label-text ml-1">Native Lang</label>
+            <label class="label-text ml-1" data-i18n="my.native_lang">Native Lang</label>
             <input name="native_lang" type="text" class="w-full input-dark outline-none" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
-            <label class="label-text ml-1">Affiliation</label>
+            <label class="label-text ml-1" data-i18n="my.affiliation">Affiliation</label>
             <input name="affiliation" type="text" class="w-full input-dark outline-none" />
           </div>
           <div class="space-y-2">
-            <label class="label-text ml-1">Study Time</label>
+            <label class="label-text ml-1" data-i18n="my.study_time">Study Time</label>
             <select name="time_pref" class="w-full input-dark outline-none cursor-pointer">
-              <option value="">Select</option>
-              <option value="Morning">Morning</option>
-              <option value="Afternoon">Afternoon</option>
-              <option value="Evening">Evening</option>
-              <option value="Weekend">Weekend</option>
+              <option value="" data-i18n="my.select">Select</option>
+              <option value="Morning" data-i18n="my.morning">Morning</option>
+              <option value="Afternoon" data-i18n="my.afternoon">Afternoon</option>
+              <option value="Evening" data-i18n="my.evening">Evening</option>
+              <option value="Weekend" data-i18n="my.weekend">Weekend</option>
             </select>
           </div>
         </div>

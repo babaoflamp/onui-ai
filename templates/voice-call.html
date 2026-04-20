@@ -53,16 +53,16 @@
       <div class="flex items-center gap-4">
         <img id="tutor-avatar" src="/static/images/onui-pure-idol.png" class="caller-avatar" />
         <div>
-          <p id="tutor-name" class="text-white font-black text-lg">AI Tutor</p>
+          <p id="tutor-name" class="text-white font-black text-lg" data-i18n="vc.ai_tutor">AI Tutor</p>
           <p id="call-timer" class="text-orange-400 font-mono text-sm">00:00</p>
         </div>
       </div>
-      <div id="status-badge" class="px-4 py-2 bg-black/40 border border-white/10 rounded-full text-xs font-black text-white/60 uppercase tracking-widest">준비 중...</div>
+      <div id="status-badge" class="px-4 py-2 bg-black/40 border border-white/10 rounded-full text-xs font-black text-white/60 uppercase tracking-widest" data-i18n="vc.ready">준비 중...</div>
     </div>
 
     <!-- Chat log -->
     <div id="chat-log" class="flex flex-col gap-3 min-h-[300px] max-h-[420px] overflow-y-auto custom-scrollbar mb-6 px-1">
-      <div class="text-center text-white/20 text-xs py-8" id="chat-placeholder">시나리오를 시작하는 중...</div>
+      <div class="text-center text-white/20 text-xs py-8" id="chat-placeholder" data-i18n="vc.starting">시나리오를 시작하는 중...</div>
     </div>
 
     <!-- Recording area -->
@@ -78,7 +78,7 @@
 
         <!-- Status / instruction -->
         <div class="flex-1">
-          <p id="record-label" class="text-white/60 text-sm font-bold">버튼을 눌러 한국어로 답하세요</p>
+          <p id="record-label" class="text-white/60 text-sm font-bold" data-i18n="vc.btn_answer">버튼을 눌러 한국어로 답하세요</p>
           <div id="record-wave" class="hidden flex items-end gap-1 h-4 mt-1">
             <div class="w-1 bg-orange-400 rounded-full animate-bounce" style="height:8px;animation-delay:0s"></div>
             <div class="w-1 bg-orange-400 rounded-full animate-bounce" style="height:14px;animation-delay:0.1s"></div>

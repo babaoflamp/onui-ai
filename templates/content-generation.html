@@ -16,10 +16,10 @@
     <div class="md:w-3/5 relative z-10 text-center md:text-left mb-4 md:mb-0">
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 border border-white/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 backdrop-blur-md">
         <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
-        AI Lesson Maker
+        <span data-i18n="cg.badge">AI Lesson Maker</span>
       </div>
       <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
-        Onui <span class="bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent italic pb-2 pr-2">Lesson Maker</span>
+        Onui <span class="bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent italic pb-2 pr-2" data-i18n="cg.title_sub">Lesson Maker</span>
       </h1>
       <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="cg.desc">
         Generate personalized Korean lessons with dialogues, vocabulary, and quizzes on any topic.
@@ -30,7 +30,7 @@
       <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700 bg-gradient-to-br from-orange-600 to-amber-700 flex items-center justify-center">
         <span class="text-3xl">📖</span>
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        <div class="absolute bottom-2 left-0 right-0 text-center text-white font-black text-[10px] italic tracking-tighter">My Lesson</div>
+        <div class="absolute bottom-2 left-0 right-0 text-center text-white font-black text-[10px] italic tracking-tighter" data-i18n="cg.lesson_label">My Lesson</div>
       </div>
     </div>
   </div>
@@ -42,17 +42,17 @@
     <!-- 헤더 -->
     <div class="tb-panel-header" style="background: linear-gradient(90deg, rgba(249,115,22,0.08), transparent);">
       <span style="font-size:16px;">📖</span>
-      <h2>AI 레슨 메이커 <span style="color:#f97316;font-style:italic;text-transform:none;font-size:11px;">· 나만의 맞춤 레슨</span></h2>
+      <h2><span data-i18n="cg.panel_header">AI 레슨 메이커</span> <span style="color:#f97316;font-style:italic;text-transform:none;font-size:11px;" data-i18n="cg.panel_sub">· 나만의 맞춤 레슨</span></h2>
     </div>
 
     <!-- 설정 바 -->
     <div class="config-row">
-      <input id="topic" type="text" value="김치" placeholder="주제 (예: 여행, 음식, 직장...)"
+      <input id="topic" type="text" value="김치" placeholder="주제 (예: 여행, 음식, 직장...)" data-i18n="cg.topic_placeholder"
         onkeydown="if(event.key==='Enter'){event.preventDefault();generateContent();}" />
       <select id="level">
-        <option value="초급">🟢 초급</option>
-        <option value="중급" selected>🟡 중급</option>
-        <option value="고급">🔴 고급</option>
+        <option value="초급" data-i18n="cg.level_beginner">🟢 초급</option>
+        <option value="중급" selected data-i18n="cg.level_intermediate">🟡 중급</option>
+        <option value="고급" data-i18n="cg.level_advanced">🔴 고급</option>
       </select>
       <button id="gen-btn" class="gen-btn" onclick="toggleGeneration()">
         <span id="gen-icon">🪄</span><span id="gen-label">생성</span>
@@ -63,7 +63,7 @@
     <div class="tb-scroll" id="result-scroll">
       <div id="result-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:rgba(255,255,255,0.15);">
         <span style="font-size:48px;">✨</span>
-        <p style="font-size:13px;font-weight:700;">주제를 입력하고 생성 버튼을 눌러보세요</p>
+        <p style="font-size:13px;font-weight:700;" data-i18n="cg.empty_prompt">주제를 입력하고 생성 버튼을 눌러보세요</p>
       </div>
       <div id="result-content" style="display:none;">
         <div id="scene-image-wrap" class="hidden"></div>
@@ -74,7 +74,7 @@
 
     <!-- 저장 목록 토글 -->
     <div class="saved-toggle-row" onclick="toggleSavedList()" id="saved-toggle-row" style="display:none;">
-      <span class="saved-toggle-label">📚 내 저장 목록 <span id="saved-count"></span></span>
+      <span class="saved-toggle-label"><span data-i18n="cg.saved_list">📚 내 저장 목록</span> <span id="saved-count"></span></span>
       <span id="saved-chevron" style="color:rgba(255,255,255,0.2);font-size:12px;">▲</span>
     </div>
     <div class="saved-list-wrap" id="saved-list-wrap">
@@ -87,26 +87,26 @@
     <!-- 액션 버튼 바 -->
     <div class="action-bar">
       <button class="action-btn" onclick="speakDialogue()" id="btn-listen">
-        <span>🔊</span><span>전체 듣기</span>
+        <span>🔊</span><span data-i18n="cg.btn_listen">전체 듣기</span>
       </button>
       <button class="action-btn" onclick="generateSceneImage()" id="btn-image">
-        <span>🖼️</span><span>이미지 생성</span>
+        <span>🖼️</span><span data-i18n="cg.btn_image">이미지 생성</span>
       </button>
       <button class="action-btn" onclick="toggleQuiz()" id="btn-quiz">
-        <span>🧩</span><span>퀴즈</span>
+        <span>🧩</span><span data-i18n="cg.btn_quiz">퀴즈</span>
       </button>
       <button class="action-btn" onclick="saveTextbook()" id="btn-save">
-        <span>💾</span><span>저장</span>
+        <span>💾</span><span data-i18n="cg.btn_save">저장</span>
       </button>
     </div>
 
     <!-- 레벨업 배너 -->
     <div id="levelup-banner">
-      <p>🎉 잘 들으셨나요! 다음 단계로 도전해보세요.</p>
+      <p data-i18n="cg.levelup_msg">🎉 잘 들으셨나요! 다음 단계로 도전해보세요.</p>
       <div class="levelup-btns">
-        <button id="btn-harder" class="levelup-btn" onclick="levelUpHarder()" style="background:rgba(249,115,22,0.8);color:white;">더 어렵게 ↑</button>
-        <button class="levelup-btn" onclick="newTopic()" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);">새 주제</button>
-        <button class="levelup-btn" onclick="toggleQuiz()" style="background:rgba(139,92,246,0.3);color:#c4b5fd;">🧩 퀴즈</button>
+        <button id="btn-harder" class="levelup-btn" onclick="levelUpHarder()" style="background:rgba(249,115,22,0.8);color:white;" data-i18n="cg.levelup_harder">더 어렵게 ↑</button>
+        <button class="levelup-btn" onclick="newTopic()" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);" data-i18n="cg.levelup_new_topic">새 주제</button>
+        <button class="levelup-btn" onclick="toggleQuiz()" style="background:rgba(139,92,246,0.3);color:#c4b5fd;">🧩 <span data-i18n="cg.btn_quiz">퀴즈</span></button>
       </div>
     </div>
 
@@ -114,27 +114,27 @@
     <div class="coach-scroll" id="coach-messages">
       <div class="coach-bubble-ai">
         <span style="font-size:20px;flex-shrink:0;">🤖</span>
-        <div class="bubble-ai-text">교재를 생성한 후 질문해 주세요! 문법, 어휘, 문화 등 무엇이든 물어보세요.</div>
+        <div class="bubble-ai-text" data-i18n="cg.coach_greeting">교재를 생성한 후 질문해 주세요! 문법, 어휘, 문화 등 무엇이든 물어보세요.</div>
       </div>
     </div>
 
     <!-- 코치 입력 -->
     <div class="coach-input-row">
-      <input id="coach-input" type="text" placeholder="질문을 입력하세요... 😊"
+      <input id="coach-input" type="text" placeholder="질문을 입력하세요... 😊" data-i18n="cg.coach_placeholder"
         onkeydown="if(event.key==='Enter'){event.preventDefault();sendCoach();}" />
-      <button class="send-btn" onclick="sendCoach()">전송</button>
+      <button class="send-btn" onclick="sendCoach()" data-i18n="cg.coach_send">전송</button>
     </div>
 
     <!-- 퀴즈 영역 -->
     <div class="quiz-wrap" id="quiz-wrap">
       <div class="quiz-inner">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;">🧩 퀴즈</span>
+          <span style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.1em;" data-i18n="cg.quiz_header">🧩 퀴즈</span>
           <button onclick="toggleQuiz()" style="background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:16px;">×</button>
         </div>
         <div id="quiz-questions"></div>
         <div class="quiz-actions">
-          <button class="quiz-check-btn" onclick="checkAnswers()">정답 확인</button>
+          <button class="quiz-check-btn" onclick="checkAnswers()" data-i18n="cg.btn_check">정답 확인</button>
         </div>
         <div id="quiz-score" class="quiz-score" style="display:none;"></div>
       </div>

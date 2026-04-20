@@ -38,6 +38,34 @@ pm2 restart onui-ai   # restart without full stop
 
 PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `logs/pm2-error.log`.
 
+### Production URLs & Network Topology
+
+```
+onuiai.kr  (DNS A → server IP)
+  └→ nginx (80/443, SSL via Let's Encrypt, config: nginx-onuiai.kr.conf)
+       └→ uvicorn (127.0.0.1:9002)
+           ↑
+          ngrok tunnel (https://onui-ai.ngrok.app, also points to 9002)
+```
+
+`scripts/setup-domain.sh` handles first-time nginx + certbot setup. SSL renewal: `sudo certbot renew`.
+
+### Feature URL Map
+
+| Feature | Route |
+|---|---|
+| Dashboard | `/dashboard` |
+| Daily Expression | `/daily-expression` |
+| OnuiTube (video) | `/video-learning` |
+| Onui Beats (K-Pop) | `/onui-beats` |
+| AI Voice Call | `/voice-call` |
+| AI Roleplay | `/roleplay` |
+| Content Generation | `/content-generation` |
+| Pronunciation (SpeechPro) | `/speechpro-practice` |
+| Free Sentence Evaluation | `/sentence-evaluation` |
+| Learning Progress | `/learning-progress` |
+| AI Grammar Coach | `/onui-grammar` |
+
 ## Key Environment Variables (`.env`)
 
 | Variable | Purpose | Default |

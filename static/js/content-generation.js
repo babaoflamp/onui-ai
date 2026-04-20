@@ -23,7 +23,7 @@
   function setBtnState(on) {
     isGenerating = on;
     document.getElementById("gen-icon").textContent = on ? "⏹️" : "🪄";
-    document.getElementById("gen-label").textContent = on ? "중지" : "생성";
+    document.getElementById("gen-label").textContent = on ? (translations["cg.btn_stop"] || "중지") : (translations["cg.btn_generate"] || "생성");
     document.getElementById("gen-btn").className = "gen-btn" + (on ? " stop" : "");
   }
 
@@ -42,7 +42,7 @@
     document.getElementById("result-content").style.display = "block";
     document.getElementById("scene-image-wrap").innerHTML = "";
     document.getElementById("scene-image-wrap").classList.add("hidden");
-    document.getElementById("dialogue-area").innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:40px 0;justify-content:center;"><div style="width:24px;height:24px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div><span style="color:rgba(255,255,255,0.4);font-size:13px;font-weight:700;">AI가 교재를 만들고 있어요...</span></div>`;
+    document.getElementById("dialogue-area").innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:40px 0;justify-content:center;"><div style="width:24px;height:24px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div><span style="color:rgba(255,255,255,0.4);font-size:13px;font-weight:700;">${translations["cg.loading"] || "AI가 교재를 만들고 있어요..."}</span></div>`;
     document.getElementById("vocab-area").innerHTML = "";
 
     const fd = new FormData();
@@ -59,7 +59,7 @@
       }
 
       if (!obj.dialogue) {
-        document.getElementById("dialogue-area").innerHTML = `<pre style="font-size:11px;color:#f97316;padding:12px;">${JSON.stringify(data,null,2)}</pre>`;
+        document.getElementById("dialogue-area").innerHTML = `<pre style="font-size:11px;color:#f97316;padding:12px;">${translations["cg.err_prefix"] || "Error"}: ${JSON.stringify(data,null,2)}</pre>`;
         setBtnState(false); return;
       }
 
@@ -72,7 +72,7 @@
           <div style="display:flex;align-items:flex-start;gap:8px;">
             <span style="font-size:18px;flex-shrink:0;">${i%2===0?"👨‍🎓":"👩‍🏫"}</span>
             <div style="flex:1;">
-              <div class="speaker">${d.speaker || (i%2===0?"Student":"Teacher")}</div>
+              <div class="speaker">${d.speaker || (i%2===0 ? (translations["cg.speaker_student"] || "Student") : (translations["cg.speaker_teacher"] || "Teacher"))}</div>
               <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                 <button class="tts-btn" onclick="speakText('${jsEsc(d.text)}')">🔊</button>
                 <span class="d-text">${d.text}</span>
@@ -84,14 +84,14 @@
 
       // 어휘 렌더링
       document.getElementById("vocab-area").innerHTML = `
-        <div style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">Vocabulary</div>
+        <div style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;">${translations["cg.vocab_header"] || "Vocabulary"}</div>
         ${currentVocabulary.map(w=>`<span class="vocab-tag">${w}</span>`).join("")}`;
 
       setBtnState(false);
       loadSavedTextbooks();
     } catch(e) {
       if (e.name !== "AbortError") {
-        document.getElementById("dialogue-area").innerHTML = `<div style="color:#f87171;font-size:13px;padding:12px;">오류: ${e.message}</div>`;
+        document.getElementById("dialogue-area").innerHTML = `<div style="color:#f87171;font-size:13px;padding:12px;">${translations["cg.err_prefix"] || "오류"}: ${e.message}</div>`;
         setBtnState(false);
       }
     }
@@ -113,7 +113,7 @@
 
   async function speakDialogue() {
     if (isSpeaking) { isSpeaking = false; if(currentAudio) currentAudio.pause(); document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊"; return; }
-    if (!currentDialogue.length) { showToast("먼저 레슨을 생성해주세요."); return; }
+    if (!currentDialogue.length) { showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요."); return; }
     isSpeaking = true;
     document.getElementById("btn-listen").querySelector("span:first-child").textContent="⏸️";
     const cards = [...document.querySelectorAll(".dialogue-card")];
@@ -148,7 +148,7 @@
   // ── 이미지 생성 ─────────────────────────────────────────────────
   async function generateSceneImage() {
     if (!currentTopic) {
-      showToast("먼저 레슨을 생성해주세요.");
+      showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요.");
       return;
     }
     const btn = document.getElementById("btn-image");
@@ -165,11 +165,11 @@
         btn.querySelector("span:first-child").textContent = "🖼️";
       } else {
         btn.querySelector("span:first-child").textContent = "❌";
-        showToast(data.message || "이미지 생성에 실패했습니다.");
+        showToast(data.message || translations["cg.err_image_failed"] || "이미지 생성에 실패했습니다.");
       }
     } catch(e) {
       btn.querySelector("span:first-child").textContent = "❌";
-      showToast("이미지 생성 중 오류가 발생했습니다.");
+      showToast(translations["cg.err_image_error"] || "이미지 생성 중 오류가 발생했습니다.");
     }
     btn.disabled = false;
   }
@@ -188,7 +188,7 @@
     const isOpen = wrap.classList.contains("open");
     if (isOpen) { wrap.classList.remove("open"); return; }
     wrap.classList.add("open");
-    if (!currentDialogue.length) { document.getElementById("quiz-questions").innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">먼저 교재를 생성해주세요.</p>`; return; }
+    if (!currentDialogue.length) { document.getElementById("quiz-questions").innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">${translations["cg.err_quiz_first"] || "먼저 교재를 생성해주세요."}</p>`; return; }
     loadQuiz();
   }
   function hideQuiz() { document.getElementById("quiz-wrap").classList.remove("open"); }
@@ -196,12 +196,12 @@
   async function loadQuiz() {
     const qDiv = document.getElementById("quiz-questions");
     document.getElementById("quiz-score").style.display = "none";
-    qDiv.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;color:rgba(255,255,255,0.3);font-size:12px;"><div style="width:16px;height:16px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div>퀴즈 생성 중...</div>`;
+    qDiv.innerHTML = `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;color:rgba(255,255,255,0.3);font-size:12px;"><div style="width:16px;height:16px;border-radius:50%;border:2px solid #f97316;border-top-color:transparent;animation:spin 0.8s linear infinite;"></div>${translations["cg.quiz_loading"] || "퀴즈 생성 중..."}</div>`;
     try {
       const res = await fetch("/api/textbook/quiz", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({dialogue:currentDialogue}) });
       const data = await res.json();
       const qs = data.questions || [];
-      if (!qs.length) { qDiv.innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">퀴즈를 생성하지 못했습니다.</p>`; return; }
+      if (!qs.length) { qDiv.innerHTML = `<p style="color:rgba(255,255,255,0.3);font-size:12px;">${translations["cg.err_quiz_failed"] || "퀴즈를 생성하지 못했습니다."}</p>`; return; }
       qDiv.innerHTML = qs.map((q,i) => {
         const parts = q.display.split("___");
         return `<div class="quiz-q">Q${i+1}. ${parts[0]}<input class="quiz-blank" data-answer="${jsEsc(q.blank_word)}" placeholder="  " />${parts[1]||""}<div class="quiz-hint">💡 ${q.hint||""}</div></div>`;
@@ -219,12 +219,12 @@
     const total = document.querySelectorAll(".quiz-blank").length;
     const sc = document.getElementById("quiz-score");
     sc.style.display = "block";
-    sc.innerHTML = `${correct===total?"🎉":correct>=total/2?"👍":"💪"} <span style="color:#f97316;">${correct}</span>/${total} 정답`;
+    sc.innerHTML = `${correct===total?"🎉":correct>=total/2?"👍":"💪"} <span style="color:#f97316;">${correct}</span>/${total} ${translations["cg.quiz_correct_label"] || "정답"}`;
   }
 
   // ── 저장 ────────────────────────────────────────────────────────
   function saveTextbook() {
-    if (!currentDialogue.length) { showToast("먼저 레슨을 생성해주세요."); return; }
+    if (!currentDialogue.length) { showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요."); return; }
     const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
     saved.unshift({ id:Date.now(), topic:currentTopic, level:currentLevel, dialogue:currentDialogue, vocabulary:currentVocabulary, imageUrl:currentImageUrl, savedAt:new Date().toISOString() });
     localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0,20)));
@@ -264,12 +264,18 @@
     toggleRow.style.display = "flex";
     document.getElementById("saved-count").textContent = `(${saved.length})`;
     const lv = {"초급":"🟢","중급":"🟡","고급":"🔴"};
+    const lvLabel = {
+      "초급": translations["cg.level_beginner"] || "초급",
+      "중급": translations["cg.level_intermediate"] || "중급",
+      "고급": translations["cg.level_advanced"] || "고급",
+    };
+    const lang = localStorage.getItem("app_lang") || "ko";
     document.getElementById("saved-list").innerHTML = saved.map(s => {
-      const date = new Date(s.savedAt).toLocaleDateString("ko-KR",{month:"short",day:"numeric"});
+      const date = new Date(s.savedAt).toLocaleDateString(lang === "ko" ? "ko-KR" : lang, {month:"short",day:"numeric"});
       return `<div class="saved-item">
         <div class="saved-item-img">${s.imageUrl?`<img src="${s.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`:"📖"}</div>
-        <div class="saved-item-info"><div class="saved-item-topic">${s.topic}</div><div class="saved-item-meta">${lv[s.level]||""} ${s.level} · ${date}</div></div>
-        <button class="saved-load-btn" onclick="restoreSaved(${s.id})">불러오기</button>
+        <div class="saved-item-info"><div class="saved-item-topic">${s.topic}</div><div class="saved-item-meta">${lv[s.level]||""} ${lvLabel[s.level]||s.level} · ${date}</div></div>
+        <button class="saved-load-btn" onclick="restoreSaved(${s.id})">${translations["cg.btn_load"] || "불러오기"}</button>
         <button class="saved-del-btn" onclick="deleteSaved(${s.id})">×</button>
       </div>`;
     }).join("");
@@ -299,7 +305,7 @@
     coachHistory.push({role:"user", content:prompt});
     const typing = document.createElement("div");
     typing.className = "coach-bubble-ai"; typing.id = "coach-typing";
-    typing.innerHTML = `<span style="font-size:20px;">🤖</span><div class="bubble-ai-text" style="color:rgba(255,255,255,0.3);">생각중...</div>`;
+    typing.innerHTML = `<span style="font-size:20px;">🤖</span><div class="bubble-ai-text" style="color:rgba(255,255,255,0.3);">${translations["cg.coach_thinking"] || "생각중..."}</div>`;
     document.getElementById("coach-messages").appendChild(typing);
     document.getElementById("coach-messages").scrollTop = 9999;
     const ctx = currentDialogue.map(d=>d.text).join("\n");
@@ -313,7 +319,7 @@
       coachHistory.push({role:"assistant", content:reply});
     } catch(e) {
       document.getElementById("coach-typing")?.remove();
-      appendBubble("assistant", "오류: "+e.message);
+      appendBubble("assistant", (translations["cg.err_prefix"] || "오류") + ": " + e.message);
     }
   }
 
