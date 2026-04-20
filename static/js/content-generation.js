@@ -113,7 +113,7 @@
 
   async function speakDialogue() {
     if (isSpeaking) { isSpeaking = false; if(currentAudio) currentAudio.pause(); document.getElementById("btn-listen").querySelector("span:first-child").textContent="🔊"; return; }
-    if (!currentDialogue.length) return;
+    if (!currentDialogue.length) { showToast("먼저 레슨을 생성해주세요."); return; }
     isSpeaking = true;
     document.getElementById("btn-listen").querySelector("span:first-child").textContent="⏸️";
     const cards = [...document.querySelectorAll(".dialogue-card")];
@@ -147,7 +147,10 @@
 
   // ── 이미지 생성 ─────────────────────────────────────────────────
   async function generateSceneImage() {
-    if (!currentTopic) return;
+    if (!currentTopic) {
+      showToast("먼저 레슨을 생성해주세요.");
+      return;
+    }
     const btn = document.getElementById("btn-image");
     btn.disabled = true;
     btn.querySelector("span:first-child").textContent = "⏳";
@@ -160,9 +163,23 @@
         wrap.innerHTML = `<img src="${data.image_url}" alt="scene" />`;
         wrap.classList.remove("hidden");
         btn.querySelector("span:first-child").textContent = "🖼️";
-      } else { btn.querySelector("span:first-child").textContent = "❌"; }
-    } catch(e) { btn.querySelector("span:first-child").textContent = "❌"; }
+      } else {
+        btn.querySelector("span:first-child").textContent = "❌";
+        showToast(data.message || "이미지 생성에 실패했습니다.");
+      }
+    } catch(e) {
+      btn.querySelector("span:first-child").textContent = "❌";
+      showToast("이미지 생성 중 오류가 발생했습니다.");
+    }
     btn.disabled = false;
+  }
+
+  function showToast(msg) {
+    const t = document.createElement("div");
+    t.textContent = msg;
+    t.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(30,30,30,0.95);color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;z-index:9999;border:1px solid rgba(255,255,255,0.1);pointer-events:none;";
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
   }
 
   // ── 퀴즈 ────────────────────────────────────────────────────────
@@ -207,7 +224,7 @@
 
   // ── 저장 ────────────────────────────────────────────────────────
   function saveTextbook() {
-    if (!currentDialogue.length) return;
+    if (!currentDialogue.length) { showToast("먼저 레슨을 생성해주세요."); return; }
     const saved = JSON.parse(localStorage.getItem("saved_textbooks")||"[]");
     saved.unshift({ id:Date.now(), topic:currentTopic, level:currentLevel, dialogue:currentDialogue, vocabulary:currentVocabulary, imageUrl:currentImageUrl, savedAt:new Date().toISOString() });
     localStorage.setItem("saved_textbooks", JSON.stringify(saved.slice(0,20)));

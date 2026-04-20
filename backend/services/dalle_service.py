@@ -51,17 +51,38 @@ async def download_and_save_image(image_url: str, filename: str) -> str:
     URL에서 이미지를 다운로드하여 로컬에 저장
 
     Args:
-        image_url: 다운로드할 이미지 URL
+        image_url: 다운로드할 이미지 URL (str) 또는 base64 데이터
         filename: 저장할 파일명
 
     Returns:
         저장된 로컬 파일 경로
     """
     try:
+        if not image_url:
+            raise ValueError("image_url is None or empty")
+
         filepath = UPLOAD_DIR / filename
         # Ensure directory exists
         UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+        # Base64 데이터인 경우 (data:image/...;base64,... 또는 순수 base64)
+        if image_url.startswith("data:") or len(image_url) > 1000: # 대략적인 URL vs Base64 구분
+            if "base64," in image_url:
+                image_data = base64.b64decode(image_url.split("base64,")[1])
+            else:
+                # 순수 base64 데이터일 가능성
+                try:
+                    image_data = base64.b64decode(image_url)
+                except Exception:
+                    image_data = None
+            
+            if image_data:
+                async with aiofiles.open(str(filepath), 'wb') as f:
+                    await f.write(image_data)
+                logger.info(f"Image saved from base64 to {filepath}")
+                return f"/uploads/images/{filename}"
+
+        # URL인 경우
         async with aiohttp.ClientSession() as session:
             # Using a simple integer for timeout to avoid potential aiohttp constructor issues
             async with session.get(image_url, timeout=30) as response:
@@ -161,31 +182,35 @@ async def generate_image_dall_e(
             )
 
             image_url = response.data[0].url
+            image_b64 = getattr(response.data[0], 'b64_json', None)
             revised_prompt = getattr(response.data[0], 'revised_prompt', prompt)
             created = response.created
 
-            logger.info(f"Image generated successfully: {image_url}")
+            # If URL is missing but B64 is present, use B64
+            effective_url = image_url or image_b64
+
+            logger.info(f"Image generated successfully: {'(b64 data)' if image_b64 and not image_url else image_url}")
 
             result = {
                 "success": True,
-                "image_url": image_url,
+                "image_url": image_url or image_b64, # Return b64 if url is missing
                 "revised_prompt": revised_prompt,
                 "created": created
             }
 
             # 로컬 저장
-            if save_locally:
+            if save_locally and effective_url:
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 filename = f"dalle_{timestamp}.png"
 
                 try:
-                    local_path = await download_and_save_image(image_url, filename)
+                    local_path = await download_and_save_image(effective_url, filename)
                     result["local_path"] = local_path
                     result["image_url"] = local_path  # 로컬 경로로 덮어쓰기
                     logger.info(f"Image saved locally: {local_path}")
                 except Exception as download_error:
-                    logger.warning(f"Failed to save locally, using OpenAI URL: {download_error}")
-                    # 로컬 저장 실패해도 OpenAI URL은 반환
+                    logger.warning(f"Failed to save locally, using original source: {download_error}")
+                    # 로컬 저장 실패해도 원본(URL/B64)은 유지
 
             return result
 
@@ -338,7 +363,7 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                             filename = f"gemini_{timestamp}.png"
                             filepath = UPLOAD_DIR / filename
-                            async with aiofiles.open(filepath, "wb") as f:
+                            async with aiofiles.open(str(filepath), "wb") as f:
                                 await f.write(binary)
                             result["local_path"] = f"/uploads/images/{filename}"
                         except Exception as e:
@@ -357,7 +382,7 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     filename = f"gemini_{timestamp}.png"
                     filepath = UPLOAD_DIR / filename
-                    async with aiofiles.open(filepath, "wb") as f:
+                    async with aiofiles.open(str(filepath), "wb") as f:
                         await f.write(binary)
                     result["local_path"] = f"/uploads/images/{filename}"
                 except Exception as e:

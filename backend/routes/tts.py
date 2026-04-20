@@ -80,6 +80,18 @@ async def generate_tts(request: Request, payload: TTSRequest):
     Returns an audio file response (wav/mp3 depending on backend).
     """
     logger = _get_state(request, "logger") or logging.getLogger(__name__)
+
+    extract_session = _get_state(request, "extract_session_from_request")
+    user = extract_session(request) if callable(extract_session) else None
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    check_credits = _get_state(request, "check_and_consume_credits")
+    credit_costs = _get_state(request, "credit_costs") or {}
+    if callable(check_credits):
+        credit = check_credits(user["user_id"], credit_costs.get("tts", 1))
+        if not credit["ok"]:
+            return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})", "remaining": credit["remaining"]})
+
     logger.info(
         f"[API_CALL] endpoint={request.url.path} method={request.method} params={{'text': payload.text, 'speaker': payload.speaker, 'tempo': payload.tempo, 'pitch': payload.pitch, 'gain': payload.gain, 'language_code': payload.language_code, 'voice': payload.voice}}"
     )

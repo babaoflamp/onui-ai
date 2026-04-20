@@ -379,6 +379,16 @@ ROLE_INSTRUCTOR = "instructor"
 ROLE_SYSTEM_ADMIN = "system_admin"
 ROLE_CHOICES = {ROLE_LEARNER, ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN}
 
+# Daily credit limits
+DAILY_CREDITS = int(os.getenv("DAILY_CREDITS", "50"))
+CREDIT_COSTS = {
+    "lesson": 3,
+    "image": 10,
+    "quiz": 2,
+    "chat": 2,
+    "tts": 1,
+}
+
 
 def _normalize_role(role: str, is_admin: bool = False) -> str:
     """Return a valid role, prioritizing system admin when is_admin is true."""
@@ -387,6 +397,72 @@ def _normalize_role(role: str, is_admin: bool = False) -> str:
     if role in ROLE_CHOICES:
         return role
     return ROLE_LEARNER
+
+
+def check_and_consume_credits(user_id: int, cost: int) -> dict:
+    """Check if user has enough daily credits and consume them atomically.
+
+    Resets the counter when the date changes (midnight local time).
+    Returns {"ok": True, "remaining": N} on success,
+            {"ok": False, "remaining": N} when insufficient.
+    """
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute(
+            "SELECT credits_used, credits_reset_date FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+        if not row:
+            conn.execute("ROLLBACK")
+            return {"ok": False, "remaining": 0}
+        credits_used, reset_date = row
+        if reset_date != today:
+            credits_used = 0
+        remaining = DAILY_CREDITS - credits_used
+        if remaining < cost:
+            conn.execute("ROLLBACK")
+            return {"ok": False, "remaining": max(remaining, 0)}
+        conn.execute(
+            "UPDATE users SET credits_used = ?, credits_reset_date = ? WHERE id = ?",
+            (credits_used + cost, today, user_id),
+        )
+        conn.execute("COMMIT")
+        return {"ok": True, "remaining": remaining - cost}
+    except Exception as e:
+        try:
+            conn.execute("ROLLBACK")
+        except Exception:
+            pass
+        logger.error(f"[CREDITS] check_and_consume_credits error: {e}")
+        return {"ok": False, "remaining": 0}
+    finally:
+        conn.close()
+
+
+def _get_user_credits(user_id: int) -> dict:
+    """Return current credit status without consuming any credits."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        row = conn.execute(
+            "SELECT credits_used, credits_reset_date FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+        if not row:
+            return {"credits_used": 0, "remaining": DAILY_CREDITS, "daily_limit": DAILY_CREDITS}
+        credits_used, reset_date = row
+        if reset_date != today:
+            credits_used = 0
+        return {
+            "credits_used": credits_used,
+            "remaining": max(DAILY_CREDITS - credits_used, 0),
+            "daily_limit": DAILY_CREDITS,
+        }
+    finally:
+        conn.close()
 
 
 def _log_ai_content(
@@ -1030,6 +1106,7 @@ def _init_user_db():
         _ensure_lms_tables(conn)
         _ensure_admin_logging_tables(conn)
         _ensure_saved_vocab_table(conn)
+        _ensure_credits_columns(conn)
         _seed_admin_user(conn)
     finally:
         conn.close()
@@ -1108,6 +1185,16 @@ def _ensure_word_score_table(conn):
             ON word_score_history(user_id, word_id, created_at);
         """
     )
+    conn.commit()
+
+
+def _ensure_credits_columns(conn):
+    """Add daily credit tracking columns to users table if missing."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+    if "credits_used" not in cols:
+        conn.execute("ALTER TABLE users ADD COLUMN credits_used INTEGER DEFAULT 0")
+    if "credits_reset_date" not in cols:
+        conn.execute("ALTER TABLE users ADD COLUMN credits_reset_date TEXT DEFAULT ''")
     conn.commit()
 
 
@@ -2098,6 +2185,9 @@ app.state.verify_password = _verify_password
 app.state.parse_session_token = _parse_session_token
 app.state.active_sessions = active_sessions
 app.state.session_expiry_seconds = SESSION_EXPIRY_SECONDS
+app.state.check_and_consume_credits = check_and_consume_credits
+app.state.credit_costs = CREDIT_COSTS
+app.state.extract_session_from_request = _extract_session_from_request
 
 # TTS hooks/config for routers
 app.state.logger = logger
@@ -3798,6 +3888,48 @@ async def admin_words_list(
     }
 
 
+@app.get("/api/credits")
+async def get_credits(request: Request):
+    """현재 로그인 사용자의 크레딧 잔액 조회."""
+    user = _extract_session_from_request(request)
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    info = _get_user_credits(user["user_id"])
+    return JSONResponse({"success": True, **info})
+
+
+@app.post("/api/admin/users/{user_id}/credits")
+async def admin_set_user_credits(request: Request, user_id: int):
+    """관리자용 사용자 크레딧 조정 (리셋 또는 직접 설정)."""
+    _require_role(request, {ROLE_SYSTEM_ADMIN, ROLE_INSTRUCTOR})
+    payload = await request.json()
+    action = payload.get("action")  # "reset" or None
+    credits_used = payload.get("credits_used")
+
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        if action == "reset":
+            conn.execute(
+                "UPDATE users SET credits_used = 0, credits_reset_date = '' WHERE id = ?",
+                (user_id,),
+            )
+        elif credits_used is not None:
+            conn.execute(
+                "UPDATE users SET credits_used = ?, credits_reset_date = ? WHERE id = ?",
+                (max(0, int(credits_used)), datetime.now().strftime("%Y-%m-%d"), user_id),
+            )
+        else:
+            return JSONResponse(status_code=400, content={"success": False, "message": "action=reset 또는 credits_used 값이 필요합니다."})
+        conn.commit()
+    finally:
+        conn.close()
+
+    _clear_user_cache()
+    info = _get_user_credits(user_id)
+    logger.info(f"[ADMIN_CREDITS] user_id={user_id} action={action or 'set'} credits_used={credits_used}")
+    return JSONResponse({"success": True, **info})
+
+
 @app.post("/api/admin/users/{user_id}/toggle-admin")
 async def admin_toggle_user_admin(request: Request, user_id: int):
     """사용자 관리자 권한 토글."""
@@ -4173,7 +4305,12 @@ async def generate_content(
     backend: str = Form(None),
 ):
     user = _extract_session_from_request(request)
-    user_id = user["user_id"] if user else "anonymous"
+    if not user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    credit = check_and_consume_credits(user["user_id"], CREDIT_COSTS["lesson"])
+    if not credit["ok"]:
+        return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})", "remaining": credit["remaining"]})
+    user_id = user["user_id"]
 
     # Add level-specific guidance to the prompt so the model tailors output
     lvl = (level or "").strip()
@@ -4688,6 +4825,13 @@ async def ollama_test(prompt: str = Form(...), model: str = Form(None)):
 @app.post("/api/chat/test")
 async def chat_test(request: Request):
     """AI Textbook Interactive Coach — 멀티턴 대화 지원"""
+    _user = _extract_session_from_request(request)
+    if not _user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    _credit = check_and_consume_credits(_user["user_id"], CREDIT_COSTS["chat"])
+    if not _credit["ok"]:
+        return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {_credit['remaining']})", "remaining": _credit["remaining"]})
+
     data = await request.json()
     prompt = data.get("prompt", "").strip()
     model = data.get("model")
@@ -6224,6 +6368,13 @@ async def get_voice_call_scenarios():
 @app.post("/api/textbook/quiz")
 async def generate_textbook_quiz(request: Request):
     """AI Textbook 대화에서 빈칸 채우기 퀴즈 생성"""
+    _user = _extract_session_from_request(request)
+    if not _user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    _credit = check_and_consume_credits(_user["user_id"], CREDIT_COSTS["quiz"])
+    if not _credit["ok"]:
+        return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {_credit['remaining']})", "remaining": _credit["remaining"]})
+
     try:
         body = await request.json()
         dialogue = body.get("dialogue", [])
@@ -7277,6 +7428,13 @@ async def get_fluency_metrics(user_id: str):
 @app.post("/api/generate-image")
 async def generate_image(request: Request):
     """AI 이미지 생성 API (OpenAI DALL-E 3)"""
+    _user = _extract_session_from_request(request)
+    if not _user:
+        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+    _credit = check_and_consume_credits(_user["user_id"], CREDIT_COSTS["image"])
+    if not _credit["ok"]:
+        return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {_credit['remaining']})", "remaining": _credit["remaining"]})
+
     try:
         data = await request.json()
         situation = data.get("situation", "").strip()

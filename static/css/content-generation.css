@@ -1,8 +1,15 @@
   /* ── 전체 페이지 높이 고정 (스크롤 없음) ── */
   #main-content { padding: 16px 24px !important; }
 
-  .tb-app {
+  .tb-wrapper {
+    display: flex;
+    flex-direction: column;
     height: calc(100vh - 100px);
+  }
+
+  .tb-app {
+    flex: 1;
+    min-height: 0;
     display: grid;
     grid-template-columns: 1fr 420px;
     gap: 12px;

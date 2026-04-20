@@ -187,10 +187,7 @@
 
       body.sidebar-collapsed .sidebar-header {
         padding: 32px 0;
-        flex-direction: column;
         justify-content: center;
-        align-items: center;
-        gap: 16px; /* Space between O and toggle */
       }
 
       body.sidebar-collapsed .sidebar-logo {
@@ -239,46 +236,44 @@
         padding: 12px 0;
       }
 
-      /* Toggle Button Styling */
+      /* Toggle Button — mid-edge tab */
       #sidebar-toggle {
-        /* position: fixed;
-        left: calc(var(--sidebar-width) - 12px);
+        position: absolute;
+        right: -14px;
         top: 50%;
-        transform: translateY(-50%); */
-        /* width: 24px;
-        height: 24px;
-        background: #fb923c; */
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid transparent;
-        /* border-radius: 6px; */
-        border-radius: 8px;
-        color: white !important;
+        transform: translateY(-50%);
+        width: 14px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        /* z-index: 110; */
-        /* box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4); */
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        padding: 4px;
+        z-index: 110;
+        padding: 0;
+        transition: background 0.2s, width 0.2s, border-color 0.2s;
       }
 
       #sidebar-toggle:hover {
-        /* transform: translateY(-50%) scale(1.1); */
-        /* background: #f97316; */
-        background: rgba(255, 255, 255, 0.2);
-        border-color: rgba(255, 255, 255, 0.3);
-      }
-
-      body.sidebar-collapsed #sidebar-toggle {
-        /* left: calc(var(--sidebar-collapsed-width) - 12px); */
+        width: 18px;
+        background: rgba(251, 146, 60, 0.25);
+        border-color: rgba(251, 146, 60, 0.5);
       }
 
       #sidebar-toggle svg {
-        transition: transform 0.4s;
-        stroke: white !important;
-        width: 16px;
-        height: 16px;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        stroke: rgba(255,255,255,0.6) !important;
+        width: 10px;
+        height: 10px;
+        flex-shrink: 0;
+      }
+
+      #sidebar-toggle:hover svg {
+        stroke: #fb923c !important;
       }
 
       body.sidebar-collapsed #sidebar-toggle svg {
@@ -286,18 +281,27 @@
       }
       
       .nav-item {
-        padding: 8px 24px;
+        padding: 5px 18px;
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
         color: var(--text-sub);
         text-decoration: none;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         transition: all 0.3s;
         border-radius: 0 100px 100px 0;
         margin-right: 12px;
       }
+
+      /* Collapsed state: hide credits bar */
+      body.sidebar-collapsed #sidebar-credits { display: none !important; }
+
+      /* Collapsed state: lang bar — show single-flag dropdown only */
+      .lang-collapsed-btn { display: none; }
+      body.sidebar-collapsed .lang-flags-row { display: none !important; }
+      body.sidebar-collapsed .lang-collapsed-btn { display: flex !important; }
+      body.sidebar-collapsed #sidebar-lang-bar { justify-content: center; padding: 8px 0; }
       
       .nav-item:hover {
         color: var(--text-main);
@@ -398,6 +402,24 @@
 
 #lang-selector-btn #current-lang-label {
   display: none !important;
+}
+
+/* Lang bar active state */
+#sidebar-lang-bar button.lang-active {
+  background: rgba(249,115,22,0.15);
+  outline: 1px solid rgba(249,115,22,0.4);
+}
+
+/* Collapsed: hide "Lang" label */
+body.sidebar-collapsed .sidebar-text-only {
+  display: none !important;
+}
+
+/* Collapsed: center lang bar */
+body.sidebar-collapsed #sidebar-lang-bar {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
       @keyframes menu-pop {
@@ -568,28 +590,28 @@
 
     <!-- Sidebar -->
     <nav id="sidebar" aria-label="Primary">
+      <!-- Mid-edge collapse tab -->
+      <button
+        id="sidebar-toggle"
+        aria-label="Toggle sidebar"
+        aria-controls="sidebar"
+        aria-expanded="true"
+        type="button"
+      >
+        <svg fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
       <!-- 1. Top Header -->
       <div class="sidebar-header">
         <a href="/" class="sidebar-logo" aria-label="ONUI Home">ONUI<br />AI Speech Intelligence</a>
-        <button
-          id="sidebar-toggle"
-          class="text-white"
-          aria-label="Toggle sidebar"
-          aria-controls="sidebar"
-          aria-expanded="true"
-          type="button"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="white" viewBox="0 0 24 24" style="stroke: white !important;" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
-          </svg>
-        </button>
       </div>
 
       <div class="py-1 px-4 border-b border-white/5 relative">
         <!-- Guest: Integrated Sign Up / Sign In Capsule -->
         <div id="sidebar-guest-section" class="px-2">
-          <div class="flex items-center gap-2">
-            <div class="flex-1 flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+          <div class="flex items-center bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
               <a
                 href="/signup"
                 class="flex-1 py-3 text-center text-white text-[10px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all border-r border-white/5"
@@ -605,95 +627,39 @@
                 Sign In
               </a>
             </div>
-            <div class="relative">
-              <button
-                id="lang-selector-btn-guest"
-                class="flex-shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] px-2 py-2 rounded-xl hover:bg-white/10 transition-colors"
-                aria-label="Select language"
-                aria-haspopup="menu"
-                aria-expanded="false"
-                aria-controls="lang-dropdown-guest"
-                type="button"
-              >
-                <span id="current-lang-flag-guest" class="fi rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-              </button>
-              <div id="lang-dropdown-guest" role="menu" class="absolute right-0 mt-2 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100]">
-                <button role="menuitem" aria-label="한국어" onclick="changeLang('ko')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-kr rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="English" onclick="changeLang('en')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-us rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="日本語" onclick="changeLang('ja')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-jp rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="中文" onclick="changeLang('zh')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-cn rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- User: Profile Card with Dropdown Trigger and Language Selector -->
-        <div id="sidebar-auth-section" class="flex flex-col gap-2"> <!-- Changed to flex-col and gap -->
-          <div class="flex items-center justify-between"> <!-- New wrapper for horizontal alignment -->
-            <!-- Profile Trigger -->
-            <button
-              id="profile-trigger"
-              class="flex-1 flex items-center gap-3 py-1 px-3 hover:bg-white/5 rounded-2xl transition group text-left min-h-[44px]"
-              aria-haspopup="menu"
-              aria-expanded="false"
-              aria-controls="profile-menu"
-              type="button"
+        <div id="sidebar-auth-section" class="flex flex-col gap-2">
+          <!-- Profile Trigger -->
+          <button
+            id="profile-trigger"
+            class="flex items-center gap-3 py-1 px-3 hover:bg-white/5 rounded-2xl transition group text-left min-h-[44px]"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="profile-menu"
+            type="button"
+          >
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center font-bold text-white shadow-lg flex-shrink-0"
+              aria-hidden="true"
             >
-              <div
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center font-bold text-white shadow-lg"
-                aria-hidden="true"
-              >
-                U
-              </div>
-              <div class="flex-1 overflow-hidden">
-                <p id="dashboardNickname" class="text-sm font-bold truncate">
-                  User
-                </p>
-                <p
-                  class="text-[10px] text-white/60 font-black uppercase tracking-wider group-hover:text-orange-400 transition"
-                  data-i18n="auth.options"
-                >
-                  Options ▾
-                </p>
-              </div>
-            </button>
+              U
+            </div>
+            <div class="flex-1 overflow-hidden">
+              <p id="dashboardNickname" class="text-sm font-bold truncate">User</p>
+              <p class="text-[10px] text-white/60 font-black uppercase tracking-wider group-hover:text-orange-400 transition" data-i18n="auth.options">Options ▾</p>
+            </div>
+          </button>
 
-            <!-- Language Selector Button -->
-            <div class="relative"> <!-- Wrapper for language button and its dropdown -->
-              <button
-                id="lang-selector-btn"
-                class="flex-shrink-0 flex items-center justify-center min-w-[44px] min-h-[44px] px-2 py-2 rounded-xl hover:bg-white/10 transition-colors"
-                aria-label="Select language"
-                aria-haspopup="menu"
-                aria-expanded="false"
-                aria-controls="lang-dropdown"
-                type="button"
-              >
-                <span id="current-lang-flag" class="fi rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-              </button>
-              <!-- Language Dropdown -->
-              <div id="lang-dropdown" role="menu" class="absolute right-0 mt-2 bg-[#121212]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-2 hidden z-[100] animate-in fade-in zoom-in-95 duration-200 origin-top">
-                <button role="menuitem" aria-label="한국어" onclick="changeLang('ko')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-kr rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="English" onclick="changeLang('en')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-us rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="日本語" onclick="changeLang('ja')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-jp rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-                <button role="menuitem" aria-label="中文" onclick="changeLang('zh')" class="w-full px-4 py-2 flex items-center justify-center hover:bg-white/5 transition-all">
-                  <span class="fi fi-cn rounded-sm" style="font-size:1.4rem" aria-hidden="true"></span>
-                </button>
-              </div>
+          <!-- Credit Bar -->
+          <div id="sidebar-credits" class="px-3 pb-1">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-black text-white/35 uppercase tracking-widest">⚡ Credits</span>
+              <span id="credits-label" class="text-[10px] font-black text-white/50">— / 50</span>
+            </div>
+            <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+              <div id="credits-bar" class="h-full rounded-full transition-all duration-700" style="width:100%;background:linear-gradient(90deg,#f97316,#fbbf24)"></div>
             </div>
           </div>
 
@@ -720,76 +686,107 @@
            IA (2026-04): grouped by user activity type.
            Daily (habit) → Speak (core value) → Study → Media → Progress.
       -->
-      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pt-4">
+      <div class="flex-1 overflow-y-auto custom-scrollbar space-y-1 pt-1">
         <!-- Daily -->
         <div>
-          <div class="px-6 py-2 text-[11px] font-black text-white/60 uppercase tracking-[0.2em]" data-i18n="nav.group_daily">Daily</div>
+          <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_daily">Daily</div>
           <a href="/dashboard" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h9.75a1.125 1.125 0 001.125-1.125V9.75M8.25 21h8.25"/></svg>
             <span data-i18n="nav.home">Home</span>
           </a>
           <a href="/daily-expression" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18v-5.25m0 0a6.002 6.002 0 00-5.36-1.554L8.25 10.5m4.75-1.75a6.002 6.002 0 005.36 1.554L15.75 10.5m-3.75-7.5V4.5m0 0c-1.518 0-2.909.43-4.084 1.173L6 4.5M12 4.5c1.518 0 2.909.43 4.084 1.173L18 4.5M6 18H4.5m1.5 0h12m0 0h1.5M12 12.75a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18v-5.25m0 0a6.002 6.002 0 00-5.36-1.554L8.25 10.5m4.75-1.75a6.002 6.002 0 005.36 1.554L15.75 10.5m-3.75-7.5V4.5m0 0c-1.518 0-2.909.43-4.084 1.173L6 4.5M12 4.5c1.518 0 2.909.43 4.084 1.173L18 4.5M6 18H4.5m1.5 0h12m0 0h1.5M12 12.75a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5z"/></svg>
             <span data-i18n="nav.daily_expression">Daily Expression</span>
           </a>
         </div>
 
         <!-- Speak (core value: AI Speech Intelligence) -->
         <div>
-          <div class="px-6 py-2 text-[11px] font-black text-white/60 uppercase tracking-[0.2em]" data-i18n="nav.group_speak">Speak</div>
+          <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_speak">Speak</div>
           <a href="/voice-call" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.355c0-.7-.457-1.354-1.138-1.559l-5.176-1.56a1.125 1.125 0 00-1.31.32l-2.022 2.021a2.822 2.822 0 01-3.636-3.636l2.022-2.022a1.125 1.125 0 00.32-1.31l-1.56-5.176c-.205-.682-.859-1.138-1.559-1.138H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.355c0-.7-.457-1.354-1.138-1.559l-5.176-1.56a1.125 1.125 0 00-1.31.32l-2.022 2.021a2.822 2.822 0 01-3.636-3.636l2.022-2.022a1.125 1.125 0 00.32-1.31l-1.56-5.176c-.205-.682-.859-1.138-1.559-1.138H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
             <span data-i18n="nav.voice_call">AI Voice Call</span>
           </a>
           <a href="/roleplay" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M12 18H9.75M12 18h2.25M7.5 21H6m1.5-3.75L6 18M3 4.5h1.241a2.5 2.5 0 012.5 2.5v1.488l2.052 1.404a2.5 2.5 0 002.571-.16l4.201-2.001A2.5 2.5 0 0118 8.25h1.5m-9-12V4.5m0-1.5H12m0 0a2.25 2.25 0 00-2.25 2.25v1.353a2.25 2.25 0 01-1.353 2.06l-.427.142A2.25 2.25 0 005.7 9.75v3m3.75 3.75v1.5M12 12V6.75A2.25 2.25 0 0114.25 4.5H18M7.5 6.75A2.25 2.25 0 019.75 4.5h.008M15 15.75L12 18m0-1.5L9 15.75"/></svg>
             <span data-i18n="nav.roleplay">AI Roleplay</span>
           </a>
           <a href="/speechpro-practice" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18.75a6 6 0 006-6v-1.5m-6 6a6 6 0 01-6-6v-1.5m6 6v3.75m-3.75 0h7.5M12 10.5a3 3 0 11-6 0v-1.5a3 3 0 116 0V12h1.5v-1.5a4.5 4.5 0 10-9 0V12a4.5 4.5 0 109 0z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 18.75a6 6 0 006-6v-1.5m-6 6a6 6 0 01-6-6v-1.5m6 6v3.75m-3.75 0h7.5M12 10.5a3 3 0 11-6 0v-1.5a3 3 0 116 0V12h1.5v-1.5a4.5 4.5 0 10-9 0V12a4.5 4.5 0 109 0z"/></svg>
             <span data-i18n="nav.pron_test">SpeechPro Eval</span>
           </a>
         </div>
 
         <!-- Study (structured) -->
         <div>
-          <div class="px-6 py-2 text-[11px] font-black text-white/60 uppercase tracking-[0.2em]" data-i18n="nav.group_study">Study</div>
+          <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_study">Study</div>
           <a href="/onui-grammar" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/></svg>
             <span data-i18n="nav.messenger">Onui Grammar</span>
           </a>
           <a href="/content-generation" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 10.5v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-3.75 9.375v4.562a2.25 2.25 0 01-2.25 2.25H2.25"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M12 10.5v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m0 0l-3-3m3 3l3-3m2.25 3.375a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-3.75 9.375v4.562a2.25 2.25 0 01-2.25 2.25H2.25"/></svg>
             <span data-i18n="nav.content_generation">AI Textbook</span>
           </a>
         </div>
 
         <!-- Media (passive input) -->
         <div>
-          <div class="px-6 py-2 text-[11px] font-black text-white/60 uppercase tracking-[0.2em]" data-i18n="nav.group_media">Media</div>
+          <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_media">Media</div>
           <a href="/video-learning" class="nav-item group relative">
             <span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9.75a2.25 2.25 0 002.25-2.25V5.625a2.25 2.25 0 00-2.25-2.25H4.5A2.25 2.25 0 002.25 5.625v10.875a2.25 2.25 0 002.25 2.25z"/></svg>
               <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse blur-[1px] group-[.sidebar-collapsed]:hidden"></span>
             </span>
             <span data-i18n="nav.onuitube">OnuiTube</span>
           </a>
           <a href="/onui-beats" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M9 12H4.5M9 12V6M9 12l2.25 2.25M9 12l-2.25 2.25M12 18h4.5M12 18v-6M12 18l2.25-2.25M12 18l-2.25-2.25M18 12h-4.5M18 12v6M18 12l-2.25 2.25M18 12l2.25 2.25"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M9 12H4.5M9 12V6M9 12l2.25 2.25M9 12l-2.25 2.25M12 18h4.5M12 18v-6M12 18l2.25-2.25M12 18l-2.25-2.25M18 12h-4.5M18 12v6M18 12l-2.25 2.25M18 12l2.25 2.25"/></svg>
             <span data-i18n="nav.onui_beats">Onui Beats</span>
           </a>
         </div>
 
         <!-- Progress -->
         <div>
-          <div class="px-6 py-2 text-[11px] font-black text-white/60 uppercase tracking-[0.2em]" data-i18n="nav.group_progress">Progress</div>
+          <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_progress">Progress</div>
           <a href="/learning-progress" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M3 13.125l4.5 4.5 9-9m0 0l-4.5-4.5m4.5 4.5V5.25A2.25 2.25 0 0014.25 3h-3.75a2.25 2.25 0 00-2.25 2.25v7.875m9 0V18a2.25 2.25 0 01-2.25 2.25H12M4.5 13.125H3m1.5 0h16.5m-3.75 4.5H12M9 13.125h.008V13h-.008"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke="url(#navIconGradient)" d="M3 13.125l4.5 4.5 9-9m0 0l-4.5-4.5m4.5 4.5V5.25A2.25 2.25 0 0014.25 3h-3.75a2.25 2.25 0 00-2.25 2.25v7.875m9 0V18a2.25 2.25 0 01-2.25 2.25H12M4.5 13.125H3m1.5 0h16.5m-3.75 4.5H12M9 13.125h.008V13h-.008"/></svg>
             <span data-i18n="nav.progress">Learning Report</span>
           </a>
         </div>
       </div>
 
+      <!-- Sidebar Bottom: Language Selector -->
+      <div class="border-t border-white/5 px-3 py-2 flex items-center gap-1" id="sidebar-lang-bar">
+        <!-- Expanded: row of 4 flags -->
+        <div class="lang-flags-row flex items-center gap-1 flex-1">
+          <span class="text-[10px] font-black text-white/25 uppercase tracking-widest mr-0.5">Lang</span>
+          <button onclick="changeLang('ko')" id="lang-btn-ko" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-all" aria-label="한국어">
+            <span class="fi fi-kr rounded-sm" style="font-size:1.1rem" aria-hidden="true"></span>
+          </button>
+          <button onclick="changeLang('en')" id="lang-btn-en" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-all" aria-label="English">
+            <span class="fi fi-us rounded-sm" style="font-size:1.1rem" aria-hidden="true"></span>
+          </button>
+          <button onclick="changeLang('ja')" id="lang-btn-ja" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-all" aria-label="日本語">
+            <span class="fi fi-jp rounded-sm" style="font-size:1.1rem" aria-hidden="true"></span>
+          </button>
+          <button onclick="changeLang('zh')" id="lang-btn-zh" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 transition-all" aria-label="中文">
+            <span class="fi fi-cn rounded-sm" style="font-size:1.1rem" aria-hidden="true"></span>
+          </button>
+        </div>
+        <!-- Collapsed: single flag dropdown -->
+        <div class="lang-collapsed-btn relative">
+          <button id="lang-collapsed-trigger" class="flex items-center justify-center w-10 h-10 rounded-xl hover:bg-white/10 transition-all" aria-label="Language" aria-haspopup="true" aria-expanded="false">
+            <span id="lang-collapsed-flag" class="fi fi-us rounded-sm" style="font-size:1.2rem" aria-hidden="true"></span>
+          </button>
+          <div id="lang-collapsed-menu" class="hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#1a1a1a] border border-white/10 rounded-xl p-1.5 shadow-xl flex flex-col gap-0.5" style="min-width:52px;">
+            <button onclick="changeLang('ko');closeLangCollapsedMenu()" class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-all" aria-label="한국어"><span class="fi fi-kr rounded-sm" style="font-size:1.1rem"></span></button>
+            <button onclick="changeLang('en');closeLangCollapsedMenu()" class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-all" aria-label="English"><span class="fi fi-us rounded-sm" style="font-size:1.1rem"></span></button>
+            <button onclick="changeLang('ja');closeLangCollapsedMenu()" class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-all" aria-label="日本語"><span class="fi fi-jp rounded-sm" style="font-size:1.1rem"></span></button>
+            <button onclick="changeLang('zh');closeLangCollapsedMenu()" class="flex items-center justify-center w-9 h-9 rounded-lg hover:bg-white/10 transition-all" aria-label="中文"><span class="fi fi-cn rounded-sm" style="font-size:1.1rem"></span></button>
+          </div>
+        </div>
+      </div>
 
     </nav>
 
@@ -899,25 +896,53 @@
           }
         });
 
-        // Language Label + checkmark
+        // Language selector: highlight active lang button + sync collapsed flag
         const lang = localStorage.getItem("app_lang") || "en";
-        const lbl = document.getElementById("current-lang-label");
-        const flagMap = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
-        if (lbl) lbl.textContent = lang.toUpperCase();
-        const flagEl = document.getElementById("current-lang-flag");
-        if (flagEl) {
-          flagEl.className = "fi rounded-sm " + (flagMap[lang] || "fi-un");
-          flagEl.style.fontSize = "1.4rem";
-        }
-        const flagElGuest = document.getElementById("current-lang-flag-guest");
-        if (flagElGuest) {
-          flagElGuest.className = "fi rounded-sm " + (flagMap[lang] || "fi-un");
-          flagElGuest.style.fontSize = "1.4rem";
-        }
         ["ko","en","ja","zh"].forEach(l => {
-          const el = document.getElementById("lang-check-" + l);
-          if (el) el.classList.toggle("hidden", l !== lang);
+          const btn = document.getElementById("lang-btn-" + l);
+          if (btn) btn.classList.toggle("lang-active", l === lang);
         });
+        syncCollapsedFlag(lang);
+
+        // Collapsed lang dropdown
+        const collapsedTrigger = document.getElementById("lang-collapsed-trigger");
+        const collapsedMenu = document.getElementById("lang-collapsed-menu");
+        if (collapsedTrigger && collapsedMenu) {
+          collapsedTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = !collapsedMenu.classList.contains("hidden");
+            if (isOpen) {
+              collapsedMenu.classList.add("hidden");
+              collapsedTrigger.setAttribute("aria-expanded", "false");
+            } else {
+              collapsedMenu.classList.remove("hidden");
+              collapsedTrigger.setAttribute("aria-expanded", "true");
+            }
+          });
+          document.addEventListener("click", () => {
+            collapsedMenu.classList.add("hidden");
+            collapsedTrigger.setAttribute("aria-expanded", "false");
+          });
+        }
+
+        // Fetch and display credit balance (logged-in only)
+        if (token) {
+          fetch("/api/credits", { headers: { "Authorization": "Bearer " + token } })
+            .then(r => r.ok ? r.json() : null)
+            .then(d => {
+              if (!d || !d.success) return;
+              const bar = document.getElementById("credits-bar");
+              const lbl = document.getElementById("credits-label");
+              const pct = Math.max(0, Math.min(100, d.remaining / d.daily_limit * 100));
+              if (lbl) lbl.textContent = d.remaining + " / " + d.daily_limit;
+              if (bar) {
+                bar.style.width = pct + "%";
+                if (pct <= 20) bar.style.background = "linear-gradient(90deg,#ef4444,#f87171)";
+                else if (pct <= 50) bar.style.background = "linear-gradient(90deg,#f97316,#fbbf24)";
+              }
+            })
+            .catch(() => {});
+        }
 
         // Helper: bind a toggle button to a dropdown with aria-expanded sync
         function bindDropdown(btn, dropdown, openCls, closeCls) {
@@ -946,18 +971,6 @@
           });
         }
 
-        bindDropdown(
-          document.getElementById("lang-selector-btn"),
-          document.getElementById("lang-dropdown"),
-          null,
-          "hidden"
-        );
-        bindDropdown(
-          document.getElementById("lang-selector-btn-guest"),
-          document.getElementById("lang-dropdown-guest"),
-          null,
-          "hidden"
-        );
 
         // Profile Dropdown Toggle
         const trigger = document.getElementById("profile-trigger");
@@ -982,11 +995,30 @@
         }
       });
 
+      const _langFlagMap = { ko: "fi-kr", en: "fi-us", ja: "fi-jp", zh: "fi-cn" };
+      function syncCollapsedFlag(lang) {
+        const flagEl = document.getElementById("lang-collapsed-flag");
+        if (!flagEl) return;
+        flagEl.className = "fi " + (_langFlagMap[lang] || "fi-us") + " rounded-sm";
+      }
+      function closeLangCollapsedMenu() {
+        const m = document.getElementById("lang-collapsed-menu");
+        const t = document.getElementById("lang-collapsed-trigger");
+        if (m) m.classList.add("hidden");
+        if (t) t.setAttribute("aria-expanded", "false");
+      }
+
       function changeLang(lang) {
         ["lang-dropdown", "lang-dropdown-guest"].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.classList.add("hidden");
         });
+        // Sync lang bar highlight
+        ["ko","en","ja","zh"].forEach(l => {
+          const btn = document.getElementById("lang-btn-" + l);
+          if (btn) btn.classList.toggle("lang-active", l === lang);
+        });
+        syncCollapsedFlag(lang);
         if (typeof setAppLang === "function") {
           setAppLang(lang);
         } else {

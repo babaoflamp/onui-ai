@@ -54,6 +54,15 @@ PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `l
 | `ROMANIZE_MODE` | `force` (always romanize) or `prefer` (keep model output if valid) | `force` |
 | `TTS_BACKEND` | `gemini`, `openai`, `google`, or `mztts` | `gemini` |
 | `STT_BACKEND` | `openai`, `google`, `vosk`, or `local` | auto |
+| `VOSK_MODEL_PATH` | Path to Vosk model dir (required when `STT_BACKEND=vosk`) | — |
+| `FLUENCYPRO_WS_URL` | FluencyPro WebSocket URL for fluency evaluation | — |
+| `DALLE_MODEL` / `DALLE_SIZE` / `DALLE_QUALITY` / `DALLE_STYLE` | DALL-E generation params | `gpt-image-1` / `1024x1024` / `standard` / `natural` |
+| `GEMINI_IMAGE_MODEL` | Gemini model used for image generation | `gemini-2.0-flash-preview-image-generation` |
+| `CLARITY_PROJECT_ID` | Microsoft Clarity analytics project ID | — |
+
+## System Dependencies
+
+`ffmpeg` must be installed on the host — used for audio conversion (PCM → 8kHz mono WAV) in FluencyPro and SpeechPro routes.
 
 ## Architecture
 
@@ -65,7 +74,7 @@ Key sections in `main.py`:
 - **Lines 1–500**: imports, env config, AI client initialization
 - **Lines 500–970**: TTS helpers (MzTTS, Gemini, Google, OpenAI), audio conversion utilities
 - **Lines 970–2090**: SQLite DB init (`data/users.db`), auth helpers (PBKDF2 passwords, session tokens), app factory, middleware setup
-- **Lines 2090+**: All route handlers (`@app.get/post/...`), including a WebSocket endpoint at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming)
+- **Lines 2090+**: All route handlers (`@app.get/post/...`), including WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation)
 
 ### Routers in `backend/routes/`
 
@@ -83,6 +92,8 @@ These are mounted in `main.py` (~line 1976) via `app.include_router(...)`:
 ### `backend/utils.py`
 
 Thin shared helper — currently just `_get_state(request, name)` for reading from `request.app.state`. Import from here rather than accessing `app.state` directly in routers/services.
+
+Routers receive AI clients, DB helpers, and other dependencies via `request.app.state`. State is populated in `main.py` after the app factory runs (~line 2076+). Always use `_get_state()` rather than importing globals from `main.py`.
 
 ### Services in `backend/services/`
 
@@ -115,7 +126,10 @@ Cookie-based sessions using an in-memory `active_sessions` dict (token → user 
 
 Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, `onui-grammar.html` (AI Grammar Coach), and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`, `admin-api.html`). Dev/test templates (`api-test.html`, `stt-multi-test.html`) are not user-facing.
 
-User-uploaded files (profile images, audio recordings) are stored under `uploads/` and served at `/uploads` via a separate static mount.
+File storage under `uploads/` (served at `/uploads`):
+- `uploads/` — user profile images and miscellaneous uploads
+- `uploads/images/` — DALL-E / Gemini generated vocabulary images (persisted, not temp)
+- `uploads/audio/` — pronunciation recordings; auto-cleaned after 30 days
 
 ### i18n System
 
@@ -168,3 +182,7 @@ The `MODEL_BACKEND` env var controls which LLM handles content generation:
 - `gemini` → Gemini via `google-genai` SDK
 
 TTS and STT have separate backend selectors (`TTS_BACKEND`, `STT_BACKEND`) and can differ from the main `MODEL_BACKEND`.
+
+Image generation (`dalle_service.py`) uses DALL-E when `OPENAI_API_KEY` is set, falling back to Gemini image generation otherwise.
+
+The app includes a built-in Hangul→Latin romanizer (syllable-table lookup) that requires no extra packages. The `korean_romanizer` package is optional and used automatically if installed.
