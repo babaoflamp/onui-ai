@@ -35,7 +35,7 @@ function syncLangUI(lang) {
 
 async function loadTranslations(lang) {
     try {
-        const resp = await fetch(`/data/locales/${lang}.json`);
+        const resp = await fetch(`/data/locales/${lang}.json?v=${new Date().getTime()}`);
         if (resp.ok) {
             translations = await resp.json();
         }
