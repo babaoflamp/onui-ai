@@ -8,6 +8,19 @@ const ACHIEVEMENTS = {
   five_practices: { emoji: "💪", title: "Worker" },
 };
 
+function deriveLevelStatus(data) {
+  const avgScore = Number(data.avg_score || 0);
+  const totalPractices = Number(data.total_practices || 0);
+  const learningDays = Number(data.learning_days || 0);
+  const streak = Number(data.consecutive_days || 0);
+
+  if (avgScore >= 90 && totalPractices >= 30) return "Expert";
+  if ((avgScore >= 85 && learningDays >= 14) || streak >= 14) return "Advanced";
+  if ((avgScore >= 75 && totalPractices >= 10) || learningDays >= 7) return "Intermediate";
+  if (totalPractices > 0 || learningDays > 0) return "Beginner";
+  return "New Learner";
+}
+
 async function loadProgressData() {
   const token = localStorage.getItem("auth_token");
   const nickname = localStorage.getItem("user_nickname") || "Learner";
@@ -17,6 +30,7 @@ async function loadProgressData() {
   }
 
   document.getElementById("userGreeting").textContent = nickname;
+  document.getElementById("userLevelDisplay").textContent = "New Learner";
 
   try {
     const resp = await fetch(`/api/learning/user-stats/me`, {
@@ -51,6 +65,7 @@ async function loadProgressData() {
 }
 
 function updateUI(data) {
+  document.getElementById("userLevelDisplay").textContent = deriveLevelStatus(data);
   document.getElementById("consecutiveDays").textContent = data.consecutive_days || 0;
 
   const todayLog =
@@ -63,6 +78,21 @@ function updateUI(data) {
 
   document.getElementById("totalPractices").textContent = data.total_practices || 0;
   document.getElementById("bestScore").textContent = (data.best_score || 0) + "%";
+
+  const attendanceEl = document.getElementById("lmsAttendanceRate");
+  if (attendanceEl) {
+    const activeDays = Array.isArray(data.daily_log)
+      ? data.daily_log.filter((day) => (day.practices || 0) > 0).length
+      : 0;
+    const windowDays = Array.isArray(data.daily_log) && data.daily_log.length > 0 ? data.daily_log.length : 30;
+    const attendanceRate = Math.round((activeDays / windowDays) * 100);
+    attendanceEl.textContent = `${attendanceRate}%`;
+  }
+
+  const totalMinutesEl = document.getElementById("lmsTotalMinutes");
+  if (totalMinutesEl) {
+    totalMinutesEl.textContent = `${data.total_duration || 0} min`;
+  }
 
   const wordsPercent =
     data.words_total > 0 ? Math.round((data.words_learned / data.words_total) * 100) : 0;
