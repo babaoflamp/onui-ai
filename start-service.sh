@@ -26,7 +26,7 @@ echo ""
 # 상태 확인
 if pm2 show onui-ai | grep -q "online"; then
     echo -e "${GREEN}✓ onui-ai 서버 시작됨${NC}"
-    echo -e "${GREEN}  → http://localhost:9000${NC}"
+    echo -e "${GREEN}  → http://localhost:9002${NC}"
 else
     echo -e "${RED}✗ onui-ai 서버 시작 실패${NC}"
     pm2 logs onui-ai --lines 20 --nostream

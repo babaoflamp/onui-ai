@@ -168,6 +168,8 @@ sudo certbot renew             # 실제 갱신
 | `SECRET_KEY` | 세션 서명 키 | 랜덤 생성 |
 | `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID | — |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth 시크릿 | — |
+| `DALLE_IMAGE_SIZE` | DALL-E 이미지 생성 크기 | `1024x1024` |
+| `CLARITY_PROJECT_ID` | MS Clarity 애널리틱스 프로젝트 ID | — |
 
 ---
 
@@ -210,6 +212,17 @@ onui-ai/
 │
 └── docs/                    # API 문서, 설계 문서
 ```
+
+---
+
+## 개발 원칙 및 컨벤션 (Development Conventions)
+
+*   **Backend:** 백엔드는 FastAPI로 구축됩니다. 새로운 기능은 `backend/routes/` 및 `backend/services/` 디렉터리에 별도의 API 엔드포인트와 서비스로 구현해야 합니다.
+*   **Frontend:** 프론트엔드는 Jinja2 템플릿을 사용합니다. 공통 UI 컴포넌트는 `templates/components` 디렉터리에 위치합니다.
+*   **Styling:** 스타일링은 Tailwind CSS를 사용합니다.
+*   **AI Services:** 이 애플리케이션은 여러 AI 서비스와 연동됩니다. 사용할 서비스는 `MODEL_BACKEND` 환경 변수로 결정됩니다.
+*   **Database:** 사용자 데이터베이스로는 SQLite를 사용합니다. 스키마는 `main.py`에 정의되고 초기화됩니다.
+*   **Dependencies:** 파이썬 종속성은 `pip`로 관리되며 `requirements.txt`에 명시되어 있습니다.
 
 ---
 
