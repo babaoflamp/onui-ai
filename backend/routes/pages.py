@@ -81,3 +81,13 @@ def learning_progress_page(request: Request):
 @router.get("/dashboard")
 def dashboard_page(request: Request):
     return templates.TemplateResponse(request, "dashboard.html")
+
+@router.get("/privacy")
+async def privacy_page(request: Request):
+    return templates.TemplateResponse(request, "privacy.html")
+
+@router.get("/sentence-evaluation")
+def sentence_evaluation_redirect():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/speechpro-practice", status_code=301)
+

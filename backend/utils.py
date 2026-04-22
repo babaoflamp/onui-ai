@@ -195,7 +195,7 @@ def load_json_data(filename: str):
         logger.error(f"Failed to load JSON data from {filename}: {e}")
         return None
 
-def get_user_credits(db_path: str, user_id: int, daily_credits: int = 50) -> dict:
+def get_user_credits(db_path: str, user_id: int, daily_credits: int = 100) -> dict:
     conn = sqlite3.connect(db_path)
     try:
         conn.row_factory = sqlite3.Row
@@ -203,20 +203,20 @@ def get_user_credits(db_path: str, user_id: int, daily_credits: int = 50) -> dic
         cursor.execute("SELECT credits_used, credits_reset_date FROM users WHERE id = ?", (user_id,))
         row = cursor.fetchone()
         if not row:
-            return {"total": daily_credits, "used": 0, "remaining": daily_credits}
+            return {"total": daily_credits, "daily_limit": daily_credits, "used": 0, "remaining": daily_credits}
         
         used = row["credits_used"] or 0
         reset_date = row["credits_reset_date"]
         today = datetime.now().strftime("%Y-%m-%d")
         
         if reset_date != today:
-            return {"total": daily_credits, "used": 0, "remaining": daily_credits}
+            return {"total": daily_credits, "daily_limit": daily_credits, "used": 0, "remaining": daily_credits}
         
-        return {"total": daily_credits, "used": used, "remaining": max(0, daily_credits - used)}
+        return {"total": daily_credits, "daily_limit": daily_credits, "used": used, "remaining": max(0, daily_credits - used)}
     finally:
         conn.close()
 
-def check_and_consume_credits(db_path: str, user_id: int, cost: int, daily_credits: int = 50) -> dict:
+def check_and_consume_credits(db_path: str, user_id: int, cost: int, daily_credits: int = 100) -> dict:
     today = datetime.now().strftime("%Y-%m-%d")
     conn = sqlite3.connect(db_path)
     try:

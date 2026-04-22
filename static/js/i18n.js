@@ -4,11 +4,16 @@
 
 let translations = {};
 
+function notifyTranslationsUpdated() {
+    document.dispatchEvent(new CustomEvent("app:translations-updated"));
+}
+
 async function setAppLang(lang) {
     localStorage.setItem("app_lang", lang);
     await loadTranslations(lang);
     applyTranslations();
     syncLangUI(lang);
+    notifyTranslationsUpdated();
 }
 
 function syncLangUI(lang) {
@@ -112,6 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadTranslations(lang);
     applyTranslations();
+    notifyTranslationsUpdated();
 
     clearTimeout(_fouc_guard);
     document.documentElement.style.visibility = "";
@@ -125,5 +131,6 @@ window.addEventListener("storage", async (e) => {
         await loadTranslations(e.newValue);
         applyTranslations();
         syncLangUI(e.newValue);
+        notifyTranslationsUpdated();
     }
 });

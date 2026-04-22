@@ -170,6 +170,6 @@ async def change_password(
 @router.get("/api/credits")
 async def get_credits_api(request: Request, user: dict = Depends(get_current_user)):
     db_path = getattr(request.app.state, "db_path", "data/users.db")
-    daily_credits = int(os.getenv("DAILY_CREDITS", "50"))
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
     info = get_user_credits(db_path, user["id"], daily_credits)
     return JSONResponse({"success": True, **info})

@@ -256,3 +256,17 @@ async def search_kdict(q: str, user: dict = Depends(get_current_user)):
     from backend.services.krdict_service import search_dictionary
     result = await search_dictionary(q)
     return {"success": True, "result": result}
+
+@router.get("/data/locales/{filename}")
+async def get_locale_file(filename: str):
+    """Serve JSON locale files for frontend i18n."""
+    safe_name = os.path.basename(filename)
+    if not safe_name.endswith(".json"):
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    
+    path = Path("data/locales") / safe_name
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Locale not found")
+        
+    return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+

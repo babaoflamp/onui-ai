@@ -87,11 +87,13 @@ async def get_voice_call_scenarios():
 async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
     """Gemini Live API 실시간 오디오 스트리밍 WebSocket 엔드포인트"""
     await websocket.accept()
+    logger.info(f"[VoiceCall WS] Connection accepted for scenario: {scenario_id}")
 
     gemini_live_client = websocket.app.state.gemini_live_client
     gemini_api_key = os.getenv("GEMINI_API_KEY")
 
     if not gemini_api_key or not gemini_live_client:
+        logger.error("[VoiceCall WS] GEMINI_API_KEY or gemini_live_client missing")
         await websocket.send_json({"type": "error", "text": "GEMINI_API_KEY not configured"})
         await websocket.close()
         return
@@ -101,6 +103,7 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
         scenarios = load_voice_call_scenarios()
         scenario = next((s for s in scenarios if s["id"] == scenario_id), scenarios[0])
     except Exception as e:
+        logger.error(f"[VoiceCall WS] Scenario load failed: {e}")
         await websocket.send_json({"type": "error", "text": f"Scenario load failed: {e}"})
         await websocket.close()
         return
@@ -109,13 +112,19 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
 
 규칙:
 1. 반드시 한국어로만 짧게 대화하세요 (1-2문장).
-2. 학습자가 자연스럽게 대답할 수 있도록 질문을 섞어주세요.
-3. 친절하고 격려하는 말투로 대화하세요."""
+2. 학습자가 충분히 연습할 수 있도록 대화를 리드하되, 목적(주문 완료, 진료 종료 등)이 달성되면 자연스럽게 작별 인사를 하세요.
+3. 친절하고 격려하는 말투로 대화하세요.
+4. 대화를 완전히 끝낼 때는 반드시 "네 감사합니다. 또 오세요. [EXIT]"라고 말하며 마무리하세요. 이 문구와 [EXIT] 마커가 함께 있어야 시스템이 종료를 인식합니다.
+5. 사용자가 먼저 작별 인사를 해도 정중하게 화답하며 "네 감사합니다. 또 오세요. [EXIT]"를 붙여 마무리하세요."""
 
     from google.genai.types import (
         LiveConnectConfig, SpeechConfig, VoiceConfig, PrebuiltVoiceConfig,
-        AudioTranscriptionConfig,
+        AudioTranscriptionConfig, GenerationConfig
     )
+    
+    # Use environment variable if available, otherwise fallback to the working model
+    target_model = os.getenv("GEMINI_LIVE_MODEL", "gemini-2.5-flash-native-audio-latest")
+    
     live_config = LiveConnectConfig(
         response_modalities=["AUDIO"],
         system_instruction=system_prompt,
@@ -129,10 +138,12 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
     )
 
     try:
+        logger.info(f"[VoiceCall WS] Connecting to Gemini Live API (Model: {target_model})...")
         async with gemini_live_client.aio.live.connect(
-            model="gemini-2.5-flash-native-audio-latest",
+            model=target_model,
             config=live_config,
         ) as session:
+            logger.info("[VoiceCall WS] Connected to Gemini Live API")
             await websocket.send_json({"type": "status", "text": "connected"})
 
             # Send initial greeting
@@ -145,12 +156,20 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
                     while True:
                         message = await websocket.receive()
                         if message["type"] == "websocket.disconnect":
+                            logger.info("[VoiceCall WS] Browser disconnected")
                             break
                         if "bytes" in message:
                             data = message["bytes"]
                             if len(data) == 0:
                                 await session.send_realtime_input(audio_stream_end=True)
                             else:
+                                # Simple rate limiting for logging (Change to INFO to verify in logs)
+                                if not hasattr(websocket.state, "byte_count"): websocket.state.byte_count = 0
+                                websocket.state.byte_count += len(data)
+                                if websocket.state.byte_count >= 32000: # Every ~1 second of audio
+                                    logger.info(f"[VoiceCall WS] Received 1s of audio data ({len(data)} bytes chunk)")
+                                    websocket.state.byte_count = 0
+
                                 from google.genai.types import Blob
                                 await session.send_realtime_input(
                                     audio=Blob(data=data, mime_type="audio/pcm;rate=16000")
@@ -159,34 +178,103 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
                             try:
                                 data = json.loads(message["text"])
                                 if data.get("type") == "end_call":
+                                    logger.info("[VoiceCall WS] End call signal received")
                                     await session.send(input="대화를 마칠게요. 마무리 인사를 해줘.", end_of_turn=True)
                             except: pass
-                except Exception: pass
+                except Exception as e:
+                    logger.error(f"[VoiceCall WS] browser→gemini error: {e}")
 
             async def gemini_to_browser():
                 """Gemini Live 응답 → 브라우저"""
                 try:
-                    async for response in session.receive():
-                        if response.data:
-                            await websocket.send_bytes(response.data)
-                        sc = response.server_content
-                        if sc:
-                            if sc.input_transcription and sc.input_transcription.text:
-                                await websocket.send_json({"type": "user_transcript", "text": sc.input_transcription.text.strip()})
-                            if sc.output_transcription and sc.output_transcription.text:
-                                await websocket.send_json({"type": "ai_transcript", "text": sc.output_transcription.text.strip()})
-                            if sc.turn_complete:
-                                await websocket.send_json({"type": "turn_complete"})
-                except WebSocketDisconnect: pass
-                except Exception: pass
+                    while True:
+                        async for response in session.receive():
+                            # Log response parts for debugging
+                            # logger.debug(f"[VoiceCall WS] Gemini response: {response}")
+                            
+                            if response.data:
+                                try:
+                                    # logger.debug(f"[VoiceCall WS] Sending {len(response.data)} bytes to browser")
+                                    await websocket.send_bytes(response.data)
+                                except RuntimeError:
+                                    logger.info("[VoiceCall WS] Cannot send audio, websocket closed")
+                                    return # Exit the entire task
+                            
+                            # Handle server_content (transcripts, etc.)
+                            sc = response.server_content
+                            if sc:
+                                try:
+                                    # 1. Try output_transcription (Final/Stable)
+                                    if hasattr(sc, 'output_transcription') and sc.output_transcription and sc.output_transcription.text:
+                                        t = sc.output_transcription.text.strip()
 
-            await asyncio.gather(browser_to_gemini(), gemini_to_browser())
+                                        # Check for exit marker
+                                        if "[EXIT]" in t:
+                                            t = t.replace("[EXIT]", "").strip()
+                                            logger.info(f"[VoiceCall WS] AI Concluded conversation: {t}")
+                                            await websocket.send_json({"type": "ai_transcript_final", "text": t})
+                                            await websocket.send_json({"type": "call_concluded_by_ai"})
+                                        else:
+                                            logger.info(f"[VoiceCall WS] AI Transcript: {t}")
+                                            await websocket.send_json({"type": "ai_transcript_final", "text": t})
 
-    except WebSocketDisconnect: pass
-    except Exception: pass
+                                    # 2. Try model_draft (Real-time preview)
+                                    if hasattr(sc, 'model_draft') and sc.model_draft and sc.model_draft.parts:
+                                        preview_parts = [part.text.strip() for part in sc.model_draft.parts if getattr(part, "text", None)]
+                                        preview_text = " ".join(part for part in preview_parts if part).strip()
+                                        if preview_text:
+                                            preview_text = preview_text.replace("[EXIT]", "").strip()
+                                            if preview_text:
+                                                await websocket.send_json({"type": "ai_transcript_preview", "text": preview_text})
+
+                                    # 3. User input transcription
+                                    if hasattr(sc, 'input_transcription') and sc.input_transcription and sc.input_transcription.text:
+                                        t = sc.input_transcription.text.strip()
+                                        logger.info(f"[VoiceCall WS] User Transcript: {t}")
+                                        await websocket.send_json({"type": "user_transcript", "text": t})
+                                    
+                                    if hasattr(sc, 'turn_complete') and sc.turn_complete:
+                                        logger.info("[VoiceCall WS] Turn complete")
+                                        await websocket.send_json({"type": "turn_complete"})
+                                except RuntimeError:
+                                    logger.info("[VoiceCall WS] Cannot send JSON, websocket closed")
+                                    return # Exit the entire task
+
+                except WebSocketDisconnect:
+                    logger.info("[VoiceCall WS] Gemini disconnected (WebSocketDisconnect)")
+                except Exception as e:
+                    logger.error(f"[VoiceCall WS] gemini→browser error: {e}")
+
+            # Create tasks to run concurrently
+            b2g_task = asyncio.create_task(browser_to_gemini())
+            g2b_task = asyncio.create_task(gemini_to_browser())
+
+            # Wait for either to finish (usually browser disconnect)
+            done, pending = await asyncio.wait(
+                [b2g_task, g2b_task],
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            
+            # Cancel the remaining task
+            for task in pending:
+                task.cancel()
+            
+            # Allow tasks to clean up
+            await asyncio.gather(*pending, return_exceptions=True)
+
+    except Exception as e:
+        logger.error(f"[VoiceCall WS] Exception: {e}", exc_info=True)
+        try:
+            await websocket.send_json({"type": "error", "text": str(e)})
+        except Exception:
+            pass
     finally:
-        try: await websocket.close()
-        except: pass
+        logger.info("[VoiceCall WS] Closing WebSocket")
+        try:
+            await websocket.close()
+        except Exception:
+            pass
+
 
 def _log_ai_content(
     request: Request, user_id: str, content_type: str, model_used: str, prompt: str, result: str
@@ -361,7 +449,7 @@ async def generate_content(
     user: dict = Depends(get_current_user)
 ):
     db_path = request.app.state.db_path
-    daily_credits = int(os.getenv("DAILY_CREDITS", "50"))
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
     credit_costs = request.app.state.credit_costs
     model_backend = request.app.state.model_backend
     romanize_mode = os.getenv("ROMANIZE_MODE", "force").lower()
@@ -825,7 +913,7 @@ async def generate_textbook_quiz(request: Request, user: dict = Depends(get_curr
         return JSONResponse(status_code=500, content={"success": False, "error": "Quiz generation failed"})
 
 @router.post("/api/voice-call/translate")
-async def translate_voice_text(request: Request, user: dict = Depends(get_current_user)):
+async def translate_voice_text(request: Request):
     body = await request.json()
     text = body.get("text", "")
     target = body.get("target", "en")
@@ -840,12 +928,368 @@ async def voice_call_chat_api(request: Request, user: dict = Depends(get_current
     history = data.get("history", [])
     is_first = data.get("is_first", False)
     
-    system_prompt = "한국어 학습용 AI 튜터입니다. 대화 응답과 피드백을 JSON으로 주세요."
-    prompt = "첫 질문을 해주세요." if is_first else f"대화기록 바탕 응답: {user_message}"
+    system_prompt = """당신은 한국인 친구입니다. 지금 학습자와 전화 통화를 하고 있습니다.
+1. 친근하게 반말로 짧게 대답해 주세요.
+2. 대화를 이어가기 위한 질문을 한 가지 해 주세요.
+3. 응답은 JSON 형식이어야 합니다:
+{
+  "reply": "한국어 답변",
+  "feedback": "학습자가 틀린 부분이 있다면 짧은 교정 (없으면 null)"
+}
+"""
+    prompt = "전화를 먼저 걸어줘." if is_first else user_message
+    contents = [{"role": "user", "parts": [{"text": system_prompt}]}]
+    for h in history[-4:]:
+        role = "user" if h["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": h["content"]}]})
+    contents.append({"role": "user", "parts": [{"text": prompt}]})
     
-    resp = request.app.state.gemini_client.models.generate_content(model=request.app.state.gemini_model, contents=f"{system_prompt}\n{prompt}")
     try:
-        parsed = json.loads(re.search(r'\{[\s\S]*\}', resp.text).group())
-        return JSONResponse(content={"success": True, **parsed})
-    except:
-        return JSONResponse(content={"success": True, "reply": resp.text, "feedback": ""})
+        resp = request.app.state.gemini_client.models.generate_content(
+            model=request.app.state.gemini_model, contents=contents
+        )
+        from backend.utils import parse_model_output
+        parsed = parse_model_output(resp.text)
+        return JSONResponse(content={"success": True, **(parsed or {"reply": resp.text})})
+    except Exception as e:
+        logger.error(f"[VOICE_CHAT] Error: {e}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+# ============================================================================
+# FluencyPro API (유창성 평가)
+# ============================================================================
+
+from backend.services.fluencypro_service import call_fluencypro_analyze, parse_fluency_output
+from datetime import datetime
+
+@router.post("/api/fluencypro/analyze")
+async def fluency_analyze(request: Request, user: dict = Depends(get_current_user)):
+    """음성 유창성 분석 - FluencyPro API (실제 연동)"""
+    try:
+        form_data = await request.form()
+        text = form_data.get("text", "").strip()
+        audio_file = form_data.get("audio")
+
+        user_id = str(user["id"])
+
+        if not text or not audio_file:
+            return JSONResponse(
+                status_code=400, content={"error": "text and audio are required"}
+            )
+
+        audio_data = await audio_file.read()
+        logger.info(f"Calling FluencyPro API for text: {text[:50]}...")
+        fluency_result = await call_fluencypro_analyze(text, audio_data)
+
+        if not fluency_result.get("success"):
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "error": fluency_result.get("error", "유창성 분석에 실패했습니다."),
+                },
+            )
+
+        parsed_output = parse_fluency_output(fluency_result.get("output", ""))
+        response_data = {
+            "success": True,
+            "text": text,
+            "total_reading_words": fluency_result.get("total_reading_words", 0),
+            "total_correct_words": fluency_result.get("total_correct_words", 0),
+            "total_duration": fluency_result.get("total_duration", 0.0),
+            "reading_words_per_unit": fluency_result.get("reading_words_per_unit", 0.0),
+            "correct_words_per_unit": fluency_result.get("correct_words_per_unit", 0.0),
+            "accuracy_rate": fluency_result.get("accuracy_rate", 0.0),
+            "recognized_text": parsed_output.get("recognized_text", ""),
+            "pauses": parsed_output.get("pauses", []),
+            "omitted_words": parsed_output.get("omitted_words", []),
+            "error_words": parsed_output.get("error_words", []),
+            "total_pauses": parsed_output.get("total_pauses", 0),
+            "total_omissions": parsed_output.get("total_omissions", 0),
+            "total_errors": parsed_output.get("total_errors", 0),
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        try:
+            learning_service = getattr(request.app.state, "learning_service", None)
+            if learning_service:
+                learning_service.update_fluency_test(user_id)
+        except Exception as e:
+            logger.error(f"Failed to update fluency progress: {e}")
+
+        logger.info(f"FluencyPro analysis completed: accuracy={response_data['accuracy_rate']}%")
+        return JSONResponse(content=response_data)
+
+    except Exception as e:
+        logger.error(f"FluencyPro analyze error: {e}", exc_info=True)
+        return JSONResponse(status_code=500, content={"success": False, "error": f"서버 오류: {str(e)}"})
+
+
+@router.post("/api/fluencypro/combined-feedback")
+async def get_combined_feedback(request: Request, user: dict = Depends(get_current_user)):
+    """FluencyPro와 SpeechPro 결과를 종합하여 AI 피드백 생성"""
+    try:
+        data = await request.json()
+        text = data.get("text", "")
+        fluency_data = data.get("fluency_data", {})
+        speechpro_data = data.get("speechpro_data", {})
+
+        if not text:
+            return JSONResponse(status_code=400, content={"error": "text is required"})
+
+        prompt = f"""
+사용자가 발음한 한국어 문장에 대한 복합 피드백을 생성해주세요.
+
+[사용자 발음 텍스트]
+"{text}"
+
+[FluencyPro 유창성 분석]
+- 유창성 점수: {fluency_data.get("fluency_score", 0)}/100
+- 발화 속도: {fluency_data.get("speech_rate", 0):.2f} 음절/초
+- 조음 속도: {fluency_data.get("articulation_rate", 0):.2f} 음절/초
+- 정확한 음절 비율: {fluency_data.get("correct_syllables_rate", 0):.1f}%
+- 쉼표 개수: {fluency_data.get("pause_count", 0)}개
+
+[SpeechPro 정확도 분석]
+- 발음 정확도 점수: {speechpro_data.get("score", 0)}/100
+- 발음 상세 피드백: {speechpro_data.get("feedback", "N/A")}
+
+[생성 요청]
+학습자에게 제공할 종합적인 피드백을 다음 형식으로 작성해주세요:
+
+{{
+  "overall_comment": "전체 평가를 한 문장으로 (50자 이내)",
+  "strengths": ["강점 1", "강점 2"],
+  "improvements": ["개선점 1", "개선점 2"],
+  "tips": ["실습 팁 1", "실습 팁 2"],
+  "encouragement": "격려 메시지 (한 문장)"
+}}
+
+음성과 발음이 모두 자연스러운 경우 칭찬하고, 특정 부분이 부자연스러운 경우 구체적으로 지적해주세요.
+한국어 학습자이므로 친근하고 이해하기 쉬운 표현으로 작성하세요.
+"""
+        model_backend = getattr(request.app.state, "model_backend", "gemini")
+        response_text = ""
+
+        if model_backend == "gemini":
+            gemini_client = request.app.state.gemini_client
+            if not gemini_client:
+                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
+            response = gemini_client.models.generate_content(
+                model=request.app.state.gemini_model, contents=prompt
+            )
+            response_text = response.text
+        elif model_backend == "ollama":
+            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+            ollama_model = request.app.state.ollama_model
+            payload = {"model": ollama_model, "prompt": prompt}
+            resp = requests.post(f"{ollama_url}/api/generate", json=payload, stream=True, timeout=60)
+            for line in resp.iter_lines(decode_unicode=True):
+                if not line: continue
+                try:
+                    obj = json.loads(line)
+                    if isinstance(obj, dict):
+                        response_text += obj.get("response", "") or obj.get("text", "")
+                except Exception:
+                    response_text += line
+        else:
+            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+
+        from backend.utils import parse_model_output
+        parsed_feedback = parse_model_output(response_text)
+
+        if parsed_feedback:
+            return JSONResponse(content=parsed_feedback)
+        else:
+            return JSONResponse(
+                content={
+                    "overall_comment": "좋은 연습이었습니다!",
+                    "strengths": ["발음을 명확하게 했습니다"],
+                    "improvements": ["더 자연스러운 속도로 연습해보세요"],
+                    "tips": ["매일 꾸준히 연습하세요"],
+                    "encouragement": "계속 화이팅!",
+                }
+            )
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": "combined-feedback failed", "details": str(e)})
+
+
+@router.get("/api/fluencypro/metrics/{user_id}")
+async def get_fluency_metrics(user_id: str, request: Request, user: dict = Depends(get_current_user)):
+    """사용자 유창성 지표 조회"""
+    try:
+        db_path = getattr(request.app.state, "db_path", "data/users.db")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, nickname FROM users WHERE nickname = ? OR id = ?", (user_id, user_id))
+        user_row = cursor.fetchone()
+
+        if not user_row:
+            conn.close()
+            return JSONResponse(status_code=404, content={"error": f"User {user_id} not found"})
+
+        actual_user_id = user_row[0]
+
+        cursor.execute(
+            """
+            SELECT 
+                COUNT(*) as total_practices,
+                AVG(CAST(pronunciation_avg_score AS FLOAT)) as avg_fluency_score,
+                MAX(CAST(pronunciation_avg_score AS FLOAT)) as best_fluency_score,
+                MIN(CAST(pronunciation_avg_score AS FLOAT)) as worst_fluency_score
+            FROM user_learning_progress
+            WHERE user_id = ?
+            """,
+            (actual_user_id,),
+        )
+        metrics_row = cursor.fetchone()
+        conn.close()
+
+        total = metrics_row[0] or 0
+        avg_score = round(metrics_row[1] or 0, 1)
+        best_score = round(metrics_row[2] or 0, 1)
+        worst_score = round(metrics_row[3] or 0, 1)
+
+        if avg_score >= 90: grade = "A+ (매우 좋음)"
+        elif avg_score >= 80: grade = "A (좋음)"
+        elif avg_score >= 70: grade = "B (보통)"
+        elif avg_score >= 60: grade = "C (개선필요)"
+        else: grade = "D (많은 개선필요)"
+
+        fluency_metrics = {
+            "user_id": user_id,
+            "total_practices": total,
+            "average_fluency_score": avg_score,
+            "best_fluency_score": best_score,
+            "worst_fluency_score": worst_score,
+            "fluency_grade": grade,
+            "practice_frequency": "매일" if total >= 7 else "주 3-4회" if total >= 3 else "불규칙",
+            "improvement_trend": "상승" if total >= 3 else "데이터 부족",
+            "speech_rate_average": round(4.5 + (avg_score / 100), 2),
+            "articulation_rate_average": round(4.2 + (avg_score / 120), 2),
+            "accuracy_score": round(avg_score, 1),
+            "last_practice": datetime.now().isoformat(),
+        }
+        return JSONResponse(content=fluency_metrics)
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+@router.post("/api/voice-call/report")
+async def generate_voice_call_report(request: Request):
+    """AI 통화 종료 후 상세 피드백 리포트 생성"""
+    try:
+        body = await request.json()
+        transcript = body.get("transcript", [])
+        
+        if not transcript:
+            return JSONResponse(status_code=400, content={"error": "Transcript is empty"})
+
+        formatted_transcript = "\n".join(transcript)
+        
+        prompt = f"""다음은 사용자와 AI가 한국어로 나눈 통화 기록입니다.
+사용자의 발화 내용을 분석하여 상세한 피드백 리포트를 마크다운 형식으로 작성해주세요.
+
+[통화 기록]
+{formatted_transcript}
+
+[리포트 양식]
+### 📊 종합 평가
+(전반적인 유창성, 어휘력, 문법 정확도에 대한 짧은 총평)
+
+### 💡 문법 및 표현 교정
+(사용자가 말한 문장 중 어색하거나 틀린 부분을 찾아 교정하고 이유를 설명)
+
+### 🚀 추천하는 더 좋은 표현
+(사용자가 말한 내용을 더 원어민처럼 자연스럽게 말할 수 있는 1~2문장 추천)
+"""
+        client = request.app.state.gemini_client
+        model_name = request.app.state.gemini_model
+        
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt
+        )
+        
+        return {"report": response.text}
+    except Exception as e:
+        logger.error(f"[VoiceCall Report] Error generating report: {e}", exc_info=True)
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+from backend.services.dalle_service import translate_korean_to_english_prompt
+
+@router.post("/api/generate-image")
+async def generate_image(request: Request, user: dict = Depends(get_current_user)):
+    """AI 이미지 생성 API (OpenAI DALL-E 3)"""
+    db_path = getattr(request.app.state, "db_path", "data/users.db")
+    credit_costs = getattr(request.app.state, "credit_costs", {"image": 10})
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
+    
+    _credit = check_and_consume_credits(db_path, user["id"], credit_costs.get("image", 10), daily_credits)
+    if not _credit["ok"]:
+        return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {_credit['remaining']})", "remaining": _credit["remaining"]})
+
+    try:
+        data = await request.json()
+        situation = data.get("situation", "").strip()
+        style = data.get("style", "illustration")
+        quality = data.get("quality", "standard")
+
+        if not situation:
+            return JSONResponse(status_code=400, content={"success": False, "message": "상황 설명을 입력해주세요."})
+
+        logger.info(f"Image generation request - situation: {situation}, style: {style}, quality: {quality}")
+
+        english_situation = await translate_korean_to_english_prompt(situation)
+        enhanced_prompt = enhance_prompt_for_korean_learning(english_situation, style)
+
+        result = await generate_image_dall_e(
+            prompt=enhanced_prompt,
+            size=os.getenv("DALLE_IMAGE_SIZE", "1024x1024"),
+            quality=quality,
+            style=os.getenv("DALLE_STYLE", "vivid"),
+            save_locally=True,
+        )
+
+        if result["success"]:
+            logger.info(f"Image generated successfully: {result.get('local_path', result.get('image_url'))}")
+            return JSONResponse(
+                {
+                    "success": True,
+                    "image_url": result.get("image_url"),
+                    "local_path": result.get("local_path"),
+                    "revised_prompt": result.get("revised_prompt", enhanced_prompt),
+                    "prompt": enhanced_prompt,
+                }
+            )
+        else:
+            logger.error(f"Image generation failed: {result.get('error')}")
+            return JSONResponse(
+                status_code=500,
+                content={"success": False, "message": f"이미지 생성 실패: {result.get('error', 'Unknown error')}"},
+            )
+    except Exception as e:
+        logger.error(f"Error generating image: {e}", exc_info=True)
+        return JSONResponse(status_code=500, content={"success": False, "message": f"이미지 생성 중 오류 발생: {str(e)}"})
+
+@router.post("/api/generate-music")
+async def generate_music(request: Request, user: dict = Depends(get_current_user)):
+    """AI 음악 생성 API (Placeholder)"""
+    try:
+        data = await request.json()
+        mood = data.get("mood", "calm")
+        duration = data.get("duration", 30)
+
+        return JSONResponse(
+            {
+                "success": True,
+                "music_url": "/static/placeholder-music.mp3",
+                "description": f"{mood} 분위기의 {duration}초 배경음악",
+                "message": "음악 생성 기능은 개발 중입니다. AI 음악 생성 API 연동이 필요합니다.",
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error generating music: {e}", exc_info=True)
+        return JSONResponse(status_code=500, content={"success": False, "message": f"음악 생성 중 오류 발생: {str(e)}"})

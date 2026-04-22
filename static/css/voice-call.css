@@ -100,3 +100,9 @@
     box-shadow: 0 12px 32px rgba(249,115,22,0.12);
     transform: translateY(-2px);
   }
+  .scenario-card:focus-visible,
+  #start-call-btn:focus-visible,
+  #end-call-btn:focus-visible {
+    outline: 2px solid rgba(249,115,22,0.9);
+    outline-offset: 3px;
+  }
