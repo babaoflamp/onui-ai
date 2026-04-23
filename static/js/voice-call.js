@@ -2,7 +2,7 @@
  * Voice Call Real-time (Gemini Live) Implementation
  */
 document.addEventListener('DOMContentLoaded', () => {
-  let scenarios = [];
+  let scenarios = []; // Loaded from server for background sync, but UI uses SSR
   let currentScenario = null;
   let socket = null;
   let audioContext = null;
@@ -37,28 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorAvatar = document.getElementById('tutor-avatar');
   const tutorName = document.getElementById('tutor-name');
   const scenarioList = document.getElementById('scenario-list');
-  const translateToggle = document.getElementById('translate-toggle');
 
   let isTranslationEnabled = true;
-
-  if (translateToggle) {
-    // Set initial visual state
-    if (isTranslationEnabled) {
-      translateToggle.classList.add('bg-orange-500/20', 'text-orange-400', 'border-orange-500/30');
-      translateToggle.classList.remove('bg-white/5', 'text-white/50', 'border-white/10');
-    }
-
-    translateToggle.addEventListener('click', () => {
-      isTranslationEnabled = !isTranslationEnabled;
-      if (isTranslationEnabled) {
-        translateToggle.classList.add('bg-orange-500/20', 'text-orange-400', 'border-orange-500/30');
-        translateToggle.classList.remove('bg-white/5', 'text-white/50', 'border-white/10');
-      } else {
-        translateToggle.classList.remove('bg-orange-500/20', 'text-orange-400', 'border-orange-500/30');
-        translateToggle.classList.add('bg-white/5', 'text-white/50', 'border-white/10');
-      }
-    });
-  }
 
   function t(key, fallback) {
     if (typeof translations !== 'undefined' && translations && translations[key]) {
@@ -212,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function showSummaryModal(duration) {
+  function showSummaryModal(duration) {
     closeSummaryModal();
 
     summaryModal = document.createElement('div');
@@ -243,12 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const contentArea = document.createElement('div');
     contentArea.className = 'p-6 overflow-y-auto custom-scrollbar flex-1 text-[13px] leading-relaxed text-white/80';
     
-    // Initial loading state
-    const loadingState = document.createElement('div');
-    loadingState.className = 'flex flex-col items-center justify-center py-8 text-white/50 animate-pulse';
-    loadingState.innerHTML = '<span class="text-2xl mb-2">✨</span><p>AI 피드백 리포트를 생성 중입니다...</p>';
-    contentArea.appendChild(loadingState);
-
     const footer = document.createElement('div');
     footer.className = 'p-6 bg-white/5 border-t border-white/10 shrink-0 flex gap-3';
     
@@ -270,40 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
     summaryModal.appendChild(panel);
     document.body.appendChild(summaryModal);
 
-    // Fetch AI Report
     if (bubbles.length > 0) {
-      try {
-        const response = await fetch('/api/voice-call/report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transcript: bubbles })
-        });
-        const data = await response.json();
-        
-        loadingState.remove();
-        
-        if (data.report && typeof marked !== 'undefined') {
-          const reportDiv = document.createElement('div');
-          reportDiv.className = 'prose prose-invert prose-orange max-w-none';
-          reportDiv.innerHTML = marked.parse(data.report);
-          contentArea.appendChild(reportDiv);
-        } else {
-          // Fallback to basic transcript if API fails or marked is missing
-          contentArea.innerHTML = '<p class="text-red-400 mb-4">리포트 생성에 실패했습니다. 대화 기록만 보여드립니다.</p>';
-          bubbles.slice(-8).forEach((line) => {
-            const row = document.createElement('p');
-            row.className = 'border-b border-white/5 py-2';
-            row.textContent = line;
-            contentArea.appendChild(row);
-          });
-        }
-      } catch (err) {
-        console.error('Failed to generate report:', err);
-        loadingState.remove();
-        contentArea.innerHTML = '<p class="text-red-400">오류가 발생했습니다.</p>';
-      }
+      bubbles.forEach((line) => {
+        const row = document.createElement('p');
+        row.className = 'border-b border-white/5 py-2';
+        row.textContent = line;
+        contentArea.appendChild(row);
+      });
     } else {
-      loadingState.remove();
       const empty = document.createElement('p');
       empty.className = 'text-center text-white/40 py-8';
       empty.textContent = t('vc.no_transcript', 'No transcript available.');
@@ -322,49 +270,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderScenarios() {
-    if (!scenarioList) return;
-
-    scenarioList.innerHTML = '';
-    scenarios.forEach((scenario) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'scenario-card text-left';
-      btn.setAttribute('aria-label', `${scenario.title} ${t('vc.select', 'Select')}`);
-      btn.innerHTML = `
-        <div class="relative aspect-square overflow-hidden bg-white/5">
-          <img src="${scenario.avatar_url}" onerror="this.src='/static/images/onui-pure-idol.png'"
-               alt="${scenario.tutor_name}"
-               class="w-full h-full object-cover hover:scale-105 transition-all duration-500" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center opacity-0 hover:opacity-100 transition-opacity pb-2">
-            <span class="text-white text-xs font-black">▶ ${t('vc.select', 'Select')}</span>
-          </div>
-        </div>
-        <div class="p-3">
-          <h4 class="text-sm font-black text-white truncate">${scenario.title}</h4>
-          <p class="text-orange-400 text-[10px] font-bold uppercase tracking-widest truncate mt-0.5">${scenario.tutor_name}</p>
-        </div>`;
-      btn.addEventListener('click', () => prepareCall(scenario));
-      scenarioList.appendChild(btn);
-    });
+    // SSR을 통해 서버에서 이미 렌더링되었으므로 JS에서는 DOM을 건드리지 않습니다.
+    return;
   }
 
   async function loadScenarios() {
+    // 배경 데이터 동기화만 수행 (추후 필요시 사용)
     try {
       const response = await fetch('/api/voice-call/scenarios');
       const data = await response.json();
       if (data.success) {
         scenarios = data.scenarios;
-        renderScenarios();
-      } else {
-        renderScenarioError();
       }
-    } catch (error) {
-      console.error(error);
-      renderScenarioError();
-    }
+    } catch (e) {}
   }
 
-  function prepareCall(scenario) {
+  window.prepareCall = function(scenario) {
     currentScenario = scenario;
     closeSummaryModal();
     lobby.classList.add('hidden');
@@ -375,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetLivePreview();
     resetChatLog();
     resetControls('vc.waiting', 'vc.press_to_start');
-  }
+  };
 
   async function setupAudioProcessing() {
     try {
@@ -383,11 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioContext && audioContext.state !== 'closed') {
           await audioContext.close();
         }
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) {
+          throw new Error('AudioContext not supported');
+        }
+        audioContext = new AudioContextClass({ sampleRate: 16000 });
+      }
+
+      if (!audioContext.audioWorklet) {
+        throw new Error('AudioWorklet not supported');
       }
 
       await audioContext.audioWorklet.addModule('/static/js/audio-processor.js');
       
+      // Ensure audioContext and stream still exist after await
+      if (!audioContext || !stream) {
+        console.warn('AudioContext or stream was cleaned up during setup');
+        return;
+      }
+
       mediaSourceNode = audioContext.createMediaStreamSource(stream);
       analyser = audioContext.createAnalyser();
       analyser.fftSize = 256;
@@ -408,7 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
       visualizeVolume();
     } catch (error) {
       console.error('Audio setup failed:', error);
-      setStatus(t('vc.mic_error', 'Microphone access denied. Please allow mic access and refresh.'));
+      const msg = error.message || 'Unknown error';
+      setStatus(t('vc.audio_error', `Audio setup failed: ${msg}`));
       resetControls('vc.ready', 'vc.press_to_start');
     }
   }
@@ -448,10 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
     
     if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+      try {
+        stream.getTracks().forEach((track) => track.stop());
+      } catch(e) {}
     }
     if (processor) {
-      processor.disconnect();
+      try {
+        processor.disconnect();
+      } catch(e) {}
     }
     try {
       if (typeof analyser !== 'undefined' && analyser) {
@@ -460,10 +400,14 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
     
     if (mediaSourceNode) {
-      mediaSourceNode.disconnect();
+      try {
+        mediaSourceNode.disconnect();
+      } catch(e) {}
     }
     if (audioContext && audioContext.state !== 'closed') {
-      audioContext.close();
+      try {
+        audioContext.close();
+      } catch(e) {}
     }
 
     stream = null;
@@ -596,16 +540,26 @@ document.addEventListener('DOMContentLoaded', () => {
     startCallBtn.disabled = true;
 
     try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error('AudioContext not supported');
+      }
+
       if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        audioContext = new AudioContextClass({ sampleRate: 16000 });
       }
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
       }
+      
+      if (!audioContext) return;
+
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      if (!audioContext) return;
     } catch (error) {
-      console.error('Mic access denied:', error);
-      setStatus(t('vc.mic_error', 'Microphone access denied. Please allow mic access and refresh.'));
+      console.error('Initial audio/mic setup failed:', error);
+      setStatus(t('vc.mic_error', 'Microphone access denied or audio not supported.'));
       resetControls('vc.ready', 'vc.press_to_start');
       return;
     }
@@ -688,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.addEventListener('app:translations-updated', () => {
-    renderScenarios();
+    // renderScenarios(); // SSR 컨텐츠 보존을 위해 주석 처리
     syncAccessibilityLabels();
     if (!isConnected) {
       recordLabel.textContent = t('vc.press_to_start', 'Press the microphone button to start the live conversation');

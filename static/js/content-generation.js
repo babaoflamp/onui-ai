@@ -105,11 +105,22 @@
     if (!text) return;
     try {
       const res = await fetch("/api/tts/generate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text, speaker:0}) });
+      if (!res.ok) {
+        let message = `TTS failed (${res.status})`;
+        try {
+          const data = await res.json();
+          message = data?.message || data?.error || data?.details || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
       const blob = await res.blob();
       const audio = new Audio(URL.createObjectURL(blob));
       currentAudio = audio; await audio.play();
       return new Promise(r => { audio.onended = r; audio.onerror = r; });
-    } catch(e) { console.error(e); }
+    } catch(e) {
+      console.error(e);
+      showToast(e.message || "TTS playback failed.");
+    }
   }
 
   function speakText(txt) { if(currentAudio) currentAudio.pause(); playTTS(txt); }

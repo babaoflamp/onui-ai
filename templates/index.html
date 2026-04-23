@@ -844,11 +844,11 @@ Intelligence{% endblock %} {% block extra_css %}
     <form id="login-form" onsubmit="handleAuthSubmit(event, 'login')" class="space-y-6">
       <div>
         <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Email Address</label>
-        <input type="email" name="username" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
+        <input type="email" name="username" autocomplete="username" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div>
         <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Password</label>
-        <input type="password" name="password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
+        <input type="password" name="password" autocomplete="current-password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <button type="submit" class="w-full py-5 bg-orange-500 text-white rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(249,115,22,0.3)]">
         SIGN IN NOW
@@ -862,11 +862,11 @@ Intelligence{% endblock %} {% block extra_css %}
       </div>
       <div>
         <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Email</label>
-        <input type="email" name="email" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
+        <input type="email" name="email" autocomplete="username" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div>
         <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Password</label>
-        <input type="password" name="password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
+        <input type="password" name="password" autocomplete="new-password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>

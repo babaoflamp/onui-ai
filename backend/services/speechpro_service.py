@@ -211,7 +211,9 @@ def call_speechpro_model(
         "id": request_id,
         "text": text,
         "syll ltrs": syll_ltrs,
-        "syll phns": syll_phns
+        "syll phns": syll_phns,
+        "syll_ltrs": syll_ltrs,
+        "syll_phns": syll_phns,
     }
 
     try:
@@ -227,8 +229,8 @@ def call_speechpro_model(
         return ModelResult(
             id=data.get('id', request_id),
             text=data.get('text', text),
-            syll_ltrs=data.get('syll ltrs', syll_ltrs),
-            syll_phns=data.get('syll phns', syll_phns),
+            syll_ltrs=data.get('syll ltrs', data.get('syll_ltrs', syll_ltrs)),
+            syll_phns=data.get('syll phns', data.get('syll_phns', syll_phns)),
             fst=data.get('fst', ''),
             error_code=data.get('error code', 0)
         )
@@ -293,8 +295,11 @@ def call_speechpro_score(
         "text": text,
         "syll ltrs": syll_ltrs,
         "syll phns": syll_phns,
+        "syll_ltrs": syll_ltrs,
+        "syll_phns": syll_phns,
         "fst": fst,
-        "wav usr": wav_usr
+        "wav usr": wav_usr,
+        "wav_usr": wav_usr,
     }
 
     try:

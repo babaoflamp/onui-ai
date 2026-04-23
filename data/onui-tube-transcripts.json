@@ -1,605 +1,65 @@
 {
-  "restaurant_ordering": [
+  "v1ok2sWgiqA": [
     {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Excuse me! Could I see the menu, please?",
+      "start": 1.0,
+      "end": 5.0,
+      "trans": "How do you say 'Strawberry' in Korean?",
       "words": [
-        {"label": "저기요!", "mean": "Excuse me!", "pos": "Expression"},
-        {"label": "메뉴", "mean": "menu", "pos": "Noun"},
-        {"label": "좀", "mean": "a little / please (softener)", "pos": "Adverb"},
-        {"label": "볼게요", "mean": "I'll take a look", "pos": "Verb"}
+        {"label": "한국어로", "mean": "in Korean", "pos": "Adverb"},
+        {"label": "딸기를", "mean": "strawberry (object)", "pos": "Noun"},
+        {"label": "어떻게", "mean": "how", "pos": "Adverb"},
+        {"label": "말해요?", "mean": "do you say?", "pos": "Verb"}
       ]
     },
     {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "I'll have bibimbap and a doenjang jjigae.",
+      "start": 6.0,
+      "end": 10.0,
+      "trans": "It's simply 'Ddal-gi'!",
       "words": [
-        {"label": "비빔밥", "mean": "bibimbap (mixed rice dish)", "pos": "Noun"},
-        {"label": "하나랑", "mean": "one and...", "pos": "Noun + Particle"},
-        {"label": "된장찌개", "mean": "soybean paste stew", "pos": "Noun"},
-        {"label": "주세요", "mean": "please give me", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "How spicy would you like it?",
-      "words": [
-        {"label": "얼마나", "mean": "how much / how", "pos": "Adverb"},
-        {"label": "맵게", "mean": "spicily", "pos": "Adjective (adv. form)"},
-        {"label": "해드릴까요?", "mean": "shall I make it for you?", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Not too spicy, please.",
-      "words": [
-        {"label": "너무", "mean": "too / very", "pos": "Adverb"},
-        {"label": "맵지 않게", "mean": "not spicy", "pos": "Adjective (negative)"},
-        {"label": "해주세요", "mean": "please make it", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 30.0,
-      "end": 35.0,
-      "trans": "The bill, please!",
-      "words": [
-        {"label": "계산서", "mean": "bill / check", "pos": "Noun"},
-        {"label": "주세요!", "mean": "please give me!", "pos": "Verb"}
+        {"label": "그냥", "mean": "simply / just", "pos": "Adverb"},
+        {"label": "딸기라고", "mean": "as 'Ddal-gi'", "pos": "Noun + Particle"},
+        {"label": "하면", "mean": "if you do", "pos": "Verb"},
+        {"label": "돼요.", "mean": "it's okay / works", "pos": "Verb"}
       ]
     }
   ],
-  "cafe_ordering": [
+  "llvd1Ife4kY": [
     {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "One iced Americano, please.",
+      "start": 1.0,
+      "end": 6.0,
+      "trans": "Today, let's learn essential daily phrases.",
       "words": [
-        {"label": "아이스", "mean": "iced / ice", "pos": "Noun"},
-        {"label": "아메리카노", "mean": "Americano (coffee)", "pos": "Noun"},
-        {"label": "한 잔", "mean": "one cup / one glass", "pos": "Noun (counter)"},
-        {"label": "주세요", "mean": "please give me", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "What size would you like?",
-      "words": [
-        {"label": "사이즈는", "mean": "size (topic)", "pos": "Noun + Particle"},
-        {"label": "어떻게", "mean": "how / in what way", "pos": "Adverb"},
-        {"label": "해드릴까요?", "mean": "shall I make it for you?", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "Large, please.",
-      "words": [
-        {"label": "라지로", "mean": "large (size)", "pos": "Noun"},
-        {"label": "주세요", "mean": "please give me", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 26.0,
-      "trans": "Will you have it here or to go?",
-      "words": [
-        {"label": "여기서", "mean": "here", "pos": "Noun + Particle"},
-        {"label": "드실 건가요", "mean": "will you have it (honorific)", "pos": "Verb (honorific)"},
-        {"label": "가져가실 건가요?", "mean": "will you take it to go?", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 27.0,
-      "end": 31.5,
-      "trans": "I'll take it to go.",
-      "words": [
-        {"label": "가져갈게요", "mean": "I'll take it to go", "pos": "Verb"},
-        {"label": "포장이요", "mean": "to go / takeout", "pos": "Noun"}
-      ]
-    },
-    {
-      "start": 32.5,
-      "end": 37.0,
-      "trans": "Your order is ready.",
-      "words": [
-        {"label": "주문하신", "mean": "that you ordered", "pos": "Verb (modifier)"},
-        {"label": "음료", "mean": "drink / beverage", "pos": "Noun"},
-        {"label": "나왔습니다", "mean": "is ready / has come out", "pos": "Verb (formal)"}
+        {"label": "오늘은", "mean": "Today", "pos": "Noun"},
+        {"label": "필수", "mean": "essential", "pos": "Noun"},
+        {"label": "생활", "mean": "daily life", "pos": "Noun"},
+        {"label": "표현을", "mean": "phrases", "pos": "Noun"},
+        {"label": "배워봐요.", "mean": "let's learn", "pos": "Verb"}
       ]
     }
   ],
-  "convenience_store": [
+  "OnTFPW5CX0o": [
     {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "How much is this?",
+      "start": 1.0,
+      "end": 6.0,
+      "trans": "Let's look at terms used in K-pop.",
       "words": [
-        {"label": "이거", "mean": "this (thing)", "pos": "Pronoun"},
-        {"label": "얼마예요?", "mean": "how much is it?", "pos": "Adjective + Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "It's 1,500 won.",
-      "words": [
-        {"label": "천오백", "mean": "1,500 (number)", "pos": "Number"},
-        {"label": "원입니다", "mean": "won (Korean currency)", "pos": "Noun (formal)"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "Do you need a bag?",
-      "words": [
-        {"label": "봉투", "mean": "bag / envelope", "pos": "Noun"},
-        {"label": "필요하세요?", "mean": "do you need?", "pos": "Adjective (honorific)"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Yes, please.",
-      "words": [
-        {"label": "네", "mean": "yes", "pos": "Interjection"},
-        {"label": "주세요", "mean": "please give me", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "Do you accept cards?",
-      "words": [
-        {"label": "카드", "mean": "card (credit/debit)", "pos": "Noun"},
-        {"label": "되나요?", "mean": "does it work? / is it okay?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "Yes, please insert your card here.",
-      "words": [
-        {"label": "네", "mean": "yes", "pos": "Interjection"},
-        {"label": "됩니다", "mean": "it works / it's possible", "pos": "Verb (formal)"},
-        {"label": "여기", "mean": "here", "pos": "Noun"},
-        {"label": "꽂아주세요", "mean": "please insert", "pos": "Verb"}
+        {"label": "케이팝에서", "mean": "in K-pop", "pos": "Noun"},
+        {"label": "사용되는", "mean": "used", "pos": "Verb"},
+        {"label": "용어들을", "mean": "terms", "pos": "Noun"},
+        {"label": "살펴봅시다.", "mean": "let's look at", "pos": "Verb"}
       ]
     }
   ],
-  "subway_navigation": [
+  "6K8vT9gX-a4": [
     {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Which line should I take to Gangnam Station?",
+      "start": 1.0,
+      "end": 6.0,
+      "trans": "Avoid these common Korean mistakes.",
       "words": [
-        {"label": "강남역", "mean": "Gangnam Station", "pos": "Noun (place)"},
-        {"label": "가려면", "mean": "in order to go", "pos": "Verb (conditional)"},
-        {"label": "몇 호선", "mean": "which line number", "pos": "Noun"},
-        {"label": "타야 해요?", "mean": "should I take?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "You should take Line 2.",
-      "words": [
-        {"label": "2호선", "mean": "Line 2 (subway)", "pos": "Noun"},
-        {"label": "타시면", "mean": "if you take", "pos": "Verb (honorific)"},
-        {"label": "돼요", "mean": "it's fine / you can", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "The next station is Hongik University.",
-      "words": [
-        {"label": "다음 역은", "mean": "the next station (topic)", "pos": "Noun + Particle"},
-        {"label": "홍대입구역", "mean": "Hongik University Station", "pos": "Noun (place)"},
-        {"label": "입니다", "mean": "is (formal)", "pos": "Copula (formal)"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Please get off at this station.",
-      "words": [
-        {"label": "이번 역에서", "mean": "at this station", "pos": "Noun + Particle"},
-        {"label": "내리세요", "mean": "please get off", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "Where should I go to transfer?",
-      "words": [
-        {"label": "환승하려면", "mean": "in order to transfer", "pos": "Verb (conditional)"},
-        {"label": "어디로", "mean": "to where", "pos": "Noun + Particle"},
-        {"label": "가야 해요?", "mean": "should I go?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "Go down those stairs over there.",
-      "words": [
-        {"label": "저쪽", "mean": "over there / that direction", "pos": "Noun"},
-        {"label": "계단으로", "mean": "by the stairs", "pos": "Noun + Particle"},
-        {"label": "내려가세요", "mean": "please go down", "pos": "Verb (honorific)"}
-      ]
-    }
-  ],
-  "hotel_checkin": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Do you have a reservation?",
-      "words": [
-        {"label": "예약", "mean": "reservation / booking", "pos": "Noun"},
-        {"label": "하셨나요?", "mean": "did you make? (honorific)", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "Yes, I reserved under Kim Minjun.",
-      "words": [
-        {"label": "네", "mean": "yes", "pos": "Interjection"},
-        {"label": "김민준", "mean": "Kim Minjun (name)", "pos": "Noun (name)"},
-        {"label": "이름으로", "mean": "under the name of", "pos": "Noun + Particle"},
-        {"label": "예약했어요", "mean": "I reserved", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "Check-in is from 3 PM.",
-      "words": [
-        {"label": "체크인은", "mean": "check-in (topic)", "pos": "Noun + Particle"},
-        {"label": "오후 3시부터예요", "mean": "is from 3 PM", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 26.0,
-      "trans": "What time is breakfast served?",
-      "words": [
-        {"label": "조식은", "mean": "breakfast (topic)", "pos": "Noun + Particle"},
-        {"label": "몇 시부터", "mean": "from what time", "pos": "Noun"},
-        {"label": "몇 시까지예요?", "mean": "until what time?", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 27.0,
-      "end": 31.5,
-      "trans": "From 7 AM to 10 AM.",
-      "words": [
-        {"label": "오전 7시부터", "mean": "from 7 AM", "pos": "Noun"},
-        {"label": "10시까지예요", "mean": "until 10 o'clock", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 32.5,
-      "end": 37.0,
-      "trans": "Thank you. Enjoy your stay!",
-      "words": [
-        {"label": "감사합니다", "mean": "thank you (formal)", "pos": "Expression"},
-        {"label": "즐거운", "mean": "pleasant / enjoyable", "pos": "Adjective"},
-        {"label": "숙박", "mean": "stay / lodging", "pos": "Noun"},
-        {"label": "되세요!", "mean": "have a good (stay)!", "pos": "Verb (honorific)"}
-      ]
-    }
-  ],
-  "doctor_visit": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Where does it hurt?",
-      "words": [
-        {"label": "어디가", "mean": "where (subject)", "pos": "Noun + Particle"},
-        {"label": "불편하세요?", "mean": "are you uncomfortable? / does it hurt?", "pos": "Adjective (honorific)"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "I've had a headache and fever since yesterday.",
-      "words": [
-        {"label": "어제부터", "mean": "since yesterday", "pos": "Noun + Particle"},
-        {"label": "머리가", "mean": "head (subject)", "pos": "Noun + Particle"},
-        {"label": "아프고", "mean": "hurts and...", "pos": "Adjective"},
-        {"label": "열이 나요", "mean": "I have a fever", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "Does your throat also hurt?",
-      "words": [
-        {"label": "목도", "mean": "throat also", "pos": "Noun + Particle"},
-        {"label": "아프세요?", "mean": "does it hurt? (honorific)", "pos": "Adjective (honorific)"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Yes, my throat stings a little.",
-      "words": [
-        {"label": "네", "mean": "yes", "pos": "Interjection"},
-        {"label": "목이", "mean": "throat (subject)", "pos": "Noun + Particle"},
-        {"label": "좀", "mean": "a little", "pos": "Adverb"},
-        {"label": "따끔거려요", "mean": "stings / tingles", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "I'll prescribe some medicine for you.",
-      "words": [
-        {"label": "약", "mean": "medicine / medication", "pos": "Noun"},
-        {"label": "처방해 드릴게요", "mean": "I will prescribe for you", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "Take it three times a day, after meals.",
-      "words": [
-        {"label": "하루에", "mean": "per day", "pos": "Noun + Particle"},
-        {"label": "세 번", "mean": "three times", "pos": "Noun (counter)"},
-        {"label": "식후에", "mean": "after meals", "pos": "Noun + Particle"},
-        {"label": "드세요", "mean": "please take / eat (honorific)", "pos": "Verb (honorific)"}
-      ]
-    }
-  ],
-  "clothes_shopping": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Can I try this on?",
-      "words": [
-        {"label": "이 옷", "mean": "this clothing", "pos": "Noun"},
-        {"label": "입어봐도", "mean": "even if I try on", "pos": "Verb"},
-        {"label": "돼요?", "mean": "is it okay?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "Of course! The fitting room is over there.",
-      "words": [
-        {"label": "물론이죠!", "mean": "of course!", "pos": "Expression"},
-        {"label": "탈의실은", "mean": "fitting room (topic)", "pos": "Noun + Particle"},
-        {"label": "저쪽에 있어요", "mean": "is over there", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "It's a bit big. Do you have a smaller size?",
-      "words": [
-        {"label": "사이즈가", "mean": "size (subject)", "pos": "Noun + Particle"},
-        {"label": "좀 커요", "mean": "is a bit big", "pos": "Adjective"},
-        {"label": "더 작은 거", "mean": "a smaller one", "pos": "Adjective + Noun"},
-        {"label": "있나요?", "mean": "do you have?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Just a moment, let me check.",
-      "words": [
-        {"label": "잠깐만요", "mean": "just a moment", "pos": "Expression"},
-        {"label": "확인해 볼게요", "mean": "let me check", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "This is the last one in stock.",
-      "words": [
-        {"label": "이게", "mean": "this (subject)", "pos": "Pronoun + Particle"},
-        {"label": "마지막", "mean": "last / final", "pos": "Noun"},
-        {"label": "재고예요", "mean": "is the stock / inventory", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "I'll take it. How much is it?",
-      "words": [
-        {"label": "그냥", "mean": "just / anyway", "pos": "Adverb"},
-        {"label": "살게요", "mean": "I'll buy it", "pos": "Verb"},
-        {"label": "얼마예요?", "mean": "how much is it?", "pos": "Adjective + Verb"}
-      ]
-    }
-  ],
-  "airport_checkin": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Please show me your passport and boarding pass.",
-      "words": [
-        {"label": "여권이랑", "mean": "passport and", "pos": "Noun + Particle"},
-        {"label": "항공권", "mean": "boarding pass / plane ticket", "pos": "Noun"},
-        {"label": "보여주세요", "mean": "please show me", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "Do you have any luggage to check in?",
-      "words": [
-        {"label": "부칠", "mean": "to check in (luggage)", "pos": "Verb (modifier)"},
-        {"label": "짐이", "mean": "luggage / baggage (subject)", "pos": "Noun + Particle"},
-        {"label": "있으신가요?", "mean": "do you have? (honorific)", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "Yes, I have one suitcase.",
-      "words": [
-        {"label": "네", "mean": "yes", "pos": "Interjection"},
-        {"label": "캐리어", "mean": "suitcase / carry-on", "pos": "Noun"},
-        {"label": "하나 있어요", "mean": "I have one", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "Your gate is number 23.",
-      "words": [
-        {"label": "탑승구는", "mean": "gate (topic)", "pos": "Noun + Particle"},
-        {"label": "23번이에요", "mean": "is number 23", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "Boarding time is 2:30 PM.",
-      "words": [
-        {"label": "탑승 시간은", "mean": "boarding time (topic)", "pos": "Noun + Particle"},
-        {"label": "오후 2시 30분이에요", "mean": "is 2:30 PM", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "Have a pleasant trip!",
-      "words": [
-        {"label": "즐거운", "mean": "pleasant / enjoyable", "pos": "Adjective"},
-        {"label": "여행", "mean": "trip / travel", "pos": "Noun"},
-        {"label": "되세요!", "mean": "have a good (trip)!", "pos": "Verb (honorific)"}
-      ]
-    }
-  ],
-  "asking_directions": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Excuse me, where is the subway station?",
-      "words": [
-        {"label": "저기요", "mean": "excuse me", "pos": "Expression"},
-        {"label": "지하철역이", "mean": "subway station (subject)", "pos": "Noun + Particle"},
-        {"label": "어디예요?", "mean": "where is it?", "pos": "Noun + Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "Go straight and turn left at the intersection.",
-      "words": [
-        {"label": "직진하다가", "mean": "while going straight", "pos": "Verb"},
-        {"label": "사거리에서", "mean": "at the intersection", "pos": "Noun + Particle"},
-        {"label": "왼쪽으로", "mean": "to the left", "pos": "Noun + Particle"},
-        {"label": "가세요", "mean": "please go", "pos": "Verb (honorific)"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "How long does it take on foot?",
-      "words": [
-        {"label": "걸어서", "mean": "on foot / walking", "pos": "Verb (adv. form)"},
-        {"label": "얼마나", "mean": "how long / how much", "pos": "Adverb"},
-        {"label": "걸려요?", "mean": "does it take?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "About 5 minutes.",
-      "words": [
-        {"label": "한", "mean": "about / approximately", "pos": "Determiner"},
-        {"label": "5분", "mean": "5 minutes", "pos": "Noun"},
-        {"label": "정도요", "mean": "about / around that", "pos": "Noun"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "Is there also a convenience store nearby?",
-      "words": [
-        {"label": "혹시", "mean": "by any chance", "pos": "Adverb"},
-        {"label": "이 근처에", "mean": "near here", "pos": "Noun + Particle"},
-        {"label": "편의점도", "mean": "convenience store also", "pos": "Noun + Particle"},
-        {"label": "있나요?", "mean": "is there?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "It's on the first floor of that building over there.",
-      "words": [
-        {"label": "저기", "mean": "over there", "pos": "Noun"},
-        {"label": "저 건물", "mean": "that building", "pos": "Noun"},
-        {"label": "1층에 있어요", "mean": "is on the 1st floor", "pos": "Noun + Verb"}
-      ]
-    }
-  ],
-  "workplace_greetings": [
-    {
-      "start": 5.0,
-      "end": 9.5,
-      "trans": "Hello! It's my first day at work today.",
-      "words": [
-        {"label": "안녕하세요!", "mean": "hello (formal)", "pos": "Expression"},
-        {"label": "오늘", "mean": "today", "pos": "Noun"},
-        {"label": "처음", "mean": "first / for the first time", "pos": "Noun"},
-        {"label": "출근했어요", "mean": "I came to work", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 10.0,
-      "end": 14.5,
-      "trans": "Nice to meet you. I look forward to working with you.",
-      "words": [
-        {"label": "반갑습니다", "mean": "nice to meet you (formal)", "pos": "Expression"},
-        {"label": "잘", "mean": "well", "pos": "Adverb"},
-        {"label": "부탁드려요", "mean": "I ask for your favor", "pos": "Verb (formal)"}
-      ]
-    },
-    {
-      "start": 15.5,
-      "end": 20.0,
-      "trans": "I look forward to working with you from now on.",
-      "words": [
-        {"label": "앞으로", "mean": "from now on / in the future", "pos": "Adverb"},
-        {"label": "잘", "mean": "well", "pos": "Adverb"},
-        {"label": "부탁드립니다", "mean": "I ask for your favor (formal)", "pos": "Verb (formal)"}
-      ]
-    },
-    {
-      "start": 21.0,
-      "end": 25.5,
-      "trans": "What time does the meeting start?",
-      "words": [
-        {"label": "회의는", "mean": "meeting (topic)", "pos": "Noun + Particle"},
-        {"label": "몇 시에", "mean": "at what time", "pos": "Noun + Particle"},
-        {"label": "시작해요?", "mean": "does it start?", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 26.5,
-      "end": 31.0,
-      "trans": "It starts at 10 AM.",
-      "words": [
-        {"label": "오전 10시에", "mean": "at 10 AM", "pos": "Noun + Particle"},
-        {"label": "시작해요", "mean": "it starts", "pos": "Verb"}
-      ]
-    },
-    {
-      "start": 32.0,
-      "end": 37.0,
-      "trans": "Good work today! Have a good evening.",
-      "words": [
-        {"label": "수고하셨습니다!", "mean": "good work! / you've worked hard!", "pos": "Expression"},
-        {"label": "퇴근하세요", "mean": "have a good evening / go home safely", "pos": "Verb (honorific)"}
+        {"label": "자주", "mean": "often", "pos": "Adverb"},
+        {"label": "하는", "mean": "making", "pos": "Verb"},
+        {"label": "실수들을", "mean": "mistakes", "pos": "Noun"},
+        {"label": "피해봅시다.", "mean": "let's avoid", "pos": "Verb"}
       ]
     }
   ]

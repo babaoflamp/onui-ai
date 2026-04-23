@@ -9,20 +9,20 @@
   <!-- Header Section -->
   <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
     <div>
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-black uppercase tracking-widest mb-4">
         Analytics Dashboard
       </div>
       <h1 class="text-4xl font-black text-white mb-2 tracking-tighter">
         Learning <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">Report</span>
       </h1>
-      <p class="text-white/50 font-medium" data-i18n="pr.greeting">Performance analysis data for <span id="userGreeting" class="text-white border-b border-blue-500/50">Learner</span>.</p>
+      <p class="text-lg text-white/80 font-medium" data-i18n="pr.greeting">Performance analysis data for <span id="userGreeting" class="text-white border-b border-blue-500/50">Learner</span>.</p>
     </div>
     
     <div class="glass-card px-6 py-4 rounded-3xl flex items-center gap-4">
       <div class="w-12 h-12 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg">👤</div>
       <div>
-        <p class="text-[10px] text-white/40 font-black uppercase tracking-wider">Level Status</p>
-        <p class="text-lg font-black text-white" id="userLevelDisplay">Loading...</p>
+        <p class="text-xs text-white/45 font-black uppercase tracking-wider">Level Status</p>
+        <p class="text-xl font-black text-white" id="userLevelDisplay">Loading...</p>
       </div>
     </div>
   </div>
@@ -30,7 +30,7 @@
   <!-- Loading State -->
   <div id="loadingState" class="py-24 text-center">
     <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
-    <p class="text-white/40 mt-6 font-black uppercase tracking-widest text-xs">Fetching Analytics...</p>
+    <p class="text-white/40 mt-6 font-black uppercase tracking-widest text-sm">Fetching Analytics...</p>
   </div>
 
   <!-- Content -->
@@ -38,28 +38,28 @@
     <!-- Top Stats Row -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       <div class="glass-card p-6 rounded-3xl">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.streak">Streak</p>
-        <div class="text-3xl font-black stat-value"><span id="consecutiveDays">0</span><span class="text-sm ml-1 opacity-40">D</span></div>
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.streak">Streak</p>
+        <div class="text-5xl font-black stat-value"><span id="consecutiveDays">0</span><span class="text-lg ml-1 opacity-60">D</span></div>
       </div>
       <div class="glass-card p-6 rounded-3xl border-blue-500/20">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.evaluations">Evaluations</p>
-        <div class="text-3xl font-black stat-value"><span id="todayPractices">0</span></div>
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.evaluations">Evaluations</p>
+        <div class="text-5xl font-black stat-value"><span id="todayPractices">0</span></div>
       </div>
       <div class="glass-card p-6 rounded-3xl border-green-500/20">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.avg_accuracy">Avg Accuracy</p>
-        <div class="text-3xl font-black stat-value"><span id="todayAvgScore">0%</span></div>
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.avg_accuracy">Avg Accuracy</p>
+        <div class="text-5xl font-black stat-value"><span id="todayAvgScore">0%</span></div>
       </div>
-      <div class="glass-card p-6 rounded-3xl border-purple-500/20">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.study_time">Study Time</p>
-        <div class="text-3xl font-black stat-value"><span id="todayDuration">0</span><span class="text-sm ml-1 opacity-40">M</span></div>
+      <div id="statCardStudyTime" class="hidden glass-card p-6 rounded-3xl border-purple-500/20">
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.study_time">Study Time</p>
+        <div class="text-5xl font-black stat-value"><span id="todayDuration">0</span><span class="text-lg ml-1 opacity-60">M</span></div>
       </div>
-      <div class="glass-card p-6 rounded-3xl border-teal-500/20">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.attendance">Attendance</p>
-        <div class="text-3xl font-black text-teal-400"><span id="lmsAttendanceRate">-</span></div>
+      <div id="statCardAttendance" class="hidden glass-card p-6 rounded-3xl border-teal-500/20">
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.attendance">Attendance</p>
+        <div class="text-5xl font-black text-white"><span id="lmsAttendanceRate">-</span></div>
       </div>
-      <div class="glass-card p-6 rounded-3xl border-indigo-500/20">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-widest mb-4" data-i18n="pr.cumulative">Cumulative</p>
-        <div class="text-2xl font-black text-indigo-400"><span id="lmsTotalMinutes">-</span></div>
+      <div id="statCardCumulative" class="hidden glass-card p-6 rounded-3xl border-indigo-500/20">
+        <p class="text-sm font-black text-white uppercase tracking-widest mb-4" data-i18n="pr.cumulative">Cumulative</p>
+        <div class="text-4xl font-black text-white"><span id="lmsTotalMinutes">-</span></div>
       </div>
     </div>
 
@@ -69,11 +69,11 @@
         <!-- Weekly Graph -->
         <div class="glass-main-card p-8 rounded-[40px]">
           <div class="flex justify-between items-center mb-10">
-            <h2 class="text-xl font-black text-white tracking-tight uppercase tracking-widest text-xs opacity-60" data-i18n="pr.weekly_perf">Weekly Performance</h2>
+            <h2 class="text-lg md:text-xl font-black text-white tracking-tight uppercase tracking-[0.18em]" data-i18n="pr.weekly_perf">Weekly Performance</h2>
             <div class="flex gap-4">
-               <div class="flex items-center gap-2 text-[9px] font-black text-white/40 uppercase"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Practice</div>
-               <div class="flex items-center gap-2 text-[9px] font-black text-white/40 uppercase"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Duration</div>
-               <div class="flex items-center gap-2 text-[9px] font-black text-white/40 uppercase"><span class="w-2 h-2 rounded-full bg-green-500"></span> Score</div>
+               <div class="flex items-center gap-2 text-sm font-black text-white/80 uppercase"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Practice</div>
+               <div class="flex items-center gap-2 text-sm font-black text-white/80 uppercase"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Duration</div>
+               <div class="flex items-center gap-2 text-sm font-black text-white/80 uppercase"><span class="w-2 h-2 rounded-full bg-green-500"></span> Score</div>
             </div>
           </div>
           <div id="weeklyGraph" class="w-full min-h-[250px] flex items-center justify-center"></div>
@@ -82,19 +82,19 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Activity Focus -->
             <div class="glass-main-card p-8 rounded-[40px]">
-                <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8" data-i18n="pr.activity_focus">Activity Focus</h2>
+                <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8" data-i18n="pr.activity_focus">Activity Focus</h2>
                 <div id="activityFocusContainer" class="space-y-6"></div>
             </div>
             <!-- Fluency Analytics -->
             <div class="glass-main-card p-8 rounded-[40px]">
-                <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8" data-i18n="pr.fluency_metrics">Fluency Metrics</h2>
+                <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8" data-i18n="pr.fluency_metrics">Fluency Metrics</h2>
                 <div id="fluencyMetricsContainer" class="grid grid-cols-1 gap-6"></div>
             </div>
         </div>
 
         <!-- Recent Logs -->
         <div class="glass-main-card p-8 rounded-[40px]">
-          <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8" data-i18n="pr.activity_logs">Activity Logs</h2>
+          <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8" data-i18n="pr.activity_logs">Activity Logs</h2>
           <div id="dailyLog" class="space-y-3 max-h-[500px] overflow-y-auto custom-scrollbar pr-4"></div>
         </div>
       </div>
@@ -103,38 +103,38 @@
       <div class="space-y-8">
         <!-- Progress Bars -->
         <div class="glass-main-card p-8 rounded-[40px]">
-          <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8" data-i18n="pr.learning_progress">Learning Progress</h2>
+          <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8" data-i18n="pr.learning_progress">Learning Progress</h2>
           <div class="space-y-8">
             <div class="space-y-3">
-              <div class="flex justify-between items-end"><span class="text-sm font-bold text-white/80" data-i18n="pr.sentences">Sentences</span><span class="text-lg font-black text-blue-400" id="coverageSentencesPercent">0%</span></div>
+              <div class="flex justify-between items-end"><span class="text-base font-bold text-white" data-i18n="pr.sentences">Sentences</span><span class="text-xl font-black text-white" id="coverageSentencesPercent">0%</span></div>
               <div class="w-full bg-white/5 rounded-full h-2"><div id="coverageSentencesBar" class="bg-blue-500 h-full rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000"></div></div>
-              <p class="text-[10px] text-white/30 font-bold" id="coverageSentencesText">0 / 0</p>
+              <p class="text-sm text-white/80 font-bold" id="coverageSentencesText">0 / 0</p>
             </div>
             <div class="space-y-3">
-              <div class="flex justify-between items-end"><span class="text-sm font-bold text-white/80" data-i18n="pr.vocabulary">Vocabulary</span><span class="text-lg font-black text-emerald-400" id="coverageWordsPercent">0%</span></div>
+              <div class="flex justify-between items-end"><span class="text-base font-bold text-white" data-i18n="pr.vocabulary">Vocabulary</span><span class="text-xl font-black text-white" id="coverageWordsPercent">0%</span></div>
               <div class="w-full bg-white/5 rounded-full h-2"><div id="coverageWordsBar" class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-1000"></div></div>
-              <p class="text-[10px] text-white/30 font-bold" id="coverageWordsText">0 / 0</p>
+              <p class="text-sm text-white/80 font-bold" id="coverageWordsText">0 / 0</p>
             </div>
           </div>
         </div>
 
         <!-- Accuracy Dist -->
         <div class="glass-main-card p-8 rounded-[40px]">
-          <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8">Accuracy Distribution</h2>
+          <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8">Accuracy Distribution</h2>
           <div class="space-y-6">
              <!-- Simplified dist rows -->
-             <div class="flex justify-between items-center"><span class="text-xs font-bold text-white/60">Excellent (90+)</span><span class="text-lg font-black text-green-400" id="accuracyExcellentCount">0</span></div>
-             <div class="flex justify-between items-center"><span class="text-xs font-bold text-white/60">Good (80-89)</span><span class="text-lg font-black text-blue-400" id="accuracyGoodCount">0</span></div>
+             <div class="flex justify-between items-center"><span class="text-base font-bold text-white">Excellent (90+)</span><span class="text-2xl font-black text-white" id="accuracyExcellentCount">0</span></div>
+             <div class="flex justify-between items-center"><span class="text-base font-bold text-white">Good (80-89)</span><span class="text-2xl font-black text-white" id="accuracyGoodCount">0</span></div>
           </div>
           <div class="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-4 text-center">
-            <div><p class="text-[9px] text-white/30 font-black uppercase mb-1">Peak Score</p><p class="text-xl font-black text-green-500" id="bestScore">0%</p></div>
-            <div><p class="text-[9px] text-white/30 font-black uppercase mb-1">Total Eval</p><p class="text-xl font-black text-white" id="totalPractices">0</p></div>
+            <div><p class="text-sm text-white/80 font-black uppercase mb-1">Peak Score</p><p class="text-3xl font-black text-white" id="bestScore">0%</p></div>
+            <div><p class="text-sm text-white/80 font-black uppercase mb-1">Total Eval</p><p class="text-3xl font-black text-white" id="totalPractices">0</p></div>
           </div>
         </div>
 
         <!-- Achievements -->
         <div class="glass-main-card p-8 rounded-[40px]">
-          <h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-8">Achievements</h2>
+          <h2 class="text-base font-black text-white uppercase tracking-[0.2em] mb-8">Achievements</h2>
           <div id="achievementsContainer" class="grid grid-cols-3 gap-4"></div>
         </div>
       </div>

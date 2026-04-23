@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 
 logger = logging.getLogger(__name__)
 import os
@@ -46,6 +47,53 @@ def _cleanup_old_audio_uploads(upload_dir: Path, days: int = 30) -> None:
                 path.unlink()
         except Exception:
             continue
+
+
+def _ensure_pronunciation_attempt_history_table(conn: sqlite3.Connection) -> None:
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS pronunciation_attempt_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            sentence_id TEXT,
+            sentence_text TEXT NOT NULL,
+            overall_score REAL DEFAULT 0,
+            fluency_accuracy REAL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_pron_attempt_history_user
+            ON pronunciation_attempt_history(user_id, created_at DESC);
+        """
+    )
+    conn.commit()
+
+
+def _insert_pronunciation_attempt(
+    conn: sqlite3.Connection,
+    user_id: int,
+    sentence_id: str,
+    sentence_text: str,
+    overall_score: float,
+    fluency_accuracy: float,
+    created_at: str,
+) -> None:
+    _ensure_pronunciation_attempt_history_table(conn)
+    conn.execute(
+        """
+        INSERT INTO pronunciation_attempt_history (
+            user_id, sentence_id, sentence_text, overall_score, fluency_accuracy, created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            sentence_id,
+            sentence_text,
+            overall_score,
+            fluency_accuracy,
+            created_at,
+        ),
+    )
 
 
 class SpeechProFeedbackRequest(BaseModel):
@@ -583,11 +631,13 @@ async def speechpro_evaluate(
                 raise RuntimeError(f"Score 오류: error_code={score_result.error_code}")
 
             ai_feedback = None
+            ai_feedback_error = None
             ai_feedback_start = time.time()
             if include_ai_feedback and model_backend in ("ollama", "openai", "gemini"):
                 try:
                     ai_feedback = await generate_feedback(text, score_result)
                 except Exception as fb_err:
+                    ai_feedback_error = str(fb_err)
                     logger.warning("[Evaluate] AI feedback failed: %s", fb_err)
             ai_feedback_time = time.time() - ai_feedback_start
 
@@ -608,6 +658,8 @@ async def speechpro_evaluate(
                 response_data["recognized_text"] = recognized_text
             if ai_feedback:
                 response_data["ai_feedback"] = ai_feedback
+            if ai_feedback_error:
+                response_data["ai_feedback_error"] = ai_feedback_error
 
             if not fast_mode_enabled:
                 try:
@@ -736,6 +788,15 @@ async def speechpro_evaluate(
                                 float(_score_val),
                             ),
                         )
+                        _insert_pronunciation_attempt(
+                            conn=_conn,
+                            user_id=int(lms_user["id"]),
+                            sentence_id=str(_sentence_id),
+                            sentence_text=text,
+                            overall_score=float(_score_val),
+                            fluency_accuracy=float(_fluency_acc),
+                            created_at=_now,
+                        )
                         _conn.commit()
                         _conn.close()
             except Exception:
@@ -764,6 +825,7 @@ async def speechpro_evaluate(
                 if ai_feedback:
                     result["ai_feedback"] = ai_feedback
             except Exception as fb_err:
+                result["ai_feedback_error"] = str(fb_err)
                 logger.warning(
                     "[Evaluate] AI feedback failed (full workflow): %s", fb_err
                 )
@@ -892,6 +954,15 @@ async def speechpro_evaluate(
                             str(saved_audio_path) if saved_audio_path else "",
                             float(_score_val),
                         ),
+                    )
+                    _insert_pronunciation_attempt(
+                        conn=_conn,
+                        user_id=int(lms_user["id"]),
+                        sentence_id="full_workflow",
+                        sentence_text=text,
+                        overall_score=float(_score_val),
+                        fluency_accuracy=float(_fluency.get("correct_syllable_count") or 0),
+                        created_at=_now,
                     )
                     _conn.commit()
                     _conn.close()

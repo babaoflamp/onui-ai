@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="beats-container" class="max-w-4xl mx-auto pt-0 pb-12 px-4 min-h-screen">
+<div id="beats-container" class="max-w-6xl mx-auto pt-0 pb-12 px-4 min-h-screen">
   <!-- Premium Header Section -->
   <div id="beats-header" class="mb-8 animate-in fade-in slide-in-from-top-8 duration-700 flex flex-col md:flex-row items-center justify-between bg-white/5 border border-white/10 p-6 rounded-[40px] relative overflow-hidden group">
     <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/20 blur-[80px] rounded-full group-hover:bg-indigo-500/30 transition-all"></div>
@@ -58,51 +58,57 @@
        </div>
     </div>
 
-    <div id="game-card" class="suno-card w-full p-8 md:p-12 flex flex-col items-center">
-      <!-- Local Audio Album Art -->
-      <div id="player-visual" class="album-art-container">
-         <img id="game-album-art" src="/static/images/onui-pure-idol.webp" class="album-art-img" alt="Album Art">
-      </div>
-      
-      <div class="text-center mb-8">
-        <h2 id="game-song-title" class="text-3xl font-black text-white mb-2 tracking-tight">Song Title</h2>
-        <p id="game-song-artist" class="text-indigo-400 font-bold text-lg">Artist Name</p>
-      </div>
+    <div id="game-card" class="suno-card w-full p-8 md:p-12 md:grid md:grid-cols-[1fr_1.5fr] md:gap-12 md:items-start">
+      <!-- Left Column: Music Player -->
+      <div class="flex flex-col items-center md:sticky md:top-8">
+        <!-- Local Audio Album Art -->
+        <div id="player-visual" class="album-art-container mx-auto">
+           <img id="game-album-art" src="/static/images/onui-pure-idol.webp" class="album-art-img" alt="Album Art">
+        </div>
+        
+        <div class="text-center mb-8">
+          <h2 id="game-song-title" class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tight">Song Title</h2>
+          <p id="game-song-artist" class="text-indigo-400 font-bold text-lg">Artist Name</p>
+        </div>
 
-      <!-- Music Player Controls -->
-      <div class="w-full max-w-xl bg-black/40 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-5 mb-12 border border-white/5">
-        <button id="play-btn" class="w-14 h-14 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
-          <svg id="play-icon" class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </button>
-        <div class="flex-1">
-          <div class="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">
-             <span id="time-current">0:00</span>
-             <span id="time-total">0:00</span>
+        <!-- Music Player Controls -->
+        <div class="w-full bg-black/40 backdrop-blur-xl rounded-2xl p-4 flex items-center gap-5 mb-8 border border-white/5">
+          <button id="play-btn" class="w-14 h-14 bg-white text-black rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl">
+            <svg id="play-icon" class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="flex-1">
+            <div class="flex justify-between text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">
+               <span id="time-current">0:00</span>
+               <span id="time-total">0:00</span>
+            </div>
+            <div class="h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer" id="progress-container">
+              <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 w-0 transition-all duration-100"></div>
+            </div>
           </div>
-          <div class="h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer" id="progress-container">
-            <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 w-0 transition-all duration-100"></div>
-          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4 w-full">
+          <button id="hint-btn" class="py-5 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white font-black rounded-[24px] transition-all active:scale-95" title="힌트: 첫 글자 보기">
+            💡
+          </button>
+          <button id="check-ans-btn" class="flex-1 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-[1.02] text-white font-black rounded-[24px] shadow-2xl transition-all active:scale-95" data-i18n="bt.check_answer">
+            CHECK MY ANSWERS
+          </button>
         </div>
       </div>
 
-      <!-- Instructions -->
-      <div class="mb-10 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white/40 uppercase tracking-widest" data-i18n="bt.instructions">
-         Fill in the blanks while listening
-      </div>
+      <!-- Right Column: Lyrics Area -->
+      <div class="flex flex-col items-center mt-12 md:mt-0">
+        <!-- Instructions -->
+        <div class="w-full mb-10 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white/40 uppercase tracking-widest text-center" data-i18n="bt.instructions">
+           Fill in the blanks while listening
+        </div>
 
-      <!-- Lyrics Area -->
-      <div id="lyrics-container" class="w-full max-w-2xl space-y-8 text-center text-2xl text-white font-medium leading-relaxed">
-        <p class="animate-pulse text-white/20">Loading lyrics...</p>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex gap-4 mt-16 w-full max-w-md">
-        <button id="hint-btn" class="py-5 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white font-black rounded-[24px] transition-all active:scale-95" title="힌트: 첫 글자 보기">
-          💡
-        </button>
-        <button id="check-ans-btn" class="flex-1 py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-[1.02] text-white font-black rounded-[24px] shadow-2xl transition-all active:scale-95" data-i18n="bt.check_answer">
-          CHECK MY ANSWERS
-        </button>
+        <!-- Lyrics Area -->
+        <div id="lyrics-container" class="w-full space-y-8 text-center text-2xl text-white font-medium leading-relaxed">
+          <p class="animate-pulse text-white/20">Loading lyrics...</p>
+        </div>
       </div>
     </div>
   </div>

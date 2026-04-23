@@ -9,23 +9,71 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Form
 from fastapi.responses import JSONResponse
 
 from backend.routes.deps import get_current_user, load_json_data
+from backend.services.onui_tube_catalog import (
+    annotate_tube_videos,
+    build_tube_catalog_summary,
+    strip_computed_tube_fields,
+    validate_tube_video_catalog,
+)
 
 router = APIRouter()
 logger = logging.getLogger("uvicorn.error")
 
+
+def _ensure_saved_vocab_table(conn: sqlite3.Connection):
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS user_saved_vocab (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            pos TEXT,
+            meaning TEXT,
+            source TEXT DEFAULT 'tube',
+            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, label)
+        );
+        CREATE INDEX IF NOT EXISTS idx_saved_vocab_user
+            ON user_saved_vocab(user_id, saved_at);
+        """
+    )
+    conn.commit()
+
 @router.get("/api/tube/videos")
 async def get_tube_videos(user: dict = Depends(get_current_user)):
     videos = load_json_data("onui-tube.json") or []
-    return {"success": True, "videos": videos}
+    transcripts = load_json_data("onui-tube-transcripts.json") or {}
+    videos = annotate_tube_videos(videos, transcripts)
+    return {"success": True, "videos": videos, "summary": build_tube_catalog_summary(videos)}
 
 @router.post("/api/tube/videos")
 async def update_tube_videos(request: Request, user: dict = Depends(get_current_user)):
     # Admin check might be needed here, but for now matching previous logic
     try:
         data = await request.json()
+        allow_unready = bool(data.get("allow_unready")) if isinstance(data, dict) else False
+        videos = data.get("videos") if isinstance(data, dict) and "videos" in data else data
+
+        transcripts = load_json_data("onui-tube-transcripts.json") or {}
+        validation = validate_tube_video_catalog(
+            videos,
+            transcripts,
+            allow_unready=allow_unready,
+        )
+        if not validation["valid"]:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "success": False,
+                    "errors": validation["errors"],
+                    "summary": validation["summary"],
+                },
+            )
+
+        clean_videos = strip_computed_tube_fields(validation["videos"])
         with open("data/onui-tube.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return {"success": True}
+            json.dump(clean_videos, f, ensure_ascii=False, indent=2)
+        return {"success": True, "summary": validation["summary"]}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
@@ -35,7 +83,7 @@ async def get_tube_transcript(video_id: str, user: dict = Depends(get_current_us
     transcript = transcripts.get(video_id)
     if not transcript:
         return JSONResponse(status_code=404, content={"error": "Transcript not found"})
-    return {"success": True, "transcript": transcript}
+    return {"success": True, "transcripts": transcript}
 
 @router.get("/api/tube/vocab/export")
 async def export_tube_vocab(user: dict = Depends(get_current_user)):
@@ -47,6 +95,7 @@ async def get_user_tube_vocab(request: Request, user: dict = Depends(get_current
     db_path = request.app.state.db_path
     conn = sqlite3.connect(db_path)
     try:
+        _ensure_saved_vocab_table(conn)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
@@ -78,6 +127,7 @@ async def update_user_tube_vocab(request: Request, user: dict = Depends(get_curr
     db_path = getattr(request.app.state, "db_path", "data/users.db")
     conn = sqlite3.connect(db_path)
     try:
+        _ensure_saved_vocab_table(conn)
         cursor = conn.cursor()
         content_type = (request.headers.get("content-type") or "").lower()
         if "application/json" in content_type:

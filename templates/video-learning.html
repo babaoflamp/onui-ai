@@ -2,6 +2,7 @@
 {% block title %}OnuiTube - Korean Shorts Learning{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/video-learning.css" />
+<script src="https://www.youtube.com/iframe_api"></script>
 {% endblock %}
 
 {% block content %}
@@ -113,7 +114,8 @@
       <!-- 단어 툴팁 오버레이 (video-wrapper overflow:hidden 밖에 위치) -->
       <!-- 비디오 컨테이너 -->
       <div class="video-wrapper" id="video-wrapper">
-        <video id="video-player" playsinline preload="auto"></video>
+        <div id="youtube-player-container"></div>
+        <video id="video-player" class="hidden" playsinline preload="auto"></video>
         <div class="captions-layer" id="captions-container"></div>
 
         <!-- 커스텀 컨트롤 -->
@@ -197,5 +199,5 @@
 <script>
   window.__INITIAL_VIDEOS = {{ videos|tojson if videos else '[]' }};
 </script>
-<script src="/static/js/video-learning.js" defer></script>
+<script src="/static/js/video-learning.js?v=1.3" defer></script>
 {% endblock %}

@@ -233,4 +233,86 @@
 
   .custom-scrollbar::-webkit-scrollbar { width: 5px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  /* YouTube IFrame styling */
+  #youtube-player-container, #yt-player-target {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+
+  /* 자막 스타일 개선 */
+  .captions-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .caption-box {
+    position: absolute;
+    bottom: 85px;
+    left: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 14px 12px;
+    border-radius: 18px;
+    text-align: center;
+    pointer-events: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .caption-word {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 1px;
+    border-radius: 6px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .caption-word:hover {
+    background: rgba(249, 115, 22, 0.4);
+    color: #fb923c;
+    transform: scale(1.15) translateY(-2px);
+  }
+
+  .caption-translation {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 500;
+    line-height: 1.4;
+    display: block;
+  }
+
+  .panel-word {
+    cursor: pointer;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    transition: all 0.2s;
+  }
+
+  .panel-word:hover, .panel-word.active {
+    background: rgba(249, 115, 22, 0.2);
+    border-color: rgba(249, 115, 22, 0.4);
+    color: #fb923c;
+    transform: translateY(-2px);
+  }

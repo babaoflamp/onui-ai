@@ -87,8 +87,16 @@ async def generate_tts(request: Request, payload: TTSRequest):
         return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
     check_credits = _get_state(request, "check_and_consume_credits")
     credit_costs = _get_state(request, "credit_costs") or {}
+    db_path = _get_state(request, "db_path")
+    user_id = user.get("user_id") or user.get("id")
     if callable(check_credits):
-        credit = check_credits(user["user_id"], credit_costs.get("tts", 1))
+        try:
+            if db_path:
+                credit = check_credits(db_path, user_id, credit_costs.get("tts", 1))
+            else:
+                credit = check_credits(user_id, credit_costs.get("tts", 1))
+        except TypeError:
+            credit = check_credits(user_id, credit_costs.get("tts", 1))
         if not credit["ok"]:
             return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})", "remaining": credit["remaining"]})
 

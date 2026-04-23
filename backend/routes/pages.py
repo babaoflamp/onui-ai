@@ -5,6 +5,7 @@ import logging
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from backend.services.onui_tube_catalog import annotate_tube_videos
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -21,8 +22,11 @@ def video_learning_page(request: Request):
         if os.path.exists("data/onui-tube.json"):
             with open("data/onui-tube.json", "r", encoding="utf-8") as f:
                 videos = json.load(f)
-            for v in videos:
-                v.setdefault('transcript_offset', 0)
+            transcripts = {}
+            if os.path.exists("data/onui-tube-transcripts.json"):
+                with open("data/onui-tube-transcripts.json", "r", encoding="utf-8") as f:
+                    transcripts = json.load(f) or {}
+            videos = annotate_tube_videos(videos, transcripts)
     except Exception:
         pass
     return templates.TemplateResponse(request, "video-learning.html", {"videos": videos})
@@ -38,9 +42,16 @@ def onui_beats_page(request: Request):
         pass
     return templates.TemplateResponse(request, "onui-beats.html", {"songs": songs})
 
+from backend.routes.ai_services import load_voice_call_scenarios
+
 @router.get("/voice-call")
 def voice_call_page(request: Request):
-    return templates.TemplateResponse(request, "voice-call.html")
+    scenarios = []
+    try:
+        scenarios = load_voice_call_scenarios()
+    except Exception as e:
+        logger.error(f"Failed to load scenarios for SSR: {e}")
+    return templates.TemplateResponse(request, "voice-call.html", {"scenarios": scenarios})
 
 @router.get("/onui-grammar")
 def onui_grammar_page(request: Request):
@@ -90,4 +101,3 @@ async def privacy_page(request: Request):
 def sentence_evaluation_redirect():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/speechpro-practice", status_code=301)
-

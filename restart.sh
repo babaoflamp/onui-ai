@@ -5,11 +5,19 @@ PORT=9002
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # 기존 프로세스 종료
-PID=$(lsof -ti :$PORT)
-if [ -n "$PID" ]; then
-    echo "기존 프로세스 종료 (PID: $PID)..."
-    kill -9 $PID
-    sleep 1
+PIDS=$(lsof -ti :$PORT)
+if [ -n "$PIDS" ]; then
+    echo "기존 프로세스 종료 중 (PIDs: $PIDS)..."
+    kill -9 $PIDS
+    
+    # 포트가 완전히 반환될 때까지 대기 (최대 5초)
+    for i in {1..5}; do
+        if ! lsof -i :$PORT > /dev/null; then
+            break
+        fi
+        echo "포트 $PORT 해제 대기 중... ($i/5)"
+        sleep 1
+    done
 fi
 
 # 재시작

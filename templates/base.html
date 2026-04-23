@@ -7,7 +7,8 @@
     <script>
       (function() {
         var lang = localStorage.getItem("app_lang");
-        if (lang && lang !== "ko") {
+        // 기본값(en)이 아니거나 언어 설정이 아직 없는 경우(자동 감지 대기) 숨김 처리
+        if (lang !== "en") {
           document.documentElement.style.visibility = "hidden";
         }
       })();

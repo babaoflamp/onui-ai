@@ -10,21 +10,21 @@
   <!-- 📊 Quick Stats Row -->
   <div id="quick-stats" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4">
     <div class="suno-card py-5 text-center">
-      <p class="text-[11px] font-black text-white/65 uppercase tracking-widest mb-2" data-i18n="pr.streak">Streak</p>
-      <p class="text-3xl font-black text-orange-400"><span id="qs-streak">0</span><span class="text-sm text-white/60 ml-1">D</span></p>
+      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.streak">Streak</p>
+      <p class="text-4xl font-black text-white"><span id="qs-streak">0</span><span class="text-base text-white/80 ml-1">D</span></p>
     </div>
     <div class="suno-card py-5 text-center">
-      <p class="text-[11px] font-black text-white/65 uppercase tracking-widest mb-2" data-i18n="pr.avg_accuracy">Avg Score</p>
-      <p class="text-3xl font-black text-blue-400"><span id="qs-score">-</span></p>
+      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.avg_accuracy">Avg Score</p>
+      <p class="text-4xl font-black text-white"><span id="qs-score">-</span></p>
     </div>
     <div class="suno-card py-5 text-center">
-      <p class="text-[11px] font-black text-white/65 uppercase tracking-widest mb-2" data-i18n="pr.evaluations">Evaluations</p>
-      <p class="text-3xl font-black text-white"><span id="qs-total">0</span></p>
+      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.evaluations">Evaluations</p>
+      <p class="text-4xl font-black text-white"><span id="qs-total">0</span></p>
     </div>
     <a href="/learning-progress" class="suno-card py-5 text-center hover:bg-white/10 transition-colors">
-      <p class="text-[11px] font-black text-white/65 uppercase tracking-widest mb-2" data-i18n="dash.report">Report</p>
+      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="dash.report">Report</p>
       <p class="text-2xl" aria-hidden="true">📊</p>
-      <p class="text-[11px] text-white/70 mt-1" data-i18n="dash.view_full">View Full →</p>
+      <p class="text-sm text-white mt-1" data-i18n="dash.view_full">View Full →</p>
     </a>
   </div>
 
@@ -32,7 +32,7 @@
   <section>
     <h2 class="section-header">
       <span data-i18n="dash.recent_pron">Recent Pronunciation</span>
-      <span class="text-[10px] bg-orange-500 text-white px-2 py-0.5 rounded font-black tracking-widest">LIVE</span>
+      <span id="recent-pron-count" class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded font-black tracking-widest">0</span>
     </h2>
 
     <div
@@ -59,6 +59,36 @@
         <div class="skeleton skeleton--text"></div>
         <div class="skeleton skeleton--text" style="width:80%"></div>
         <div class="skeleton skeleton--text" style="width:60%"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-header">
+      <span>OnuiTube Vocabulary</span>
+      <span id="tube-vocab-count" class="text-xs bg-white/10 text-white px-2 py-0.5 rounded font-black tracking-widest">0</span>
+    </h2>
+
+    <div
+      id="tube-vocab-feed"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div class="skeleton-card" aria-hidden="true">
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--text"></div>
+        <div class="skeleton skeleton--text" style="width:80%"></div>
+      </div>
+      <div class="skeleton-card hidden md:flex" aria-hidden="true">
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--text"></div>
+        <div class="skeleton skeleton--text" style="width:80%"></div>
+      </div>
+      <div class="skeleton-card hidden lg:flex" aria-hidden="true">
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--text"></div>
+        <div class="skeleton skeleton--text" style="width:80%"></div>
       </div>
     </div>
   </section>

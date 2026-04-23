@@ -1,4 +1,4 @@
-// Learning Progress — fetches /api/learning/user-stats/me and renders weekly trends,
+// Learning Progress — fetches /api/learning/report-summary and renders weekly trends,
 // activity focus, fluency metrics, coverage bars, and recent activity logs.
 
 const ACHIEVEMENTS = {
@@ -33,7 +33,7 @@ async function loadProgressData() {
   document.getElementById("userLevelDisplay").textContent = "New Learner";
 
   try {
-    const resp = await fetch(`/api/learning/user-stats/me`, {
+    const resp = await fetch(`/api/learning/report-summary`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!resp.ok) throw new Error("Failed to fetch stats");
@@ -65,34 +65,36 @@ async function loadProgressData() {
 }
 
 function updateUI(data) {
+  const studyCard = document.getElementById("statCardStudyTime");
+  const attendanceCard = document.getElementById("statCardAttendance");
+  const cumulativeCard = document.getElementById("statCardCumulative");
+
   document.getElementById("userLevelDisplay").textContent = deriveLevelStatus(data);
   document.getElementById("consecutiveDays").textContent = data.consecutive_days || 0;
 
-  const todayLog =
-    data.daily_log && data.daily_log.length > 0
-      ? data.daily_log[data.daily_log.length - 1]
-      : { practices: 0, duration: 0 };
-  document.getElementById("todayPractices").textContent = todayLog.practices || 0;
-  document.getElementById("todayAvgScore").textContent = Math.round(data.avg_score || 0) + "%";
-  document.getElementById("todayDuration").textContent = todayLog.duration || 0;
+  document.getElementById("todayPractices").textContent = data.today_practices || 0;
+  document.getElementById("todayAvgScore").textContent = Math.round(data.today_avg_score || data.avg_score || 0) + "%";
+  document.getElementById("todayDuration").textContent = data.today_duration || 0;
 
   document.getElementById("totalPractices").textContent = data.total_practices || 0;
   document.getElementById("bestScore").textContent = (data.best_score || 0) + "%";
 
   const attendanceEl = document.getElementById("lmsAttendanceRate");
   if (attendanceEl) {
-    const activeDays = Array.isArray(data.daily_log)
-      ? data.daily_log.filter((day) => (day.practices || 0) > 0).length
-      : 0;
-    const windowDays = Array.isArray(data.daily_log) && data.daily_log.length > 0 ? data.daily_log.length : 30;
-    const attendanceRate = Math.round((activeDays / windowDays) * 100);
+    const attendanceRate = Math.round(data.attendance_rate || 0);
     attendanceEl.textContent = `${attendanceRate}%`;
+    attendanceCard?.classList.toggle("hidden", attendanceRate <= 0);
   }
 
   const totalMinutesEl = document.getElementById("lmsTotalMinutes");
   if (totalMinutesEl) {
-    totalMinutesEl.textContent = `${data.total_duration || 0} min`;
+    const totalDuration = Math.round(data.total_duration || 0);
+    totalMinutesEl.textContent = `${totalDuration} min`;
+    cumulativeCard?.classList.toggle("hidden", totalDuration <= 0);
   }
+
+  const todayDuration = Math.round(data.today_duration || 0);
+  studyCard?.classList.toggle("hidden", todayDuration <= 0);
 
   const wordsPercent =
     data.words_total > 0 ? Math.round((data.words_learned / data.words_total) * 100) : 0;
@@ -131,12 +133,12 @@ function updateUI(data) {
         (a) => `
       <div class="flex flex-col items-center p-4 glass-card rounded-2xl group">
         <div class="text-3xl mb-2 group-hover:scale-110 transition-transform badge-glow">${a.icon || "⭐"}</div>
-        <p class="text-[9px] font-black text-white/40 uppercase text-center">${a.name}</p>
+        <p class="text-sm font-black text-white uppercase text-center leading-snug">${a.name}</p>
       </div>`,
       )
       .join("");
   } else {
-    achCont.innerHTML = '<p class="col-span-3 text-center text-xs text-white/20 py-4">No achievements yet</p>';
+    achCont.innerHTML = '<p class="col-span-3 text-center text-base text-white/60 py-4">No achievements yet</p>';
   }
 
   const logCont = document.getElementById("dailyLog");
@@ -147,20 +149,20 @@ function updateUI(data) {
         (l) => `
       <div class="flex items-center justify-between p-5 glass-card rounded-[24px] mb-3 group hover:bg-white/5 transition-all">
         <div class="flex items-center gap-5">
-          <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 font-black">${new Date(l.date).getDate()}</div>
+          <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-lg text-white font-black">${new Date(l.date).getDate()}</div>
           <div>
-            <p class="font-black text-white">${new Date(l.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
-            <p class="text-[10px] text-white/30 font-bold uppercase">${l.practices} Eval • ${l.duration} Min</p>
+            <p class="text-lg font-black text-white">${new Date(l.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</p>
+            <p class="text-sm text-white/80 font-bold uppercase">${l.practices} Eval • ${l.duration} Min</p>
           </div>
         </div>
         <div class="text-right">
-          <p class="text-xl font-black text-blue-400">${Math.round(l.avg_score)}%</p>
+          <p class="text-3xl font-black text-white">${Math.round(l.avg_score)}%</p>
         </div>
       </div>`,
       )
       .join("");
   } else {
-    logCont.innerHTML = '<p class="text-center text-xs text-white/20 py-10">No activity logs found</p>';
+    logCont.innerHTML = '<p class="text-center text-base text-white/60 py-10">No activity logs found</p>';
   }
 }
 
@@ -168,7 +170,7 @@ function renderActivityFocus(breakdown) {
   const cont = document.getElementById("activityFocusContainer");
   if (!cont) return;
   if (!breakdown || breakdown.length === 0) {
-    cont.innerHTML = '<p class="text-xs text-white/20 text-center py-6">아직 활동 데이터가 없습니다.</p>';
+    cont.innerHTML = '<p class="text-base text-white/60 text-center py-6">아직 활동 데이터가 없습니다.</p>';
     return;
   }
   const colors = ["blue", "emerald", "orange", "purple", "teal"];
@@ -178,8 +180,8 @@ function renderActivityFocus(breakdown) {
       return `
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <span class="text-sm font-bold text-white/80">${a.icon} ${a.name}</span>
-          <span class="text-xs font-black text-white/40">${a.count}회 · ${a.pct}%</span>
+          <span class="text-lg font-bold text-white">${a.icon} ${a.name}</span>
+          <span class="text-base font-black text-white/80">${a.count}회 · ${a.pct}%</span>
         </div>
         <div class="w-full bg-white/5 rounded-full h-2">
           <div class="bg-${color}-500 h-full rounded-full shadow-[0_0_8px_rgba(59,130,246,0.4)] transition-all duration-1000" style="width:${a.pct}%"></div>
@@ -192,7 +194,7 @@ function renderActivityFocus(breakdown) {
 function renderWeeklyGraph(log) {
   const host = document.getElementById("weeklyGraph");
   if (!log || log.length === 0) {
-    host.innerHTML = '<p class="text-white/20 text-xs">Insufficient data for graph</p>';
+    host.innerHTML = '<p class="text-white/60 text-base">Insufficient data for graph</p>';
     return;
   }
 
@@ -218,7 +220,7 @@ function renderFluencyMetrics(data) {
   document.getElementById("fluencyMetricsContainer").innerHTML = `
     <div class="p-6 glass-card rounded-[28px] border-emerald-500/20 flex justify-between items-center">
       <div>
-        <p class="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-1">AI Grade</p>
+        <p class="text-sm font-black text-white uppercase tracking-[0.2em] mb-1">AI Grade</p>
         <p class="text-4xl font-black text-white">${data.fluency_grade}</p>
       </div>
       <div class="text-4xl opacity-40">🏆</div>

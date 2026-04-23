@@ -384,6 +384,29 @@ def _normalize_messenger_result(parsed: Optional[Dict], fallback_reply: str, use
 
     return {"reply": reply, "correction": normalized_correction}
 
+
+def _ensure_correction_feedback(result: dict, user_message: str) -> dict:
+    correction = result.get("correction")
+    reply = str(result.get("reply") or "").strip()
+    if isinstance(correction, dict):
+        original = str(correction.get("original") or user_message).strip()
+        corrected = str(correction.get("corrected") or original).strip()
+        reason = str(correction.get("reason") or reply or "").strip()
+        correction["original"] = original
+        correction["corrected"] = corrected
+        correction["reason"] = reason or "문장을 확인했고, 현재 표현도 자연스럽습니다."
+        result["correction"] = correction
+        if not result.get("reply"):
+            result["reply"] = correction["reason"]
+        return result
+
+    result["correction"] = {
+        "original": user_message,
+        "corrected": user_message,
+        "reason": reply or "문장을 확인했고, 현재 표현도 자연스럽습니다.",
+    }
+    return result
+
 def _strip_code_fences(text: str) -> str:
     cleaned = (text or "").strip()
     cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
@@ -779,20 +802,22 @@ async def messenger_chat_api(request: Request, user: dict = Depends(get_current_
 
     if mode == "correction":
         system_prompt = (
-            f"당신은 한국어 문법 코치이자 대화 파트너 '{character_label}'입니다. "
-            "학습자의 한국어 문장을 자연스럽게 교정해 주세요. "
+            f"당신은 한국어 선생님입니다. '{character_label}' 캐릭터 톤은 참고만 하고, 항상 한국어 선생님처럼 설명하세요. "
+            "학습자의 한국어 문장을 자연스럽게 교정하고, 왜 그렇게 고치는지 짧고 분명하게 설명해 주세요. "
             "반드시 JSON 객체 하나만 반환하세요. 형식: "
-            '{"reply":"짧은 설명 또는 자연스러운 답장","correction":{"original":"원문","corrected":"교정문","reason":"교정 이유"}} '
-            "correction.reason은 한국어로 한두 문장으로 쓰세요. "
-            "문장이 이미 자연스러우면 correction은 null로 두고 reply에는 칭찬과 짧은 답장을 넣으세요."
+            '{"reply":"short grammar explanation in English","correction":{"original":"original sentence","corrected":"corrected sentence","reason":"correction reason in English"}} '
+            "reply와 correction.reason은 반드시 영어로 작성하세요. "
+            "설명은 조사, 어순, 높임, 자연스러운 표현 중 핵심만 1~2문장으로 알려주세요. "
+            "문장이 이미 자연스러우면 correction.corrected를 원문과 같게 두고, reply에는 왜 자연스러운지 영어로 설명하세요."
         )
     else:
         system_prompt = (
-            f"당신은 한국인 대화 파트너 '{character_label}'입니다. "
-            "자연스럽고 짧게 한국어로 대화하세요. "
+            f"당신은 한국어 선생님입니다. '{character_label}' 캐릭터 톤은 참고만 하고, 항상 한국어 학습자에게 설명하듯 답하세요. "
+            "질문에 답할 때는 한국어 문법, 표현 차이, 자연스러운 말투를 짧고 분명하게 설명하세요. "
             "반드시 JSON 객체 하나만 반환하세요. 형식: "
-            '{"reply":"짧은 대화 응답","correction":null} '
-            "교정이 꼭 필요할 때만 correction 객체를 포함하세요."
+            '{"reply":"short teacher explanation in English","correction":null} '
+            "reply는 반드시 영어로 작성하고, 필요하면 짧은 한국어 예문을 포함하세요. "
+            "학습자 문장에 분명한 오류가 있으면 correction 객체를 포함해도 됩니다."
         )
 
     prompt_parts = [system_prompt]
@@ -855,6 +880,8 @@ async def messenger_chat_api(request: Request, user: dict = Depends(get_current_
         salvaged = _salvage_correction_result(response_text, user_message)
         if salvaged:
             result = salvaged
+    if mode == "correction":
+        result = _ensure_correction_feedback(result, user_message)
     return JSONResponse(content={"success": True, **result})
 
 @router.post("/api/textbook/quiz")
@@ -1174,48 +1201,6 @@ async def get_fluency_metrics(user_id: str, request: Request, user: dict = Depen
         return JSONResponse(content=fluency_metrics)
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
-
-
-@router.post("/api/voice-call/report")
-async def generate_voice_call_report(request: Request):
-    """AI 통화 종료 후 상세 피드백 리포트 생성"""
-    try:
-        body = await request.json()
-        transcript = body.get("transcript", [])
-        
-        if not transcript:
-            return JSONResponse(status_code=400, content={"error": "Transcript is empty"})
-
-        formatted_transcript = "\n".join(transcript)
-        
-        prompt = f"""다음은 사용자와 AI가 한국어로 나눈 통화 기록입니다.
-사용자의 발화 내용을 분석하여 상세한 피드백 리포트를 마크다운 형식으로 작성해주세요.
-
-[통화 기록]
-{formatted_transcript}
-
-[리포트 양식]
-### 📊 종합 평가
-(전반적인 유창성, 어휘력, 문법 정확도에 대한 짧은 총평)
-
-### 💡 문법 및 표현 교정
-(사용자가 말한 문장 중 어색하거나 틀린 부분을 찾아 교정하고 이유를 설명)
-
-### 🚀 추천하는 더 좋은 표현
-(사용자가 말한 내용을 더 원어민처럼 자연스럽게 말할 수 있는 1~2문장 추천)
-"""
-        client = request.app.state.gemini_client
-        model_name = request.app.state.gemini_model
-        
-        response = client.models.generate_content(
-            model=model_name,
-            contents=prompt
-        )
-        
-        return {"report": response.text}
-    except Exception as e:
-        logger.error(f"[VoiceCall Report] Error generating report: {e}", exc_info=True)
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 from backend.services.dalle_service import translate_korean_to_english_prompt

@@ -3,16 +3,24 @@ import io
 import shutil
 import csv
 import sqlite3
-from datetime import timedelta
 import hashlib
 import hmac
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from functools import lru_cache
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import threading
+import time
+import uuid
+import json
+import re
+import subprocess
+import wave
+import base64
+import tempfile
+
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.templating import Jinja2Templates
@@ -27,248 +35,105 @@ from fastapi.responses import (
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
 from openai import OpenAI
-from dotenv import load_dotenv
-from difflib import SequenceMatcher
-import requests
-import json
-import re
-import uuid
-import uvicorn
-import asyncio
-import subprocess
-import wave
-import base64
-import tempfile
-from pathlib import Path
-import time
-
-
-# Module-level cache for transcripts (loaded once on first request)
-_tube_transcripts_cache: dict | None = None
-
-
-# Pydantic model for adding a new OnuiTube video
-class OnuiTubeVideo(BaseModel):
-    id: str
-    title: str
-    description: str
-    level: str
-    video_url: str = ""
-    poster_url: str = ""
-    duration: int = 0
-
-
 try:
     from google import genai
-
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
-    genai = None
+from dotenv import load_dotenv
+import requests
+import uvicorn
+import asyncio
 
-try:
-    from google.cloud import speech
-
-    GOOGLE_SPEECH_AVAILABLE = True
-except ImportError:
-    GOOGLE_SPEECH_AVAILABLE = False
-    speech = None
-
-try:
-    from google.cloud import texttospeech
-
-    GOOGLE_TTS_AVAILABLE = True
-except ImportError:
-    GOOGLE_TTS_AVAILABLE = False
-    texttospeech = None
-
-# SpeechPro 서비스 임포트
+# Consolidated utilities import
+from backend.utils import (
+    get_current_user,
+    get_current_admin_user,
+    get_optional_user,
+    get_user_by_id,
+    get_session,
+    create_session_token,
+    parse_session_token,
+    hash_password,
+    verify_password,
+    load_json_data as load_json_data_utils,
+    get_user_credits,
+    check_and_consume_credits,
+    romanize_korean,
+    parse_model_output,
+    ensure_wav_16k_mono,
+    transcribe_with_vosk,
+    active_sessions,
+    normalize_role,
+    ROLE_LEARNER,
+    ROLE_INSTRUCTOR,
+    ROLE_SYSTEM_ADMIN,
+    ROLE_CHOICES,
+    _get_state
+)
+from backend.services.learning_progress_service import LearningProgressService
 from backend.services.speechpro_service import (
     call_speechpro_gtp,
     call_speechpro_model,
     call_speechpro_score,
-    speechpro_full_workflow,
-    ScoreResult,
-    get_speechpro_url,
-    set_speechpro_url,
     normalize_spaces,
+    ScoreResult
 )
-
-# 학습 진도 서비스 임포트
-from backend.services.learning_progress_service import LearningProgressService
-
-# FluencyPro 서비스 임포트
-from backend.services.fluencypro_service import (
-    call_fluencypro_analyze,
-    parse_fluency_output,
-)
-
-# Dictionary API service import
-from backend.services.krdict_service import search_krdict
-
-# DALL-E 서비스 임포트
-from backend.services.dalle_service import (
-    generate_image_dall_e,
-    generate_image_gemini,
-    enhance_prompt_for_korean_learning,
-)
-
-# Try to provide a server-side romanization fallback for Korean -> Latin
-# We will try to import a lightweight romanizer if available. If not,
-# `romanize_korean` will be a no-op (returns original text) and we will
-# instruct the operator to install `korean_romanizer` for better results.
-try:
-    from korean_romanizer.romanizer import Romanizer
-
-    def romanize_korean(text: str) -> str:
-        try:
-            r = Romanizer(text)
-            return r.romanize()
-        except Exception:
-            return text
-
-    ROMANIZER_AVAILABLE = True
-except Exception:
-    # Basic built-in romanizer (Revised Romanization approximations)
-    # This provides a best-effort Latin transcription of Hangul syllables
-    # without requiring external packages. It is not perfect but works
-    # for common phrases and will ensure the UI receives Latin text.
-    L_TABLE = [
-        "g",
-        "kk",
-        "n",
-        "d",
-        "tt",
-        "r",
-        "m",
-        "b",
-        "pp",
-        "s",
-        "ss",
-        "",
-        "j",
-        "jj",
-        "ch",
-        "k",
-        "t",
-        "p",
-        "h",
-    ]
-    V_TABLE = [
-        "a",
-        "ae",
-        "ya",
-        "yae",
-        "eo",
-        "e",
-        "yeo",
-        "ye",
-        "o",
-        "wa",
-        "wae",
-        "oe",
-        "yo",
-        "u",
-        "wo",
-        "we",
-        "wi",
-        "yu",
-        "eu",
-        "ui",
-        "i",
-    ]
-    T_TABLE = [
-        "",
-        "k",
-        "k",
-        "ks",
-        "n",
-        "nj",
-        "nh",
-        "t",
-        "l",
-        "lg",
-        "lm",
-        "lb",
-        "ls",
-        "lt",
-        "lp",
-        "lh",
-        "m",
-        "p",
-        "ps",
-        "t",
-        "t",
-        "ng",
-        "t",
-        "ch",
-        "k",
-        "t",
-        "p",
-        "h",
-    ]
-
-    def _romanize_syllable(ch: str) -> str:
-        code = ord(ch)
-        # Hangul syllables range
-        if code < 0xAC00 or code > 0xD7A3:
-            return ch
-
-        SIndex = code - 0xAC00
-        TCount = 28
-        VCount = 21
-        NCount = VCount * TCount
-        LIndex = SIndex // NCount
-        VIndex = (SIndex % NCount) // TCount
-        TIndex = SIndex % TCount
-
-        initial = L_TABLE[LIndex]
-        medial = V_TABLE[VIndex]
-        final = T_TABLE[TIndex]
-
-        return initial + medial + final
-
-    def romanize_korean(text: str) -> str:
-        try:
-            return "".join(
-                _romanize_syllable(ch) if 0xAC00 <= ord(ch) <= 0xD7A3 else ch
-                for ch in text
-            )
-        except Exception:
-            return text
-
-    ROMANIZER_AVAILABLE = False
 
 # ==========================================
-# 설정: 환경변수에서 OpenAI API 키 로드
+# 기본 설정 및 경로
 # ==========================================
 load_dotenv(override=True)
+DB_PATH = Path("data/users.db")
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+APP_TMP_DIR = Path(os.getenv("ONUI_TMP_DIR", "data/tmp"))
+APP_TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+# 환경 변수 설정
+os.environ["TMPDIR"] = str(APP_TMP_DIR)
+os.environ["TEMP"] = str(APP_TMP_DIR)
+os.environ["TMP"] = str(APP_TMP_DIR)
+tempfile.tempdir = str(APP_TMP_DIR)
+
+# 전역 객체
+app = FastAPI(title="Onui AI Korean Learning")
+logger = logging.getLogger("uvicorn.error")
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+# 모델/TTS 설정
+MODEL_BACKEND = os.getenv("MODEL_BACKEND", "gemini")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+TTS_BACKEND = os.getenv("TTS_BACKEND", "gemini")
+SESSION_EXPIRY_SECONDS = int(os.getenv("SESSION_EXPIRY_SECONDS", str(4 * 60 * 60)))
+DAILY_CREDITS = int(os.getenv("DAILY_CREDITS", "100"))
+CREDIT_COSTS = {"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1}
+
+# TTS Configuration
+GOOGLE_TTS_LANGUAGE = os.getenv("GOOGLE_TTS_LANGUAGE", "ko-KR")
+GOOGLE_TTS_VOICE = os.getenv("GOOGLE_TTS_VOICE", "ko-KR-Standard-A")
+GOOGLE_TTS_AUDIO_ENCODING = os.getenv("GOOGLE_TTS_AUDIO_ENCODING", "MP3")
+OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
+OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
+OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "mp3")
+GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-1.5-flash")
+GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
+TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
+TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
+TTS_CACHE = {}
+
+# OpenAI Client
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
-# KRDIC API key (Korean Basic Dictionary)
-KRDICT_API_KEY = os.getenv("KRDICT_API_KEY")
-
-# YouTube Data API Key for CC video search
-YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
-
-# Backend selection: set MODEL_BACKEND to 'ollama', 'openai', or 'gemini'
-MODEL_BACKEND = os.getenv("MODEL_BACKEND", "ollama")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-
-if GEMINI_API_KEY:
-    print(f"[Config] Gemini API Key loaded (starts with {GEMINI_API_KEY[:4]}...)")
-
-# Initialize Gemini client if available
+# Gemini Client
 gemini_client = None
-gemini_live_client = None  # Separate client for Live API (requires v1alpha)
+gemini_live_client = None
 if GEMINI_API_KEY and GENAI_AVAILABLE:
     try:
         gemini_client = genai.Client(api_key=GEMINI_API_KEY)
@@ -276,427 +141,252 @@ if GEMINI_API_KEY and GENAI_AVAILABLE:
             api_key=GEMINI_API_KEY,
             http_options={"api_version": "v1alpha"},
         )
+        logger.info("[Config] Gemini clients initialized")
     except Exception as e:
         logger.error(f"[Config] Gemini Client initialization failed: {e}")
 
-# Initialize Google Cloud Speech client if available
-google_speech_client = None
-_google_speech_client_initialized = False
-
-
-def _get_google_speech_client():
-    """Lazy initialization of Google Cloud Speech client"""
-    global google_speech_client, _google_speech_client_initialized
-
-    if _google_speech_client_initialized:
-        return google_speech_client
-
-    _google_speech_client_initialized = True
-
-    if not GOOGLE_SPEECH_AVAILABLE:
-        logger.warning("[Google STT] google-cloud-speech package not installed")
-        return None
-
-    try:
-        google_speech_client = speech.SpeechClient()
-        logger.info("[Google STT] Client initialized successfully")
-        return google_speech_client
-    except Exception as e:
-        logger.warning(
-            "[Google STT] Failed to initialize client: %s (requires GOOGLE_APPLICATION_CREDENTIALS)",
-            e,
-        )
-        return None
-
-
-# Romanization mode: 'force' = always replace pronunciation with romanizer output;
-# 'prefer' = keep model-provided Latin pronunciation if it looks valid (contains ASCII letters).
-ROMANIZE_MODE = os.getenv("ROMANIZE_MODE", "force").lower()
-
-# Gemini image model (optional override)
-GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-2.0-pro-exp-02-05")
-
-# MzTTS Configuration
-MZTTS_API_URL = os.getenv("MZTTS_API_URL", "http://112.220.79.218:56014")
-
-# STT/TTS Backend
-STT_BACKEND = os.getenv("STT_BACKEND", "openai" if OPENAI_API_KEY else "local")
-TTS_BACKEND = os.getenv("TTS_BACKEND", "gemini")
-OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
-OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
-OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "wav")
-GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", GEMINI_MODEL)
-GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
-GOOGLE_TTS_LANGUAGE = os.getenv("GOOGLE_TTS_LANGUAGE", "en-US")
-GOOGLE_TTS_VOICE = os.getenv("GOOGLE_TTS_VOICE", "en-US-Standard-C")
-GOOGLE_TTS_AUDIO_ENCODING = os.getenv("GOOGLE_TTS_AUDIO_ENCODING", "MP3")
-GOOGLE_TTS_SPEAKING_RATE = float(os.getenv("GOOGLE_TTS_SPEAKING_RATE", "1.0"))
-GOOGLE_TTS_PITCH = float(os.getenv("GOOGLE_TTS_PITCH", "0.0"))
-TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
-TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
-TTS_PREWARM_ON_STARTUP = os.getenv("TTS_PREWARM_ON_STARTUP", "").lower() in (
-    "1",
-    "true",
-    "yes",
-)
-SPEECHPRO_PREWARM_ON_STARTUP = os.getenv(
-    "SPEECHPRO_PREWARM_ON_STARTUP", "true"
-).lower() in ("1", "true", "yes")
-TTS_CACHE = {}
-WORD_IMAGE_CACHE_PATH = Path(
-    os.getenv("WORD_IMAGE_CACHE_PATH", "data/word_image_cache.json")
-)
-CLARITY_PROJECT_ID = os.getenv("CLARITY_PROJECT_ID")
-
-# Google OAuth Configuration
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-SECRET_KEY = os.getenv("SECRET_KEY", "")
-if not SECRET_KEY:
-    SECRET_KEY = os.urandom(24).hex()
-    logging.warning(
-        "[SECURITY] SECRET_KEY env var is not set. A random key was generated — "
-        "all sessions will be invalidated on every restart. Set SECRET_KEY in .env for production."
-    )
-
+# OAuth
 oauth = OAuth()
-if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
-    oauth.register(
-        name="google",
-        client_id=GOOGLE_CLIENT_ID,
-        client_secret=GOOGLE_CLIENT_SECRET,
-        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"},
-    )
+oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
 
-
-# Session management
-SESSION_EXPIRY_SECONDS = 24 * 60 * 60  # 24 hours
-active_sessions = {}  # {token: {"user_id": int, "email": str, "created_at": float, "is_admin": bool}}
-
-# Role definitions
-ROLE_LEARNER = "learner"
-ROLE_INSTRUCTOR = "instructor"
-ROLE_SYSTEM_ADMIN = "system_admin"
-ROLE_CHOICES = {ROLE_LEARNER, ROLE_INSTRUCTOR, ROLE_SYSTEM_ADMIN}
-
-# Daily credit limits
-DAILY_CREDITS = int(os.getenv("DAILY_CREDITS", "100"))
-CREDIT_COSTS = {
-    "lesson": 3,
-    "image": 10,
-    "quiz": 2,
-    "chat": 2,
-    "tts": 1,
-}
-
-
-def _normalize_role(role: str, is_admin: bool = False) -> str:
-    """Return a valid role, prioritizing system admin when is_admin is true."""
-    if is_admin:
-        return ROLE_SYSTEM_ADMIN
-    if role in ROLE_CHOICES:
-        return role
-    return ROLE_LEARNER
-
-
-def check_and_consume_credits(user_id: int, cost: int) -> dict:
-    """Check if user has enough daily credits and consume them atomically.
-
-    Resets the counter when the date changes (midnight local time).
-    Returns {"ok": True, "remaining": N} on success,
-            {"ok": False, "remaining": N} when insufficient.
-    """
-    today = datetime.now().strftime("%Y-%m-%d")
+# ==========================================
+# 헬퍼 함수 및 데이터베이스 초기화
+# ==========================================
+def _init_user_db():
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("BEGIN IMMEDIATE")
-        row = conn.execute(
-            "SELECT credits_used, credits_reset_date FROM users WHERE id = ?",
-            (user_id,),
-        ).fetchone()
-        if not row:
-            conn.execute("ROLLBACK")
-            return {"ok": False, "remaining": 0}
-        credits_used, reset_date = row
-        if reset_date != today:
-            credits_used = 0
-        remaining = DAILY_CREDITS - credits_used
-        if remaining < cost:
-            conn.execute("ROLLBACK")
-            return {"ok": False, "remaining": max(remaining, 0)}
-        conn.execute(
-            "UPDATE users SET credits_used = ?, credits_reset_date = ? WHERE id = ?",
-            (credits_used + cost, today, user_id),
-        )
-        conn.execute("COMMIT")
-        return {"ok": True, "remaining": remaining - cost}
-    except Exception as e:
-        try:
-            conn.execute("ROLLBACK")
-        except Exception:
-            pass
-        logger.error(f"[CREDITS] check_and_consume_credits error: {e}")
-        return {"ok": False, "remaining": 0}
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE, nickname TEXT, password_hash TEXT, google_id TEXT,
+                native_lang TEXT, affiliation TEXT, time_pref TEXT, interests TEXT,
+                goal TEXT, exam_level TEXT, reason TEXT, style TEXT, created_at TEXT,
+                is_admin INTEGER DEFAULT 0, role TEXT DEFAULT 'learner',
+                credits_used INTEGER DEFAULT 0, credits_reset_date TEXT
+            )
+        """)
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS sentence_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+                sentence_id TEXT NOT NULL, sentence_text TEXT, level TEXT,
+                score_first REAL, score_best REAL, score_latest REAL,
+                accuracy_first REAL, accuracy_best REAL, accuracy_latest REAL,
+                completeness_latest REAL, fluency_accuracy_latest REAL,
+                attempt_count INTEGER DEFAULT 1, term_id TEXT DEFAULT '2026-1',
+                device_type TEXT, ui_lang TEXT DEFAULT 'en', last_attempted_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_sentence_scores_user_sentence ON sentence_scores(user_id, sentence_id);
+            CREATE TABLE IF NOT EXISTS word_score_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
+                word_id TEXT NOT NULL, score INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_word_score_user_word ON word_score_history(user_id, word_id, created_at);
+            CREATE TABLE IF NOT EXISTS user_voice_recordings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, sentence_id TEXT,
+                file_path TEXT, score REAL, created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.commit()
     finally:
         conn.close()
 
+def _get_user_by_id(user_id: int) -> dict:
+    return get_user_by_id(str(DB_PATH), user_id)
 
-def _get_user_credits(user_id: int) -> dict:
-    """Return current credit status without consuming any credits."""
-    today = datetime.now().strftime("%Y-%m-%d")
+def _get_user_by_email(email: str) -> Optional[dict]:
+    conn = sqlite3.connect(DB_PATH); conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE email=?", (email.strip().lower(),)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def _get_user_by_nickname(nickname: str) -> Optional[dict]:
+    conn = sqlite3.connect(DB_PATH); conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE nickname=?", (nickname.strip(),)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def _store_user_signup(payload: dict) -> dict:
+    email = (payload.get("email") or "").strip().lower()
+    nickname = (payload.get("nickname") or "").strip()
+    password = payload.get("password") or ""
+    if not (email and EMAIL_REGEX.match(email) and nickname and len(password) >= 8):
+        raise HTTPException(status_code=400, detail="입력값이 올바르지 않습니다.")
+    
     conn = sqlite3.connect(DB_PATH)
     try:
-        row = conn.execute(
-            "SELECT credits_used, credits_reset_date FROM users WHERE id = ?",
-            (user_id,),
-        ).fetchone()
-        if not row:
-            return {"credits_used": 0, "remaining": DAILY_CREDITS, "daily_limit": DAILY_CREDITS}
-        credits_used, reset_date = row
-        if reset_date != today:
-            credits_used = 0
-        return {
-            "credits_used": credits_used,
-            "remaining": max(DAILY_CREDITS - credits_used, 0),
-            "daily_limit": DAILY_CREDITS,
-        }
-    finally:
-        conn.close()
+        conn.execute("INSERT INTO users (email, nickname, password_hash, created_at, role) VALUES (?,?,?,?,?)",
+                     (email, nickname, hash_password(password), datetime.utcnow().isoformat(), ROLE_LEARNER))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
+    finally: conn.close()
+    return {"email": email, "nickname": nickname}
 
+def _require_authenticated_user(request: Request) -> dict:
+    session = get_session(request)
+    if not session: raise HTTPException(status_code=401, detail="토큰이 없습니다.")
+    user = _get_user_by_id(session["user_id"])
+    if not user: raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    return user
 
+def _redirect_if_unauthenticated(request: Request):
+    try: _require_authenticated_user(request); return None
+    except HTTPException: return RedirectResponse(url="/login")
 
-def _list_ollama_models():
-    """Return list of models from local Ollama server or raise."""
+def _get_word_score_history(user_id: int, word_id: str) -> list:
+    conn = sqlite3.connect(DB_PATH)
     try:
-        resp = requests.get(f"{OLLAMA_URL}/v1/models", timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-        return data.get("data", [])
-    except Exception as e:
-        raise RuntimeError(f"Failed to list Ollama models: {e}")
+        rows = conn.execute("SELECT score, created_at FROM word_score_history WHERE user_id=? AND word_id=? ORDER BY created_at DESC", (user_id, word_id)).fetchall()
+        return [{"score": r[0], "date": r[1]} for r in rows]
+    finally: conn.close()
 
-
-def _auto_select_ollama_model(preferred=None):
-    """If OLLAMA_MODEL is unset or default, try to pick a preferred exaone model from the server."""
-    global OLLAMA_MODEL
+def _get_sentence_score_history(user_id: int, sentence_id: str) -> list:
+    conn = sqlite3.connect(DB_PATH)
     try:
-        models = _list_ollama_models()
-    except Exception:
-        return
+        rows = conn.execute("SELECT score_latest, last_attempted_at FROM sentence_scores WHERE user_id=? AND sentence_id=? ORDER BY last_attempted_at DESC", (user_id, sentence_id)).fetchall()
+        return [{"score": r[0], "date": r[1]} for r in rows]
+    finally: conn.close()
 
-    # Flatten ids
-    ids = [m.get("id") for m in models if isinstance(m, dict) and m.get("id")]
-    # If user already set a non-default model, keep it
-    if OLLAMA_MODEL and OLLAMA_MODEL != "exaone":
-        return
+@lru_cache(maxsize=32)
+def load_json_data(filename):
+    try:
+        with open(f"data/{filename}", "r", encoding="utf-8") as f: return json.load(f)
+    except Exception: return []
 
-    # Preferred order
-    prefer = preferred or [
-        "exaone3.5:7.8b",
-        "exaone3.5:2.4b",
-        "exaone-deep:7.8b",
-        "hf.co/LGAI-EXAONE/EXAONE-4.0-1.2B-GGUF:Q4_K_M",
-        "exaone",
-    ]
+# SpeechPro Logic
+_SPEECHPRO_SENTENCES_CACHE = None
+_SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE = {}
+_SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK = threading.Lock()
 
-    for p in prefer:
-        for mid in ids:
-            if mid and mid.startswith(p):
-                OLLAMA_MODEL = mid
-                print(f"Auto-selected Ollama model: {OLLAMA_MODEL}")
-                return
-
-
-def _parse_model_output(text: str):
-    """Try to extract JSON from model output.
-    - First look for ```json ... ``` or ``` ... ``` code fences and parse the inside.
-    - Then look for a JSON object substring and parse it.
-    Returns parsed object or None.
-    """
-    if not text or not isinstance(text, str):
-        return None
-
-    # look for fenced code blocks
-    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text, re.IGNORECASE)
-    candidate = None
-    if fence_match:
-        candidate = fence_match.group(1).strip()
+def load_speechpro_precomputed_sentences():
+    global _SPEECHPRO_SENTENCES_CACHE
+    if _SPEECHPRO_SENTENCES_CACHE is not None: return _SPEECHPRO_SENTENCES_CACHE
+    path = "data/sp_ko_questions.csv"
+    sentences = []
+    if os.path.exists(path):
         try:
-            return json.loads(candidate)
-        except Exception:
-            # continue to other heuristics
-            pass
+            with open(path, "r", encoding="utf-8", newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    txt = normalize_spaces(row.get("sentence", ""))
+                    sentences.append({
+                        "id": 1000 + int(row.get("ko_id", 0)),
+                        "sentenceKr": txt, "level": row.get("level", "초급"),
+                        "syll_ltrs": row.get("syll_ltrs", ""), "syll_phns": row.get("syll_phns", ""),
+                        "fst": row.get("fst", ""), "source": "precomputed"
+                    })
+        except Exception: pass
+    _SPEECHPRO_SENTENCES_CACHE = sentences
+    return sentences
 
-    # fallback: find first {...} JSON-like substring
-    brace_match = re.search(r"(\{[\s\S]*\})", text)
-    if brace_match:
-        candidate = brace_match.group(1)
-        try:
-            return json.loads(candidate)
-        except Exception:
-            pass
-
+def find_precomputed_sentence(text: str):
+    norm = normalize_spaces(text or "")
+    for s in load_speechpro_precomputed_sentences():
+        if normalize_spaces(s.get("sentenceKr", "")) == norm: return s
     return None
 
-
-def _ensure_wav_16k_mono(src_path: str, dst_path: str):
-    """Use ffmpeg (must be installed) to convert audio to 16k mono WAV for VOSK."""
-    cmd = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        src_path,
-        "-ar",
-        "16000",
-        "-ac",
-        "1",
-        dst_path,
-    ]
-    subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
-    """Convert arbitrary audio bytes (webm/opus etc.) to 16k mono WAV via ffmpeg."""
-    if not audio_bytes:
-        raise ValueError("audio bytes empty")
-
-    with tempfile.TemporaryDirectory(dir=str(APP_TMP_DIR)) as tmpdir:
-        src_path = os.path.join(tmpdir, "input.bin")
-        dst_path = os.path.join(tmpdir, "output.wav")
-
-        with open(src_path, "wb") as f:
-            f.write(audio_bytes)
-
-        try:
-            _ensure_wav_16k_mono(src_path, dst_path)
-            with open(dst_path, "rb") as f:
-                return f.read()
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"ffmpeg 변환 실패: {e}")
-
-
-def _transcribe_with_vosk(wav_path: str, model_path: str) -> str:
+def get_or_build_speechpro_precomputed_sentence(text: str):
+    norm = normalize_spaces(text or "")
+    if not norm: return None
+    preset = find_precomputed_sentence(norm)
+    if preset and preset.get("fst"): return preset
+    with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
+        if norm in _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE: return _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[norm]
     try:
-        from vosk import Model, KaldiRecognizer
-    except Exception as e:
-        raise RuntimeError("VOSK package not available: " + str(e))
+        rid = f"pre_{int(time.time())}"
+        gtp = call_speechpro_gtp(norm, rid)
+        if gtp.error_code != 0: return None
+        mdl = call_speechpro_model(norm, gtp.syll_ltrs, gtp.syll_phns, rid)
+        if mdl.error_code != 0: return None
+        built = {"sentenceKr": norm, "syll_ltrs": mdl.syll_ltrs, "syll_phns": mdl.syll_phns, "fst": mdl.fst, "source": "runtime"}
+        with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK: _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[norm] = built
+        return built
+    except Exception: return None
 
-    if not os.path.exists(model_path):
-        raise RuntimeError(f"VOSK model path not found: {model_path}")
+async def _generate_pronunciation_feedback(text: str, score_result, ui_lang: str = "en") -> str:
+    text = normalize_spaces(text or "")
+    if not text:
+        raise ValueError("text is required")
+    if score_result is None:
+        raise ValueError("score_result is required")
 
-    wf = wave.open(wav_path, "rb")
-    if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getframerate() != 16000:
-        raise RuntimeError("WAV file not in required format (16k mono 16-bit)")
+    score_value = round(float(getattr(score_result, "score", 0) or 0))
+    details = getattr(score_result, "details", {}) or {}
+    detail_json = json.dumps(details, ensure_ascii=False)
 
-    model = Model(model_path)
-    rec = KaldiRecognizer(model, wf.getframerate())
-    rec.SetWords(True)
+    prompt = f"""
+You are a kind Korean teacher giving pronunciation feedback to a foreign learner.
+Explain the pronunciation result in clear, natural English, as if you are tutoring the learner one-on-one.
 
-    results = []
-    while True:
-        data = wf.readframes(4000)
-        if len(data) == 0:
-            break
-        if rec.AcceptWaveform(data):
-            j = json.loads(rec.Result())
-            results.append(j.get("text", ""))
-    # final
-    j = json.loads(rec.FinalResult())
-    results.append(j.get("text", ""))
-    wf.close()
-    return " ".join([r for r in results if r])
+Response rules:
+- Write in English only, regardless of the UI language.
+- Keep it to 3 short sentences maximum.
+- Sound like a supportive Korean teacher: warm, clear, and practical.
+- In the first sentence, give a brief overall evaluation of the learner's pronunciation.
+- In the next sentence, explain the 1 or 2 most important pronunciation issues in simple English.
+- In the final sentence, give one concrete practice tip the learner can try immediately.
+- If helpful, mention a Korean syllable or sound pattern, but explain it in easy English.
+- Do not list raw scores or JSON fields directly.
+- Avoid emojis, exaggerated praise, and generic filler.
 
+Sentence:
+{text}
 
-# ==========================================
-# MzTTS Service Functions
-# ==========================================
+Score:
+{score_value}
 
+Detailed result (JSON):
+{detail_json}
+""".strip()
 
-def _call_mztts_api(
-    text: str,
-    output_type: str = "file",
-    speaker: int = None,
-    tempo: float = None,
-    pitch: float = None,
-    gain: float = None,
-) -> dict:
-    """
-    Call MzTTS API to generate Korean speech.
+    backend = (MODEL_BACKEND or "").strip().lower()
 
-    Args:
-        text: Korean text to synthesize
-        output_type: "file" (direct WAV), "pcm" (base64), or "path" (file path)
-        speaker: Speaker ID (0: Hanna - female voice)
-        tempo: Speed (0.1-2.0, default 1.0)
-        pitch: Pitch (0.1-2.0, default 1.0)
-        gain: Volume (0.1-2.0, default 1.0)
+    if backend == "gemini":
+        if not gemini_client:
+            raise RuntimeError("Gemini client not initialized")
+        resp = gemini_client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=prompt,
+        )
+        out = (getattr(resp, "text", None) or "").strip()
+    elif backend == "openai":
+        if not client:
+            raise RuntimeError("OpenAI client not initialized")
+        resp = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+        )
+        out = (resp.choices[0].message.content or "").strip()
+    elif backend == "ollama":
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.4},
+        }
+        resp = requests.post(
+            f"{OLLAMA_URL.rstrip('/')}/api/generate",
+            json=payload,
+            timeout=60,
+        )
+        resp.raise_for_status()
+        out = (resp.json().get("response") or "").strip()
+    else:
+        raise RuntimeError(f"Unsupported model backend: {MODEL_BACKEND}")
 
-    Returns:
-        dict with response data or raises exception
-    """
-    # Use defaults if not specified
-    if speaker is None:
-        speaker = 0
-    if tempo is None:
-        tempo = 1.0
-    if pitch is None:
-        pitch = 1.0
-    if gain is None:
-        gain = 1.0
-
-    # Validate parameters (note: actual server may have different speaker range)
-    if speaker < 0:
-        raise ValueError(f"Speaker must be >= 0, got {speaker}")
-    if not (0.1 <= tempo <= 2.0):
-        raise ValueError(f"Tempo must be 0.1-2.0, got {tempo}")
-    if not (0.1 <= pitch <= 2.0):
-        raise ValueError(f"Pitch must be 0.1-2.0, got {pitch}")
-    if not (0.1 <= gain <= 2.0):
-        raise ValueError(f"Gain must be 0.1-2.0, got {gain}")
-
-    payload = {
-        "output_type": output_type,
-        "_MODEL": 0,
-        "_SPEAKER": speaker,
-        "_TEMPO": tempo,
-        "_PITCH": pitch,
-        "_GAIN": gain,
-        "_CONVRATE": 0,
-        "_TEXT": text,
-    }
-
-    # Log payload for debugging
-    import sys
-
-    print(f"[MzTTS] Sending payload: {payload}", file=sys.stderr)
-
-    try:
-        if output_type == "file":
-            # Request WAV file directly
-            response = requests.post(
-                MZTTS_API_URL, json=payload, timeout=30, stream=True
-            )
-            response.raise_for_status()
-
-            # Check if response is JSON (error) or binary (WAV file)
-            content_type = response.headers.get("Content-Type", "")
-            if "application/json" in content_type:
-                # This is an error response
-                error_data = response.json()
-                raise RuntimeError(f"MzTTS API error: {error_data}")
-
-            # Return binary WAV data
-            return {"audio_data": response.content, "content_type": "audio/wav"}
-        else:
-            # Request JSON response (path or pcm)
-            response = requests.post(MZTTS_API_URL, json=payload, timeout=30)
-            response.raise_for_status()
-            return response.json()
-
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Failed to connect to MzTTS API: {e}")
+    if not out:
+        raise RuntimeError("AI feedback response was empty")
+    return out
 
 
 def _extract_gemini_audio(result: dict) -> dict:
@@ -746,74 +436,19 @@ def _set_tts_cache(key: str, content_type: str, audio_data: bytes) -> None:
         TTS_CACHE.clear()
     try:
         TTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        meta_path = TTS_CACHE_DIR / f"{key}.json"
-        audio_path = TTS_CACHE_DIR / f"{key}.bin"
-        meta_path.write_text(
+        (TTS_CACHE_DIR / f"{key}.json").write_text(
             json.dumps({"content_type": content_type}, ensure_ascii=True),
             encoding="utf-8",
         )
-        audio_path.write_bytes(audio_data)
+        (TTS_CACHE_DIR / f"{key}.bin").write_bytes(audio_data)
         TTS_CACHE[key] = {"content_type": content_type, "audio_data": audio_data}
     except Exception:
         return
 
 
-def _prewarm_tts_cache_for_sentences() -> None:
-    if TTS_BACKEND != "gemini":
-        logger.info("[TTS_PREWARM] Skipped (backend=%s)", TTS_BACKEND)
-        return
-    if not GEMINI_API_KEY:
-        logger.warning("[TTS_PREWARM] Skipped (GEMINI_API_KEY missing)")
-        return
-    try:
-        sentences = load_json_data("sentences.json") or []
-    except Exception as e:
-        logger.error("[TTS_PREWARM] Failed to load sentences: %s", e)
-        return
-    if not isinstance(sentences, list) or not sentences:
-        logger.warning("[TTS_PREWARM] No sentences found to prewarm")
-        return
-
-    logger.info("[TTS_PREWARM] Starting prewarm for %s sentences", len(sentences))
-    start_time = time.perf_counter()
-    warmed = 0
-    skipped = 0
-    failed = 0
-    for item in sentences:
-        text = item.get("text") if isinstance(item, dict) else str(item)
-        if not text:
-            continue
-        cache_key = _tts_cache_key(text, GEMINI_TTS_MODEL, "gemini")
-        if _get_tts_cache(cache_key):
-            skipped += 1
-            continue
-        try:
-            result = _call_gemini_tts_api(text=text)
-            content_type = result.get("content_type") or "application/octet-stream"
-            audio_data = result["audio_data"]
-            if content_type.startswith("audio/L16"):
-                audio_data = _amplify_pcm16(audio_data)
-                audio_data = _pcm16_to_wav(audio_data, sample_rate=24000, channels=1)
-                content_type = "audio/wav"
-            _set_tts_cache(cache_key, content_type, audio_data)
-            warmed += 1
-        except Exception as e:
-            failed += 1
-            logger.warning("[TTS_PREWARM] Failed for '%s': %s", text, e)
-    elapsed = time.perf_counter() - start_time
-    logger.info(
-        "[TTS_PREWARM] Done warmed=%s skipped=%s failed=%s elapsed=%.1fs",
-        warmed,
-        skipped,
-        failed,
-        elapsed,
-    )
-
-
 def _amplify_pcm16(
     pcm_data: bytes, target_peak: float = 1.0, max_gain: float = None
 ) -> bytes:
-    """Normalize PCM16 audio to a target peak."""
     import struct
 
     if not pcm_data:
@@ -842,7 +477,6 @@ def _amplify_pcm16(
 def _pcm16_to_wav(
     pcm_data: bytes, sample_rate: int = 24000, channels: int = 1
 ) -> bytes:
-    """Wrap raw PCM16 LE bytes in a WAV container for browser playback."""
     import struct
 
     bits_per_sample = 16
@@ -858,7 +492,7 @@ def _pcm16_to_wav(
             b"WAVE",
             b"fmt ",
             struct.pack("<I", 16),
-            struct.pack("<H", 1),  # PCM
+            struct.pack("<H", 1),
             struct.pack("<H", channels),
             struct.pack("<I", sample_rate),
             struct.pack("<I", byte_rate),
@@ -888,7 +522,6 @@ def _call_gemini_tts_api(text: str, model: str = None) -> dict:
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": {"responseModalities": ["AUDIO"]},
         }
-
         try:
             resp = requests.post(url, json=payload, timeout=60)
         except requests.exceptions.RequestException as e:
@@ -911,1688 +544,133 @@ def _call_gemini_tts_api(text: str, model: str = None) -> dict:
 
     raise RuntimeError(str(last_error) if last_error else "Gemini TTS failed")
 
-
-# Google TTS (Cloud Text-to-Speech)
-_google_tts_client = None
-_google_tts_client_initialized = False
-
-
-def _get_google_tts_client():
-    global _google_tts_client, _google_tts_client_initialized
-    if _google_tts_client_initialized:
-        return _google_tts_client
-    _google_tts_client_initialized = True
-    if not GOOGLE_TTS_AVAILABLE:
-        logger.warning("[Google TTS] google-cloud-texttospeech not installed")
-        return None
-    try:
-        _google_tts_client = texttospeech.TextToSpeechClient()
-        logger.info("[Google TTS] Client initialized")
-        return _google_tts_client
-    except Exception as e:
-        logger.warning("[Google TTS] Failed to initialize client: %s", e)
-        return None
-
-
-def _call_google_tts_api(
-    text: str,
-    language_code: str = None,
-    voice_name: str = None,
-    speaking_rate: float = None,
-    pitch: float = None,
-    audio_encoding: str = None,
-) -> dict:
-    if not GOOGLE_TTS_AVAILABLE:
-        raise RuntimeError("google-cloud-texttospeech not installed")
-
-    client = _get_google_tts_client()
-    if client is None:
-        raise RuntimeError("Google TTS client not initialized (check credentials)")
-
-    lc = language_code or GOOGLE_TTS_LANGUAGE
-    vn = voice_name or GOOGLE_TTS_VOICE
-    rate = speaking_rate if speaking_rate is not None else GOOGLE_TTS_SPEAKING_RATE
-    pt = pitch if pitch is not None else GOOGLE_TTS_PITCH
-    encoding = (audio_encoding or GOOGLE_TTS_AUDIO_ENCODING or "MP3").upper()
-
-    audio_enum = (
-        texttospeech.AudioEncoding.MP3
-        if encoding == "MP3"
-        else texttospeech.AudioEncoding.LINEAR16
-    )
-    media_type = (
-        "audio/mpeg" if audio_enum == texttospeech.AudioEncoding.MP3 else "audio/wav"
-    )
-
-    synthesis_input = texttospeech.SynthesisInput(text=text)
-    voice_params = texttospeech.VoiceSelectionParams(language_code=lc, name=vn)
-    audio_config = texttospeech.AudioConfig(
-        audio_encoding=audio_enum,
-        speaking_rate=max(0.25, min(4.0, rate)),
-        pitch=max(-20.0, min(20.0, pt)),
-    )
-
-    response = client.synthesize_speech(
-        input=synthesis_input,
-        voice=voice_params,
-        audio_config=audio_config,
-    )
-
-    audio_bytes = response.audio_content
-    if not audio_bytes:
-        raise RuntimeError("Google TTS returned empty audio")
-
-    if audio_enum == texttospeech.AudioEncoding.LINEAR16:
-        audio_bytes = _pcm16_to_wav(audio_bytes, sample_rate=24000, channels=1)
-        media_type = "audio/wav"
-
-    return {"audio_data": audio_bytes, "content_type": media_type}
-
-
-def get_mztts_server_info() -> dict:
-    """Get MzTTS server information (version, speakers, sampling rate, etc.)"""
-    try:
-        response = requests.get(MZTTS_API_URL, timeout=5)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        raise RuntimeError(f"Failed to get MzTTS server info: {e}")
-
+def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
+    if not audio_bytes: raise ValueError("audio bytes empty")
+    with tempfile.TemporaryDirectory(dir=str(APP_TMP_DIR)) as tmpdir:
+        src, dst = os.path.join(tmpdir, "in.bin"), os.path.join(tmpdir, "out.wav")
+        with open(src, "wb") as f: f.write(audio_bytes)
+        try: ensure_wav_16k_mono(src, dst)
+        except Exception: raise RuntimeError("ffmpeg failed")
+        with open(dst, "rb") as f: return f.read()
 
 # ==========================================
-# Auth & Signup storage (SQLite + PBKDF2)
+# 미들웨어 및 로깅
 # ==========================================
-DB_PATH = Path("data/users.db")
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-PBKDF_ITERATIONS = 120_000
-EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
-
-def _init_user_db():
-    """Ensure the users table exists and has the is_admin column."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        # WAL 모드 활성화 — 한 번 설정하면 DB 파일에 영구 적용 (모든 연결에서 자동 사용)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        conn.commit()
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL UNIQUE,
-                nickname TEXT NOT NULL,
-                password_hash TEXT NOT NULL,
-                native_lang TEXT,
-                affiliation TEXT,
-                time_pref TEXT,
-                interests TEXT,
-                goal TEXT,
-                exam_level TEXT,
-                reason TEXT,
-                style TEXT,
-                created_at TEXT NOT NULL,
-                is_admin INTEGER DEFAULT 0,
-                role TEXT DEFAULT 'learner'
-            )
-            """
-        )
-        conn.commit()
-        _ensure_is_admin_column(conn)
-        _ensure_role_column(conn)
-        _ensure_word_score_table(conn)
-        _ensure_sentence_score_table(conn)
-        _ensure_attendance_table(conn)
-        _ensure_rag_tables(conn)
-        _ensure_lms_tables(conn)
-        _ensure_admin_logging_tables(conn)
-        _ensure_saved_vocab_table(conn)
-        _ensure_saved_textbooks_table(conn)
-        _ensure_credits_columns(conn)
-        _seed_admin_user(conn)
-    finally:
-        conn.close()
-
-
-def _ensure_saved_textbooks_table(conn):
-    """AI 레슨 메이커에서 생성된 교재를 저장하기 위한 테이블 생성."""
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS saved_textbooks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            topic TEXT NOT NULL,
-            level TEXT,
-            dialogue TEXT,
-            vocabulary TEXT,
-            image_url TEXT,
-            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_saved_textbooks_user
-            ON saved_textbooks(user_id, saved_at);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_admin_logging_tables(conn):
-    """AI 콘텐츠 및 음성 녹음 기록을 위한 테이블 생성."""
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS ai_content_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT,
-            content_type TEXT,
-            model_used TEXT,
-            prompt TEXT,
-            result TEXT,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS user_voice_recordings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id TEXT,
-            sentence_id TEXT,
-            file_path TEXT,
-            score REAL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-
-
-def _ensure_is_admin_column(conn):
-    """Add is_admin column if missing for existing databases."""
-    cursor = conn.cursor()
-    cursor.execute("PRAGMA table_info(users)")
-    cols = [row[1] for row in cursor.fetchall()]
-    if "is_admin" not in cols:
-        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
-        conn.commit()
-
-
-def _ensure_role_column(conn):
-    """Add role column if missing and backfill values."""
-    cursor = conn.cursor()
-    cursor.execute("PRAGMA table_info(users)")
-    cols = [row[1] for row in cursor.fetchall()]
-    if "role" not in cols:
-        cursor.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'learner'")
-        conn.commit()
-
-    cursor.execute(
-        "UPDATE users SET role = ? WHERE role IS NULL OR TRIM(role) = ''",
-        (ROLE_LEARNER,),
-    )
-    cursor.execute(
-        "UPDATE users SET role = ? WHERE is_admin = 1",
-        (ROLE_SYSTEM_ADMIN,),
-    )
-    conn.commit()
-
-
-def _ensure_word_score_table(conn):
-    """Create word score history table if missing."""
-    cursor = conn.cursor()
-    cursor.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS word_score_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            word_id TEXT NOT NULL,
-            score INTEGER NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_word_score_user_word
-            ON word_score_history(user_id, word_id, created_at);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_credits_columns(conn):
-    """Add daily credit tracking columns to users table if missing."""
-    cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
-    if "credits_used" not in cols:
-        conn.execute("ALTER TABLE users ADD COLUMN credits_used INTEGER DEFAULT 0")
-    if "credits_reset_date" not in cols:
-        conn.execute("ALTER TABLE users ADD COLUMN credits_reset_date TEXT DEFAULT ''")
-    conn.commit()
-
-
-def _ensure_saved_vocab_table(conn):
-    """Create user saved vocabulary table if missing."""
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS user_saved_vocab (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            label TEXT NOT NULL,
-            pos TEXT,
-            meaning TEXT,
-            source TEXT DEFAULT 'tube',
-            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, label)
-        );
-        CREATE INDEX IF NOT EXISTS idx_saved_vocab_user
-            ON user_saved_vocab(user_id, saved_at);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_sentence_score_table(conn):
-    """Create sentence score history table if missing."""
-    cursor = conn.cursor()
-    cursor.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS sentence_score_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            sentence_id INTEGER NOT NULL,
-            score INTEGER NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_sentence_score_user_sentence
-            ON sentence_score_history(user_id, sentence_id, created_at);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_attendance_table(conn):
-    """Create attendance table if missing."""
-    cursor = conn.cursor()
-    cursor.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS attendance (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            date TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, date)
-        );
-        CREATE INDEX IF NOT EXISTS idx_attendance_user_date
-            ON attendance(user_id, date);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_lms_tables(conn):
-    """Create LMS-specific tables: sentence_scores, lecture_attendance, study_sessions."""
-    cursor = conn.cursor()
-    cursor.executescript(
-        """
-        -- LMS 문장별 성적 (최초/최고/최근 3포인트 저장)
-        CREATE TABLE IF NOT EXISTS sentence_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            sentence_id TEXT NOT NULL,
-            sentence_text TEXT,
-            level TEXT,
-            score_first REAL,
-            score_best REAL,
-            score_latest REAL,
-            accuracy_first REAL,
-            accuracy_best REAL,
-            accuracy_latest REAL,
-            completeness_latest REAL,
-            fluency_accuracy_latest REAL,
-            attempt_count INTEGER DEFAULT 1,
-            term_id TEXT DEFAULT '2026-1',
-            device_type TEXT,
-            ui_lang TEXT DEFAULT 'en',
-            last_attempted_at TEXT,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_sentence_scores_user_sentence
-            ON sentence_scores(user_id, sentence_id);
-        CREATE INDEX IF NOT EXISTS idx_sentence_scores_user_level
-            ON sentence_scores(user_id, level);
-
-        -- LMS 강의 회차 기반 출결
-        CREATE TABLE IF NOT EXISTS lecture_attendance (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            video_id TEXT NOT NULL,
-            week INTEGER,
-            status TEXT DEFAULT 'absent',
-            watched_pct REAL DEFAULT 0,
-            study_seconds INTEGER DEFAULT 0,
-            attended_at TEXT,
-            modified_by INTEGER,
-            modified_at TEXT,
-            term_id TEXT DEFAULT '2026-1',
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_lecture_attendance_user_video
-            ON lecture_attendance(user_id, video_id);
-        CREATE INDEX IF NOT EXISTS idx_lecture_attendance_user_week
-            ON lecture_attendance(user_id, week);
-
-        -- 유효 학습 체류 시간 세션
-        CREATE TABLE IF NOT EXISTS study_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            page TEXT NOT NULL,
-            page_type TEXT,
-            duration_seconds INTEGER DEFAULT 0,
-            term_id TEXT DEFAULT '2026-1',
-            device_type TEXT,
-            ui_lang TEXT DEFAULT 'en',
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_study_sessions_user_date
-            ON study_sessions(user_id, created_at);
-        """
-    )
-    conn.commit()
-
-
-def _ensure_lms_columns(conn):
-    """Add missing LMS columns to users table (parent_code for future use)."""
-    cursor = conn.cursor()
-    cursor.execute("PRAGMA table_info(users)")
-    cols = [row[1] for row in cursor.fetchall()]
-    if "parent_code" not in cols:
-        cursor.execute("ALTER TABLE users ADD COLUMN parent_code TEXT")
-    conn.commit()
-
-
-def _ensure_rag_tables(conn):
-    """Compatibility wrapper after moving RAG helpers to backend.utils."""
-    from backend.utils import ensure_rag_tables
-
-    return ensure_rag_tables(conn)
-
-
-def _seed_admin_user(conn):
-    """Seed a default admin account if none exists."""
-    admin_email = os.getenv("ADMIN_INITIAL_EMAIL", "").lower().strip()
-    admin_password = os.getenv("ADMIN_INITIAL_PASSWORD", "")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE is_admin = 1")
-    row = cursor.fetchone()
-    if row:
-        return
-
-    if not admin_email or not admin_password:
-        logging.warning(
-            "[SECURITY] No admin user found and ADMIN_INITIAL_EMAIL / ADMIN_INITIAL_PASSWORD "
-            "env vars are not set. Skipping admin seed. Set these env vars to create the initial admin account."
-        )
-        return
-
-    password_hash = _hash_password(admin_password)
-    created_at = datetime.utcnow().isoformat()
-    cursor.execute(
-        """
-        INSERT OR IGNORE INTO users (
-            email, nickname, password_hash, native_lang, affiliation, time_pref,
-            interests, goal, exam_level, reason, style, created_at, is_admin, role
-        ) VALUES (?, ?, ?, '', '', '', '[]', '', '', '', '', ?, 1, ?)
-        """,
-        (
-            admin_email,
-            "Admin",
-            password_hash,
-            created_at,
-            ROLE_SYSTEM_ADMIN,
-        ),
-    )
-    conn.commit()
-
-
-def _hash_password(password: str) -> str:
-    salt = os.urandom(16)
-    derived = hashlib.pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
-    )
-    return f"{base64.b64encode(salt).decode()}${base64.b64encode(derived).decode()}"
-
-
-def _normalize_interests(raw):
-    if raw is None:
-        return []
-    if isinstance(raw, list):
-        return [str(v) for v in raw if str(v).strip()]
-    if isinstance(raw, str):
-        try:
-            parsed = json.loads(raw)
-            if isinstance(parsed, list):
-                return [str(v) for v in parsed if str(v).strip()]
-        except Exception:
-            pass
-        return [v.strip() for v in raw.split(",") if v.strip()]
-    return []
-
-
-def _store_user_signup(payload: dict) -> dict:
-    email = (payload.get("email") or "").strip().lower()
-    nickname = (payload.get("nickname") or "").strip()
-    password = payload.get("password") or ""
-
-    if not email or not EMAIL_REGEX.match(email):
-        raise HTTPException(status_code=400, detail="유효한 이메일을 입력하세요.")
-    if not nickname:
-        raise HTTPException(status_code=400, detail="닉네임을 입력하세요.")
-    if len(password) < 8:
-        raise HTTPException(status_code=400, detail="비밀번호는 8자 이상이어야 합니다.")
-
-    native_lang = (payload.get("native_lang") or "").strip()
-    affiliation = (payload.get("affiliation") or "").strip()
-    time_pref = (payload.get("time_pref") or "").strip()
-    interests = _normalize_interests(payload.get("interests"))
-    goal = (payload.get("goal") or "").strip()
-    exam_level = (payload.get("exam_level") or "").strip()
-    reason = (payload.get("reason") or "").strip()
-    style = (payload.get("style") or "").strip()
-
-    password_hash = _hash_password(password)
-    created_at = datetime.utcnow().isoformat()
-
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.execute(
-            """
-            INSERT INTO users (
-                email, nickname, password_hash, native_lang, affiliation,
-                time_pref, interests, goal, exam_level, reason, style, created_at, is_admin, role
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
-            """,
-            (
-                email,
-                nickname,
-                password_hash,
-                native_lang,
-                affiliation,
-                time_pref,
-                json.dumps(interests, ensure_ascii=False),
-                goal,
-                exam_level,
-                reason,
-                style,
-                created_at,
-                ROLE_LEARNER,
-            ),
-        )
-        conn.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
-    finally:
-        conn.close()
-
-    return {"email": email, "nickname": nickname}
-
-
-def _verify_password(stored_hash: str, password: str) -> bool:
-    """Verify password against stored PBKDF2 hash."""
-    try:
-        parts = stored_hash.split("$")
-        if len(parts) != 2:
-            return False
-        salt = base64.b64decode(parts[0])
-        stored_derived = base64.b64decode(parts[1])
-
-        derived = hashlib.pbkdf2_hmac(
-            "sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS
-        )
-        return hmac.compare_digest(derived, stored_derived)
-    except Exception:
-        return False
-
-
-def _get_user_by_email(email: str) -> dict:
-    """Fetch user by email, return dict with id/email/nickname/password_hash or None."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT id, email, nickname, password_hash, is_admin, role
-            FROM users WHERE email = ?
-            """,
-            ((email or "").strip().lower(),),
-        )
-        row = cursor.fetchone()
-        return dict(row) if row else None
-    finally:
-        conn.close()
-
-
-def _get_user_by_nickname(nickname: str) -> dict:
-    """Fetch user by nickname, return dict with id/email/nickname/password_hash or None."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT id, email, nickname, password_hash, is_admin, role
-            FROM users WHERE nickname = ?
-            """,
-            ((nickname or "").strip(),),
-        )
-        row = cursor.fetchone()
-        return dict(row) if row else None
-    finally:
-        conn.close()
-
-
-def _create_session_token(user_id: int, email: str, is_admin: bool = False) -> str:
-    """Create a simple JWT-like session token."""
-    import secrets
-    import time
-
-    timestamp = time.time()
-    random_str = secrets.token_hex(16)
-    data = f"{user_id}|{email}|{int(timestamp)}|{random_str}|{int(bool(is_admin))}"
-    token = base64.b64encode(data.encode()).decode()
-
-    active_sessions[token] = {
-        "user_id": user_id,
-        "email": email,
-        "created_at": timestamp,
-        "is_admin": bool(is_admin),
-    }
-
-    return token
-
-
-def _get_user_by_google_id(google_id: str) -> dict:
-    """Fetch user by google_id."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, email, nickname, is_admin, role FROM users WHERE google_id = ?",
-            (google_id,),
-        )
-        row = cursor.fetchone()
-        return dict(row) if row else None
-    finally:
-        conn.close()
-
-
-def _create_google_user(email: str, nickname: str, google_id: str) -> dict:
-    """Create a new user from Google profile."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        cursor = conn.cursor()
-        created_at = datetime.utcnow().isoformat()
-        cursor.execute(
-            """
-            INSERT INTO users (email, nickname, password_hash, google_id, created_at)
-            VALUES (?, ?, '', ?, ?)
-            """,
-            (email, nickname, google_id, created_at),
-        )
-        conn.commit()
-        user_id = cursor.lastrowid
-        return {
-            "id": user_id,
-            "email": email,
-            "nickname": nickname,
-            "is_admin": 0,
-            "role": "learner",
-        }
-    finally:
-        conn.close()
-
-
-def _parse_session_token(token: str) -> dict:
-    """Parse session token, return dict with user_id/email or None."""
-    import time
-
-    try:
-        # Check active_sessions first (includes expiry check)
-        if token in active_sessions:
-            session = active_sessions[token]
-            created_at = session.get("created_at", 0)
-
-            # Check if session has expired
-            if time.time() - created_at > SESSION_EXPIRY_SECONDS:
-                # Session expired, remove it
-                del active_sessions[token]
-                logger.info(
-                    f"[SESSION_EXPIRED] user_id={session.get('user_id')} email={session.get('email')}"
-                )
-                return None
-
-            # Session is valid
-            return {
-                "user_id": session["user_id"],
-                "email": session["email"],
-                "is_admin": session.get("is_admin", False),
-            }
-
-        raw = base64.b64decode(token).decode("utf-8")
-        user_id, email, created_at, _random_str, is_admin = raw.split("|", 4)
-        session = {
-            "user_id": int(user_id),
-            "email": email,
-            "created_at": float(created_at),
-            "is_admin": bool(int(is_admin)),
-        }
-        if time.time() - session["created_at"] > SESSION_EXPIRY_SECONDS:
-            return None
-
-        active_sessions[token] = session
-        return {
-            "user_id": session["user_id"],
-            "email": session["email"],
-            "is_admin": session["is_admin"],
-        }
-
-    except Exception as e:
-        logger.debug(f"[SESSION_PARSE_ERROR] {e}")
-    return None
-
-
-def _extract_session_from_request(request: Request) -> dict:
-    """Extract session data from Authorization header, cookie, or query param."""
-    token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    if not token:
-        token = request.cookies.get("session_token", "")
-    if not token:
-        token = request.query_params.get("token", "")
-    if not token:
-        return None
-    return _parse_session_token(token)
-
-
-@lru_cache(maxsize=128)
-def _get_user_by_id_cached(user_id: int) -> tuple:
-    """Internal: fetch user row and return as immutable tuple of items for cache safety."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT id, email, nickname, native_lang, affiliation, time_pref,
-                   interests, goal, exam_level, reason, style, created_at, is_admin, role
-            FROM users WHERE id = ?
-            """,
-            (user_id,),
-        )
-        row = cursor.fetchone()
-        if row:
-            data = dict(row)
-            if data.get("interests"):
-                try:
-                    data["interests"] = json.loads(data["interests"])
-                except Exception:
-                    data["interests"] = []
-            data["role"] = _normalize_role(data.get("role"), data.get("is_admin"))
-            # Return as tuple of items so lru_cache stores an immutable value
-            return tuple(data.items())
-        return None
-    finally:
-        conn.close()
-
-
-def _get_user_by_id(user_id: int) -> dict:
-    """Fetch full user profile by ID. Always returns a fresh copy to prevent cache mutation."""
-    result = _get_user_by_id_cached(user_id)
-    if result is None:
-        return None
-    return dict(result)
-
-
-def _clear_user_cache():
-    """Clear the user lookup cache."""
-    _get_user_by_id_cached.cache_clear()
-
-
-def _require_authenticated_user(request: Request) -> dict:
-    """Return authenticated user or raise HTTP 401/404."""
-    session = _extract_session_from_request(request)
-    if not session:
-        raise HTTPException(status_code=401, detail="토큰이 없습니다.")
-
-    user = _get_user_by_id(session.get("user_id"))
-    if not user:
-        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
-
-    return user
-
-
-def _redirect_if_unauthenticated(request: Request):
-    """Redirect unauthenticated users to login page or return None if authenticated."""
-    try:
-        _require_authenticated_user(request)
-        return None
-    except HTTPException:
-        return RedirectResponse(url="/login")
-
-
-def _get_word_score_history(user_id: int, limit: int = 3) -> dict:
-    """Return per-word score history for a user."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT word_id, score, created_at
-            FROM word_score_history
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-            """,
-            (user_id,),
-        )
-        rows = cursor.fetchall()
-    finally:
-        conn.close()
-
-    history = {}
-    for row in rows:
-        word_id = row["word_id"]
-        history.setdefault(word_id, [])
-        if len(history[word_id]) < limit:
-            history[word_id].append(row["score"])
-    return history
-
-
-def _get_sentence_score_history(user_id: int, limit: int = 3) -> dict:
-    """Return per-sentence score history for a user."""
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT sentence_id, score, created_at
-            FROM sentence_score_history
-            WHERE user_id = ?
-            ORDER BY created_at DESC
-            """,
-            (user_id,),
-        )
-        rows = cursor.fetchall()
-    finally:
-        conn.close()
-
-    history = {}
-    for row in rows:
-        sentence_id = str(row["sentence_id"])
-        history.setdefault(sentence_id, [])
-        if len(history[sentence_id]) < limit:
-            history[sentence_id].append(row["score"])
-    return history
-
-
-def _find_vocab_id_by_word(word_text: str) -> str:
-    """Find vocabulary id by exact Korean word match."""
-    if not word_text:
-        return ""
-    normalized = normalize_spaces(word_text)
-    vocabulary = load_json_data("vocabulary.json") or []
-    for item in vocabulary:
-        if normalize_spaces(item.get("word", "")) == normalized:
-            return item.get("id") or ""
-    return ""
-
-
-# ==========================================
-# 로깅 설정
-# ==========================================
-Path("logs").mkdir(parents=True, exist_ok=True)
-file_handler = TimedRotatingFileHandler(
-    "logs/detailed.log", when="midnight", interval=1, backupCount=30, encoding="utf-8"
-)
-file_handler.suffix = "%Y-%m-%d"
-
-
-def _log_namer(default_name: str) -> str:
-    base = os.path.basename(default_name)
-    prefix = "detailed.log."
-    if base.startswith(prefix):
-        date_part = base[len(prefix) :]
-        return os.path.join(os.path.dirname(default_name), f"{date_part}-detailed.log")
-    return default_name
-
-
-file_handler.namer = _log_namer
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[file_handler, logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
-
-# Uvicorn 로거 설정
-uvicorn_logger = logging.getLogger("uvicorn")
-uvicorn_logger.setLevel(logging.INFO)
-
-
-# 요청/응답 로깅 미들웨어
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # 요청 정보 기록
-        client_host = request.client.host if request.client else "Unknown"
-        method = request.method
         path = request.url.path
-        query_params = dict(request.query_params) if request.query_params else {}
-
-        # 세션 토큰에서 사용자 정보 추출 (정적 파일 요청이 아닌 경우에만)
         user_info = "Guest"
-        user_label = "Guest"
-        user_email = ""
-        user_role = ""
-        
-        is_static = (
-            path.startswith("/static") or 
-            path.startswith("/uploads") or 
-            path.startswith("/data/locales") or
-            path.endswith((".ico", ".png", ".jpg", ".jpeg", ".svg", ".css", ".js", ".mp3", ".mp4"))
-        )
-        
-        if not is_static:
-            auth_header = request.headers.get("Authorization", "")
-            if auth_header.startswith("Bearer "):
-                token = auth_header[7:]
-                session_data = _parse_session_token(token)
-                if session_data:
-                    user_id = session_data.get("user_id")
-                    email = session_data.get("email")
-                    # 데이터베이스에서 닉네임 조회
-                    user = _get_user_by_id(user_id)
-                    if user:
-                        user_info = f"{user['nickname']} ({email})"
-                        user_label = user["nickname"]
-                        user_email = email or ""
-                        user_role = user.get("role") or ""
-                    else:
-                        user_info = f"User#{user_id} ({email})"
-                        user_label = f"User#{user_id}"
-                        user_email = email or ""
-
-            # 쿠키에서도 확인
-            if user_info == "Guest":
-                cookie_token = request.cookies.get("session_token")
-                if cookie_token:
-                    session_data = _parse_session_token(cookie_token)
-                    if session_data:
-                        user_id = session_data.get("user_id")
-                        email = session_data.get("email")
-                        user = _get_user_by_id(user_id)
-                        if user:
-                            user_info = f"{user['nickname']} ({email})"
-                            user_label = user["nickname"]
-                            user_email = email or ""
-                            user_role = user.get("role") or ""
-                        else:
-                            user_info = f"User#{user_id} ({email})"
-                            user_label = f"User#{user_id}"
-                            user_email = email or ""
-
-        logger.info(f"[REQUEST] {method} {path} from {client_host} | User: {user_info}")
-        if query_params:
-            _SENSITIVE_PARAMS = {"token", "password", "secret", "key", "auth"}
-            masked_params = {
-                k: "[REDACTED]" if any(s in k.lower() for s in _SENSITIVE_PARAMS) else v
-                for k, v in query_params.items()
-            }
-            logger.info(f"[QUERY] {masked_params}")
-
-        # 요청 본문 (POST/PUT 등)
-        if method in ["POST", "PUT", "PATCH"]:
-            try:
-                body = await request.body()
-                if body:
-                    content_type = request.headers.get("content-type", "").lower()
-                    is_binary = (
-                        "multipart/form-data" in content_type
-                        or "application/octet-stream" in content_type
-                        or content_type.startswith("audio/")
-                        or content_type.startswith("video/")
-                        or b"\x00" in body[:200]
-                    )
-                    if is_binary:
-                        logger.info(
-                            "[BODY] <omitted binary payload; content-type=%s; size=%d>",
-                            content_type or "unknown",
-                            len(body),
-                        )
-                        body = b""
-                    # JSON 형식이면 파싱, 아니면 문자열로
-                    try:
-                        body_json = json.loads(body)
-                        _SENSITIVE_FIELDS = {"password", "token", "secret", "key", "credential", "auth"}
-                        def _mask_sensitive(obj):
-                            if isinstance(obj, dict):
-                                return {
-                                    k: "[REDACTED]" if any(s in k.lower() for s in _SENSITIVE_FIELDS) else _mask_sensitive(v)
-                                    for k, v in obj.items()
-                                }
-                            if isinstance(obj, list):
-                                return [_mask_sensitive(i) for i in obj]
-                            return obj
-                        logger.info(
-                            f"[BODY] {json.dumps(_mask_sensitive(body_json), ensure_ascii=False)[:500]}"
-                        )
-                    except:
-                        if body:
-                            logger.info(
-                                f"[BODY] {body.decode('utf-8', errors='ignore')[:500]}"
-                            )
-            except Exception as e:
-                logger.debug(f"[BODY_ERROR] {e}")
-
-        try:
-            response = await call_next(request)
-            # 응답 정보 기록
-            logger.info(f"[RESPONSE] {method} {path} - Status: {response.status_code}")
-            if (
-                method == "GET"
-                and response.status_code < 400
-                and not path.startswith("/api")
-                and not path.startswith("/static")
-                and not path.startswith("/favicon")
-            ):
-                logger.info(
-                    "[PAGE_VIEW] user=%s email=%s role=%s page=%s ip=%s",
-                    user_label,
-                    user_email,
-                    user_role,
-                    path,
-                    client_host,
-                )
-            return response
+        if not (path.startswith("/static") or path.startswith("/uploads")):
+            session = get_session(request)
+            if session:
+                user = _get_user_by_id(session["user_id"])
+                if user: user_info = f"{user['nickname']} ({user['email']})"
+        logger.info(f"[REQUEST] {request.method} {path} | User: {user_info}")
+        try: return await call_next(request)
         except Exception as e:
-            logger.error(f"[ERROR] {method} {path} - {str(e)}", exc_info=True)
-            raise
+            logger.error(f"[ERROR] {path} - {str(e)}", exc_info=True)
+            return JSONResponse(status_code=500, content={"error": "Internal Server Error"})
 
+app.add_middleware(LoggingMiddleware)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-app = FastAPI(title="Onui Korean Learning Platform API", version="2.0.0")
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    if exc.status_code == 401:
-        logger.debug(f"[HTTP {exc.status_code}] {request.url.path} - {exc.detail}")
-    else:
-        logger.warning(f"[HTTP {exc.status_code}] {request.url.path} - {exc.detail}")
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": exc.detail, "success": False, "message": exc.detail}
-    )
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    logger.warning(f"[Validation Error] {request.url.path} - {exc.errors()}")
-    return JSONResponse(
-        status_code=422,
-        content={"error": "Validation Error", "detail": exc.errors(), "success": False, "message": "입력값이 올바르지 않습니다."}
-    )
-
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"[Unhandled Exception] {request.url.path} - {str(exc)}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={"error": "Internal Server Error", "success": False, "message": "서버 내부 오류가 발생했습니다."}
-    )
-
-# Session persistence for OAuth state
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
-
+# ==========================================
+# 앱 상태 및 라우터
+# ==========================================
 templates = Jinja2Templates(directory="templates")
-templates.env.globals["CLARITY_PROJECT_ID"] = CLARITY_PROJECT_ID
+templates.env.globals["CLARITY_PROJECT_ID"] = os.getenv("CLARITY_PROJECT_ID", "")
 app.state.templates = templates
-
 learning_service = LearningProgressService()
 app.state.learning_service = learning_service
-
-from backend.routes.learning_progress import router as learning_progress_router
-
-app.include_router(learning_progress_router)
-
-from backend.routes.tts import router as tts_router
-
-app.include_router(tts_router)
-
-from backend.routes.speechpro import router as speechpro_router
-
-app.include_router(speechpro_router)
-
-from backend.routes.roleplay import router as roleplay_router
-
-app.include_router(roleplay_router)
-
-from backend.routes.lms import router as lms_router
-
-app.include_router(lms_router)
-
-from backend.routes.auth import router as auth_router
-app.include_router(auth_router)
-
-from backend.routes.admin import router as admin_router
-app.include_router(admin_router)
-
-from backend.routes.user import router as user_router
-app.include_router(user_router)
-
-from backend.routes.ai_services import router as ai_services_router
-app.include_router(ai_services_router)
-
-from backend.routes.stt import router as stt_router
-app.include_router(stt_router)
-
-from backend.routes.media import router as media_router
-app.include_router(media_router)
-
-from backend.routes.content import router as content_router
-app.include_router(content_router)
-
-from backend.routes.pages import router as pages_router
-app.include_router(pages_router)
-
-# App state hooks for routers (avoid importing from main.py)
+app.state.db_path = str(DB_PATH)
 app.state.require_authenticated_user = _require_authenticated_user
 app.state.redirect_if_unauthenticated = _redirect_if_unauthenticated
-app.state.normalize_role = _normalize_role
+app.state.normalize_role = normalize_role
 app.state.role_instructor = ROLE_INSTRUCTOR
 app.state.role_system_admin = ROLE_SYSTEM_ADMIN
 app.state.role_choices = ROLE_CHOICES
-app.state.db_path = DB_PATH
-app.state.clear_user_cache = _clear_user_cache
-app.state.get_word_score_history = _get_word_score_history
-app.state.get_sentence_score_history = _get_sentence_score_history
-app.state.find_vocab_id_by_word = _find_vocab_id_by_word
-app.state.get_or_build_speechpro_precomputed_sentence = lambda text: globals()[
-    "get_or_build_speechpro_precomputed_sentence"
-](text)
 app.state.oauth = oauth
-app.state.store_user_signup = _store_user_signup
-app.state.get_user_by_google_id = _get_user_by_google_id
-app.state.get_user_by_email = _get_user_by_email
-app.state.get_user_by_nickname = _get_user_by_nickname
-app.state.create_google_user = _create_google_user
-app.state.create_session_token = _create_session_token
-app.state.verify_password = _verify_password
-app.state.parse_session_token = _parse_session_token
-app.state.active_sessions = active_sessions
 app.state.session_expiry_seconds = SESSION_EXPIRY_SECONDS
 app.state.check_and_consume_credits = check_and_consume_credits
 app.state.credit_costs = CREDIT_COSTS
-app.state.extract_session_from_request = _extract_session_from_request
-
-# TTS hooks/config for routers
+app.state.active_sessions = active_sessions
 app.state.logger = logger
-app.state.tts_backend = TTS_BACKEND
-app.state.openai_client = client
+app.state.model_backend = MODEL_BACKEND
+app.state.ollama_model = OLLAMA_MODEL
+app.state.gemini_model = GEMINI_MODEL
 app.state.gemini_client = gemini_client
 app.state.gemini_live_client = gemini_live_client
+app.state.openai_model = OPENAI_MODEL
+app.state.openai_client = client
 app.state.openai_api_key = OPENAI_API_KEY
+app.state.tts_backend = TTS_BACKEND
 app.state.openai_tts_model = OPENAI_TTS_MODEL
 app.state.openai_tts_voice = OPENAI_TTS_VOICE
 app.state.openai_tts_format = OPENAI_TTS_FORMAT
 app.state.gemini_tts_model = GEMINI_TTS_MODEL
 app.state.gemini_tts_mime = GEMINI_TTS_MIME
-app.state.call_google_tts_api = _call_google_tts_api
-app.state.google_tts_language = GOOGLE_TTS_LANGUAGE
-app.state.google_tts_voice = GOOGLE_TTS_VOICE
-app.state.google_tts_audio_encoding = GOOGLE_TTS_AUDIO_ENCODING
-app.state.google_speech_available = GOOGLE_SPEECH_AVAILABLE
-app.state.get_google_speech_client = _get_google_speech_client
-app.state.google_speech_module = speech
-app.state.get_mztts_server_info = get_mztts_server_info
-app.state.call_mztts_api = _call_mztts_api
 app.state.call_gemini_tts_api = _call_gemini_tts_api
 app.state.tts_cache_key = _tts_cache_key
 app.state.get_tts_cache = _get_tts_cache
 app.state.set_tts_cache = _set_tts_cache
 app.state.amplify_pcm16 = _amplify_pcm16
 app.state.pcm16_to_wav = _pcm16_to_wav
+app.state.stt_backend = os.getenv("STT_BACKEND", "openai")
 
-# SpeechPro hooks/config for routers
+# Missing Auth Hooks
+app.state.get_user_by_email = _get_user_by_email
+app.state.get_user_by_nickname = _get_user_by_nickname
+app.state.store_user_signup = _store_user_signup
+app.state.verify_password = verify_password
+app.state.create_session_token = create_session_token
+app.state.parse_session_token = parse_session_token
+app.state.extract_session_from_request = get_session
+
+# SpeechPro hooks
+app.state.load_speechpro_precomputed_sentences = load_speechpro_precomputed_sentences
+app.state.find_precomputed_sentence = find_precomputed_sentence
+app.state.get_or_build_speechpro_precomputed_sentence = get_or_build_speechpro_precomputed_sentence
+app.state.generate_pronunciation_feedback = _generate_pronunciation_feedback
 app.state.convert_audio_bytes_to_wav16 = _convert_audio_bytes_to_wav16
-app.state.load_speechpro_precomputed_sentences = lambda: globals()[
-    "load_speechpro_precomputed_sentences"
-]()
-app.state.find_precomputed_sentence = lambda text: globals()[
-    "find_precomputed_sentence"
-](text)
-app.state.generate_pronunciation_feedback = lambda text, score_result, **kwargs: (
-    globals()["_generate_pronunciation_feedback"](text, score_result, **kwargs)
-)
-app.state.model_backend = MODEL_BACKEND
-app.state.ollama_model = OLLAMA_MODEL
-app.state.gemini_model = GEMINI_MODEL
-app.state.openai_model = OPENAI_MODEL
-app.state.stt_backend = STT_BACKEND
+app.state.get_word_score_history = _get_word_score_history
+app.state.get_sentence_score_history = _get_sentence_score_history
+app.state.find_vocab_id_by_word = lambda w: None
 
+from backend.routes.learning_progress import router as learning_progress_router
+from backend.routes.tts import router as tts_router
+from backend.routes.speechpro import router as speechpro_router
+from backend.routes.roleplay import router as roleplay_router
+from backend.routes.lms import router as lms_router
+from backend.routes.auth import router as auth_router
+from backend.routes.admin import router as admin_router
+from backend.routes.user import router as user_router
+from backend.routes.ai_services import router as ai_services_router
+from backend.routes.stt import router as stt_router
+from backend.routes.media import router as media_router
+from backend.routes.content import router as content_router
+from backend.routes.pages import router as pages_router
 
+app.include_router(learning_progress_router)
+app.include_router(tts_router)
+app.include_router(speechpro_router)
+app.include_router(roleplay_router)
+app.include_router(lms_router)
+app.include_router(auth_router)
+app.include_router(admin_router)
+app.include_router(user_router)
+app.include_router(ai_services_router)
+app.include_router(stt_router)
+app.include_router(media_router)
+app.include_router(content_router)
+app.include_router(pages_router)
 
-
-
-# CORS 설정
-# 개발 환경: localhost 허용
-# 프로덕션 환경: ngrok 도메인 허용
-allowed_origins = [
-    "http://localhost:9000",
-    "http://127.0.0.1:9000",
-    "https://brainlessly-unequestrian-ember.ngrok-free.dev",
-    # 개발 중 다른 포트에서 테스트 시 필요하면 추가
-    "http://localhost:5173",  # Vite dev server (if needed)
-    "https://onuiai.kr",
-    "https://www.onuiai.kr",
-    "http://onuiai.kr",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# 로깅 미들웨어 추가
-app.add_middleware(LoggingMiddleware)
-
-# Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-
 @app.on_event("startup")
 def startup_event():
-    logger.info("=" * 50)
-    logger.info("FastAPI 서버 시작")
-    logger.info("=" * 50)
-    logger.info(f"모델 백엔드: {MODEL_BACKEND}")
-    # If using Ollama, try to auto-select a suitable model when app starts
-    if MODEL_BACKEND == "ollama":
-        try:
-            _auto_select_ollama_model()
-            logger.info("Ollama 모델 자동 선택 완료")
-        except Exception as e:
-            logger.error(f"Ollama auto-select failed: {e}")
-    try:
-        _init_user_db()
-        logger.info("사용자 데이터베이스 초기화 완료")
-    except Exception as e:
-        logger.error(f"User DB init failed: {e}")
-    if TTS_PREWARM_ON_STARTUP:
-        threading.Thread(target=_prewarm_tts_cache_for_sentences, daemon=True).start()
-    if SPEECHPRO_PREWARM_ON_STARTUP:
-        threading.Thread(target=_prewarm_speechpro_score_for_demo, daemon=True).start()
-
-    # Start session cleanup background task
-    threading.Thread(target=_cleanup_expired_sessions, daemon=True).start()
-    logger.info(f"세션 관리 시작 (만료 시간: {SESSION_EXPIRY_SECONDS // 3600}시간)")
-
-
-def _cleanup_expired_sessions():
-    """Background task to cleanup expired sessions every hour."""
-    import time
-
-    while True:
-        try:
-            time.sleep(3600)  # Run every hour
-            current_time = time.time()
-            expired_tokens = [
-                token
-                for token, session in active_sessions.items()
-                if current_time - session.get("created_at", 0) > SESSION_EXPIRY_SECONDS
-            ]
-
-            for token in expired_tokens:
-                session = active_sessions.pop(token, None)
-                if session:
-                    logger.info(
-                        f"[SESSION_CLEANUP] Removed expired session for user_id={session.get('user_id')} "
-                        f"email={session.get('email')}"
-                    )
-
-            if expired_tokens:
-                logger.info(
-                    f"[SESSION_CLEANUP] Removed {len(expired_tokens)} expired sessions"
-                )
-            else:
-                logger.debug(
-                    f"[SESSION_CLEANUP] No expired sessions found. Active: {len(active_sessions)}"
-                )
-
-        except Exception as e:
-            logger.error(f"[SESSION_CLEANUP] Error: {e}", exc_info=True)
-
-
-# ==========================================
-# 학습 데이터 로드 헬퍼 함수
-# ==========================================
-@lru_cache(maxsize=32)
-def load_json_data(filename):
-    """Load JSON data from data/ directory (cached per filename)."""
-    try:
-        with open(f"data/{filename}", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Error loading {filename}: {e}")
-        return []
-
-
-_SPEECHPRO_SENTENCES_CACHE: list | None = None
-_SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE: dict[str, dict] = {}
-_SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK = threading.Lock()
-
-
-def load_speechpro_precomputed_sentences():
-    """Load precomputed SpeechPro sentences (with syllables/FST) from CSV.
-    Cached in memory after first load — CSV is only parsed once per process."""
-    global _SPEECHPRO_SENTENCES_CACHE
-    if _SPEECHPRO_SENTENCES_CACHE is not None:
-        return _SPEECHPRO_SENTENCES_CACHE
-
-    path = "data/sp_ko_questions.csv"
-    sentences = []
-
-    if not os.path.exists(path):
-        _SPEECHPRO_SENTENCES_CACHE = sentences
-        return sentences
-
-    try:
-        with open(path, "r", encoding="utf-8", newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                sentence_kr = normalize_spaces(row.get("sentence", ""))
-                try:
-                    base_id = int(row.get("ko_id", 0))
-                except Exception:
-                    base_id = 0
-
-                try:
-                    order = int(row.get("order", base_id))
-                except Exception:
-                    order = base_id
-
-                sentences.append(
-                    {
-                        "id": 1000 + base_id if base_id else order,
-                        "order": order,
-                        "sentenceKr": sentence_kr,
-                        "sentenceEn": "",
-                        "level": row.get("level", "초급"),
-                        "difficulty": "SpeechPro",
-                        "category": "프리셋",
-                        "tags": ["speechpro", "preset"],
-                        "tips": "SpeechPro 서버의 프리셋 문장입니다.",
-                        "syll_ltrs": row.get("syll_ltrs", ""),
-                        "syll_phns": row.get("syll_phns", ""),
-                        "fst": row.get("fst", ""),
-                        "source": "precomputed",
-                    }
-                )
-    except Exception as e:
-        print(f"Error loading {path}: {e}")
-
-    # Order by given order, then id
-    sentences.sort(key=lambda s: (s.get("order", 0), s.get("id", 0)))
-    _SPEECHPRO_SENTENCES_CACHE = sentences
-    return sentences
-
-
-def find_precomputed_sentence(text: str):
-    """Find precomputed sentence entry by normalized text"""
-    normalized = normalize_spaces(text or "")
-    for item in load_speechpro_precomputed_sentences():
-        if normalize_spaces(item.get("sentenceKr", "")) == normalized:
-            return item
-    return None
-
-
-def get_or_build_speechpro_precomputed_sentence(text: str):
-    """Get precomputed payload for text, building it once via GTP/Model if needed."""
-    normalized = normalize_spaces(text or "")
-    if not normalized:
-        return None
-
-    preset = find_precomputed_sentence(normalized)
-    if preset and preset.get("syll_ltrs") and preset.get("syll_phns") and preset.get("fst"):
-        return preset
-
-    with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
-        cached = _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE.get(normalized)
-        if cached:
-            return cached
-
-    try:
-        request_id = f"precompute_{int(time.time())}_{uuid.uuid4().hex[:8]}"
-        gtp_result = call_speechpro_gtp(normalized, request_id=request_id)
-        if gtp_result.error_code != 0:
-            logger.warning(
-                "[SPEECHPRO_PRECOMPUTE] gtp error code=%s text=%s",
-                gtp_result.error_code,
-                normalized,
-            )
-            return None
-        model_result = call_speechpro_model(
-            text=normalized,
-            syll_ltrs=gtp_result.syll_ltrs,
-            syll_phns=gtp_result.syll_phns,
-            request_id=request_id,
-        )
-        if model_result.error_code != 0:
-            logger.warning(
-                "[SPEECHPRO_PRECOMPUTE] model error code=%s text=%s",
-                model_result.error_code,
-                normalized,
-            )
-            return None
-        built = {
-            "sentenceKr": normalized,
-            "syll_ltrs": model_result.syll_ltrs,
-            "syll_phns": model_result.syll_phns,
-            "fst": model_result.fst,
-            "source": "runtime-precomputed",
-        }
-        with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
-            _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[normalized] = built
-        return built
-    except Exception as e:
-        logger.warning("[SPEECHPRO_PRECOMPUTE] failed text=%s error=%s", normalized, e)
-        return None
-
-
-def _generate_silence_wav_bytes(
-    duration_ms: int = 300, sample_rate: int = 16000, channels: int = 1
-) -> bytes:
-    """Generate a tiny WAV payload for warmup requests."""
-    frame_count = max(1, int(sample_rate * duration_ms / 1000))
-    pcm_silence = b"\x00\x00" * frame_count * channels
-    buf = io.BytesIO()
-    with wave.open(buf, "wb") as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(2)  # 16-bit PCM
-        wf.setframerate(sample_rate)
-        wf.writeframes(pcm_silence)
-    return buf.getvalue()
-
-
-def _prewarm_speechpro_score_for_demo() -> None:
-    """Warm up SpeechPro score path once to reduce first-request latency."""
-    try:
-        preset = get_or_build_speechpro_precomputed_sentence("안녕하세요.")
-        if not preset or not preset.get("fst"):
-            # Fallback: build from first available sentence text.
-            for item in load_speechpro_precomputed_sentences():
-                sentence = (item.get("sentenceKr") or "").strip()
-                if not sentence:
-                    continue
-                preset = get_or_build_speechpro_precomputed_sentence(sentence)
-                if preset and preset.get("fst"):
-                    break
-        if not preset:
-            logger.warning("[SPEECHPRO_PREWARM] No valid preset found; skipped")
-            return
-        fst = preset.get("fst") or ""
-        syll_ltrs = preset.get("syll_ltrs") or ""
-        syll_phns = preset.get("syll_phns") or ""
-        if not fst or not syll_ltrs or not syll_phns:
-            logger.warning("[SPEECHPRO_PREWARM] Preset missing data; skipped")
-            return
-        text = (preset.get("sentenceKr") or "안녕하세요.").strip()
-        warmup_audio = _generate_silence_wav_bytes(duration_ms=300)
-        start = time.perf_counter()
-        result = call_speechpro_score(
-            text=text,
-            syll_ltrs=syll_ltrs,
-            syll_phns=syll_phns,
-            fst=fst,
-            audio_data=warmup_audio,
-            request_id=f"prewarm_{int(time.time())}",
-        )
-        elapsed = time.perf_counter() - start
-        logger.info(
-            "[SPEECHPRO_PREWARM] done score=%.2f error_code=%s elapsed=%.3fs",
-            float(result.score or 0),
-            result.error_code,
-            elapsed,
-        )
-    except Exception as e:
-        logger.warning("[SPEECHPRO_PREWARM] failed: %s", e)
-
-
-async def _generate_pronunciation_feedback(
-    text: str, score_result, ui_lang: str = "en"
-) -> str:
-    """
-    Generate AI feedback for pronunciation evaluation using configured AI backend.
-    Enhanced with FluencyPro + SpeechPro integrated analysis.
-
-    Args:
-        text: Original Korean text
-        score_result: ScoreResult object with score and details
-
-    Returns:
-        AI-generated feedback string in Korean
-    """
-    if MODEL_BACKEND not in ("ollama", "gemini", "openai"):
-        return None
-
-    # Mapping language codes to full names for better AI understanding
-    lang_map = {
-        "en": "English (영어)",
-        "ja": "Japanese (일본어)",
-        "zh": "Chinese (중국어)",
-    }
-    display_lang = lang_map.get(ui_lang, ui_lang)
-
-    try:
-        # Extract key metrics
-        overall_score = round(score_result.score or 0)
-        details = score_result.details if isinstance(score_result.details, dict) else {}
-
-        # SpeechPro 분석 데이터 추출
-        speechpro_info = ""
-        if details.get("quality"):
-            quality = details["quality"]
-            if quality.get("sentences"):
-                sent = quality["sentences"][0] if quality["sentences"] else {}
-                if sent.get("syllable_count"):
-                    speechpro_info += (
-                        f"\n- 정확 발음: {sent.get('accuracy_percentage', 0):.1f}%"
-                    )
-                if sent.get("completeness_percentage"):
-                    speechpro_info += (
-                        f"\n- 완성도: {sent.get('completeness_percentage', 0):.1f}%"
-                    )
-
-        # FluencyPro 분석 데이터 추출
-        fluency_info = ""
-        if details.get("fluency"):
-            f = details["fluency"]
-            try:
-                correct = (
-                    f.get("correct_syllables", f.get("correct syllable count", 0)) or 0
-                )
-                total = f.get("total_syllables", f.get("syllable count", 0)) or 0
-                rate = f.get("speech_rate", f.get("speech rate", 0)) or 0
-
-                acc = (correct / max(total, 1) * 100) if total > 0 else 0
-
-                fluency_info = f"""
-FluencyPro 분석:
-- 발화 속도: {float(rate):.1f} 음절/초
-- 정확 음절: {correct}/{total} 
-- 음절 정확도: {acc:.1f}%"""
-            except Exception as fe:
-                print(f"[AI Feedback] Fluency parse error: {fe}")
-                fluency_info = ""
-
-        # 발음이 어려운 단어 분석
-        word_scores = []
-        if details.get("quality", {}).get("sentences"):
-            for sent in details["quality"]["sentences"]:
-                if sent.get("text") != "!SIL" and sent.get("words"):
-                    for word in sent["words"]:
-                        if word.get("text") and word.get("text") != "!SIL":
-                            word_scores.append(
-                                {
-                                    "text": word["text"],
-                                    "score": round(word.get("score", 0)),
-                                }
-                            )
-
-        word_summary = ""
-        if word_scores:
-            low_words = [w for w in word_scores if w["score"] < 70]
-            high_words = [w for w in word_scores if w["score"] >= 90]
-
-            # Internal labels for prompt (not for direct display)
-            # Use English for these internal labels to avoid encoding/translation issues in prompt
-            if low_words:
-                word_summary += "\nDifficult pronunciations: " + ", ".join(
-                    [f"{w['text']}({w['score']} points)" for w in low_words[:3]]
-                )
-            if high_words:
-                word_summary += "\nGood pronunciations: " + ", ".join(
-                    [f"{w['text']}({w['score']} points)" for w in high_words[:3]]
-                )
-
-        prompt = f"""You are a Korean pronunciation expert and a friendly coach. Please provide feedback to the learner based on the pronunciation evaluation results below.
-
-[Target Sentence]
-{text}
-
-[Evaluation Summary]
-- Overall Score: {overall_score} points{speechpro_info}
-{fluency_info}
-{word_summary}
-
-[Output Format - Use these markers EXACTLY, no spaces inside brackets]
-[요약]
-(Summarize current status in 1-2 sentences)
-
-[잘한점]
-(At least 3 strengths, each starting with •)
-
-[개선점]
-(At least 3 areas for improvement, focusing on difficult words/syllables, each starting with •)
-
-[연습방법]
-(At least 3 actionable practice tips, each starting with •)
-
-[점수]
-Overall: {overall_score}/100
-(Include 2-3 key metrics like Accuracy/Completeness/Fluency)
-
-[Writing Rules]
-- All feedback content MUST be written in {display_lang}.
-- Original Korean text or example words MUST be kept in Korean.
-- Be encouraging but realistic.
-- DO NOT include any headers like "## Feedback" or "Feedback:". Start directly with [요약].
-- NO markdown bold or stars (*). Use only plain text and •.
-- Each section should be sufficiently detailed."""
-
-        if MODEL_BACKEND == "ollama":
-            payload = {"model": OLLAMA_MODEL, "prompt": prompt, "stream": False}
-
-            resp = requests.post(f"{OLLAMA_URL}/api/generate", json=payload, timeout=15)
-            if resp.status_code != 200:
-                return None
-
-            result = resp.json()
-            feedback = result.get("response", "").strip()
-
-        elif MODEL_BACKEND == "openai":
-            if not client or not OPENAI_API_KEY:
-                return None
-
-            response = client.chat.completions.create(
-                model=OPENAI_MODEL,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "당신은 한국어 발음 교육 전문가입니다.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=0.7,
-                max_tokens=2500,
-            )
-            feedback = response.choices[0].message.content.strip()
-
-        elif MODEL_BACKEND == "gemini":
-            if not GEMINI_API_KEY:
-                return None
-
-            import google.generativeai as genai
-
-            genai.configure(api_key=GEMINI_API_KEY)
-            model = genai.GenerativeModel(GEMINI_MODEL)
-
-            try:
-                response = model.generate_content(
-                    prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        max_output_tokens=2500,
-                        temperature=0.7,
-                    ),
-                )
-                if response.candidates and len(response.candidates) > 0:
-                    feedback = response.text.strip()
-                else:
-                    print(
-                        "[AI Feedback] Gemini - No candidates returned (likely blocked)"
-                    )
-                    return None
-            except Exception as ge:
-                print(f"[AI Feedback] Gemini error: {ge}")
-                return None
-
-        else:
-            return None
-
-        # Remove obvious JSON artifacts if feedback is a string
-        if isinstance(feedback, str):
-            feedback = re.sub(r"\{.*?\}", "", feedback, flags=re.DOTALL)
-            feedback = feedback.strip()
-
-        if not feedback:
-            print("[AI Feedback] Warning: Empty feedback generated")
-            return None
-
-        return feedback
-
-    except Exception as e:
-        import traceback
-
-        print(f"[AI Feedback] Critical Error: {e}")
-        traceback.print_exc()
-        return None
-
+    _init_user_db()
+    logger.info("Application started.")
 
 if __name__ == "__main__":
-    logger.info("Uvicorn 서버 시작: 0.0.0.0:9002")
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=9002,
-        reload=True,
-        log_level="info",
-        access_log=True,
-    )
-# Use an app-writable temp directory (some deployments mount /tmp read-only).
-APP_TMP_DIR = Path(os.getenv("ONUI_TMP_DIR", "data/tmp"))
-try:
-    APP_TMP_DIR.mkdir(parents=True, exist_ok=True)
-except Exception:
-    # If creation fails, fallback to current working directory.
-    APP_TMP_DIR = Path(".")
-
-# Make Python's tempfile (and many libs) prefer the app temp dir over /tmp.
-try:
-    os.environ["TMPDIR"] = str(APP_TMP_DIR)
-    os.environ["TEMP"] = str(APP_TMP_DIR)
-    os.environ["TMP"] = str(APP_TMP_DIR)
-    tempfile.tempdir = str(APP_TMP_DIR)
-except Exception:
-    pass
+    uvicorn.run("main:app", host="0.0.0.0", port=9002, reload=True)

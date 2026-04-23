@@ -1,5 +1,5 @@
   document.addEventListener("DOMContentLoaded", () => {
-    let videoEl = document.getElementById('video-player');
+    let ytPlayer = null;
     let transcripts = [];
     let currentSubtitleIndex = -1;
     let autoPauseFired = false;
@@ -11,6 +11,7 @@
     let activeLevel = 'all';
     let saveProgressTimer = null;
     let ttsAudio = null;
+    let timeUpdateInterval = null;
 
     const lobby             = document.getElementById('tube-lobby');
     const playerScreen      = document.getElementById('player-screen');
@@ -49,16 +50,81 @@
     const btnOffsetPlus     = document.getElementById('btn-offset-plus');
     const offsetLabel       = document.getElementById('offset-label');
 
+    // ── YouTube IFrame API ──────────────────────────────
+    window.onYouTubeIframeAPIReady = () => {
+      console.log("[OnuiTube] YouTube API Ready");
+    };
+
+    function initYouTubePlayer(videoId) {
+      if (ytPlayer) {
+        try { ytPlayer.destroy(); } catch(e) {}
+      }
+      
+      const wrapper = document.getElementById('youtube-player-container');
+      wrapper.innerHTML = '<div id="yt-player-target"></div>';
+      
+      const origin = window.location.origin;
+      const referrer = window.location.href;
+
+      ytPlayer = new YT.Player('yt-player-target', {
+        height: '100%',
+        width: '100%',
+        videoId: videoId,
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {
+          autoplay: 1,
+          controls: 0, 
+          modestbranding: 1,
+          rel: 0,
+          enablejsapi: 1,
+          playsinline: 1,
+          origin: origin,
+          widget_referrer: referrer
+        },
+        events: {
+          onReady: (event) => {
+            console.log("[OnuiTube] YT Player Ready");
+            startTimePolling();
+          },
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING) {
+              playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+            } else {
+              playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+            }
+          },
+          onError: (event) => {
+            console.error("[OnuiTube] YT Player Error:", event.data);
+            showToast('영상을 불러오지 못했습니다. (Error: ' + event.data + ')', 'error');
+          }
+        }
+      });
+    }
+
+    function startTimePolling() {
+      if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+      timeUpdateInterval = setInterval(() => {
+        if (ytPlayer && ytPlayer.getCurrentTime) {
+          const cur = ytPlayer.getCurrentTime();
+          const dur = ytPlayer.getDuration();
+          updateProgressUI(cur, dur);
+          handleTimeUpdate(cur);
+        }
+      }, 100); // 10fps for smooth subtitle sync
+    }
+
+    function updateProgressUI(cur, dur) {
+      if (dur > 0) {
+        progressFill.style.width = `${(cur / dur) * 100}%`;
+        timeCurrent.innerText = formatTime(cur);
+        timeTotal.innerText = formatTime(dur);
+      }
+    }
+
     // ── 토스트 알림 ─────────────────────────────────────
     function showToast(msg, type = 'info') {
-      const colors = {
-        success: 'bg-green-500 text-white',
-        error:   'bg-red-500 text-white',
-        warn:    'bg-orange-500 text-white',
-        info:    'bg-white/10 backdrop-blur-md border border-white/20 text-white',
-      };
       const toast = document.createElement('div');
-      toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] px-5 py-2.5 rounded-2xl font-bold text-sm shadow-2xl transition-all duration-300 opacity-0 translate-y-3 ${colors[type] || colors.info}`;
+      toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] px-5 py-2.5 rounded-2xl font-bold text-sm shadow-2xl transition-all duration-300 opacity-0 translate-y-3 bg-white/10 backdrop-blur-md border border-white/20 text-white`;
       toast.innerText = msg;
       document.body.appendChild(toast);
       requestAnimationFrame(() => toast.classList.remove('opacity-0', 'translate-y-3'));
@@ -66,6 +132,64 @@
         toast.classList.add('opacity-0', 'translate-y-3');
         setTimeout(() => toast.remove(), 300);
       }, 2500);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderSavedVocab() {
+      const vocabCount = savedVocab.length;
+      vocabCountEl.innerText = `${vocabCount} word${vocabCount === 1 ? '' : 's'}`;
+
+      if (!vocabCount) {
+        vocabList.innerHTML = `
+          <div id="vocab-empty" class="h-full flex flex-col items-center justify-center text-center opacity-50 py-8">
+            <span class="text-3xl mb-2">📖</span>
+            <p class="text-sm font-bold text-white">단어를 클릭해 저장하세요!</p>
+            <p class="text-xs text-white/50 mt-1">저장한 단어가 여기 표시됩니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      vocabList.innerHTML = savedVocab.map((item) => {
+        const label = escapeHtml(item.label || '');
+        const pos = escapeHtml(item.pos || '');
+        const mean = escapeHtml(item.meaning || item.mean || '');
+        return `
+          <div class="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-sm font-black text-white leading-tight">${label}</div>
+                ${pos ? `<div class="mt-1 text-[10px] uppercase tracking-widest text-orange-400 font-black">${pos}</div>` : ''}
+                ${mean ? `<div class="mt-1.5 text-xs text-white/70 leading-relaxed">${mean}</div>` : ''}
+              </div>
+              <span class="shrink-0 rounded-full border border-orange-400/20 bg-orange-500/10 px-2 py-0.5 text-[10px] font-black text-orange-300">SAVED</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadSavedVocab() {
+      try {
+        const resp = await fetch('/api/tube/vocab');
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.success) {
+          throw new Error(data.detail || data.error || '단어장을 불러오지 못했습니다.');
+        }
+        savedVocab = Array.isArray(data.vocab) ? data.vocab : [];
+        renderSavedVocab();
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || '단어장을 불러오지 못했습니다.', 'error');
+      }
     }
 
     // ── 자막 오프셋 조정 ────────────────────────────────
@@ -76,14 +200,12 @@
     btnOffsetMinus.onclick = () => {
       currentOffset = Math.round((currentOffset - 0.5) * 10) / 10;
       updateOffsetUI();
-      handleTimeUpdate(videoEl.currentTime);
-      console.log(`[OnuiTube] transcript_offset: ${currentOffset}`);
+      if (ytPlayer) handleTimeUpdate(ytPlayer.getCurrentTime());
     };
     btnOffsetPlus.onclick = () => {
       currentOffset = Math.round((currentOffset + 0.5) * 10) / 10;
       updateOffsetUI();
-      handleTimeUpdate(videoEl.currentTime);
-      console.log(`[OnuiTube] transcript_offset: ${currentOffset}`);
+      if (ytPlayer) handleTimeUpdate(ytPlayer.getCurrentTime());
     };
 
     // ── 우측 패널 자막 + 단어 상세 ──────────────────────
@@ -111,7 +233,7 @@
     function showWordDetail(wordObj) {
       wordDetailPos.textContent = wordObj.pos || '';
       wordDetailLabel.textContent = wordObj.label;
-      wordDetailMean.textContent = wordObj.mean || '';
+      wordDetailMean.textContent = wordObj.mean || wordObj.meaning || '';
       wordDetailTts.onclick = () => playWordTTS(wordObj.label);
       wordDetailSave.onclick = () => { addToVocab(wordObj); };
       wordDetail.classList.remove('hidden');
@@ -133,170 +255,96 @@
         ttsAudio.play();
         ttsAudio.onended = () => URL.revokeObjectURL(url);
       } catch {
-        showToast(translations['yt.tts_failed'] || '발음 재생 실패', 'error');
+        showToast('발음 재생 실패', 'error');
       }
     }
 
-    // ── 어휘 CSV 내보내기 ────────────────────────────────
-    btnExport.onclick = async () => {
-      try {
-        const resp = await fetch('/api/tube/vocab/export');
-        if (resp.status === 401) {
-          showToast(translations['yt.login_required'] || '로그인 후 이용하세요.', 'warn');
-          return;
-        }
-        if (!resp.ok) throw new Error('export failed');
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'onui-vocab.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-      } catch {
-        showToast(translations['yt.export_failed'] || '내보내기 실패', 'error');
-      }
-    };
-
     // ── 로비 로드 ────────────────────────────────────────
-    const initialVideos = window.__INITIAL_VIDEOS || [];
-
     async function loadLobby() {
-      if (initialVideos && initialVideos.length > 0) {
-        allVideos = initialVideos;
-      } else {
-        try {
-          const resp = await fetch('/api/tube/videos');
-          const data = await resp.json();
-          if (data.success && data.videos && data.videos.length > 0) {
-            allVideos = data.videos;
-          } else {
-            videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/50 font-black uppercase">${translations['yt.no_videos'] || '영상이 없습니다.'}</div>`;
-            return;
-          }
-        } catch {
-          videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-red-400 font-bold uppercase">${translations['yt.server_error'] || '서버 연결 오류.'}</div>`;
-          return;
+      try {
+        const resp = await fetch('/api/tube/videos');
+        const data = await resp.json();
+        if (data.success && data.videos) {
+          allVideos = data.videos;
+          renderGrid(allVideos);
         }
+      } catch (err) {
+        console.error(err);
       }
-      // 저장된 검색어 복원
-      const savedSearch = sessionStorage.getItem('tube_search');
-      const savedLevel  = sessionStorage.getItem('tube_level');
-      if (savedLevel) {
-        activeLevel = savedLevel;
-        document.querySelectorAll('.level-filter-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.level === activeLevel);
-        });
-      }
-      if (savedSearch) {
-        searchInput.value = savedSearch;
-      }
-      applyFilters();
     }
 
     function renderGrid(videos) {
       videoGrid.innerHTML = '';
-      if (videos.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-full py-20 text-center text-white/40 font-black uppercase">${translations['yt.no_results'] || '검색 결과가 없습니다.'}</div>`;
-        return;
-      }
-      const levelColors = { '1': 'bg-green-500 text-white', '2': 'bg-blue-500 text-white', '3': 'bg-purple-500 text-white' };
       videos.forEach((v, idx) => {
-        const hasVideo = v.video_url && v.video_url.trim() !== '';
         const card = document.createElement('div');
-        card.className = `shorts-card group ${hasVideo ? '' : 'coming-soon'} animate-in fade-in slide-in-from-bottom-4 duration-500`;
+        const hasTranscript = !!v.has_transcript;
+        const isLearningReady = !!v.is_learning_ready;
+        const catalogStatus = v.catalog_status || (isLearningReady ? 'ready' : (hasTranscript ? 'replacement_required' : 'transcript_missing'));
+        const isPlayable = isLearningReady || catalogStatus === 'replacement_required';
+        const coveragePct = Math.round((v.transcript_coverage || 0) * 100);
+        let statusBadge = '';
+        let statusLabel = '';
+
+        if (catalogStatus === 'transcript_missing') {
+          statusBadge = '<span class="px-2 py-0.5 bg-white/15 text-white/75 text-[9px] font-black rounded-full border border-white/15">자막 준비중</span>';
+          statusLabel = 'SOON';
+        } else if (catalogStatus === 'replacement_required') {
+          statusBadge = `<span class="px-2 py-0.5 bg-rose-500/20 text-rose-200 text-[9px] font-black rounded-full border border-rose-300/20">교체 필요 ${coveragePct}%</span>`;
+          statusLabel = '준비중';
+        }
+
+        card.className = `shorts-card group animate-in fade-in slide-in-from-bottom-4 duration-500 ${isPlayable ? '' : 'coming-soon'}`;
         card.style.animationDelay = `${idx * 0.04}s`;
-
-        const posterHtml = v.poster_url
-          ? `<img src="${v.poster_url}" class="w-full h-full object-cover" alt="${v.title}" loading="lazy">`
-          : `<div class="w-full h-full flex items-center justify-center text-4xl bg-white/5">📱</div>`;
-
-        const levelColor = levelColors[v.level] || 'bg-white/10 text-white/40';
-        const savedPos = localStorage.getItem(`tube_pos_${v.id}`);
-
         card.innerHTML = `
           <div class="card-content">
-            <div class="shorts-thumb">${posterHtml}</div>
-            
-            <!-- 상단 오버레이 (레벨 & 진행도) -->
-            <div class="card-overlay-top">
-              <span class="px-2 py-0.5 ${levelColor} text-[9px] font-black rounded-full shadow-sm">Lv.${v.level}</span>
-              ${savedPos ? `<span class="text-[9px] font-black text-orange-400 drop-shadow-lg">▶ ${formatTime(parseFloat(savedPos))}</span>` : ''}
+            <div class="shorts-thumb">
+              <img src="${v.poster_url}" class="w-full h-full object-cover" alt="${v.title}" loading="lazy">
             </div>
-
-            <!-- 하단 오버레이 (제목) -->
+            <div class="card-overlay-top">
+              <span class="px-2 py-0.5 bg-orange-500 text-white text-[9px] font-black rounded-full shadow-sm">Lv.${v.level}</span>
+              ${statusBadge}
+            </div>
             <div class="card-overlay">
               <h3 class="text-xs font-black text-white leading-tight line-clamp-2 drop-shadow-md">${v.title}</h3>
             </div>
-
-            <!-- 재생 아이콘 (호버 시) -->
-            ${hasVideo
-              ? `<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                   <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-2xl scale-90 group-hover:scale-100 transition-transform">
-                     <svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                   </div>
-                 </div>`
-              : `<div class="absolute inset-0 flex items-center justify-center z-10">
-                   <span class="px-2 py-1 bg-black/60 backdrop-blur text-[10px] font-black text-white/60 rounded-full uppercase tracking-widest">준비 중</span>
-                 </div>`}
+            <div class="absolute inset-0 flex items-center justify-center ${isPlayable ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-all duration-300 z-10">
+               <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-2xl scale-90 group-hover:scale-100 transition-transform">
+                 ${isPlayable
+                   ? '<svg class="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
+                   : `<span class="text-[9px] font-black tracking-wide text-white/85">${statusLabel}</span>`}
+               </div>
+            </div>
           </div>
         `;
-        if (hasVideo) card.onclick = () => initPlayer(v);
+        card.onclick = () => {
+          if (!isPlayable) {
+            if (catalogStatus === 'transcript_missing') {
+              showToast('이 영상은 자막 준비 후 열립니다.', 'info');
+            } else {
+              showToast(`현재 영상은 학습용 자막과 맞지 않아 교체 대상입니다. (${coveragePct}%)`, 'info');
+            }
+            return;
+          }
+          if (catalogStatus === 'replacement_required') {
+            showToast(`자막 정합도가 낮아 추후 교체 예정이지만 현재는 열람 가능합니다. (${coveragePct}%)`, 'info');
+          }
+          initPlayer(v);
+        };
         videoGrid.appendChild(card);
       });
     }
 
-    // ── 검색 + 레벨 필터 ────────────────────────────────
-    function applyFilters() {
-      const q = searchInput.value.trim().toLowerCase();
-      let filtered = allVideos;
-      if (activeLevel !== 'all') filtered = filtered.filter(v => v.level === activeLevel);
-      if (q) filtered = filtered.filter(v =>
-        (v.title && v.title.toLowerCase().includes(q)) ||
-        (v.description && v.description.toLowerCase().includes(q))
-      );
-      renderGrid(filtered);
-    }
-
-    function doSearch() { applyFilters(); }
-
-    searchBtn.onclick = doSearch;
-    showAllBtn.onclick = () => {
-      searchInput.value = '';
-      activeLevel = 'all';
-      document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.level === 'all'));
-      sessionStorage.removeItem('tube_search');
-      sessionStorage.removeItem('tube_level');
-      renderGrid(allVideos);
-    };
-    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-
-    document.querySelectorAll('.level-filter-btn').forEach(btn => {
-      btn.onclick = () => {
-        activeLevel = btn.dataset.level;
-        document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
-        sessionStorage.setItem('tube_level', activeLevel);
-        applyFilters();
-      };
-    });
-
     // ── 플레이어 초기화 ──────────────────────────────────
     function initPlayer(v) {
       currentVideoId = v.id;
-      currentOffset = typeof v.transcript_offset === 'number' ? v.transcript_offset : 0;
+      currentOffset = v.transcript_offset || 0;
       document.getElementById('player-title').innerText = v.title;
       document.getElementById('player-desc').innerText = v.description || '';
 
-      videoEl.src = v.video_url;
-      if (v.poster_url) {
-        videoEl.poster = v.poster_url;
-      } else {
-        videoEl.removeAttribute('poster');
-      }
-      videoEl.load();
+      initYouTubePlayer(v.id);
+      
       currentSpeed = 1.0;
       speedLabel.innerText = '1.0x';
-      videoEl.playbackRate = 1.0;
       updateOffsetUI();
 
       transcripts = [];
@@ -304,113 +352,53 @@
       autoPauseFired = false;
       captionsContainer.innerHTML = '';
 
-      // 재생 위치 복원 (loadedmetadata 후)
-      videoEl.addEventListener('loadedmetadata', () => {
-        const saved = localStorage.getItem(`tube_pos_${currentVideoId}`);
-        if (saved) {
-          const pos = parseFloat(saved);
-          if (pos > 3 && pos < videoEl.duration - 3) {
-            videoEl.currentTime = pos;
-            showToast(`${translations['yt.resume_at'] || '이어서 재생:'} ${formatTime(pos)}`, 'info');
-          }
-        }
-        videoEl.play().catch(() => {});
-      }, { once: true });
-
-      // 자막 로드
+      // 자막 로드 (plural transcripts 키 사용 보장)
       fetch(`/api/tube/transcripts/${v.id}`)
-        .then(r => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return r.json();
-        })
+        .then(r => r.json())
         .then(data => {
           if (data.success && data.transcripts) {
             transcripts = data.transcripts;
-            handleTimeUpdate(videoEl.currentTime);
-          } else {
-            showToast(translations['yt.captions_failed'] || '자막을 불러오지 못했어요.', 'warn');
           }
         })
-        .catch(() => showToast(translations['yt.captions_failed'] || '자막을 불러오지 못했어요.', 'warn'));
+        .catch(console.error);
 
       lobby.classList.add('hidden');
       playerScreen.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ── 비디오 이벤트 ──────────────────────────────────
-    videoEl.addEventListener('play', () => {
-      playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-    });
-    videoEl.addEventListener('pause', () => {
-      playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-    });
-    videoEl.addEventListener('ended', () => {
-      if (currentVideoId) localStorage.removeItem(`tube_pos_${currentVideoId}`);
-    });
-    videoEl.addEventListener('timeupdate', () => {
-      const cur = videoEl.currentTime;
-      const dur = videoEl.duration || 0;
-      if (dur > 0) {
-        progressFill.style.width = `${(cur / dur) * 100}%`;
-        timeCurrent.innerText = formatTime(cur);
-        timeTotal.innerText = formatTime(dur);
-      }
-      // 재생 위치 주기적 저장 (2초 디바운스)
-      if (currentVideoId && !videoEl.paused && dur > 0) {
-        clearTimeout(saveProgressTimer);
-        saveProgressTimer = setTimeout(() => {
-          localStorage.setItem(`tube_pos_${currentVideoId}`, cur.toFixed(1));
-        }, 2000);
-      }
-      handleTimeUpdate(cur);
-    });
-
+    // ── 컨트롤 이벤트 ──────────────────────────────────
     btnPlayPause.onclick = () => {
-      if (videoEl.paused) videoEl.play();
-      else videoEl.pause();
+      if (!ytPlayer) return;
+      const state = ytPlayer.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+      else ytPlayer.playVideo();
     };
 
-    progressWrapper.addEventListener('click', e => {
-      const rect = progressWrapper.getBoundingClientRect();
-      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      videoEl.currentTime = ratio * (videoEl.duration || 0);
-    });
+    btnRestart.onclick = () => {
+      if (ytPlayer) ytPlayer.seekTo(0);
+    };
 
     btnSpeed.onclick = () => {
+      if (!ytPlayer) return;
       const speeds = [0.5, 0.75, 1.0, 1.25, 1.5];
       let nextIdx = speeds.indexOf(currentSpeed) + 1;
       if (nextIdx >= speeds.length) nextIdx = 0;
       currentSpeed = speeds[nextIdx];
-      videoEl.playbackRate = currentSpeed;
+      ytPlayer.setPlaybackRate(currentSpeed);
       speedLabel.innerText = `${currentSpeed}x`;
     };
 
-    btnRestart.onclick = () => {
-      videoEl.currentTime = 0;
-      videoEl.play();
-    };
-
-    btnRewind.onclick = () => {
-      if (!transcripts.length) return;
-      const cur = videoEl.currentTime;
-      let target = null;
-      for (const t of transcripts) { if ((t.end + currentOffset) + 1 >= cur) { target = t; break; } }
-      if (target) { videoEl.currentTime = target.start + currentOffset; videoEl.play(); }
+    btnNext.onclick = () => {
+      if (!transcripts.length || !ytPlayer) return;
+      const idx = Math.min(currentSubtitleIndex + 1, transcripts.length - 1);
+      ytPlayer.seekTo(transcripts[idx].start + currentOffset);
     };
 
     btnPrev.onclick = () => {
-      if (!transcripts.length) return;
-      const idx = currentSubtitleIndex > 0 ? currentSubtitleIndex - 1 : 0;
-      videoEl.currentTime = (transcripts[idx]?.start ?? 0) + currentOffset;
-      videoEl.play();
-    };
-
-    btnNext.onclick = () => {
-      if (!transcripts.length) return;
-      const idx = Math.min(currentSubtitleIndex + 1, transcripts.length - 1);
-      videoEl.currentTime = (transcripts[idx]?.start ?? 0) + currentOffset;
-      videoEl.play();
+      if (!transcripts.length || !ytPlayer) return;
+      const idx = Math.max(0, currentSubtitleIndex - 1);
+      ytPlayer.seekTo(transcripts[idx].start + currentOffset);
     };
 
     function formatTime(sec) {
@@ -419,7 +407,6 @@
       return `${m}:${s}`;
     }
 
-    // ── 자막 처리 (auto-pause 버그 수정) ────────────────
     function handleTimeUpdate(time) {
       if (!transcripts.length) return;
 
@@ -428,7 +415,6 @@
       if (active !== currentSubtitleIndex) {
         currentSubtitleIndex = active;
         autoPauseFired = false;
-        document.querySelectorAll('.caption-word.active').forEach(el => el.classList.remove('active'));
         renderCaptions(active);
       }
 
@@ -436,8 +422,8 @@
         const cur = transcripts[currentSubtitleIndex];
         if (time >= (cur.end + currentOffset)) {
           autoPauseFired = true;
-          videoEl.pause();
-          videoEl.currentTime = cur.end + currentOffset;
+          ytPlayer.pauseVideo();
+          ytPlayer.seekTo(cur.end + currentOffset);
         }
       }
     }
@@ -447,27 +433,19 @@
       if (index === -1) return;
       const line = transcripts[index];
       if (!line) return;
+      
       const box = document.createElement('div');
       box.className = 'caption-box';
       const lineWrapper = document.createElement('div');
 
       line.words.forEach((wordObj) => {
         const span = document.createElement('span');
-        span.className = 'caption-word relative';
+        span.className = 'caption-word';
         span.innerText = wordObj.label;
-
         span.addEventListener('click', (e) => {
           e.stopPropagation();
-          // 패널에서 해당 단어 선택
-          const panelSpan = Array.from(subtitlePanelWords.querySelectorAll('.panel-word'))
-            .find(s => s.textContent === wordObj.label);
-          if (panelSpan) {
-            document.querySelectorAll('.panel-word.active').forEach(el => el.classList.remove('active'));
-            panelSpan.classList.add('active');
-          }
           showWordDetail(wordObj);
         });
-
         lineWrapper.appendChild(span);
         lineWrapper.appendChild(document.createTextNode(' '));
       });
@@ -479,80 +457,40 @@
       box.appendChild(transEl);
       captionsContainer.appendChild(box);
 
-      // 패널 업데이트
       renderSubtitlePanel(line);
     }
 
-    // ── 어휘 저장 ──────────────────────────────────────
-    function renderVocabCard(wordObj) {
-      vocabEmpty.style.display = 'none';
-      const card = document.createElement('div');
-      card.className = 'bg-white/5 border border-white/10 rounded-xl p-3 flex justify-between items-start hover:bg-white/10 transition-colors group';
-      card.innerHTML = `
-        <div class="flex-1 min-w-0 mr-2">
-          <h4 class="text-sm font-black text-white mb-0.5 group-hover:text-orange-400 transition-colors">${wordObj.label}</h4>
-          <p class="text-xs text-white/50">${wordObj.mean || wordObj.meaning || ''}</p>
-        </div>
-        <button class="tts-word-btn p-1.5 rounded-lg bg-white/10 hover:bg-orange-500/30 text-white/40 hover:text-orange-400 transition-all text-sm flex-shrink-0" title="발음 듣기">🔊</button>
-      `;
-      card.querySelector('.tts-word-btn').onclick = () => playWordTTS(wordObj.label);
-      if (vocabList.firstChild && vocabList.firstChild !== vocabEmpty) {
-        vocabList.insertBefore(card, vocabList.firstChild);
-      } else {
-        vocabList.insertBefore(card, vocabEmpty);
-      }
-      const wordsLabel = translations['yt.words_count'] || 'words';
-      vocabCountEl.innerText = `${savedVocab.length} ${wordsLabel}`;
-    }
-
-    function addToVocab(wordObj) {
-      if (savedVocab.find(w => w.label === wordObj.label)) {
-        showToast(translations['yt.already_saved'] || '이미 저장된 단어예요.', 'warn');
-        return;
-      }
-      savedVocab.push(wordObj);
-      renderVocabCard(wordObj);
-      showToast(`'${wordObj.label}' ${translations['yt.word_saved'] || '저장됨!'}`, 'success');
+    async function addToVocab(wordObj) {
+      if (!wordObj?.label) return;
       const fd = new FormData();
       fd.append('label', wordObj.label);
       fd.append('pos', wordObj.pos || '');
-      fd.append('meaning', wordObj.mean || '');
+      fd.append('meaning', wordObj.mean || wordObj.meaning || '');
       fd.append('source', 'tube');
-      fetch('/api/tube/vocab', { method: 'POST', body: fd })
-        .catch(() => showToast(translations['yt.save_failed'] || '저장 오류', 'error'));
-    }
-
-    async function loadSavedVocab() {
       try {
-        const resp = await fetch('/api/tube/vocab');
-        const data = await resp.json();
-        if (data.success && data.vocab.length > 0) {
-          data.vocab.forEach(w => {
-            if (!savedVocab.find(v => v.label === w.label)) {
-              savedVocab.push(w);
-              renderVocabCard(w);
-            }
-          });
+        wordDetailSave.disabled = true;
+        const resp = await fetch('/api/tube/vocab', { method: 'POST', body: fd });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.success) {
+          throw new Error(data.detail || data.error || '단어 저장에 실패했습니다.');
         }
-      } catch {}
+        await loadSavedVocab();
+        showToast(`'${wordObj.label}' 저장됨!`, 'success');
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || '단어 저장에 실패했습니다.', 'error');
+      } finally {
+        wordDetailSave.disabled = false;
+      }
     }
 
-    // ── 뒤로 가기 ──────────────────────────────────────
     btnBack.onclick = () => {
-      videoEl.pause();
-      videoEl.src = '';
-      captionsContainer.innerHTML = '';
-      transcripts = [];
-      currentSubtitleIndex = -1;
-      autoPauseFired = false;
-      // 검색/필터 상태 세션에 저장
-      sessionStorage.setItem('tube_search', searchInput.value);
-      sessionStorage.setItem('tube_level', activeLevel);
+      if (ytPlayer) ytPlayer.stopVideo();
+      if (timeUpdateInterval) clearInterval(timeUpdateInterval);
       playerScreen.classList.add('hidden');
       lobby.classList.remove('hidden');
     };
 
-    // 초기 로드
-    loadSavedVocab();
     loadLobby();
+    loadSavedVocab();
   });
