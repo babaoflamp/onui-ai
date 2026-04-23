@@ -34,7 +34,7 @@ async def capture_screenshots():
         "/admin/settings",
     ]
 
-    base_url = "http://localhost:9000"
+    base_url = "http://localhost:9002"
 
     async with async_playwright() as p:
         browser = await p.chromium.launch()

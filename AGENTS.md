@@ -12,7 +12,7 @@
 ## Build, Test, and Development Commands
 - `python -m venv .venv` and `source .venv/bin/activate` to create/activate a virtualenv.
 - `python -m pip install -r requirements.txt` to install dependencies.
-- `python -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload` for the hot-reload dev server.
+- `python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload` for the hot-reload dev server.
 - `python main.py` for a simple local run without uvicorn flags.
 - `pkill -f uvicorn` to stop the dev server.
 - `./start-service.sh` and `./stop-service.sh` for systemd service workflows.

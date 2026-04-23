@@ -191,7 +191,7 @@ sudo systemctl status ollama
 
 ```nginx
 upstream onui_app {
-    server 127.0.0.1:9000;
+    server 127.0.0.1:9002;
     server 127.0.0.1:9001;  # 로드 밸런싱 (선택)
 }
 
@@ -245,7 +245,7 @@ sudo systemctl restart nginx
 ```ini
 [program:onui-korean]
 directory=/opt/onui-ai
-command=/opt/onui-ai/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 9000
+command=/opt/onui-ai/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 9002
 user=www-data
 autostart=true
 autorestart=true
@@ -276,7 +276,7 @@ After=network.target ollama.service
 Type=notify
 User=www-data
 WorkingDirectory=/opt/onui-ai
-ExecStart=/opt/onui-ai/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 9000
+ExecStart=/opt/onui-ai/.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 9002
 Restart=always
 RestartSec=10
 Environment="PATH=/opt/onui-ai/.venv/bin"
@@ -486,9 +486,9 @@ python create_admin.py
 ollama serve &
 
 # 7. 애플리케이션 시작
-python -m uvicorn main:app --host 0.0.0.0 --port 9000
+python -m uvicorn main:app --host 0.0.0.0 --port 9002
 
-# 8. http://localhost:9000 접속 확인
+# 8. http://localhost:9002 접속 확인
 ```
 
 ---

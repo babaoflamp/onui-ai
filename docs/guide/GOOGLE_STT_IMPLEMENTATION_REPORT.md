@@ -39,7 +39,7 @@ Google Cloud Speech-to-Text 엔진이 성공적으로 통합되었습니다.
 
 ### 1. 테스트 페이지 접근
 ```
-http://localhost:9000/stt-api-test
+http://localhost:9002/stt-api-test
 ```
 
 ### 2. STT 엔진 선택
@@ -81,7 +81,7 @@ Response:
 curl -X POST \
   -F "file=@audio.wav" \
   -F "language=ko-KR" \
-  http://localhost:9000/api/stt/google
+  http://localhost:9002/api/stt/google
 ```
 
 ---
@@ -178,7 +178,7 @@ docs/guide/
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS="$HOME/speech-key.json"
-python3 -m uvicorn main:app --port 9000
+python3 -m uvicorn main:app --port 9002
 ```
 
 ### "audio too short" 오류

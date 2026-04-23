@@ -95,12 +95,12 @@ for result in response.results:
 ### 1. 서버 시작
 ```bash
 # 개발 서버 시작
-python -m uvicorn main:app --host 0.0.0.0 --port 9000 --reload
+python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
 ```
 
 ### 2. 테스트 페이지 접속
 ```
-http://localhost:9000/stt-api-test
+http://localhost:9002/stt-api-test
 ```
 
 ### 3. Google STT 엔진 선택 및 테스트
@@ -114,7 +114,7 @@ http://localhost:9000/stt-api-test
 curl -X POST \
   -F "file=@test_audio.wav" \
   -F "language=ko-KR" \
-  http://localhost:9000/api/stt/google
+  http://localhost:9002/api/stt/google
 
 # 응답 예시:
 # {"text": "안녕하세요"}

@@ -14,7 +14,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-# Dev server (hot reload) — 반드시 9002 포트 사용 (9000은 onui-academy 서비스)
+# Dev server (hot reload) — 반드시 9002 포트 사용
 source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
 
 # Stop dev server
