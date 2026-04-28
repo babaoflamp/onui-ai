@@ -33,6 +33,13 @@
     localStorage.setItem(DONE_KEY, JSON.stringify([...s]));
   }
 
+  // 오늘 날짜 기반 시작 인덱스 (매일 다른 표현으로 시작)
+  function getDailyStartIndex(total) {
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    return dayOfYear % total;
+  }
+
   function showToast(msg, isError = false) {
     const t = document.createElement("div");
     t.textContent = msg;
@@ -50,6 +57,7 @@
       expressions = data.expressions || [];
 
       if (expressions.length > 0) {
+        currentIndex = getDailyStartIndex(expressions.length);
         createDots();
         renderCard();
       } else {
