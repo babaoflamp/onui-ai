@@ -61,20 +61,23 @@ cp .env.example .env
 # AI 백엔드 선택: gemini | openai | ollama
 MODEL_BACKEND=gemini
 GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-pro
 
 # OpenAI (DALL-E, Whisper 사용 시)
 OPENAI_API_KEY=your_openai_api_key
+DALLE_MODEL=gpt-image-1.5
 
 # Ollama (로컬 LLM 사용 시)
 OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=exaone3.5:2.4b
+OLLAMA_MODEL=exaone3.5:7.8b
 
 # TTS 백엔드: gemini | openai | google | mztts
 TTS_BACKEND=gemini
+GEMINI_TTS_MODEL=gemini-2.5-flash-preview-tts
 
-# Google OAuth (소셜 로그인 사용 시)
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_client_secret
+# STT 백엔드: openai | google | vosk | local
+STT_BACKEND=local
+VOSK_MODEL_PATH=/path/to/vosk-model-small-ko-0.22
 ```
 
 ### 3. 서버 실행
@@ -95,14 +98,14 @@ python -m uvicorn main:app --host 127.0.0.1 --port 9002 --reload
 
 | 환경 | URL |
 |---|---|
-| 프로덕션 (커스텀 도메인) | `https://onuiai.kr` |
-| 보조 (ngrok 터널) | `https://onui-ai.ngrok.app` |
+| 프로덕션 (메인) | `https://onui.ai.kr` |
+| 프로덕션 (보조) | `https://onuiai.kr` |
 
 ### PM2로 서비스 관리
 
 ```bash
-./start-service.sh    # onui-ai + ngrok 시작 (PM2)
-./stop-service.sh     # 서비스 중지
+./start-service.sh    # onui-ai 시작 (PM2)
+./stop-service.sh     # onui-ai 중지
 
 pm2 status            # 프로세스 상태 확인
 pm2 logs onui-ai      # 애플리케이션 로그
@@ -111,17 +114,21 @@ pm2 restart onui-ai   # 재시작
 
 PM2 설정: `ecosystem.config.js` / 로그: `logs/pm2-out.log`, `logs/pm2-error.log`
 
-### nginx + SSL 설정 (onuiai.kr)
+### ngrok는 수동으로만 사용
+
+운영 공개는 `onui.ai.kr` / `onuiai.kr` 도메인을 사용합니다. `ngrok`는 외부 데모나 임시 공유가 필요할 때만 수동으로 실행합니다.
+
+```bash
+./scripts/run-ngrok.sh
+```
+
+### Nginx + SSL 설정 (onui.ai.kr)
 
 ```
-onuiai.kr (DNS A → 공인 IP)
+onui.ai.kr (DNS A → 공인 IP)
   └→ nginx (80/443, SSL termination, Let's Encrypt)
        └→ uvicorn (127.0.0.1:9002)
-           ↑
-          ngrok (보조 터널, 직접 9002 연결)
 ```
-
-최초 도메인 설정 시:
 
 **1. DNS 설정** — 도메인 등록 업체에서 A 레코드 등록:
 ```
@@ -131,6 +138,10 @@ A  www  <서버 공인 IP>
 
 **2. 설치 스크립트 실행** (DNS 전파 후):
 ```bash
+# 새로운 메인 도메인 설정 시
+sudo bash scripts/setup-domain-onui-ai-kr.sh
+
+# 기존 도메인(onuiai.kr) 재설정 시
 sudo bash scripts/setup-domain.sh
 ```
 
@@ -141,7 +152,7 @@ sudo bash scripts/setup-domain.sh
 - Let's Encrypt SSL 인증서 발급 및 자동 갱신
 - 정적 파일 디렉터리 ACL 권한 설정
 
-nginx 설정 파일: `nginx-onuiai.kr.conf`
+nginx 설정 파일: `nginx-onui.ai.kr.conf` (또는 `nginx-onuiai.kr.conf`)
 
 **SSL 인증서 수동 갱신:**
 ```bash
@@ -155,21 +166,30 @@ sudo certbot renew             # 실제 갱신
 
 | 변수 | 설명 | 기본값 |
 |---|---|---|
-| `MODEL_BACKEND` | AI 백엔드: `gemini` / `openai` / `ollama` | `ollama` |
+| `MODEL_BACKEND` | AI 백엔드: `gemini` / `openai` / `ollama` | `gemini` |
 | `GEMINI_API_KEY` | Gemini API 키 | — |
-| `GEMINI_MODEL` | Gemini 모델명 | `gemini-2.5-flash` |
+| `GEMINI_MODEL` | Gemini 모델명 | `gemini-2.5-pro` |
+| `GEMINI_IMAGE_MODEL` | Gemini 이미지 생성 모델 | `gemini-2.5-flash-img` |
 | `OPENAI_API_KEY` | OpenAI API 키 | — |
+| `OPENAI_MODEL` | OpenAI 텍스트 모델명 | `gpt-4.1-nano` |
+| `DALLE_MODEL` | DALL-E 이미지 모델 | `gpt-image-1.5` |
 | `OLLAMA_URL` | Ollama 서버 주소 | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Ollama 모델명 | `exaone3.5:2.4b` |
+| `OLLAMA_MODEL` | Ollama 모델명 | `exaone3.5:7.8b` |
 | `TTS_BACKEND` | TTS 백엔드: `gemini` / `openai` / `google` / `mztts` | `gemini` |
-| `STT_BACKEND` | STT 백엔드: `openai` / `google` / `vosk` / `local` | auto |
-| `MZTTS_API_URL` | MzTTS 서버 주소 | `http://112.220.79.218:56014` |
+| `GEMINI_TTS_MODEL` | Gemini TTS 모델 | `gemini-2.5-flash-preview-tts` |
+| `OPENAI_TTS_MODEL` | OpenAI TTS 모델 | `tts-1` |
+| `OPENAI_TTS_VOICE` | OpenAI TTS 음성 | `alloy` |
+| `STT_BACKEND` | STT 백엔드: `openai` / `google` / `vosk` / `local` | `local` |
+| `VOSK_MODEL_PATH` | Vosk 모델 디렉터리 경로 | — |
+| `ONUI_TMP_DIR` | 오디오 변환용 임시 디렉터리 | 시스템 기본 tmp |
 | `ROMANIZE_MODE` | 로마자 표기: `force` / `prefer` | `force` |
+| `KRDICT_API_KEY` | 국립국어원 한국어기초사전 API 키 | — |
 | `SECRET_KEY` | 세션 서명 키 | 랜덤 생성 |
-| `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID | — |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth 시크릿 | — |
-| `DALLE_IMAGE_SIZE` | DALL-E 이미지 생성 크기 | `1024x1024` |
+| `MZTTS_API_URL` | MzTTS 서버 주소 (mztts 백엔드 사용 시) | — |
+| `FLUENCYPRO_WS_URL` | FluencyPro WebSocket URL | — |
 | `CLARITY_PROJECT_ID` | MS Clarity 애널리틱스 프로젝트 ID | — |
+| `NGROK_AUTHTOKEN` | ngrok 인증 토큰 (임시 공유 시) | — |
+| `NGROK_DOMAIN` | ngrok 고정 도메인 | — |
 
 ---
 
@@ -177,19 +197,34 @@ sudo certbot renew             # 실제 갱신
 
 ```
 onui-ai/
-├── main.py                  # FastAPI 앱 (라우트, 인증, DB 초기화)
+├── main.py                  # FastAPI 진입점: 미들웨어, DB 초기화, 라우터 마운트
 ├── requirements.txt
-├── restart.sh               # 서비스 재시작 스크립트
 │
 ├── backend/
 │   ├── routes/              # 기능별 라우터 모듈
-│   │   ├── roleplay.py      # AI 역할극
+│   │   ├── pages.py         # 전체 HTML 페이지 GET 라우트
+│   │   ├── auth.py          # 회원가입/로그인/로그아웃, Google OAuth
+│   │   ├── user.py          # 마이페이지, 비밀번호 변경, 크레딧
+│   │   ├── ai_services.py   # AI 음성 통화(WebSocket), 콘텐츠 생성, 이미지 생성
+│   │   ├── content.py       # 표현, 교재, 출석, 대시보드 통계
+│   │   ├── media.py         # OnuiTube 영상·자막·어휘, 영상 진도
+│   │   ├── stt.py           # STT 프록시 (Whisper·Google·Vosk)
 │   │   ├── tts.py           # TTS API
-│   │   ├── speechpro.py     # 발음 평가
-│   │   ├── learning_progress.py
-│   │   └── lms.py           # LMS (성적·출결)
+│   │   ├── speechpro.py     # 발음 평가 (SpeechPro)
+│   │   ├── roleplay.py      # AI 역할극
+│   │   ├── learning_progress.py  # 학습 진도 추적
+│   │   ├── lms.py           # LMS (성적·출결·학습시간)
+│   │   ├── admin.py         # 관리자 대시보드
+│   │   └── deps.py          # 공통 의존성 re-export
 │   ├── services/            # 외부 API 연동 서비스
-│   └── utils.py             # 공통 유틸리티
+│   │   ├── speechpro_service.py
+│   │   ├── fluencypro_service.py
+│   │   ├── dalle_service.py
+│   │   ├── krdict_service.py
+│   │   ├── learning_progress_service.py
+│   │   ├── onui_tube_catalog.py
+│   │   └── analytics_service.py
+│   └── utils.py             # 인증·RAG·오디오·한국어 공통 유틸리티
 │
 ├── templates/               # Jinja2 HTML 템플릿
 │   ├── base.html            # 공통 레이아웃 (네비, i18n)
@@ -197,32 +232,35 @@ onui-ai/
 │   └── *.html               # 페이지별 템플릿
 │
 ├── static/
-│   ├── js/                  # 페이지별 JavaScript
-│   ├── css/                 # 페이지별 CSS
+│   ├── js/                  # 페이지별 JavaScript (kebab-case)
+│   ├── css/                 # 페이지별 CSS (kebab-case)
 │   └── images/
 │
 ├── data/
 │   ├── users.db             # SQLite 사용자 DB
 │   ├── locales/             # i18n 번역 파일 (ko/en/ja/zh)
-│   ├── roleplay-scenarios.json
 │   ├── vocabulary.json      # 72개 어휘 (A1-B2)
 │   ├── sentences.json       # 35개 연습 문장
-│   ├── folktales.json       # 10개 전래동화
+│   ├── voice-call.json      # AI 음성 통화 시나리오
+│   ├── roleplay-scenarios.json
+│   ├── onui-tube.json       # OnuiTube 영상 메타데이터
 │   └── tts_cache/           # TTS 오디오 캐시
 │
-└── docs/                    # API 문서, 설계 문서
+├── scripts/                 # 일회성 데이터 관리 스크립트
+└── docs/                    # 설계 문서
 ```
 
 ---
 
-## 개발 원칙 및 컨벤션 (Development Conventions)
+## 개발 원칙 및 컨벤션
 
-*   **Backend:** 백엔드는 FastAPI로 구축됩니다. 새로운 기능은 `backend/routes/` 및 `backend/services/` 디렉터리에 별도의 API 엔드포인트와 서비스로 구현해야 합니다.
-*   **Frontend:** 프론트엔드는 Jinja2 템플릿을 사용합니다. 공통 UI 컴포넌트는 `templates/components` 디렉터리에 위치합니다.
-*   **Styling:** 스타일링은 Tailwind CSS를 사용합니다.
-*   **AI Services:** 이 애플리케이션은 여러 AI 서비스와 연동됩니다. 사용할 서비스는 `MODEL_BACKEND` 환경 변수로 결정됩니다.
-*   **Database:** 사용자 데이터베이스로는 SQLite를 사용합니다. 스키마는 `main.py`에 정의되고 초기화됩니다.
-*   **Dependencies:** 파이썬 종속성은 `pip`로 관리되며 `requirements.txt`에 명시되어 있습니다.
+- **라우터**: 새 기능은 `backend/routes/`에 라우터로 추가하고 `main.py`에서 `include_router()`로 마운트합니다. 페이지 GET은 `pages.py`, API는 목적에 맞는 라우터 파일로 분리합니다.
+- **서비스**: 외부 API 연동 로직은 `backend/services/`에 별도 파일로 분리합니다.
+- **유틸리티**: 공통 함수는 `backend/utils.py`에 추가하고 라우터에서는 `deps.py`를 통해 import합니다.
+- **i18n**: 새 UI 문자열을 추가할 때 `data/locales/ko.json`, `en.json`, `ja.json`, `zh.json` 네 파일 모두에 키를 추가합니다.
+- **DB 스키마**: `main.py`의 `_ensure_*` 헬퍼로 컬럼·테이블을 추가합니다. 마이그레이션 프레임워크는 사용하지 않습니다.
+- **정적 자산**: JS/CSS 파일명은 kebab-case로 대응 템플릿과 동일한 이름을 사용합니다.
+- **커밋 스타일**: `feat:`, `fix:`, `refactor:`, `chore:` 접두사 + 선택적 scope (예: `fix(ui): ...`).
 
 ---
 

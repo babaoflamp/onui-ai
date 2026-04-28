@@ -28,7 +28,7 @@ python -m pytest tests/unit   # scoped run
 ### Production (PM2)
 
 ```bash
-./start-service.sh    # starts onui-ai + ngrok via PM2
+./start-service.sh    # starts onui-ai via PM2
 ./stop-service.sh     # stops both PM2 processes
 
 pm2 status            # check process health
@@ -41,14 +41,15 @@ PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `l
 ### Production URLs & Network Topology
 
 ```
-onuiai.kr  (DNS A → server IP)
-  └→ nginx (80/443, SSL via Let's Encrypt, config: nginx-onuiai.kr.conf)
+onuiai.kr / onui.ai.kr  (DNS A → server IP)
+  └→ nginx (80/443, SSL via Let's Encrypt)
+  │   configs: nginx-onuiai.kr.conf, nginx-onui.ai.kr.conf
        └→ uvicorn (127.0.0.1:9002)
            ↑
-          ngrok tunnel (https://onui-ai.ngrok.app, also points to 9002)
+          optional manual ngrok tunnel (run only when temporarily needed)
 ```
 
-`scripts/setup-domain.sh` handles first-time nginx + certbot setup. SSL renewal: `sudo certbot renew`.
+`scripts/setup-domain.sh` / `scripts/setup-domain-onui-ai-kr.sh` handle first-time nginx + certbot setup. SSL renewal: `sudo certbot renew`.
 
 ### Feature URL Map
 
@@ -94,34 +95,43 @@ onuiai.kr  (DNS A → server IP)
 
 ## Architecture
 
-### Single-file Backend (`main.py`, ~7300 lines)
+### Entry Point (`main.py`, ~680 lines)
 
-All FastAPI routes, middleware, and most business logic live in `main.py`. It is large by design (~7450 lines) — don't split it without strong motivation.
-
-Key sections in `main.py`:
-- **Lines 1–500**: imports, env config, AI client initialization
-- **Lines 500–970**: TTS helpers (MzTTS, Gemini, Google, OpenAI), audio conversion utilities
-- **Lines 970–2090**: SQLite DB init (`data/users.db`), auth helpers (PBKDF2 passwords, session tokens), app factory, middleware setup
-- **Lines 2090+**: All route handlers (`@app.get/post/...`), including WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation)
+`main.py` is now a thin orchestrator. It handles:
+- Imports, env config, AI client initialization (lines 1–100)
+- TTS helpers (MzTTS, Gemini, Google, OpenAI) and audio conversion utilities
+- SQLite DB init (`data/users.db`) via `_init_user_db()` and `_ensure_*` helpers
+- App factory, middleware setup (CORS, session, logging)
+- All `app.include_router(...)` mounts (lines ~650–665)
+- WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation) live in `backend/routes/ai_services.py`
 
 ### Routers in `backend/routes/`
 
-These are mounted in `main.py` (~line 1976) via `app.include_router(...)`:
+All mounted in `main.py` via `app.include_router(...)`:
 
-| Router | Prefix/Routes |
+| Router | Key Routes |
 |---|---|
+| `pages.py` | All HTML page GETs (`/`, `/dashboard`, `/video-learning`, `/onui-beats`, `/voice-call`, `/onui-grammar`, `/daily-expression`, `/sentence-evaluation`, `/learning-progress`, `/login`, `/signup`, `/mypage`, `/privacy`, etc.) |
+| `auth.py` | `/api/signup`, `/api/login`, `/api/logout` and Google OAuth |
+| `user.py` | `/mypage`, `/change-password`, `/api/user/profile`, `/api/user/password/change`, `/api/credits` |
+| `ai_services.py` | `/api/voice-call/scenarios`, `/ws/voice-call/{scenario_id}`, `/api/generate-content`, `/api/gemini/image`, `/api/word-images/cache`, `/api/ollama/*`, `/api/chat/test`, `/api/fluency-check` |
+| `content.py` | `/api/dashboard/quick-stats`, `/api/expressions`, `/api/textbooks`, `/api/attendance/*` |
+| `media.py` | `/api/tube/videos`, `/api/tube/transcripts`, `/api/tube/vocab`, `/api/video-lessons`, `/api/video-progress` |
+| `stt.py` | `/api/stt/proxy`, `/api/stt/whisper`, `/api/stt/google`, `/api/stt/vosk`, `/api/voice-call/stt` |
 | `learning_progress.py` | `/api/learning/*` — per-user progress tracking |
-| `tts.py` | `/api/tts/*` — TTS generation endpoint |
+| `tts.py` | `/api/tts/*` — TTS generation |
 | `speechpro.py` | `/api/speechpro/*` — pronunciation evaluation |
 | `roleplay.py` | `/roleplay`, `/api/roleplay/*` — AI historical figure roleplay |
-| `lms.py` | LMS (Learning Management System) routes — grades, attendance, time-on-task |
-| `auth.py` | `/api/signup`, `/api/login`, `/api/logout` and related auth endpoints |
+| `lms.py` | LMS routes — grades, attendance, time-on-task |
+| `admin.py` | `/api/admin/*` — admin dashboard, user management, logs |
+
+`deps.py` re-exports everything from `backend/utils.py` for use in routers — always import from `deps.py` inside routes, not directly from `utils.py` or `main.py`.
 
 ### `backend/utils.py`
 
-Thin shared helper — currently just `_get_state(request, name)` for reading from `request.app.state`. Import from here rather than accessing `app.state` directly in routers/services.
+Comprehensive shared utility module. Exports: auth helpers (`get_current_user`, `get_current_admin_user`, `get_optional_user`, `get_session`, `create_session_token`, `parse_session_token`, `hash_password`, `verify_password`), data helpers (`load_json_data`, `get_user_credits`, `check_and_consume_credits`), RAG utilities (`ensure_rag_tables`, `rag_chunk_text`, `rag_get_settings`, `rag_search`), Korean language utils (`romanize_korean`, `parse_model_output`), Ollama helpers (`list_ollama_models`), and audio utils (`ensure_wav_16k_mono`, `transcribe_with_vosk`).
 
-Routers receive AI clients, DB helpers, and other dependencies via `request.app.state`. State is populated in `main.py` after the app factory runs (~line 2076+). Always use `_get_state()` rather than importing globals from `main.py`.
+Routers receive AI clients, DB helpers, and other dependencies via `request.app.state`. Always use utilities from `backend/utils.py` (via `deps.py`) rather than importing globals from `main.py`.
 
 ### Services in `backend/services/`
 
@@ -133,6 +143,7 @@ Routers receive AI clients, DB helpers, and other dependencies via `request.app.
 | `krdict_service.py` | Korean dictionary lookup (KRDICT API) |
 | `dalle_service.py` | Image generation (DALL-E / Gemini) |
 | `analytics_service.py` | Usage analytics |
+| `onui_tube_catalog.py` | Annotates OnuiTube videos with transcript/vocab metadata at page render time |
 
 ### Database
 
@@ -180,7 +191,7 @@ Static JSON datasets read at startup or on-demand:
 - `roleplay-scenarios.json` — historical figure scenarios for AI Roleplay
 - `tongue-twister-metadata.json` — tongue twister content
 - `sp_ko_questions.json` — SpeechPro Korean question bank
-- `landing_intake.json` — landing page intake/onboarding data
+- `landing_intent.json` — landing page intake/onboarding intent data
 - `word_image_cache.json` — cached DALL-E image URLs for vocabulary words
 - `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
 
@@ -189,6 +200,7 @@ Static JSON datasets read at startup or on-demand:
 Utility scripts for one-off data management — not part of the app runtime:
 - `generate_locales.py` / `translate_locales.py` — generate and machine-translate locale JSON files
 - `import_excel_sentences.py` / `sync_sentences_json.py` / `merge_sentences.py` — manage `sentences.json`
+- `audit_onuitube_catalog.py` / `build_onuitube_replacement_template.py` — OnuiTube video catalog audit and replacement template builder
 - `rotate-logs.py` — manual log rotation (also configured via `onui-ai-logrotate.conf`)
 
 ### Dependency Note
