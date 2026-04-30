@@ -112,6 +112,8 @@ def _redirect_if_unauthenticated(request: Request):
 @router.get("/speechpro-practice")
 def speechpro_practice_page(request: Request):
     """SpeechPro 발음 정확도 평가"""
+    if redir := _redirect_if_unauthenticated(request):
+        return redir
     logger.info(
         f"[API_CALL] endpoint={request.url.path} method={request.method} params={dict(request.query_params)}"
     )

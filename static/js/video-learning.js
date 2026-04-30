@@ -16,6 +16,8 @@
     const lobby             = document.getElementById('tube-lobby');
     const playerScreen      = document.getElementById('player-screen');
     const videoGrid         = document.getElementById('video-grid');
+    const videoPlayer       = document.getElementById('video-player');
+    const youtubeContainer  = document.getElementById('youtube-player-container');
     const captionsContainer = document.getElementById('captions-container');
     const vocabList         = document.getElementById('vocab-list');
     const vocabEmpty        = document.getElementById('vocab-empty');
@@ -58,7 +60,11 @@
     function initYouTubePlayer(videoId) {
       if (ytPlayer) {
         try { ytPlayer.destroy(); } catch(e) {}
+        ytPlayer = null;
       }
+      videoPlayer.classList.add('hidden');
+      videoPlayer.pause();
+      youtubeContainer.classList.remove('hidden');
       
       const wrapper = document.getElementById('youtube-player-container');
       wrapper.innerHTML = '<div id="yt-player-target"></div>';
@@ -101,12 +107,45 @@
       });
     }
 
+    function initLocalPlayer(videoUrl) {
+      if (ytPlayer) {
+        try { ytPlayer.destroy(); } catch(e) {}
+        ytPlayer = null;
+      }
+      youtubeContainer.classList.add('hidden');
+      videoPlayer.classList.remove('hidden');
+      videoPlayer.src = videoUrl;
+      videoPlayer.load();
+      videoPlayer.play().catch(console.warn);
+
+      videoPlayer.onplay = () => {
+        playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      };
+      videoPlayer.onpause = () => {
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      };
+      videoPlayer.onended = () => {
+        playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      };
+
+      startTimePolling();
+    }
+
     function startTimePolling() {
       if (timeUpdateInterval) clearInterval(timeUpdateInterval);
       timeUpdateInterval = setInterval(() => {
+        let cur = 0;
+        let dur = 0;
+
         if (ytPlayer && ytPlayer.getCurrentTime) {
-          const cur = ytPlayer.getCurrentTime();
-          const dur = ytPlayer.getDuration();
+          cur = ytPlayer.getCurrentTime();
+          dur = ytPlayer.getDuration();
+        } else if (videoPlayer && !videoPlayer.classList.contains('hidden')) {
+          cur = videoPlayer.currentTime;
+          dur = videoPlayer.duration;
+        }
+
+        if (dur > 0) {
           updateProgressUI(cur, dur);
           handleTimeUpdate(cur);
         }
@@ -341,7 +380,11 @@
       document.getElementById('player-title').innerText = v.title;
       document.getElementById('player-desc').innerText = v.description || '';
 
-      initYouTubePlayer(v.id);
+      if (v.source_type === 'local' || v.local_video_url) {
+        initLocalPlayer(v.local_video_url);
+      } else {
+        initYouTubePlayer(v.id);
+      }
       
       currentSpeed = 1.0;
       speedLabel.innerText = '1.0x';
@@ -369,36 +412,50 @@
 
     // ── 컨트롤 이벤트 ──────────────────────────────────
     btnPlayPause.onclick = () => {
-      if (!ytPlayer) return;
-      const state = ytPlayer.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
-      else ytPlayer.playVideo();
+      if (ytPlayer) {
+        const state = ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+        else ytPlayer.playVideo();
+      } else if (!videoPlayer.classList.contains('hidden')) {
+        if (videoPlayer.paused) videoPlayer.play();
+        else videoPlayer.pause();
+      }
     };
 
     btnRestart.onclick = () => {
       if (ytPlayer) ytPlayer.seekTo(0);
+      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = 0;
     };
 
     btnSpeed.onclick = () => {
-      if (!ytPlayer) return;
       const speeds = [0.5, 0.75, 1.0, 1.25, 1.5];
       let nextIdx = speeds.indexOf(currentSpeed) + 1;
       if (nextIdx >= speeds.length) nextIdx = 0;
       currentSpeed = speeds[nextIdx];
-      ytPlayer.setPlaybackRate(currentSpeed);
+      
+      if (ytPlayer) {
+        ytPlayer.setPlaybackRate(currentSpeed);
+      } else if (!videoPlayer.classList.contains('hidden')) {
+        videoPlayer.playbackRate = currentSpeed;
+      }
+      
       speedLabel.innerText = `${currentSpeed}x`;
     };
 
     btnNext.onclick = () => {
-      if (!transcripts.length || !ytPlayer) return;
+      if (!transcripts.length) return;
       const idx = Math.min(currentSubtitleIndex + 1, transcripts.length - 1);
-      ytPlayer.seekTo(transcripts[idx].start + currentOffset);
+      const targetTime = transcripts[idx].start + currentOffset;
+      if (ytPlayer) ytPlayer.seekTo(targetTime);
+      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = targetTime;
     };
 
     btnPrev.onclick = () => {
-      if (!transcripts.length || !ytPlayer) return;
+      if (!transcripts.length) return;
       const idx = Math.max(0, currentSubtitleIndex - 1);
-      ytPlayer.seekTo(transcripts[idx].start + currentOffset);
+      const targetTime = transcripts[idx].start + currentOffset;
+      if (ytPlayer) ytPlayer.seekTo(targetTime);
+      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = targetTime;
     };
 
     function formatTime(sec) {
@@ -422,8 +479,13 @@
         const cur = transcripts[currentSubtitleIndex];
         if (time >= (cur.end + currentOffset)) {
           autoPauseFired = true;
-          ytPlayer.pauseVideo();
-          ytPlayer.seekTo(cur.end + currentOffset);
+          if (ytPlayer) {
+            ytPlayer.pauseVideo();
+            ytPlayer.seekTo(cur.end + currentOffset);
+          } else if (!videoPlayer.classList.contains('hidden')) {
+            videoPlayer.pause();
+            videoPlayer.currentTime = cur.end + currentOffset;
+          }
         }
       }
     }
@@ -486,6 +548,10 @@
 
     btnBack.onclick = () => {
       if (ytPlayer) ytPlayer.stopVideo();
+      if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.src = "";
+      }
       if (timeUpdateInterval) clearInterval(timeUpdateInterval);
       playerScreen.classList.add('hidden');
       lobby.classList.remove('hidden');

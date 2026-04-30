@@ -1,3 +1,8 @@
 version: "2"
 authtoken: 3AVOGf0HxxdcvnMH4I5hAdGN6qz_2yaz1HBB69EpdkzjQy1Wf
-web_addr: 127.0.0.1:4042
+web_addr: false
+tunnels:
+  onui-ai:
+    proto: http
+    addr: 9002
+    domain: onui.ai.kr

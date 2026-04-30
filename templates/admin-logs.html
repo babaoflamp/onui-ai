@@ -1,198 +1,534 @@
-{% extends "base.html" %} {% block title %}로그 모니터링 - 관리자{% endblock %}
+{% extends "base.html" %} {% block title %}로그 관리 콘솔 - 관리자{% endblock %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
-      <p
-        class="text-xs font-semibold text-purple-600 uppercase tracking-widest"
-      >
-        Activity Logs
-      </p>
-      <h1 class="text-3xl font-bold text-gray-900 mt-1" data-i18n="adm.logs">System Logs</h1>
-      <p class="text-gray-600 mt-2" data-i18n="adm.logs_desc">User activity, API errors, and system events.</p>
+      <p class="text-xs font-semibold text-purple-600 uppercase tracking-widest">Admin Console</p>
+      <h1 class="text-3xl font-bold text-gray-900 mt-1">로그 관리 콘솔</h1>
+      <p class="text-gray-500 text-sm mt-1">시스템 로그 및 사용자 접속 현황을 조회합니다.</p>
     </div>
-    <a
-      href="/admin/dashboard"
-      class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-      data-i18n="adm.back_dashboard"
-      >← Dashboard</a
-    >
+    <a href="/admin/dashboard"
+       class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+      ← 대시보드
+    </a>
   </div>
 
-  <!-- Filter -->
-  <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-sm">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <select
-        id="filterLevel"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400"
-      >
-        <option value="" data-i18n="adm.all_logs">All Logs</option>
-        <option value="INFO" data-i18n="adm.log_info">Info</option>
-        <option value="WARNING" data-i18n="adm.log_warning">Warning</option>
-        <option value="ERROR" data-i18n="adm.log_error">Error</option>
-      </select>
-      <input
-        id="searchUser"
-        type="text"
-        placeholder="Search by user..."
-        data-i18n="adm.search_user"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400"
-      />
-      <input
-        id="searchAction"
-        type="text"
-        placeholder="Search by action..."
-        data-i18n="adm.search_action"
-        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400"
-      />
-      <button
-        onclick="loadLogs()"
-        class="px-4 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600"
-        data-i18n="adm.btn_search"
-      >
-        🔍 Search
+  <!-- Tabs -->
+  <div class="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
+    <button id="tab-system" onclick="switchTab('system')"
+      class="tab-btn px-5 py-2 rounded-lg text-sm font-semibold transition-all bg-white shadow text-gray-900">
+      🖥 시스템 로그
+    </button>
+    <button id="tab-access" onclick="switchTab('access')"
+      class="tab-btn px-5 py-2 rounded-lg text-sm font-semibold transition-all text-gray-500 hover:text-gray-700">
+      👥 접속 현황
+    </button>
+  </div>
+
+  <!-- ==================== 시스템 로그 탭 ==================== -->
+  <div id="panel-system">
+
+    <!-- Filters -->
+    <div class="bg-white border border-gray-200 rounded-2xl p-4 mb-4 shadow-sm">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <select id="sys-level" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">전체 레벨</option>
+          <option value="INFO">INFO</option>
+          <option value="WARNING">WARNING</option>
+          <option value="ERROR">ERROR</option>
+        </select>
+        <select id="sys-type" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="all">전체 카테고리</option>
+          <option value="system">SYSTEM</option>
+          <option value="access">ACCESS</option>
+          <option value="login">LOGIN</option>
+          <option value="admin">ADMIN</option>
+          <option value="error">ERROR</option>
+        </select>
+        <input id="sys-date" type="date" class="border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+        <input id="sys-search" type="text" placeholder="메시지 검색..." class="border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+        <select id="sys-perpage" class="border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="100">100줄</option>
+          <option value="250">250줄</option>
+          <option value="500">500줄</option>
+        </select>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="loadSystemLogs(1)"
+          class="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700">
+          🔍 조회
+        </button>
+        <button onclick="clearSysFilters()"
+          class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+          초기화
+        </button>
+        <div class="flex-1"></div>
+        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+          <div class="relative">
+            <input id="sys-autorefresh" type="checkbox" class="sr-only" onchange="toggleSysAutoRefresh(this.checked)" />
+            <div class="sys-toggle-track w-10 h-5 bg-gray-300 rounded-full transition-colors"></div>
+            <div class="sys-toggle-thumb absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+          </div>
+          자동 갱신 (30s)
+        </label>
+        <a href="/api/admin/logs/download" id="sys-download-link"
+           class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+          ⬇ 다운로드
+        </a>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="flex items-center gap-3 mb-3 text-sm text-gray-500">
+      <span id="sys-status">—</span>
+      <span id="sys-refresh-indicator" class="hidden text-purple-500 animate-pulse">● 자동 갱신 중</span>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-4">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-xs">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600 w-40">시간</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600 w-24">레벨</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600 w-24">카테고리</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-600">메시지</th>
+            </tr>
+          </thead>
+          <tbody id="sys-tbody" class="divide-y divide-gray-100 bg-white font-mono">
+            <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">로딩 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="sys-pagination" class="flex items-center justify-center gap-2"></div>
+  </div>
+
+  <!-- ==================== 접속 현황 탭 ==================== -->
+  <div id="panel-access" class="hidden">
+
+    <!-- Controls: date picker + refresh -->
+    <div class="flex items-center gap-3 mb-5">
+      <label class="text-sm font-semibold text-gray-600">날짜</label>
+      <input id="acc-date" type="date" class="border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+      <button onclick="loadAccessSummary()"
+        class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700">
+        🔍 조회
       </button>
+      <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none ml-2">
+        <div class="relative">
+          <input id="acc-autorefresh" type="checkbox" class="sr-only" onchange="toggleAccAutoRefresh(this.checked)" />
+          <div class="acc-toggle-track w-10 h-5 bg-gray-300 rounded-full transition-colors"></div>
+          <div class="acc-toggle-thumb absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"></div>
+        </div>
+        자동 갱신 (30s)
+      </label>
+      <div class="flex-1"></div>
+      <span id="acc-refresh-indicator" class="hidden text-blue-500 animate-pulse text-sm">● 자동 갱신 중</span>
+      <span id="acc-last-updated" class="text-xs text-gray-400"></span>
     </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm text-center">
+        <p class="text-2xl font-bold text-gray-900" id="stat-total">—</p>
+        <p class="text-xs text-gray-500 mt-1">총 요청 수</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm text-center">
+        <p class="text-2xl font-bold text-blue-600" id="stat-users">—</p>
+        <p class="text-xs text-gray-500 mt-1">접속 사용자</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm text-center">
+        <p class="text-2xl font-bold text-red-500" id="stat-errors">—</p>
+        <p class="text-xs text-gray-500 mt-1">에러 건수</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm text-center">
+        <p class="text-2xl font-bold text-green-600" id="stat-signups">—</p>
+        <p class="text-xs text-gray-500 mt-1">신규 가입</p>
+      </div>
+    </div>
+
+    <!-- New Signups Section -->
+    <div id="signups-section" class="hidden mb-6">
+      <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+        <h3 class="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center text-xs">✨</span>
+          오늘 신규 가입
+          <span id="signup-count-badge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700"></span>
+        </h3>
+        <div id="signups-list" class="flex flex-wrap gap-2"></div>
+      </div>
+    </div>
+
+    <!-- Summary status -->
+    <div class="flex items-center gap-2 mb-4">
+      <span id="acc-status" class="text-sm text-gray-500">—</span>
+    </div>
+
+    <!-- User Activity Cards -->
+    <div id="acc-cards" class="space-y-3">
+      <div class="bg-white border border-gray-200 rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+        로딩 중...
+      </div>
+    </div>
+
   </div>
 
-  <!-- Logs Table -->
-  <div
-    class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
-  >
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-3 text-left font-semibold text-gray-700" data-i18n="adm.time">
-              Time
-            </th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-700" data-i18n="adm.level">
-              Level
-            </th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-700" data-i18n="adm.message">
-              Message
-            </th>
-            <th class="px-4 py-3 text-left font-semibold text-gray-700" data-i18n="adm.details">
-              Details
-            </th>
-          </tr>
-        </thead>
-        <tbody id="logsTbody" class="divide-y divide-gray-100 bg-white">
-          <tr>
-            <td
-              class="px-4 py-3 text-gray-500 text-center"
-              colspan="4"
-              data-i18n="adm.loading_logs"
-            >
-              Loading logs...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div
-    class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800"
-  >
-    <p>
-      <strong data-i18n="adm.info_label">💡 Info:</strong> <span data-i18n="adm.logs_info_text">Logs are collected in real-time from the <code>logs/detailed.log</code> file. Only the most recent 100 entries are displayed.</span>
-    </p>
-  </div>
 </div>
-{% endblock %} {% block extra_js %}
-<script>
-  (function () {
-    const tbody = document.getElementById("logsTbody");
-    const filterLevelEl = document.getElementById("filterLevel");
-    const searchUserEl = document.getElementById("searchUser");
-    const searchActionEl = document.getElementById("searchAction");
+{% endblock %}
 
-    function ensureAdmin() {
-      const token = localStorage.getItem("auth_token");
-      const role =
-        localStorage.getItem("user_role") ||
-        (localStorage.getItem("is_admin") === "true" ? "system_admin" : "");
-      if (!token || role !== "system_admin") {
-        AlertManager.error("접근 권한이 없습니다.", "권한 오류", document.body);
-        window.location.href = "/admin/login";
-        return null;
+{% block extra_js %}
+<style>
+  input[type="checkbox"]:checked ~ .sys-toggle-track,
+  input[type="checkbox"]:checked ~ .acc-toggle-track { background-color: #9333ea; }
+  input[type="checkbox"]:checked ~ .sys-toggle-thumb,
+  input[type="checkbox"]:checked ~ .acc-toggle-thumb { transform: translateX(20px); }
+
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 800; flex-shrink: 0;
+  }
+  .page-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .login-badge {
+    display: inline-block; padding: 1px 7px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; background: #dcfce7; color: #15803d;
+  }
+  .user-card { transition: box-shadow 0.15s; }
+  .user-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+  /* dark mode overrides for acc-cards */
+  body.admin-sidebar .user-card,
+  body.admin-sidebar #signups-section > div,
+  body.admin-sidebar .bg-white { background: #1a1a2e !important; border-color: rgba(255,255,255,0.1) !important; }
+  body.admin-sidebar .text-gray-900 { color: rgba(255,255,255,0.9) !important; }
+  body.admin-sidebar .text-gray-700 { color: rgba(255,255,255,0.75) !important; }
+  body.admin-sidebar .text-gray-600 { color: rgba(255,255,255,0.6) !important; }
+  body.admin-sidebar .text-gray-500,
+  body.admin-sidebar .text-gray-400 { color: rgba(255,255,255,0.45) !important; }
+  body.admin-sidebar .divide-y > * { border-color: rgba(255,255,255,0.07) !important; }
+  body.admin-sidebar .border-gray-200 { border-color: rgba(255,255,255,0.1) !important; }
+  body.admin-sidebar .bg-slate-50,
+  body.admin-sidebar .bg-gray-100 { background: rgba(255,255,255,0.06) !important; }
+  body.admin-sidebar .hover\:bg-gray-50:hover { background: rgba(255,255,255,0.04) !important; }
+  body.admin-sidebar select, body.admin-sidebar input[type="text"],
+  body.admin-sidebar input[type="date"] {
+    background: rgba(255,255,255,0.07) !important; color: rgba(255,255,255,0.85) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+  }
+  body.admin-sidebar .login-badge { background: rgba(74,222,128,0.2) !important; color: #4ade80 !important; }
+</style>
+<script>
+(function () {
+  /* ---------- helpers ---------- */
+  function authHeader() {
+    const token = localStorage.getItem("auth_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
+  function levelBadge(level) {
+    const map = {
+      ERROR:   "bg-red-100 text-red-800",
+      WARNING: "bg-yellow-100 text-yellow-800",
+      INFO:    "bg-gray-100 text-gray-700",
+      DEBUG:   "bg-blue-50 text-blue-700",
+    };
+    return `<span class="px-2 py-0.5 rounded text-xs font-semibold ${map[level] || "bg-gray-100 text-gray-700"}">${level}</span>`;
+  }
+
+  function catBadge(cat) {
+    const map = {
+      ACCESS: "bg-blue-50 text-blue-700",
+      LOGIN:  "bg-green-50 text-green-700",
+      ADMIN:  "bg-purple-50 text-purple-700",
+      ERROR:  "bg-red-50 text-red-700",
+      SYSTEM: "bg-slate-100 text-slate-600",
+    };
+    return `<span class="px-2 py-0.5 rounded text-xs font-semibold ${map[cat] || "bg-gray-100 text-gray-700"}">${cat}</span>`;
+  }
+
+  function esc(s) {
+    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function buildPagination(containerId, total, page, perPage, loadFn) {
+    const el = document.getElementById(containerId);
+    const totalPages = Math.max(1, Math.ceil(total / perPage));
+    if (totalPages <= 1) { el.innerHTML = ""; return; }
+    let btns = [];
+    const btnCls = (active) =>
+      active
+        ? "px-3 py-1 rounded-lg bg-purple-600 text-white text-sm font-semibold"
+        : "px-3 py-1 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50";
+    if (page > 1) btns.push(`<button class="${btnCls(false)}" onclick="${loadFn}(${page-1})">‹</button>`);
+    const range = 3;
+    for (let i = Math.max(1, page-range); i <= Math.min(totalPages, page+range); i++) {
+      btns.push(`<button class="${btnCls(i===page)}" onclick="${loadFn}(${i})">${i}</button>`);
+    }
+    if (page < totalPages) btns.push(`<button class="${btnCls(false)}" onclick="${loadFn}(${page+1})">›</button>`);
+    btns.push(`<span class="text-sm text-gray-400 ml-2">총 ${total.toLocaleString()}건 / ${totalPages}페이지</span>`);
+    el.innerHTML = btns.join("");
+  }
+
+  /* ---------- tab switching ---------- */
+  let activeTab = "system";
+  window.switchTab = function(tab) {
+    activeTab = tab;
+    document.getElementById("panel-system").classList.toggle("hidden", tab !== "system");
+    document.getElementById("panel-access").classList.toggle("hidden", tab !== "access");
+    document.getElementById("tab-system").className =
+      tab === "system"
+        ? "tab-btn px-5 py-2 rounded-lg text-sm font-semibold bg-white shadow text-gray-900"
+        : "tab-btn px-5 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-700";
+    document.getElementById("tab-access").className =
+      tab === "access"
+        ? "tab-btn px-5 py-2 rounded-lg text-sm font-semibold bg-white shadow text-gray-900"
+        : "tab-btn px-5 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-700";
+    if (tab === "access") loadAccessSummary();
+  };
+
+  /* ---------- 시스템 로그 ---------- */
+  let sysPage = 1;
+  let sysTimer = null;
+
+  window.loadSystemLogs = async function(page) {
+    sysPage = page || 1;
+    const tbody = document.getElementById("sys-tbody");
+    const level   = document.getElementById("sys-level").value;
+    const logType = document.getElementById("sys-type").value;
+    const date    = document.getElementById("sys-date").value;
+    const search  = document.getElementById("sys-search").value;
+    const perPage = document.getElementById("sys-perpage").value;
+
+    tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">로딩 중...</td></tr>`;
+    try {
+      const params = new URLSearchParams({ page: sysPage, per_page: perPage, log_type: logType });
+      if (level)  params.set("level", level);
+      if (date)   params.set("date", date);
+      if (search) params.set("search", search);
+      const res = await fetch(`/api/admin/logs-tail?${params}`, { headers: authHeader() });
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).detail || "조회 실패");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "조회 실패");
+
+      const logs = data.logs || [];
+      document.getElementById("sys-status").textContent =
+        `총 ${(data.total||0).toLocaleString()}건 중 ${logs.length}건 표시 (${sysPage}/${data.total_pages||1}페이지)`;
+
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">로그가 없습니다.</td></tr>`;
+      } else {
+        tbody.innerHTML = logs.map(e => `
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2 text-gray-500 whitespace-nowrap">${esc(e.timestamp)}</td>
+            <td class="px-4 py-2">${levelBadge(e.level)}</td>
+            <td class="px-4 py-2">${catBadge(e.category)}</td>
+            <td class="px-4 py-2 text-gray-700 break-all">${esc(e.message)}</td>
+          </tr>`).join("");
       }
-      return token;
+      buildPagination("sys-pagination", data.total||0, sysPage, parseInt(perPage), "loadSystemLogs");
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-center text-red-500">${esc(err.message)}</td></tr>`;
+    }
+  };
+
+  window.clearSysFilters = function() {
+    document.getElementById("sys-level").value = "";
+    document.getElementById("sys-type").value = "all";
+    document.getElementById("sys-date").value = "";
+    document.getElementById("sys-search").value = "";
+    loadSystemLogs(1);
+  };
+
+  window.toggleSysAutoRefresh = function(on) {
+    clearInterval(sysTimer);
+    const ind = document.getElementById("sys-refresh-indicator");
+    if (on) {
+      ind.classList.remove("hidden");
+      sysTimer = setInterval(() => loadSystemLogs(sysPage), 30000);
+    } else {
+      ind.classList.add("hidden");
+    }
+  };
+
+  /* ---------- 접속 현황 Summary ---------- */
+  let accTimer = null;
+
+  // Avatar color palette
+  const AVATAR_COLORS = [
+    ["#dbeafe","#1d4ed8"], ["#fce7f3","#be185d"], ["#d1fae5","#065f46"],
+    ["#fef3c7","#92400e"], ["#ede9fe","#5b21b6"], ["#fee2e2","#991b1b"],
+    ["#e0f2fe","#0369a1"], ["#f0fdf4","#15803d"],
+  ];
+  function avatarColor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  // Page chip colors by path prefix
+  function pageChipColor(path) {
+    if (path.startsWith("/admin"))        return "background:#f3e8ff;color:#7c3aed";
+    if (path.startsWith("/video"))        return "background:#dbeafe;color:#1d4ed8";
+    if (path.startsWith("/roleplay"))     return "background:#fce7f3;color:#be185d";
+    if (path.startsWith("/voice"))        return "background:#d1fae5;color:#065f46";
+    if (path.startsWith("/onui-beats"))   return "background:#fef3c7;color:#92400e";
+    if (path.startsWith("/daily"))        return "background:#ffe4e6;color:#be123c";
+    if (path.startsWith("/speech"))       return "background:#e0f2fe;color:#0369a1";
+    if (path.startsWith("/sentence"))     return "background:#dcfce7;color:#15803d";
+    if (path.startsWith("/learning"))     return "background:#fef9c3;color:#854d0e";
+    if (path.startsWith("/dashboard"))    return "background:#f1f5f9;color:#475569";
+    return "background:#f3f4f6;color:#374151";
+  }
+
+  function renderUserCards(users) {
+    if (!users || users.length === 0) {
+      return `<div class="bg-white border border-gray-200 rounded-2xl p-8 text-center text-gray-400 shadow-sm">
+        접속 기록이 없습니다.
+      </div>`;
     }
 
-    window.loadLogs = async function () {
-      const token = ensureAdmin();
-      if (!token) return;
+    return users.map(u => {
+      const isGuest = !u.email || u.user === "Guest" || u.user === "-";
+      const initial = (u.user || "?")[0].toUpperCase();
+      const [bgColor, textColor] = isGuest ? ["#f3f4f6", "#6b7280"] : avatarColor(u.user);
 
-      const level = filterLevelEl.value || "";
-      const search = searchUserEl.value || searchActionEl.value || "";
+      const loginBadges = (u.login_times || []).map(t =>
+        `<span class="login-badge">${esc(t)}</span>`
+      ).join("") || `<span class="text-xs text-gray-400">—</span>`;
 
-      try {
-        const params = new URLSearchParams();
-        if (level) params.append("level", level);
-        if (search) params.append("search", search);
-        params.append("lines", 100);
+      const pageChips = (u.pages || []).map(p =>
+        `<span class="page-chip" style="${pageChipColor(p.path)}" title="${esc(p.path)}">${esc(p.name)}</span>`
+      ).join("") || `<span class="text-xs text-gray-400">방문 기록 없음</span>`;
 
-        const res = await fetch(`/api/admin/logs-tail?${params}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      return `
+      <div class="user-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex items-start gap-4 p-4">
+          <!-- avatar -->
+          <div class="user-avatar" style="background:${bgColor};color:${textColor}">${esc(initial)}</div>
 
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          throw new Error(error.detail || "로그를 불러오지 못했습니다.");
-        }
+          <!-- main info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-gray-900 text-sm">${esc(u.user)}</span>
+              ${u.email ? `<span class="text-xs text-gray-400">${esc(u.email)}</span>` : ""}
+              ${u.ip && u.ip !== "-" ? `<span class="text-xs text-gray-400 font-mono">${esc(u.ip)}</span>` : ""}
+              ${u.error_count > 0 ? `<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">에러 ${u.error_count}</span>` : ""}
+            </div>
 
-        const data = await res.json();
-        const logs = data.logs || [];
+            <!-- login times -->
+            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+              <span class="text-xs text-gray-500 mr-0.5">로그인</span>
+              ${loginBadges}
+            </div>
 
-        if (logs.length === 0) {
-          tbody.innerHTML = `<tr><td class="px-4 py-3 text-gray-500" colspan="4" style="text-align: center;">로그가 없습니다.</td></tr>`;
-          return;
-        }
+            <!-- visited pages -->
+            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+              <span class="text-xs text-gray-500 mr-0.5">방문</span>
+              ${pageChips}
+            </div>
+          </div>
 
-        tbody.innerHTML = logs
-          .map((logLine) => {
-            const parts =
-              logLine.match(
-                /(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})|(\[[\w_]+\])|(.+)/g
-              ) || [];
-            const time = parts[0] || "-";
-            const type = parts[1]?.replace(/[\[\]]/g, "") || "-";
-            const msg = logLine.substring(0, 100);
+          <!-- right: stats -->
+          <div class="flex-shrink-0 text-right text-xs text-gray-500 space-y-1 pl-2">
+            <div><span class="font-bold text-gray-700 text-sm">${u.request_count.toLocaleString()}</span> 요청</div>
+            <div>첫 접속 <span class="font-mono">${esc(u.first_seen)}</span></div>
+            <div>마지막 <span class="font-mono">${esc(u.last_seen)}</span></div>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
 
-            return `
-            <tr>
-              <td class="px-4 py-3 text-gray-500 text-xs">${time}</td>
-              <td class="px-4 py-3">
-                <span class="inline-block px-2 py-1 rounded text-xs font-semibold ${
-                  logLine.includes("ERROR")
-                    ? "bg-red-100 text-red-800"
-                    : logLine.includes("WARNING")
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-blue-100 text-blue-800"
-                }">
-                  ${
-                    logLine.includes("ERROR")
-                      ? "ERROR"
-                      : logLine.includes("WARNING")
-                      ? "WARNING"
-                      : "INFO"
-                  }
-                </span>
-              </td>
-              <td class="px-4 py-3 text-gray-700 text-xs font-mono">${msg}</td>
-              <td class="px-4 py-3 text-gray-500 text-xs">...</td>
-            </tr>`;
-          })
-          .join("");
-      } catch (err) {
-        console.error(err);
-        tbody.innerHTML = `<tr><td class="px-4 py-3 text-red-600" colspan="4" style="text-align: center;">${err.message}</td></tr>`;
+  window.loadAccessSummary = async function() {
+    const date = document.getElementById("acc-date").value;
+    const cards = document.getElementById("acc-cards");
+    cards.innerHTML = `<div class="bg-white border border-gray-200 rounded-2xl p-8 text-center text-gray-400 shadow-sm">로딩 중...</div>`;
+    document.getElementById("acc-status").textContent = "—";
+
+    try {
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      const res = await fetch(`/api/admin/access-summary?${params}`, { headers: authHeader() });
+      if (!res.ok) throw new Error((await res.json().catch(()=>({}))).detail || "조회 실패");
+      const data = await res.json();
+      if (!data.success) throw new Error(data.detail || "조회 실패");
+
+      // stats
+      const s = data.stats || {};
+      document.getElementById("stat-total").textContent   = (s.total_requests || 0).toLocaleString();
+      document.getElementById("stat-users").textContent   = (s.unique_users || 0).toLocaleString();
+      document.getElementById("stat-errors").textContent  = (s.error_count || 0).toLocaleString();
+      document.getElementById("stat-signups").textContent = (s.new_signups || 0).toLocaleString();
+
+      // new signups section
+      const signups = data.new_signups || [];
+      const signupsSection = document.getElementById("signups-section");
+      if (signups.length > 0) {
+        signupsSection.classList.remove("hidden");
+        document.getElementById("signup-count-badge").textContent = `+${signups.length}`;
+        document.getElementById("signups-list").innerHTML = signups.map(sg => {
+          const [bg, tc] = avatarColor(sg.nickname || sg.email || "?");
+          return `<div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-100 text-xs" style="background:${bg}20">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0" style="background:${bg};color:${tc}">${esc((sg.nickname||sg.email||"?")[0].toUpperCase())}</span>
+            <div>
+              <div class="font-semibold text-gray-800">${esc(sg.nickname || "—")}</div>
+              <div class="text-gray-400">${esc(sg.email)} · ${esc(sg.created_at ? sg.created_at.slice(11,16) : "")}</div>
+            </div>
+          </div>`;
+        }).join("");
+      } else {
+        signupsSection.classList.add("hidden");
       }
-    };
 
-    loadLogs();
-  })();
+      // status
+      const targetDate = date || new Date().toISOString().slice(0, 10);
+      const userCount = (data.users || []).length;
+      document.getElementById("acc-status").textContent =
+        `${targetDate} · 접속자 ${userCount}명`;
+
+      // user cards
+      cards.innerHTML = renderUserCards(data.users || []);
+
+      // last updated
+      const now = new Date();
+      document.getElementById("acc-last-updated").textContent =
+        `갱신: ${now.getHours().toString().padStart(2,"0")}:${now.getMinutes().toString().padStart(2,"0")}`;
+
+    } catch (err) {
+      cards.innerHTML = `<div class="bg-white border border-gray-200 rounded-2xl p-8 text-center text-red-500 shadow-sm">${esc(err.message)}</div>`;
+    }
+  };
+
+  window.toggleAccAutoRefresh = function(on) {
+    clearInterval(accTimer);
+    const ind = document.getElementById("acc-refresh-indicator");
+    if (on) {
+      ind.classList.remove("hidden");
+      accTimer = setInterval(() => loadAccessSummary(), 30000);
+    } else {
+      ind.classList.add("hidden");
+    }
+  };
+
+  /* ---------- init ---------- */
+  document.getElementById("sys-date").value = todayStr();
+  document.getElementById("acc-date").value = todayStr();
+  loadSystemLogs(1);
+
+})();
 </script>
 {% endblock %}

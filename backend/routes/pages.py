@@ -2,7 +2,7 @@ import os
 import json
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from backend.services.onui_tube_catalog import annotate_tube_videos
@@ -15,8 +15,14 @@ logger = logging.getLogger("uvicorn.error")
 def landing_page(request: Request):
     return templates.TemplateResponse(request, "index.html")
 
+@router.head("/")
+def landing_page_head(request: Request):
+    return Response(status_code=200)
+
 @router.get("/video-learning")
 def video_learning_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     videos = []
     try:
         if os.path.exists("data/onui-tube.json"):
@@ -33,6 +39,8 @@ def video_learning_page(request: Request):
 
 @router.get("/onui-beats")
 def onui_beats_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     songs = []
     try:
         if os.path.exists("data/onui-beats.json"):
@@ -46,6 +54,8 @@ from backend.routes.ai_services import load_voice_call_scenarios
 
 @router.get("/voice-call")
 def voice_call_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     scenarios = []
     try:
         scenarios = load_voice_call_scenarios()
@@ -55,18 +65,20 @@ def voice_call_page(request: Request):
 
 @router.get("/onui-grammar")
 def onui_grammar_page(request: Request):
-    active_sessions = getattr(request.app.state, "active_sessions", {})
-    token = request.cookies.get("session_token", "")
-    if not token or token not in active_sessions:
-        return RedirectResponse(url="/login", status_code=302)
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return templates.TemplateResponse(request, "onui-grammar.html")
 
 @router.get("/content-generation")
 def content_generation_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return templates.TemplateResponse(request, "content-generation.html")
 
 @router.get("/daily-expression")
 def daily_expression_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return templates.TemplateResponse(request, "daily-expression.html")
 
 @router.get("/signup")
@@ -87,10 +99,14 @@ def login_page(request: Request):
 
 @router.get("/learning-progress")
 def learning_progress_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return templates.TemplateResponse(request, "learning-progress.html")
 
 @router.get("/dashboard")
 def dashboard_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return templates.TemplateResponse(request, "dashboard.html")
 
 @router.get("/privacy")

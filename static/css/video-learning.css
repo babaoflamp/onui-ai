@@ -98,9 +98,12 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    background: rgba(0, 0, 0, 0.85); /* 투명도 조정 (더 어둡게) */
+    backdrop-filter: blur(10px); /* 블러 효과 추가 */
+    -webkit-backdrop-filter: blur(10px);
     padding: 12px 16px 14px;
     z-index: 15;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* 상단 경계선 추가 */
   }
 
   .progress-bar-wrapper {

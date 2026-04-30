@@ -19,15 +19,16 @@ VIDEO_DIR       = ROOT / "static/video"
 
 # 파일이 있는 5개 영상만 생성
 VIDEOS_TO_GENERATE = [
-    "cafe_ordering",
-    "convenience_store",
-    "subway_navigation",
-    "hotel_checkin",
-    "doctor_visit",
-    "clothes_shopping",
-    "airport_checkin",
-    "asking_directions",
-    "workplace_greetings",
+    "self_introduction",
+    "cafe_ordering_basic",
+    "asking_directions_intl",
+    "korean_culture_adv",
+    "convenience_store_basic",
+    "daily_routines_basic",
+    "hospital_visit_intl",
+    "shopping_clothes_intl",
+    "traditional_market_adv",
+    "business_meeting_adv",
 ]
 
 

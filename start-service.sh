@@ -17,8 +17,8 @@ cd /home/scottk/Projects/onui-ai
 mkdir -p logs data/tmp
 
 # PM2로 서비스 시작
-echo -e "${YELLOW}[1/2] PM2로 서비스 시작 중...${NC}"
-pm2 start ecosystem.config.js
+echo -e "${YELLOW}[1/1] PM2로 서비스 시작 중...${NC}"
+pm2 start ecosystem.config.js --only onui-ai,onui-ai-ngrok
 
 sleep 3
 echo ""
@@ -33,11 +33,13 @@ else
     exit 1
 fi
 
-if pm2 show onui-ngrok | grep -q "online"; then
-    echo -e "${GREEN}✓ ngrok 터널 시작됨${NC}"
+if pm2 show onui-ai-ngrok | grep -q "online"; then
+    echo -e "${GREEN}✓ onui-ai ngrok 시작됨${NC}"
     echo -e "${GREEN}  → https://onui-ai.ngrok.app${NC}"
 else
-    echo -e "${YELLOW}⚠ ngrok 상태 확인 필요 (pm2 logs onui-ngrok)${NC}"
+    echo -e "${RED}✗ onui-ai ngrok 시작 실패${NC}"
+    pm2 logs onui-ai-ngrok --lines 20 --nostream
+    exit 1
 fi
 
 echo ""
@@ -47,7 +49,8 @@ echo -e "${BLUE}================================================${NC}"
 echo ""
 echo -e "${YELLOW}주요 명령어:${NC}"
 echo -e "  • 상태 확인:   ${GREEN}pm2 status${NC}"
-echo -e "  • 로그 보기:   ${GREEN}pm2 logs onui-ai${NC}"
-echo -e "  • 재시작:      ${GREEN}pm2 restart onui-ai${NC}"
+echo -e "  • 앱 로그:     ${GREEN}pm2 logs onui-ai${NC}"
+echo -e "  • ngrok 로그:  ${GREEN}pm2 logs onui-ai-ngrok${NC}"
+echo -e "  • 재시작:      ${GREEN}./restart.sh${NC}"
 echo -e "  • 서비스 종료: ${GREEN}./stop-service.sh${NC}"
 echo ""

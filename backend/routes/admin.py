@@ -33,6 +33,89 @@ _LOGIN_RE = re.compile(
 _PAGE_VIEW_RE = re.compile(
     r"\[PAGE_VIEW\]\s+user=(?P<user>\S+)\s+email=(?P<email>\S*)\s+role=(?P<role>\S*)\s+page=(?P<page>\S+)\s+ip=(?P<ip>\S+)"
 )
+# Structured log line: "YYYY-MM-DD HH:MM:SS,mmm - logger - LEVEL - message"
+_LOG_LINE_RE = re.compile(
+    r"^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d+\s+-\s+\S+\s+-\s+(?P<level>\w+)\s+-\s+(?P<message>.+)$"
+)
+# New REQUEST format: [REQUEST] METHOD /path | User: nick (email) | IP: ip | Status: code
+_REQUEST_NEW_RE = re.compile(
+    r"\[REQUEST\]\s+(?P<method>\w+)\s+(?P<path>\S+)\s+\|\s+User:\s+(?P<user_info>.+?)\s*(?:\|\s*IP:\s*(?P<ip>[\w\.\:]+?)\s*)?(?:\|\s*Status:\s*(?P<status>\d+))?$"
+)
+# Old REQUEST format: [REQUEST] METHOD /path from IP | User: nick (email)
+_REQUEST_OLD_RE = re.compile(
+    r"\[REQUEST\]\s+(?P<method>\w+)\s+(?P<path>\S+)\s+from\s+(?P<ip>[\w\.]+)\s+\|\s+User:\s+(?P<user_info>.+)$"
+)
+_USER_NICK_EMAIL_RE = re.compile(r"^(?P<nick>.+?)\s+\((?P<email>[^)]+)\)$")
+
+_LOG_TYPE_CATEGORY_MAP: Dict[str, set] = {
+    "access": {"ACCESS"},
+    "login": {"LOGIN"},
+    "admin": {"ADMIN"},
+    "error": {"ERROR"},
+    "system": {"SYSTEM"},
+}
+
+
+def _categorize_message(level: str, msg: str) -> str:
+    if msg.startswith("[REQUEST]"):
+        return "ACCESS"
+    if msg.startswith("[LOGIN]"):
+        return "LOGIN"
+    if msg.startswith("[ADMIN"):
+        return "ADMIN"
+    if level in ("ERROR", "CRITICAL") or msg.startswith("[ERROR]"):
+        return "ERROR"
+    return "SYSTEM"
+
+
+def _parse_log_line_structured(line: str) -> Optional[dict]:
+    m = _LOG_LINE_RE.match(line.strip())
+    if not m:
+        return None
+    level = m.group("level")
+    msg = m.group("message")
+    return {
+        "timestamp": m.group("timestamp"),
+        "level": level,
+        "category": _categorize_message(level, msg),
+        "message": msg,
+    }
+
+
+def _parse_access_entry(msg: str) -> Optional[dict]:
+    """Parse [REQUEST] or [LOGIN] message into structured access log entry."""
+    entry = {"method": "", "path": "", "user": "", "email": "", "ip": "-", "status": ""}
+    if msg.startswith("[REQUEST]"):
+        m = _REQUEST_NEW_RE.match(msg)
+        if not m:
+            m = _REQUEST_OLD_RE.match(msg)
+        if not m:
+            return None
+        entry["method"] = m.group("method")
+        entry["path"] = m.group("path")
+        entry["ip"] = (m.group("ip") or "-").strip()
+        entry["status"] = m.group("status") if "status" in m.groupdict() else ""
+        user_info = (m.group("user_info") or "").strip()
+        um = _USER_NICK_EMAIL_RE.match(user_info)
+        if um:
+            entry["user"] = um.group("nick")
+            entry["email"] = um.group("email")
+        else:
+            entry["user"] = user_info
+    elif msg.startswith("[LOGIN]"):
+        lm = _LOGIN_RE.search(msg)
+        if not lm:
+            return None
+        entry["method"] = "POST"
+        entry["path"] = "/login"
+        entry["user"] = lm.group("user")
+        entry["email"] = lm.group("email")
+        entry["ip"] = lm.group("ip")
+        entry["status"] = "200"
+    else:
+        return None
+    return entry
+
 
 def _read_last_log_lines(path: Path, limit: int = 50000) -> List[str]:
     if limit <= 0:
@@ -337,27 +420,290 @@ async def admin_learner_status(request: Request, q: str = "", limit: int = 200, 
 
 @router.get("/api/admin/logs/download")
 async def download_admin_logs(request: Request, admin: dict = Depends(get_current_admin_user)):
-    log_path = "logs/uvicorn.log"
-    if not os.path.exists(log_path): raise HTTPException(status_code=404, detail="Log file not found.")
-    return FileResponse(path=log_path, media_type="text/plain", filename=f"uvicorn_{datetime.now().strftime('%Y%m%d')}.log")
+    log_path = "logs/detailed.log"
+    if not os.path.exists(log_path):
+        raise HTTPException(status_code=404, detail="Log file not found.")
+    return FileResponse(path=log_path, media_type="text/plain", filename=f"onui_logs_{datetime.now().strftime('%Y%m%d')}.log")
 
 @router.get("/api/admin/logs-tail")
-async def admin_logs_tail(request: Request, lines: int = 100, level: str = "", search: str = "", admin: dict = Depends(get_current_admin_user)):
+async def admin_logs_tail(
+    request: Request,
+    level: str = "",
+    search: str = "",
+    log_type: str = "all",
+    date: str = "",
+    page: int = 1,
+    per_page: int = 100,
+    admin: dict = Depends(get_current_admin_user),
+):
     log_file = Path("logs/detailed.log")
-    if not log_file.exists(): return {"success": True, "logs": [], "count": 0, "total_available": 0}
+    if not log_file.exists():
+        return {"success": True, "logs": [], "total": 0, "page": 1, "per_page": per_page, "total_pages": 0}
+    per_page = min(max(per_page, 10), 500)
+    page = max(page, 1)
+    level_upper = level.upper() if level else ""
+    search_lower = search.lower() if search else ""
+    wanted_cats = _LOG_TYPE_CATEGORY_MAP.get(log_type.lower()) if log_type and log_type != "all" else None
     try:
-        MAX_SCAN = 10000; from collections import deque
-        with open(log_file, "r", encoding="utf-8", errors="replace") as f: tail_lines = deque(f, maxlen=MAX_SCAN)
-        level_upper = level.upper() if level else ""; search_lower = search.lower() if search else ""; filtered = []
-        for line in tail_lines:
-            if level_upper and f"[{level_upper}]" not in line and f" {level_upper} " not in line: continue
-            if search_lower and search_lower not in line.lower(): continue
-            filtered.append(line)
-        recent = filtered[-min(lines, len(filtered)):]
-        logger.info(f"[ADMIN_LOGS] {admin['email']} retrieved {len(recent)} log lines (level={level}, search={search})")
-        return {"success": True, "logs": recent, "count": len(recent), "total_available": len(tail_lines), "total_filtered": len(filtered)}
+        raw_lines = _read_last_log_lines(log_file, limit=50000)
+        filtered = []
+        for line in raw_lines:
+            entry = _parse_log_line_structured(line)
+            if not entry:
+                continue
+            if date and not entry["timestamp"].startswith(date):
+                continue
+            if level_upper and entry["level"] != level_upper:
+                continue
+            if wanted_cats and entry["category"] not in wanted_cats:
+                continue
+            if search_lower and search_lower not in entry["message"].lower():
+                continue
+            filtered.append(entry)
+        total = len(filtered)
+        # newest first
+        filtered.reverse()
+        start = (page - 1) * per_page
+        page_data = filtered[start:start + per_page]
+        logger.info(f"[ADMIN_LOGS] {admin['email']} retrieved {len(page_data)} lines (type={log_type}, level={level}, date={date}, page={page})")
+        return {
+            "success": True,
+            "logs": page_data,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": max(1, (total + per_page - 1) // per_page),
+        }
     except Exception as e:
-        logger.error(f"Failed to read logs: {e}"); return {"success": False, "detail": str(e)}
+        logger.error(f"Failed to read logs: {e}")
+        return {"success": False, "detail": str(e)}
+
+
+@router.get("/api/admin/access-logs")
+async def admin_access_logs(
+    request: Request,
+    user_filter: str = "",
+    path_filter: str = "",
+    date: str = "",
+    page: int = 1,
+    per_page: int = 100,
+    admin: dict = Depends(get_current_admin_user),
+):
+    log_file = Path("logs/detailed.log")
+    per_page = min(max(per_page, 10), 500)
+    page = max(page, 1)
+    user_lower = user_filter.lower() if user_filter else ""
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    filter_date = date if date else today_str
+
+    if not log_file.exists():
+        return {"success": True, "logs": [], "total": 0, "page": 1, "per_page": per_page, "total_pages": 0, "stats": {}}
+    try:
+        raw_lines = _read_last_log_lines(log_file, limit=100000)
+
+        # global stats accumulators (over entire file, no date filter)
+        total_requests_g = 0
+        unique_users_g: set = set()
+        error_count_g = 0
+        today_visits_g = 0
+
+        all_access = []
+        for line in raw_lines:
+            entry = _parse_log_line_structured(line)
+            if not entry or entry["category"] not in ("ACCESS", "LOGIN"):
+                continue
+            parsed = _parse_access_entry(entry["message"])
+            if not parsed:
+                continue
+            parsed["timestamp"] = entry["timestamp"]
+            parsed["type"] = entry["category"]
+
+            # accumulate global stats
+            total_requests_g += 1
+            if parsed["user"] and parsed["user"] not in ("Guest", "-"):
+                unique_users_g.add(parsed["user"])
+            if parsed["status"] and parsed["status"][:1] in ("4", "5"):
+                error_count_g += 1
+            if entry["timestamp"].startswith(today_str):
+                today_visits_g += 1
+
+            all_access.append(parsed)
+
+        # apply filters
+        filtered = []
+        for e in all_access:
+            if not e["timestamp"].startswith(filter_date):
+                continue
+            if user_lower and user_lower not in e["user"].lower() and user_lower not in e["email"].lower():
+                continue
+            if path_filter and not e["path"].startswith(path_filter):
+                continue
+            filtered.append(e)
+
+        total = len(filtered)
+        filtered.reverse()  # newest first
+        start = (page - 1) * per_page
+        page_data = filtered[start:start + per_page]
+
+        logger.info(f"[ADMIN_ACCESS_LOGS] {admin['email']} retrieved {len(page_data)} entries (date={filter_date})")
+        return {
+            "success": True,
+            "logs": page_data,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": max(1, (total + per_page - 1) // per_page),
+            "stats": {
+                "total_requests": total_requests_g,
+                "unique_users": len(unique_users_g),
+                "error_count": error_count_g,
+                "today_visits": today_visits_g,
+            },
+        }
+    except Exception as e:
+        logger.error(f"Failed to read access logs: {e}")
+        return {"success": False, "detail": str(e)}
+
+@router.get("/api/admin/access-summary")
+async def admin_access_summary(
+    request: Request,
+    date: str = "",
+    admin: dict = Depends(get_current_admin_user),
+):
+    log_file = Path("logs/detailed.log")
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    target_date = date if date else today_str
+    db_path = getattr(request.app.state, "db_path", "data/users.db")
+
+    MENU_NAMES = {
+        "/": "홈",
+        "/dashboard": "대시보드",
+        "/video-learning": "비디오 학습",
+        "/roleplay": "AI 롤플레이",
+        "/voice-call": "AI 음성통화",
+        "/onui-grammar": "AI 문법코치",
+        "/onui-beats": "오누이 비츠",
+        "/daily-expression": "오늘의 표현",
+        "/sentence-evaluation": "문장 평가",
+        "/learning-progress": "학습 진도",
+        "/speechpro-practice": "발음 연습",
+        "/mypage": "마이페이지",
+        "/content-generation": "콘텐츠 생성",
+        "/admin/dashboard": "관리 대시보드",
+        "/admin/users": "사용자 관리",
+        "/admin/logs": "로그 콘솔",
+        "/admin/system": "시스템",
+        "/admin/settings": "설정",
+    }
+
+    def is_menu_path(p: str) -> bool:
+        return not p.startswith(("/api/", "/static/", "/data/", "/uploads/", "/openapi", "/favicon"))
+
+    if not log_file.exists():
+        return {"success": True, "date": target_date, "users": [], "new_signups": [], "stats": {}}
+
+    try:
+        raw_lines = _read_last_log_lines(log_file, limit=200000)
+        user_map: Dict[str, dict] = {}
+        total_requests = 0
+        error_count = 0
+
+        for line in raw_lines:
+            entry = _parse_log_line_structured(line)
+            if not entry or not entry["timestamp"].startswith(target_date):
+                continue
+            if entry["category"] not in ("ACCESS", "LOGIN"):
+                continue
+            parsed = _parse_access_entry(entry["message"])
+            if not parsed:
+                continue
+
+            ukey = parsed["user"] or "Guest"
+            ts = entry["timestamp"]
+
+            if ukey not in user_map:
+                user_map[ukey] = {
+                    "user": ukey,
+                    "email": parsed["email"] or "",
+                    "ip": parsed["ip"] or "-",
+                    "login_times": [],
+                    "_page_order": [],
+                    "_page_seen": set(),
+                    "request_count": 0,
+                    "error_count": 0,
+                    "first_seen": ts,
+                    "last_seen": ts,
+                }
+            u = user_map[ukey]
+            if parsed["email"] and not u["email"]:
+                u["email"] = parsed["email"]
+            if ts < u["first_seen"]: u["first_seen"] = ts
+            if ts > u["last_seen"]:  u["last_seen"] = ts
+
+            if entry["category"] == "LOGIN":
+                u["login_times"].append(ts[11:16])
+            else:
+                path = parsed["path"]
+                status = parsed["status"] or ""
+                u["request_count"] += 1
+                total_requests += 1
+                if status[:1] in ("4", "5"):
+                    u["error_count"] += 1
+                    error_count += 1
+                if is_menu_path(path) and path not in u["_page_seen"]:
+                    u["_page_seen"].add(path)
+                    u["_page_order"].append({
+                        "time": ts[11:16],
+                        "path": path,
+                        "name": MENU_NAMES.get(path, path),
+                    })
+
+        users_out = []
+        for u in sorted(user_map.values(), key=lambda x: x["first_seen"], reverse=True):
+            users_out.append({
+                "user":          u["user"],
+                "email":         u["email"],
+                "ip":            u["ip"],
+                "login_times":   sorted(set(u["login_times"])),
+                "pages":         u["_page_order"],
+                "request_count": u["request_count"],
+                "error_count":   u["error_count"],
+                "first_seen":    u["first_seen"][11:16],
+                "last_seen":     u["last_seen"][11:16],
+            })
+
+        conn = sqlite3.connect(db_path)
+        try:
+            conn.row_factory = sqlite3.Row
+            new_signups = [
+                {"nickname": r["nickname"], "email": r["email"],
+                 "created_at": (r["created_at"] or "")[:16]}
+                for r in conn.execute(
+                    "SELECT nickname, email, created_at FROM users "
+                    "WHERE created_at LIKE ? ORDER BY created_at DESC",
+                    (f"{target_date}%",)
+                ).fetchall()
+            ]
+        finally:
+            conn.close()
+
+        logger.info(f"[ADMIN_ACCESS_SUMMARY] {admin['email']} retrieved summary for {target_date}")
+        return {
+            "success": True,
+            "date": target_date,
+            "users": users_out,
+            "new_signups": new_signups,
+            "stats": {
+                "total_requests": total_requests,
+                "unique_users": len([u for u in users_out if u["user"] not in ("Guest", "-")]),
+                "error_count": error_count,
+                "new_signups": len(new_signups),
+            },
+        }
+    except Exception as e:
+        logger.error(f"Failed to build access summary: {e}")
+        return {"success": False, "detail": str(e)}
+
 
 @router.get("/api/admin/analytics")
 async def admin_analytics(request: Request, admin: dict = Depends(get_current_admin_user)):

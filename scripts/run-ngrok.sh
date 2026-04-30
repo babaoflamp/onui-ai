@@ -53,13 +53,13 @@ NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
 
 # ngrok 인증 토큰 설정 (유료/로그인 계정용)
 if [ -n "$NGROK_AUTHTOKEN" ]; then
-  "$NGROK_BIN" config add-authtoken "$NGROK_AUTHTOKEN" >/dev/null 2>&1 || true
+  "$NGROK_BIN" config add-authtoken "$NGROK_AUTHTOKEN" --config=ngrok-config.yml >/dev/null 2>&1 || true
 fi
 
 # ngrok 시작 (NGROK_DOMAIN이 설정된 경우 해당 도메인 사용)
 if [ -n "$NGROK_DOMAIN" ]; then
   echo "Starting ngrok with domain: $NGROK_DOMAIN"
-  exec "$NGROK_BIN" http --config=ngrok-config.yml --domain="$NGROK_DOMAIN" 9002
+  exec "$NGROK_BIN" http --config=ngrok-config.yml --url="$NGROK_DOMAIN" 9002
 else
   echo "Starting ngrok with random domain"
   exec "$NGROK_BIN" http --config=ngrok-config.yml 9002

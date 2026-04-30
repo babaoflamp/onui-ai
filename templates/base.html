@@ -159,6 +159,272 @@
         max-width: calc(100vw - var(--sidebar-collapsed-width));
       }
 
+      body.no-sidebar #sidebar { display: none !important; }
+      body.no-sidebar #main-content {
+        margin-left: 0 !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+        background: #0d0d0d !important;
+        color: rgba(255,255,255,0.9);
+      }
+
+      /* ── Admin Sidebar ──────────────────────────────────── */
+      #admin-sidebar {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 220px;
+        height: 100vh;
+        background: var(--bg-sidebar);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-right: 1px solid var(--glass-border);
+        flex-direction: column;
+        z-index: 100;
+      }
+      body.admin-sidebar #sidebar       { display: none !important; }
+      body.admin-sidebar #admin-sidebar  { display: flex !important; }
+      body.admin-sidebar #main-content {
+        margin-left: 220px !important;
+        max-width: calc(100vw - 220px) !important;
+        padding: 32px !important;
+        background: #0d0d0d !important;
+        color: rgba(255,255,255,0.9);
+      }
+      .admin-sidebar-logo {
+        padding: 20px 18px 16px;
+        border-bottom: 1px solid var(--glass-border);
+        margin-bottom: 8px;
+      }
+      .admin-sidebar-logo a {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--accent);
+        text-decoration: none;
+        letter-spacing: -0.02em;
+      }
+      .admin-nav-items { flex: 1; overflow-y: auto; padding: 8px 0; }
+      .admin-sidebar-footer {
+        padding: 8px 0 12px;
+        border-top: 1px solid var(--glass-border);
+      }
+      .admin-sidebar-footer button.nav-item {
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* ── Admin dark mode overrides ─────────────────────────── */
+
+      /* Layout & cards */
+      body.no-sidebar .bg-white,
+      body.admin-sidebar .bg-white {
+        background: rgba(255,255,255,0.06) !important;
+        border-color: rgba(255,255,255,0.09) !important;
+      }
+      body.no-sidebar .bg-slate-50,
+      body.admin-sidebar .bg-slate-50,
+      body.no-sidebar .bg-gray-50,
+      body.admin-sidebar .bg-gray-50 {
+        background: rgba(255,255,255,0.04) !important;
+      }
+      body.no-sidebar .bg-gray-100,
+      body.admin-sidebar .bg-gray-100 {
+        background: rgba(255,255,255,0.08) !important;
+      }
+      body.no-sidebar .shadow-sm,
+      body.admin-sidebar .shadow-sm,
+      body.no-sidebar .shadow-2xl,
+      body.admin-sidebar .shadow-2xl { box-shadow: 0 0 0 1px rgba(255,255,255,0.08) !important; }
+
+      /* Text */
+      body.no-sidebar .text-gray-900,
+      body.admin-sidebar .text-gray-900,
+      body.no-sidebar .text-gray-800,
+      body.admin-sidebar .text-gray-800 { color: rgba(255,255,255,0.95) !important; }
+      body.no-sidebar .text-gray-700,
+      body.admin-sidebar .text-gray-700 { color: rgba(255,255,255,0.80) !important; }
+      body.no-sidebar .text-gray-600,
+      body.admin-sidebar .text-gray-600 { color: rgba(255,255,255,0.60) !important; }
+      body.no-sidebar .text-gray-500,
+      body.admin-sidebar .text-gray-500 { color: rgba(255,255,255,0.50) !important; }
+      body.no-sidebar .text-gray-400,
+      body.admin-sidebar .text-gray-400 { color: rgba(255,255,255,0.35) !important; }
+
+      /* Borders */
+      body.no-sidebar .border-gray-200,
+      body.admin-sidebar .border-gray-200,
+      body.no-sidebar .border-gray-300,
+      body.admin-sidebar .border-gray-300 { border-color: rgba(255,255,255,0.10) !important; }
+      body.no-sidebar .divide-gray-200,
+      body.admin-sidebar .divide-gray-200,
+      body.no-sidebar .divide-gray-100 > *,
+      body.admin-sidebar .divide-gray-100 > * { border-color: rgba(255,255,255,0.07) !important; }
+
+      /* Inputs & selects */
+      body.no-sidebar input:not([type="checkbox"]):not([type="radio"]),
+      body.admin-sidebar input:not([type="checkbox"]):not([type="radio"]),
+      body.no-sidebar select,
+      body.admin-sidebar select,
+      body.no-sidebar textarea,
+      body.admin-sidebar textarea {
+        background: rgba(255,255,255,0.07) !important;
+        border-color: rgba(255,255,255,0.12) !important;
+        color: rgba(255,255,255,0.9) !important;
+      }
+      body.no-sidebar input::placeholder,
+      body.admin-sidebar input::placeholder { color: rgba(255,255,255,0.30) !important; }
+      body.no-sidebar select option,
+      body.admin-sidebar select option { background: #1a1a1a; color: #fff; }
+
+      /* Hover states */
+      body.no-sidebar .hover\:bg-gray-50:hover,
+      body.admin-sidebar .hover\:bg-gray-50:hover { background: rgba(255,255,255,0.06) !important; }
+      body.no-sidebar .hover\:bg-gray-100:hover,
+      body.admin-sidebar .hover\:bg-gray-100:hover { background: rgba(255,255,255,0.09) !important; }
+      body.no-sidebar .hover\:text-gray-700:hover,
+      body.admin-sidebar .hover\:text-gray-700:hover { color: rgba(255,255,255,0.9) !important; }
+
+      /* Table */
+      body.no-sidebar thead,
+      body.admin-sidebar thead,
+      body.no-sidebar .bg-slate-50 th,
+      body.admin-sidebar .bg-slate-50 th { background: rgba(255,255,255,0.05) !important; }
+      body.no-sidebar tbody tr:hover,
+      body.admin-sidebar tbody tr:hover { background: rgba(255,255,255,0.04) !important; }
+
+      /* Tab bar */
+      body.no-sidebar .tab-btn,
+      body.admin-sidebar .tab-btn { color: rgba(255,255,255,0.5) !important; }
+      body.no-sidebar .tab-btn.bg-white,
+      body.admin-sidebar .tab-btn.bg-white { color: rgba(255,255,255,0.95) !important; }
+
+      /* Outline/border buttons */
+      body.no-sidebar a.border,
+      body.admin-sidebar a.border,
+      body.no-sidebar button.border,
+      body.admin-sidebar button.border {
+        border-color: rgba(255,255,255,0.15) !important;
+        color: rgba(255,255,255,0.75) !important;
+      }
+      body.no-sidebar a.border:hover,
+      body.admin-sidebar a.border:hover,
+      body.no-sidebar button.border:hover,
+      body.admin-sidebar button.border:hover { background: rgba(255,255,255,0.08) !important; }
+
+      /* Dark badges (status/level/category) */
+      body.no-sidebar .bg-gray-100.text-gray-700,
+      body.admin-sidebar .bg-gray-100.text-gray-700,
+      body.no-sidebar .bg-slate-100.text-slate-700,
+      body.admin-sidebar .bg-slate-100.text-slate-700 {
+        background: rgba(255,255,255,0.10) !important;
+        color: rgba(255,255,255,0.80) !important;
+      }
+      body.no-sidebar .bg-red-100,
+      body.admin-sidebar .bg-red-100    { background: rgba(239,68,68,0.20) !important; }
+      body.no-sidebar .text-red-800,
+      body.admin-sidebar .text-red-800  { color: #fca5a5 !important; }
+      body.no-sidebar .text-red-600,
+      body.admin-sidebar .text-red-600  { color: #f87171 !important; }
+      body.no-sidebar .bg-yellow-100,
+      body.admin-sidebar .bg-yellow-100  { background: rgba(234,179,8,0.18) !important; }
+      body.no-sidebar .text-yellow-800,
+      body.admin-sidebar .text-yellow-800 { color: #fde68a !important; }
+      body.no-sidebar .text-yellow-600,
+      body.admin-sidebar .text-yellow-600 { color: #fbbf24 !important; }
+      body.no-sidebar .bg-blue-50,
+      body.admin-sidebar .bg-blue-50,
+      body.no-sidebar .bg-blue-100,
+      body.admin-sidebar .bg-blue-100   { background: rgba(59,130,246,0.18) !important; }
+      body.no-sidebar .text-blue-700,
+      body.admin-sidebar .text-blue-700,
+      body.no-sidebar .text-blue-800,
+      body.admin-sidebar .text-blue-800  { color: #93c5fd !important; }
+      body.no-sidebar .bg-green-50,
+      body.admin-sidebar .bg-green-50,
+      body.no-sidebar .bg-green-100,
+      body.admin-sidebar .bg-green-100  { background: rgba(34,197,94,0.18) !important; }
+      body.no-sidebar .text-green-700,
+      body.admin-sidebar .text-green-700,
+      body.no-sidebar .text-green-800,
+      body.admin-sidebar .text-green-800 { color: #86efac !important; }
+      body.no-sidebar .bg-purple-50,
+      body.admin-sidebar .bg-purple-50,
+      body.no-sidebar .bg-purple-100,
+      body.admin-sidebar .bg-purple-100 { background: rgba(168,85,247,0.18) !important; }
+      body.no-sidebar .text-purple-700,
+      body.admin-sidebar .text-purple-700,
+      body.no-sidebar .text-purple-800,
+      body.admin-sidebar .text-purple-800 { color: #d8b4fe !important; }
+      body.no-sidebar .text-purple-600,
+      body.admin-sidebar .text-purple-600 { color: #c084fc !important; }
+      body.no-sidebar .bg-orange-100,
+      body.admin-sidebar .bg-orange-100 { background: rgba(249,115,22,0.18) !important; }
+      body.no-sidebar .text-orange-900,
+      body.admin-sidebar .text-orange-900 { color: #fed7aa !important; }
+      body.no-sidebar .bg-slate-100,
+      body.admin-sidebar .bg-slate-100  { background: rgba(255,255,255,0.09) !important; }
+      body.no-sidebar .text-slate-600,
+      body.admin-sidebar .text-slate-600 { color: rgba(255,255,255,0.60) !important; }
+
+      /* Info banner */
+      body.no-sidebar .bg-blue-50.border-blue-200,
+      body.admin-sidebar .bg-blue-50.border-blue-200 {
+        background: rgba(59,130,246,0.10) !important;
+        border-color: rgba(59,130,246,0.25) !important;
+      }
+      body.no-sidebar .text-blue-800,
+      body.admin-sidebar .text-blue-800  { color: #93c5fd !important; }
+
+      /* Status text colors */
+      body.no-sidebar .text-green-600,
+      body.admin-sidebar .text-green-600 { color: #4ade80 !important; }
+      body.no-sidebar .text-blue-600,
+      body.admin-sidebar .text-blue-600  { color: #60a5fa !important; }
+      body.no-sidebar .text-blue-500,
+      body.admin-sidebar .text-blue-500  { color: #93c5fd !important; }
+      body.no-sidebar .text-red-500,
+      body.admin-sidebar .text-red-500   { color: #f87171 !important; }
+
+      /* Toggle track */
+      body.no-sidebar .sys-toggle-track,
+      body.admin-sidebar .sys-toggle-track,
+      body.no-sidebar .acc-toggle-track,
+      body.admin-sidebar .acc-toggle-track { background: rgba(255,255,255,0.15) !important; }
+
+      /* Stat cards */
+      body.no-sidebar #stat-total,
+      body.admin-sidebar #stat-total  { color: rgba(255,255,255,0.95) !important; }
+      body.no-sidebar #stat-users,
+      body.admin-sidebar #stat-users  { color: #60a5fa !important; }
+      body.no-sidebar #stat-errors,
+      body.admin-sidebar #stat-errors { color: #f87171 !important; }
+      body.no-sidebar #stat-today,
+      body.admin-sidebar #stat-today  { color: #4ade80 !important; }
+
+      /* Login page */
+      body.no-sidebar .from-slate-50,
+      body.admin-sidebar .from-slate-50,
+      body.no-sidebar .via-white,
+      body.admin-sidebar .via-white,
+      body.no-sidebar .to-orange-50,
+      body.admin-sidebar .to-orange-50 {
+        background: #0d0d0d !important;
+      }
+      body.no-sidebar .min-h-screen.bg-gradient-to-br,
+      body.admin-sidebar .min-h-screen.bg-gradient-to-br {
+        background: #0d0d0d !important;
+      }
+
+      /* Pagination buttons */
+      body.no-sidebar button.border.border-gray-200,
+      body.admin-sidebar button.border.border-gray-200 {
+        border-color: rgba(255,255,255,0.12) !important;
+        color: rgba(255,255,255,0.70) !important;
+      }
+
       .nav-item span:nth-child(2), #sidebar-auth-section p {
         white-space: nowrap;
         transition: opacity 0.3s;
@@ -558,7 +824,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
     </style>
     {% block extra_css %}{% endblock %}
   </head>
-  <body class="glass-dark">
+  <body class="glass-dark{%- if request.url.path == '/admin/login' %} no-sidebar{%- elif request.url.path.startswith('/admin') %} admin-sidebar{%- endif %}">
     <!-- Skip to main content (accessibility) -->
     <a href="#main-content" class="skip-link" data-i18n="a11y.skip_to_content">Skip to main content</a>
 
@@ -792,6 +1058,37 @@ body.sidebar-collapsed #sidebar-lang-bar {
 
     </nav>
 
+    <!-- Admin Sidebar -->
+    {%- if request.url.path.startswith('/admin') and request.url.path != '/admin/login' %}
+    <nav id="admin-sidebar" aria-label="Admin Navigation">
+      <div class="admin-sidebar-logo">
+        <a href="/admin/dashboard">🛡 Onui Admin</a>
+      </div>
+      <div class="admin-nav-items">
+        <a href="/admin/dashboard" class="nav-item{% if request.url.path == '/admin/dashboard' %} active{% endif %}">
+          <span>📊</span><span>대시보드</span>
+        </a>
+        <a href="/admin/users" class="nav-item{% if request.url.path == '/admin/users' %} active{% endif %}">
+          <span>👥</span><span>사용자 관리</span>
+        </a>
+        <a href="/admin/logs" class="nav-item{% if request.url.path == '/admin/logs' %} active{% endif %}">
+          <span>📋</span><span>로그 콘솔</span>
+        </a>
+        <a href="/admin/system" class="nav-item{% if request.url.path == '/admin/system' %} active{% endif %}">
+          <span>⚙️</span><span>시스템</span>
+        </a>
+        <a href="/admin/settings" class="nav-item{% if request.url.path == '/admin/settings' %} active{% endif %}">
+          <span>🔧</span><span>설정</span>
+        </a>
+      </div>
+      <div class="admin-sidebar-footer">
+        <button onclick="adminLogout()" class="nav-item">
+          <span>🚪</span><span>로그아웃</span>
+        </button>
+      </div>
+    </nav>
+    {%- endif %}
+
     <!-- Main Content Area -->
     <main id="main-content">
       <!-- Top bar aligned to page shell -->
@@ -840,6 +1137,16 @@ body.sidebar-collapsed #sidebar-lang-bar {
     <script src="/static/js/ui-components.js" defer></script>
     <script src="/static/js/i18n.js?v=1.0.2" defer></script>
     <script src="/static/js/auth.js" defer></script>
+    <script>
+    function adminLogout() {
+      const token = localStorage.getItem('auth_token');
+      fetch('/api/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+        .finally(() => {
+          ['auth_token','user_nickname','user_role','is_admin'].forEach(k => localStorage.removeItem(k));
+          window.location.href = '/admin/login';
+        });
+    }
+    </script>
     {% block extra_js %}{% endblock %} {% include
     'components/character-popup.html' %}
 

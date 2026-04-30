@@ -36,6 +36,8 @@ def load_scenarios():
 
 @router.get("/roleplay", response_class=HTMLResponse)
 async def roleplay_page(request: Request):
+    if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
+        return redir
     return request.app.state.templates.TemplateResponse(request, "ai-roleplay.html")
 
 @router.get("/api/roleplay/scenarios")

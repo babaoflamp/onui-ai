@@ -100,6 +100,21 @@ tempfile.tempdir = str(APP_TMP_DIR)
 # 전역 객체
 app = FastAPI(title="Onui AI Korean Learning")
 logger = logging.getLogger("uvicorn.error")
+
+# Write application logs to logs/detailed.log (daily rotation, 14-day retention)
+_logs_dir = Path("logs")
+_logs_dir.mkdir(exist_ok=True)
+_fh = TimedRotatingFileHandler(
+    _logs_dir / "detailed.log",
+    when="midnight", interval=1, backupCount=14, encoding="utf-8",
+)
+_fh.suffix = ""
+_fh.namer = lambda n: str(Path(n).parent / (Path(n).name.replace("detailed.log.", "") + "-detailed.log"))
+_fh.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+_fh.setLevel(logging.INFO)
+if not any(isinstance(h, TimedRotatingFileHandler) for h in logger.handlers):
+    logger.addHandler(_fh)
+
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # 모델/TTS 설정
@@ -559,14 +574,19 @@ def _convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
 class LoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
+        skip = path.startswith("/static") or path.startswith("/uploads")
+        ip = request.client.host if request.client else "-"
         user_info = "Guest"
-        if not (path.startswith("/static") or path.startswith("/uploads")):
+        if not skip:
             session = get_session(request)
             if session:
                 user = _get_user_by_id(session["user_id"])
                 if user: user_info = f"{user['nickname']} ({user['email']})"
-        logger.info(f"[REQUEST] {request.method} {path} | User: {user_info}")
-        try: return await call_next(request)
+        try:
+            response = await call_next(request)
+            if not skip:
+                logger.info(f"[REQUEST] {request.method} {path} | User: {user_info} | IP: {ip} | Status: {response.status_code}")
+            return response
         except Exception as e:
             logger.error(f"[ERROR] {path} - {str(e)}", exc_info=True)
             return JSONResponse(status_code=500, content={"error": "Internal Server Error"})
@@ -666,6 +686,10 @@ app.include_router(pages_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    return FileResponse("static/robots.txt", media_type="text/plain")
 
 @app.on_event("startup")
 def startup_event():
