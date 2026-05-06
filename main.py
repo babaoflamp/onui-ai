@@ -138,6 +138,7 @@ OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
 OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
 OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "mp3")
 GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-1.5-flash")
+GEMINI_TTS_VOICE = os.getenv("GEMINI_TTS_VOICE", "Aoede")
 GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
 TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
 TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
@@ -531,11 +532,17 @@ def _call_gemini_tts_api(text: str, model: str = None) -> dict:
         f"Generate speech audio only for the following transcript:\n{text}",
     ]
 
+    generation_config: dict = {"responseModalities": ["AUDIO"]}
+    if GEMINI_TTS_VOICE:
+        generation_config["speechConfig"] = {
+            "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": GEMINI_TTS_VOICE}}
+        }
+
     last_error = None
     for prompt in prompts:
         payload = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"responseModalities": ["AUDIO"]},
+            "generationConfig": generation_config,
         }
         try:
             resp = requests.post(url, json=payload, timeout=60)

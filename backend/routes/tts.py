@@ -224,7 +224,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
 
             content_type = result.get("content_type") or "application/octet-stream"
             audio_data = result["audio_data"]
-            if content_type.startswith("audio/L16"):
+            if content_type.lower().startswith("audio/l16"):
                 if callable(amplify_pcm16):
                     audio_data = amplify_pcm16(audio_data)
                 if callable(pcm16_to_wav):

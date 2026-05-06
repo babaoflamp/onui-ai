@@ -20,9 +20,9 @@ source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 90
 # Stop dev server
 pkill -f uvicorn
 
-# Run tests (tests/ currently has no source files; add them under tests/unit, tests/api, tests/integration)
+# Run tests
 python -m pytest
-python -m pytest tests/unit   # scoped run
+python -m pytest tests/unit   # scoped run (test_onui_tube_catalog.py lives here)
 ```
 
 ### Production (PM2)
@@ -95,14 +95,14 @@ onuiai.kr / onui.ai.kr  (DNS A → server IP)
 
 ## Architecture
 
-### Entry Point (`main.py`, ~680 lines)
+### Entry Point (`main.py`, ~700 lines)
 
 `main.py` is now a thin orchestrator. It handles:
 - Imports, env config, AI client initialization (lines 1–100)
 - TTS helpers (MzTTS, Gemini, Google, OpenAI) and audio conversion utilities
 - SQLite DB init (`data/users.db`) via `_init_user_db()` and `_ensure_*` helpers
 - App factory, middleware setup (CORS, session, logging)
-- All `app.include_router(...)` mounts (lines ~650–665)
+- All `app.include_router(...)` mounts (lines 673–685)
 - WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation) live in `backend/routes/ai_services.py`
 
 ### Routers in `backend/routes/`
@@ -147,7 +147,7 @@ Routers receive AI clients, DB helpers, and other dependencies via `request.app.
 
 ### Database
 
-SQLite at `data/users.db`. Schema is created/migrated programmatically in `_init_user_db()` (main.py ~line 977). The DB is called at startup and uses `_ensure_*` helper functions to add columns/tables to existing DBs — no migration framework.
+SQLite at `data/users.db`. Schema is created/migrated programmatically in `_init_user_db()` (main.py line 176). The DB is called at startup and uses `_ensure_*` helper functions to add columns/tables to existing DBs — no migration framework.
 
 Tables: `users`, `word_scores`, `sentence_scores`, `attendance`, `n_documents`/`n_chunks`/`n_settings` (RAG with SQLite FTS5), LMS tables, admin logging tables.
 
@@ -161,7 +161,7 @@ Cookie-based sessions using an in-memory `active_sessions` dict (token → user 
 - **`templates/components/`**: Reusable Jinja2 partials — `character-popup.html`, `floating-buttons.html`, `ai-avatar.html`.
 - **`static/js/` and `static/css/`**: Feature-specific assets with kebab-case names matching their template (e.g., `word-puzzle.js` ↔ `word-puzzle.html`).
 - Tailwind CSS is loaded via CDN (not compiled locally).
-- JavaScript in templates is mostly inline; standalone JS files exist for complex pages: `word-puzzle.js`, `vocab-garden.js`, `daily-expression.js`, `ui-components.js`, `floating-buttons.js`, `auth.js`.
+- Most feature pages have a dedicated JS file in `static/js/` matching their name (e.g., `voice-call.js`, `onui-beats.js`, `video-learning.js`, `daily-expression.js`, `onui-grammar.js`, `speechpro-practice.js`, `dashboard.js`, `learning-progress.js`, `content-generation.js`, `ai-roleplay.js`). Shared utilities: `i18n.js`, `ui-components.js`, `floating-buttons.js`, `auth.js`, `audio-processor.js`.
 
 Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, `onui-grammar.html` (AI Grammar Coach), and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`, `admin-api.html`). Dev/test templates (`api-test.html`, `stt-multi-test.html`) are not user-facing.
 
@@ -193,6 +193,7 @@ Static JSON datasets read at startup or on-demand:
 - `sp_ko_questions.json` — SpeechPro Korean question bank
 - `landing_intent.json` — landing page intake/onboarding intent data
 - `word_image_cache.json` — cached DALL-E image URLs for vocabulary words
+- `landing_intake.json` — extended onboarding intake data (alongside `landing_intent.json`)
 - `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
 
 ### Scripts (`scripts/`)
@@ -201,6 +202,9 @@ Utility scripts for one-off data management — not part of the app runtime:
 - `generate_locales.py` / `translate_locales.py` — generate and machine-translate locale JSON files
 - `import_excel_sentences.py` / `sync_sentences_json.py` / `merge_sentences.py` — manage `sentences.json`
 - `audit_onuitube_catalog.py` / `build_onuitube_replacement_template.py` — OnuiTube video catalog audit and replacement template builder
+- `generate_tube_transcript.py` / `generate_tube_videos.py` — yt-dlp pipeline for OnuiTube content
+- `generate_tube_images.py` / `generate_roleplay_images.py` / `generate_folktale_images.py` / `generate_landing_images.py` — DALL-E / Gemini image generation for static content
+- `regen_tts.py` — regenerate pre-built TTS cache files
 - `rotate-logs.py` — manual log rotation (also configured via `onui-ai-logrotate.conf`)
 
 ### Dependency Note
