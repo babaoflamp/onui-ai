@@ -528,8 +528,15 @@ async def generate_content(
 
     prompt = f"""
     한국어 선생님입니다. 주제: '{topic}', 레벨: '{level}'. {level_guidance}
-    짧은 한국어 대화문(3~4마디)과 주요 단어 3개를 JSON 형식으로 만들어주세요.
-    형식 예시: {{"dialogue": [{{"speaker": "A", "text": "안녕", "pronunciation": "annyeong"}}], "vocabulary": ["단어1", "단어2", "단어3"]}}
+    짧은 한국어 대화문과 주요 단어 3개를 JSON 형식으로 만들어주세요.
+
+    대화문 규칙:
+    - dialogue 배열은 반드시 정확히 4개 항목만 포함하세요.
+    - 화자 순서는 반드시 1턴 지수(여자), 2턴 민준(남자), 3턴 지수(여자), 4턴 민준(남자)입니다.
+    - speaker 값은 반드시 "지수" 또는 "민준"만 사용하세요.
+    - 각 항목은 speaker, text, pronunciation 필드를 포함하세요.
+
+    형식 예시: {{"dialogue": [{{"speaker": "지수", "text": "안녕하세요.", "pronunciation": "annyeonghaseyo."}}, {{"speaker": "민준", "text": "안녕하세요.", "pronunciation": "annyeonghaseyo."}}, {{"speaker": "지수", "text": "좋아요.", "pronunciation": "joayo."}}, {{"speaker": "민준", "text": "감사합니다.", "pronunciation": "gamsahamnida."}}], "vocabulary": ["단어1", "단어2", "단어3"]}}
     중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ```)으로 반환하세요.
     """
 
@@ -569,8 +576,11 @@ async def generate_content(
         try:
             dlg = parsed.get("dialogue")
             if isinstance(dlg, list):
-                for item in dlg:
+                speakers = ["지수", "민준", "지수", "민준"]
+                parsed["dialogue"] = dlg[:4]
+                for idx, item in enumerate(parsed["dialogue"]):
                     if not isinstance(item, dict): continue
+                    item["speaker"] = speakers[idx]
                     item_text = item.get("text", "")
                     pron = item.get("pronunciation")
                     if romanize_mode == "force" or not pron or re.search(r"[\uac00-\ud7a3]", str(pron)):

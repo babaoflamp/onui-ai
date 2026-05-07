@@ -12,6 +12,7 @@
     let saveProgressTimer = null;
     let ttsAudio = null;
     let timeUpdateInterval = null;
+    let vocabularyLookup = null;
 
     const lobby             = document.getElementById('tube-lobby');
     const playerScreen      = document.getElementById('player-screen');
@@ -216,6 +217,102 @@
       }).join('');
     }
 
+    function getPlaybackState() {
+      if (ytPlayer && ytPlayer.getCurrentTime) {
+        return {
+          currentTime: ytPlayer.getCurrentTime() || 0,
+          duration: ytPlayer.getDuration() || 0,
+          isPlaying: ytPlayer.getPlayerState && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING,
+        };
+      }
+
+      if (videoPlayer && !videoPlayer.classList.contains('hidden')) {
+        return {
+          currentTime: videoPlayer.currentTime || 0,
+          duration: videoPlayer.duration || 0,
+          isPlaying: !videoPlayer.paused,
+        };
+      }
+
+      return { currentTime: 0, duration: 0, isPlaying: false };
+    }
+
+    function seekPlayback(time, shouldPlay = false) {
+      const targetTime = Math.max(0, Number(time) || 0);
+      if (ytPlayer && ytPlayer.seekTo) {
+        ytPlayer.seekTo(targetTime, true);
+        if (shouldPlay && ytPlayer.playVideo) ytPlayer.playVideo();
+      } else if (videoPlayer && !videoPlayer.classList.contains('hidden')) {
+        videoPlayer.currentTime = targetTime;
+        if (shouldPlay) videoPlayer.play().catch(console.warn);
+      }
+      handleTimeUpdate(targetTime);
+    }
+
+    function getSentenceIndexForTime(time) {
+      if (!transcripts.length) return -1;
+      const active = transcripts.findIndex(s => time >= (s.start + currentOffset) && time < (s.end + currentOffset));
+      if (active !== -1) return active;
+      const next = transcripts.findIndex(s => time < (s.end + currentOffset));
+      return next !== -1 ? next : transcripts.length - 1;
+    }
+
+    function normalizeVocabLabel(value) {
+      let text = String(value ?? '').trim();
+      text = text.replace(/[.,!?;:，。！？、]/g, '').trim();
+      text = text.replace(/\s+/g, ' ');
+      return text;
+    }
+
+    function getVocabCandidates(value) {
+      const normalized = normalizeVocabLabel(value);
+      const candidates = new Set([normalized]);
+      const particles = [
+        '에서는', '에게도', '들과', '으로', '에서', '에게', '에도', '까지', '부터',
+        '에는', '은', '는', '이', '가', '을', '를', '의', '에', '와', '과', '도', '로'
+      ];
+
+      particles.forEach((particle) => {
+        if (normalized.length > particle.length + 1 && normalized.endsWith(particle)) {
+          candidates.add(normalized.slice(0, -particle.length));
+        }
+      });
+
+      return [...candidates].filter(Boolean);
+    }
+
+    function findMeaningForLabel(label) {
+      if (!vocabularyLookup) return '';
+      for (const candidate of getVocabCandidates(label)) {
+        const meaning = vocabularyLookup.get(candidate);
+        if (meaning) return meaning;
+      }
+      return '';
+    }
+
+    async function loadVocabularyLookup() {
+      if (vocabularyLookup) return vocabularyLookup;
+
+      vocabularyLookup = new Map();
+      try {
+        const resp = await fetch('/api/tube/vocab/export');
+        const data = await resp.json().catch(() => ({}));
+        const vocabulary = Array.isArray(data.vocabulary) ? data.vocabulary : [];
+
+        vocabulary.forEach((item) => {
+          const word = normalizeVocabLabel(item.word || item.label || '');
+          const meaning = item.meaningEn || item.meaning || item.mean || item.translation || '';
+          if (word && meaning && !vocabularyLookup.has(word)) {
+            vocabularyLookup.set(word, meaning);
+          }
+        });
+      } catch (err) {
+        console.warn('[OnuiTube] Failed to load vocabulary lookup:', err);
+      }
+
+      return vocabularyLookup;
+    }
+
     async function loadSavedVocab() {
       try {
         const resp = await fetch('/api/tube/vocab');
@@ -270,11 +367,12 @@
     }
 
     function showWordDetail(wordObj) {
+      const fallbackMeaning = findMeaningForLabel(wordObj.label);
       wordDetailPos.textContent = wordObj.pos || '';
       wordDetailLabel.textContent = wordObj.label;
-      wordDetailMean.textContent = wordObj.mean || wordObj.meaning || '';
+      wordDetailMean.textContent = wordObj.mean || wordObj.meaning || fallbackMeaning || '';
       wordDetailTts.onclick = () => playWordTTS(wordObj.label);
-      wordDetailSave.onclick = () => { addToVocab(wordObj); };
+      wordDetailSave.onclick = () => { addToVocab({ ...wordObj, meaning: wordObj.meaning || wordObj.mean || fallbackMeaning }); };
       wordDetail.classList.remove('hidden');
     }
 
@@ -314,6 +412,15 @@
 
     function renderGrid(videos) {
       videoGrid.innerHTML = '';
+      if (!videos.length) {
+        videoGrid.innerHTML = `
+          <div class="col-span-full py-20 text-center text-white/30 font-black uppercase tracking-widest">
+            검색 결과가 없습니다
+          </div>
+        `;
+        return;
+      }
+
       videos.forEach((v, idx) => {
         const card = document.createElement('div');
         const hasTranscript = !!v.has_transcript;
@@ -373,6 +480,31 @@
       });
     }
 
+    function applyLobbyFilters() {
+      const query = (searchInput?.value || '').trim().toLowerCase();
+      const filtered = allVideos.filter((video) => {
+        const levelMatches = activeLevel === 'all' || String(video.level || '') === activeLevel;
+        const searchable = [
+          video.title,
+          video.description,
+          video.level ? `level ${video.level}` : '',
+          video.level ? `lv.${video.level}` : '',
+          video.level ? `lv${video.level}` : '',
+        ].join(' ').toLowerCase();
+        return levelMatches && (!query || searchable.includes(query));
+      });
+      renderGrid(filtered);
+    }
+
+    function resetLobbyFilters() {
+      activeLevel = 'all';
+      if (searchInput) searchInput.value = '';
+      document.querySelectorAll('.level-filter-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.level === 'all');
+      });
+      renderGrid(allVideos);
+    }
+
     // ── 플레이어 초기화 ──────────────────────────────────
     function initPlayer(v) {
       currentVideoId = v.id;
@@ -423,8 +555,8 @@
     };
 
     btnRestart.onclick = () => {
-      if (ytPlayer) ytPlayer.seekTo(0);
-      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = 0;
+      const { isPlaying } = getPlaybackState();
+      seekPlayback(0, isPlaying);
     };
 
     btnSpeed.onclick = () => {
@@ -444,18 +576,36 @@
 
     btnNext.onclick = () => {
       if (!transcripts.length) return;
-      const idx = Math.min(currentSubtitleIndex + 1, transcripts.length - 1);
+      const { currentTime, isPlaying } = getPlaybackState();
+      const baseIndex = currentSubtitleIndex !== -1 ? currentSubtitleIndex : getSentenceIndexForTime(currentTime);
+      const idx = Math.min(baseIndex + 1, transcripts.length - 1);
       const targetTime = transcripts[idx].start + currentOffset;
-      if (ytPlayer) ytPlayer.seekTo(targetTime);
-      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = targetTime;
+      seekPlayback(targetTime, isPlaying);
     };
 
     btnPrev.onclick = () => {
       if (!transcripts.length) return;
-      const idx = Math.max(0, currentSubtitleIndex - 1);
+      const { currentTime, isPlaying } = getPlaybackState();
+      const baseIndex = currentSubtitleIndex !== -1 ? currentSubtitleIndex : getSentenceIndexForTime(currentTime);
+      const idx = Math.max(0, baseIndex - 1);
       const targetTime = transcripts[idx].start + currentOffset;
-      if (ytPlayer) ytPlayer.seekTo(targetTime);
-      else if (!videoPlayer.classList.contains('hidden')) videoPlayer.currentTime = targetTime;
+      seekPlayback(targetTime, isPlaying);
+    };
+
+    btnRewind.onclick = () => {
+      if (!transcripts.length) return;
+      const { currentTime } = getPlaybackState();
+      const idx = currentSubtitleIndex !== -1 ? currentSubtitleIndex : getSentenceIndexForTime(currentTime);
+      if (idx === -1) return;
+      seekPlayback(transcripts[idx].start + currentOffset, true);
+    };
+
+    progressWrapper.onclick = (event) => {
+      const { duration, isPlaying } = getPlaybackState();
+      if (!duration) return;
+      const rect = progressWrapper.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      seekPlayback(duration * ratio, isPlaying);
     };
 
     function formatTime(sec) {
@@ -470,22 +620,29 @@
       const active = transcripts.findIndex(s => time >= (s.start + currentOffset) && time < (s.end + currentOffset));
 
       if (active !== currentSubtitleIndex) {
-        currentSubtitleIndex = active;
-        autoPauseFired = false;
-        renderCaptions(active);
+        if (active !== -1) {
+          currentSubtitleIndex = active;
+          autoPauseFired = false;
+          renderCaptions(active);
+        } else if (currentSubtitleIndex !== -1) {
+          const current = transcripts[currentSubtitleIndex];
+          const currentEnd = current.end + currentOffset;
+          const beforeNextSentence = currentSubtitleIndex >= transcripts.length - 1 || time < (transcripts[currentSubtitleIndex + 1].start + currentOffset);
+          if (!autoPauseToggle.checked || time < currentEnd || !beforeNextSentence) {
+            currentSubtitleIndex = -1;
+            autoPauseFired = false;
+            renderCaptions(-1);
+          }
+        }
       }
 
       if (currentSubtitleIndex !== -1 && autoPauseToggle.checked && !autoPauseFired) {
         const cur = transcripts[currentSubtitleIndex];
         if (time >= (cur.end + currentOffset)) {
           autoPauseFired = true;
-          if (ytPlayer) {
-            ytPlayer.pauseVideo();
-            ytPlayer.seekTo(cur.end + currentOffset);
-          } else if (!videoPlayer.classList.contains('hidden')) {
-            videoPlayer.pause();
-            videoPlayer.currentTime = cur.end + currentOffset;
-          }
+          if (ytPlayer) ytPlayer.pauseVideo();
+          else if (!videoPlayer.classList.contains('hidden')) videoPlayer.pause();
+          seekPlayback(cur.end + currentOffset, false);
         }
       }
     }
@@ -524,10 +681,11 @@
 
     async function addToVocab(wordObj) {
       if (!wordObj?.label) return;
+      const meaning = wordObj.mean || wordObj.meaning || findMeaningForLabel(wordObj.label);
       const fd = new FormData();
       fd.append('label', wordObj.label);
       fd.append('pos', wordObj.pos || '');
-      fd.append('meaning', wordObj.mean || wordObj.meaning || '');
+      fd.append('meaning', meaning || '');
       fd.append('source', 'tube');
       try {
         wordDetailSave.disabled = true;
@@ -557,6 +715,71 @@
       lobby.classList.remove('hidden');
     };
 
+    searchBtn.onclick = applyLobbyFilters;
+    searchInput.addEventListener('input', applyLobbyFilters);
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') applyLobbyFilters();
+    });
+    showAllBtn.onclick = resetLobbyFilters;
+    document.querySelectorAll('.level-filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeLevel = btn.dataset.level || 'all';
+        document.querySelectorAll('.level-filter-btn').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        applyLobbyFilters();
+      });
+    });
+
+    btnExport.onclick = async () => {
+      if (!savedVocab.length) {
+        showToast('내보낼 단어가 없습니다.', 'info');
+        return;
+      }
+      await loadVocabularyLookup();
+
+      const headers = ['label', 'pos', 'meaning', 'source', 'savedAt'];
+      const formatSavedAtForCsv = (value) => {
+        const raw = String(value ?? '').trim();
+        if (!raw) return '';
+
+        const isoLike = raw.includes('T') ? raw : raw.replace(' ', 'T');
+        const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/.test(isoLike);
+        const date = new Date(hasTimezone ? isoLike : `${isoLike}Z`);
+        if (Number.isNaN(date.getTime())) return raw;
+
+        const pad = (num) => String(num).padStart(2, '0');
+        return [
+          date.getFullYear(),
+          pad(date.getMonth() + 1),
+          pad(date.getDate()),
+        ].join('-') + ' ' + [
+          pad(date.getHours()),
+          pad(date.getMinutes()),
+          pad(date.getSeconds()),
+        ].join(':');
+      };
+      const escapeCsv = (value) => {
+        const text = String(value ?? '');
+        return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+      };
+      const rows = savedVocab.map((item) => headers.map((key) => {
+        let value = key === 'savedAt' ? formatSavedAtForCsv(item[key]) : item[key];
+        if (key === 'meaning' && !value) value = findMeaningForLabel(item.label);
+        return escapeCsv(value || '');
+      }).join(','));
+      const csv = `\uFEFF${[headers.join(','), ...rows].join('\r\n')}`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'onuitube-vocab.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    loadVocabularyLookup();
     loadLobby();
     loadSavedVocab();
   });
