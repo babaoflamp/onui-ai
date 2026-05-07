@@ -1,12 +1,6 @@
     .chat-container {
-        height: 600px;
-        max-height: 70vh;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(255,255,255,0.1) transparent;
+        min-height: 300px;
     }
-    .chat-container::-webkit-scrollbar { width: 4px; }
-    .chat-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
     .message-user {
         background: linear-gradient(135deg, #f97316, #ec4899);

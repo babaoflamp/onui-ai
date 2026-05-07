@@ -201,7 +201,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
                 raise RuntimeError("Gemini TTS is not fully configured in app state")
 
             start_total = time.perf_counter()
-            cache_key = cache_key_fn(text, gemini_model, "gemini")
+            cache_key = cache_key_fn(text, gemini_model, "gemini", payload.voice or "")
             cached = get_cache(cache_key)
             if cached:
                 logger.info("[TTS] cache=hit text_len=%s", len(text))
@@ -217,7 +217,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
                 )
 
             start_call = time.perf_counter()
-            result = call_gemini(text=text)
+            result = call_gemini(text=text, voice=payload.voice or None)
             logger.info(
                 "[TTS] gemini_call_ms=%.1f", (time.perf_counter() - start_call) * 1000
             )

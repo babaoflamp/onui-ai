@@ -9,6 +9,8 @@ import logging
 import asyncio
 import requests
 
+from backend.routes.deps import get_current_user, check_and_consume_credits, romanize_korean
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,99 @@ def load_scenarios():
     _scenarios_mtime = current_mtime
     return _scenarios_cache
 
+async def _llm_chat(request: Request, messages: list, system_prompt: str, temperature: float = 0.7) -> str:
+    """멀티턴 대화 LLM 호출 — 백엔드 분기를 한 곳에서 처리."""
+    backend = os.getenv("MODEL_BACKEND", "ollama")
+
+    if backend == "gemini":
+        from google.genai import types as genai_types
+        contents = [
+            genai_types.Content(
+                role="user" if m["role"] == "user" else "model",
+                parts=[genai_types.Part(text=m["content"])]
+            )
+            for m in messages
+        ]
+        config = genai_types.GenerateContentConfig(system_instruction=system_prompt, temperature=temperature)
+        resp = request.app.state.gemini_client.models.generate_content(
+            model=request.app.state.gemini_model, contents=contents, config=config
+        )
+        return resp.text or ""
+
+    if backend == "openai":
+        resp = request.app.state.openai_client.chat.completions.create(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            messages=[{"role": "system", "content": system_prompt}] + messages,
+            temperature=temperature,
+        )
+        return resp.choices[0].message.content or ""
+
+    # ollama
+    prompt = system_prompt + "\n\n대화 기록:\n" + "\n".join(
+        f"{m['role']}: {m['content']}" for m in messages
+    )
+    resp = await asyncio.to_thread(
+        requests.post,
+        f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
+        json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b"), "prompt": prompt,
+              "stream": False, "options": {"temperature": temperature}},
+        timeout=60,
+    )
+    if resp.status_code != 200:
+        raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
+    return resp.json().get("response", "")
+
+
+async def _llm_complete(request: Request, prompt: str, temperature: float = 0.7) -> str:
+    """단일 프롬프트 LLM 호출 — 평가 등 단일턴 용도."""
+    backend = os.getenv("MODEL_BACKEND", "ollama")
+
+    if backend == "gemini":
+        resp = request.app.state.gemini_client.models.generate_content(
+            model=request.app.state.gemini_model, contents=prompt
+        )
+        return resp.text or ""
+
+    if backend == "openai":
+        resp = request.app.state.openai_client.chat.completions.create(
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+        )
+        return resp.choices[0].message.content or ""
+
+    # ollama
+    resp = await asyncio.to_thread(
+        requests.post,
+        f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
+        json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b"), "prompt": prompt,
+              "stream": False, "options": {"temperature": temperature}},
+        timeout=60,
+    )
+    if resp.status_code != 200:
+        raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
+    return resp.json().get("response", "")
+
+
+def _parse_chat_response(raw: str) -> tuple[str, list]:
+    """JSON 형식 LLM 응답에서 (message, vocab) 추출. 파싱 실패 시 raw 전체를 message로."""
+    candidates = [raw.strip()]
+    fence = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw, re.IGNORECASE)
+    if fence:
+        candidates.insert(0, fence.group(1).strip())
+    brace = re.search(r"(\{[\s\S]*\})", raw)
+    if brace:
+        candidates.append(brace.group(1))
+    for text in candidates:
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, dict) and "message" in parsed:
+                return str(parsed["message"]), list(parsed.get("vocab") or [])
+        except Exception:
+            pass
+    return raw.strip(), []
+
+
 @router.get("/roleplay", response_class=HTMLResponse)
 async def roleplay_page(request: Request):
     if redir := getattr(request.app.state, "redirect_if_unauthenticated", lambda r: None)(request):
@@ -45,12 +140,21 @@ async def get_scenarios():
     return load_scenarios()
 
 @router.post("/api/roleplay/chat")
-async def roleplay_chat(request: Request, payload: ChatRequest):
+async def roleplay_chat(request: Request, payload: ChatRequest, user: dict = Depends(get_current_user)):
     scenarios = load_scenarios()
     scenario = next((s for s in scenarios if s["id"] == payload.scenario_id), None)
-    
+
     if not scenario:
         raise HTTPException(status_code=404, detail="Scenario not found")
+
+    db_path = request.app.state.db_path
+    credit_costs = request.app.state.credit_costs
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
+    credit = check_and_consume_credits(db_path, user["id"], credit_costs.get("chat", 2), daily_credits)
+    if not credit["ok"]:
+        return JSONResponse(status_code=429, content={
+            "error": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})"
+        })
 
     # 역사 인물 롤플레이 프롬프트 구성
     era = scenario.get("era", "")
@@ -74,74 +178,40 @@ async def roleplay_chat(request: Request, payload: ChatRequest):
 2. **중요: 모든 답변은 반드시 3문장 이상 5문장 이하로 작성하세요.** 풍부한 배경 설명과 구체적인 예시를 포함하여 학습자가 충분한 한국어 문장을 접하게 하세요. 절대 한 문장으로 짧게 답하지 마세요.
 3. 마지막 문장은 항상 학습자가 대화를 이어갈 수 있도록 하는 질문으로 마무리하세요.
 4. 학습 목표({', '.join(goals)})를 자연스럽게 달성할 수 있도록 대화를 주도하세요.
-5. 학습자가 문법이나 표현을 틀리면 캐릭터를 유지하며 한 문장 이내로 부드럽게 교정해 주세요."""
-
-    messages = [{"role": "system", "content": system_prompt}] + payload.messages
-
-    backend = os.getenv("MODEL_BACKEND", "ollama")
+5. 학습자가 문법이나 표현을 틀리면 캐릭터를 유지하며 한 문장 이내로 부드럽게 교정해 주세요.
+6. 반드시 다음 JSON 형식으로만 출력하세요 (코드 펜스 없이 순수 JSON):
+{{"message": "3~5문장 한국어 대화", "vocab": [{{"word": "핵심 단어/표현", "meaning": "English meaning"}}, ...]}}
+vocab에는 이 답변의 핵심 어휘/표현 2~3개만 포함하세요."""
 
     try:
-        ai_message = ""
-
-        if backend == "gemini":
-            from google import genai as genai_lib
-            gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-            if not gemini_key:
-                raise RuntimeError("Gemini API key not configured")
-            gc = genai_lib.Client(api_key=gemini_key)
-            prompt_text = system_prompt + "\n\n대화 기록:\n" + "\n".join(
-                [f"{m['role']}: {m['content']}" for m in payload.messages]
-            )
-            resp = gc.models.generate_content(model=gemini_model, contents=prompt_text)
-            ai_message = resp.text or ""
-
-        elif backend == "openai":
-            from openai import OpenAI as _OpenAI
-            openai_key = os.getenv("OPENAI_API_KEY")
-            openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-            if not openai_key:
-                raise RuntimeError("OpenAI API key not configured")
-            oc = _OpenAI(api_key=openai_key)
-            resp = oc.chat.completions.create(
-                model=openai_model,
-                messages=messages,
-                temperature=0.7,
-            )
-            ai_message = resp.choices[0].message.content or ""
-
-        else:  # ollama
-            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-            model = os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b")
-            resp = requests.post(f"{ollama_url}/api/generate", json={
-                "model": model,
-                "prompt": system_prompt + "\n\n대화 기록:\n" + "\n".join(
-                    [f"{m['role']}: {m['content']}" for m in payload.messages]
-                ),
-                "stream": False,
-                "options": {"temperature": 0.7}
-            }, timeout=60)
-            if resp.status_code != 200:
-                raise RuntimeError(f"Ollama 응답 상태 코드: {resp.status_code} - {resp.text}")
-            ai_message = resp.json().get("response", "")
-
-        return {"message": ai_message}
-
+        raw = await _llm_chat(request, payload.messages, system_prompt)
+        message, vocab = _parse_chat_response(raw)
+        romanized = romanize_korean(message)
+        return {"message": message, "romanized": romanized, "vocab": vocab}
     except Exception as e:
-        logger.error(f"Roleplay chat error (backend={backend}): {e}")
-        return JSONResponse(status_code=500, content={"error": str(e), "backend": backend})
+        logger.error(f"Roleplay chat error: {e}")
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 @router.post("/api/roleplay/evaluate")
-async def roleplay_evaluate(request: Request, payload: ChatRequest):
+async def roleplay_evaluate(request: Request, payload: ChatRequest, user: dict = Depends(get_current_user)):
     scenarios = load_scenarios()
     scenario = next((s for s in scenarios if s["id"] == payload.scenario_id), None)
-    
+
     # 전체 대화 내용을 바탕으로 평가 프롬프트 구성
     chat_log = "\n".join([f"{m['role']}: {m['content']}" for m in payload.messages])
-    
+
     title = scenario.get("title", "") if scenario else ""
     eval_goals = scenario.get("goals") or [] if scenario else []
     keywords = scenario.get("keywords") or [] if scenario else []
+
+    db_path = request.app.state.db_path
+    credit_costs = request.app.state.credit_costs
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
+    credit = check_and_consume_credits(db_path, user["id"], credit_costs.get("lesson", 3), daily_credits)
+    if not credit["ok"]:
+        return JSONResponse(status_code=429, content={
+            "error": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})"
+        })
 
     eval_prompt = f"""
     다음은 '{title}' 상황에서의 한국어 대화 기록입니다.
@@ -159,47 +229,8 @@ async def roleplay_evaluate(request: Request, payload: ChatRequest):
     형식: {{"score": 0~100, "feedback": "전체 총평", "strengths": ["장점1", "장점2"], "improvements": ["개선점1", "개선점2"]}}
     """
 
-    # LLM 호출하여 평가 결과 생성
-    model_backend = os.getenv("MODEL_BACKEND", "ollama")
-
     try:
-        raw_output = ""
-
-        if model_backend == "gemini":
-            from google import genai as genai_lib
-            gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-            if not gemini_key:
-                raise RuntimeError("Gemini API key not configured")
-            gc = genai_lib.Client(api_key=gemini_key)
-            resp = gc.models.generate_content(model=gemini_model, contents=eval_prompt)
-            raw_output = resp.text or ""
-
-        elif model_backend == "openai":
-            from openai import OpenAI as _OpenAI
-            openai_key = os.getenv("OPENAI_API_KEY")
-            openai_model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-            if not openai_key:
-                raise RuntimeError("OpenAI API key not configured")
-            oc = _OpenAI(api_key=openai_key)
-            resp = oc.chat.completions.create(
-                model=openai_model,
-                messages=[{"role": "user", "content": eval_prompt}],
-                temperature=0.5,
-            )
-            raw_output = resp.choices[0].message.content or ""
-
-        else:  # ollama
-            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-            ollama_model = os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b")
-            resp = requests.post(
-                f"{ollama_url}/api/generate",
-                json={"model": ollama_model, "prompt": eval_prompt, "stream": False, "options": {"temperature": 0.5}},
-                timeout=60,
-            )
-            if resp.status_code != 200:
-                raise RuntimeError(f"Ollama error {resp.status_code}: {resp.text}")
-            raw_output = resp.json().get("response", "")
+        raw_output = await _llm_complete(request, eval_prompt, temperature=0.5)
 
         # JSON 파싱: 코드 펜스 또는 중괄호 블록 추출
         parsed = None

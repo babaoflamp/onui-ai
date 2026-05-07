@@ -175,8 +175,30 @@ def check_and_consume_credits(db_path: str, user_id: int, cost: int, daily_limit
     finally: conn.close()
 
 def romanize_korean(text: str) -> str:
-    # Minimal version
-    return text
+    """Revised Romanization of Korean (국립국어원 표준). Syllable-table lookup, no dependencies."""
+    try:
+        from korean_romanizer.romanizer import Romanizer
+        return Romanizer(text).romanize()
+    except Exception:
+        pass
+
+    ONSET  = ['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h']
+    VOWEL  = ['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i']
+    CODA   = ['','k','k','k','n','n','n','t','l','k','m','l','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t']
+
+    out = []
+    for ch in text:
+        code = ord(ch)
+        if 0xAC00 <= code <= 0xD7A3:
+            s = code - 0xAC00
+            coda_i = s % 28
+            s //= 28
+            vowel_i = s % 21
+            onset_i = s // 21
+            out.append(ONSET[onset_i] + VOWEL[vowel_i] + CODA[coda_i])
+        else:
+            out.append(ch)
+    return ''.join(out)
 
 def parse_model_output(text: str):
     if not text or not isinstance(text, str): return None

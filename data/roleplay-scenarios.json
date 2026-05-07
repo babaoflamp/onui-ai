@@ -25,7 +25,8 @@
       "자음",
       "모음",
       "백성"
-    ]
+    ],
+    "tts_voice": "Charon"
   },
   {
     "id": "yisunsin",
@@ -51,7 +52,8 @@
       "한산도",
       "전투"
     ],
-    "image": "/static/images/yisunsin.png"
+    "image": "/static/images/yisunsin.png",
+    "tts_voice": "Orus"
   },
   {
     "id": "sinsaimdang",
@@ -77,7 +79,8 @@
       "시조",
       "자연"
     ],
-    "image": "/static/images/sinsaimdang.png"
+    "image": "/static/images/sinsaimdang.png",
+    "tts_voice": "Aoede"
   },
   {
     "id": "yugwansun",
@@ -103,7 +106,8 @@
       "만세",
       "태극기"
     ],
-    "image": "/static/images/yugwansun.png"
+    "image": "/static/images/yugwansun.png",
+    "tts_voice": "Kore"
   },
   {
     "id": "jangyeongsil",
@@ -129,7 +133,8 @@
       "발명",
       "과학"
     ],
-    "image": "/static/images/jangyeongsil.png"
+    "image": "/static/images/jangyeongsil.png",
+    "tts_voice": "Puck"
   },
   {
     "id": "hojun",
@@ -155,7 +160,8 @@
       "약초",
       "건강"
     ],
-    "image": "/static/images/hojun.png"
+    "image": "/static/images/hojun.png",
+    "tts_voice": "Orus"
   },
   {
     "id": "kimgu",
@@ -181,7 +187,8 @@
       "통일",
       "교육"
     ],
-    "image": "/static/images/kimgu.png"
+    "image": "/static/images/kimgu.png",
+    "tts_voice": "Charon"
   },
   {
     "id": "gwanggaeto",
@@ -207,6 +214,7 @@
       "정복",
       "영토"
     ],
-    "image": "/static/images/gwanggaeto.png"
+    "image": "/static/images/gwanggaeto.png",
+    "tts_voice": "Charon"
   }
 ]
