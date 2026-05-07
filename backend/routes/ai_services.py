@@ -28,7 +28,8 @@ from backend.routes.deps import (
     parse_model_output,
     list_ollama_models,
     ensure_wav_16k_mono,
-    transcribe_with_vosk
+    transcribe_with_vosk,
+    parse_session_token,
 )
 from backend.services.dalle_service import (
     generate_image_dall_e,
@@ -89,6 +90,26 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
     await websocket.accept()
     logger.info(f"[VoiceCall WS] Connection accepted for scenario: {scenario_id}")
 
+    # Auth check via session cookie
+    token = websocket.cookies.get("session_token", "")
+    user_info = parse_session_token(token) if token else None
+    if not user_info:
+        logger.warning("[VoiceCall WS] Unauthenticated connection rejected")
+        await websocket.send_json({"type": "error", "text": "로그인이 필요합니다."})
+        await websocket.close()
+        return
+
+    # Credit check and consumption
+    db_path = websocket.app.state.db_path
+    credit_costs = websocket.app.state.credit_costs
+    daily_credits = int(os.getenv("DAILY_CREDITS", "100"))
+    credit = check_and_consume_credits(db_path, user_info["user_id"], credit_costs.get("voice", 5), daily_credits)
+    if not credit["ok"]:
+        logger.info(f"[VoiceCall WS] Insufficient credits for user {user_info['user_id']}")
+        await websocket.send_json({"type": "error", "text": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})"})
+        await websocket.close()
+        return
+
     gemini_live_client = websocket.app.state.gemini_live_client
     gemini_api_key = os.getenv("GEMINI_API_KEY")
 
@@ -108,34 +129,44 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
         await websocket.close()
         return
 
+    target_model = os.getenv("GEMINI_LIVE_MODEL", "gemini-2.5-flash-native-audio-latest")
+
+    # native-audio (2.5) models support transcription + speech config + text greeting
+    # 3.1 A2A model: no transcription, no speech config, no initial text input
+    is_native_audio = "native-audio" in target_model
+
+    # native-audio (2.5) models get a text [EXIT] marker we detect from output_transcription
+    # non-native-audio (3.1) models TTS everything literally — no [EXIT] in spoken text;
+    # instead we detect it from model_draft text (added below, stripped before preview send)
+    if is_native_audio:
+        exit_rules = """4. 대화를 완전히 끝낼 때는 자연스럽게 작별 인사를 하고 텍스트에 [EXIT]를 포함하세요.
+5. 사용자가 먼저 작별 인사를 해도 정중하게 화답한 뒤 [EXIT]로 마무리하세요."""
+    else:
+        exit_rules = """4. 대화 목적이 완성되거나 자연스러운 마무리가 되면 "네, 감사합니다. 또 오세요!"라고 인사하고 텍스트 응답 마지막에 [EXIT]만 단독으로 추가하세요 (발화하지 마세요).
+5. 사용자가 먼저 작별 인사를 하면 정중히 화답하고 같은 방식으로 마무리하세요."""
+
     system_prompt = f"""{scenario.get('system_prompt', '')}
 
 규칙:
 1. 반드시 한국어로만 짧게 대화하세요 (1-2문장).
 2. 학습자가 충분히 연습할 수 있도록 대화를 리드하되, 목적(주문 완료, 진료 종료 등)이 달성되면 자연스럽게 작별 인사를 하세요.
 3. 친절하고 격려하는 말투로 대화하세요.
-4. 대화를 완전히 끝낼 때는 반드시 "네 감사합니다. 또 오세요. [EXIT]"라고 말하며 마무리하세요. 이 문구와 [EXIT] 마커가 함께 있어야 시스템이 종료를 인식합니다.
-5. 사용자가 먼저 작별 인사를 해도 정중하게 화답하며 "네 감사합니다. 또 오세요. [EXIT]"를 붙여 마무리하세요."""
+{exit_rules}"""
 
     from google.genai.types import (
         LiveConnectConfig, SpeechConfig, VoiceConfig, PrebuiltVoiceConfig,
-        AudioTranscriptionConfig, GenerationConfig
+        AudioTranscriptionConfig, Blob,
     )
-    
-    # Use environment variable if available, otherwise fallback to the working model
-    target_model = os.getenv("GEMINI_LIVE_MODEL", "gemini-2.5-flash-native-audio-latest")
-    
-    live_config = LiveConnectConfig(
-        response_modalities=["AUDIO"],
-        system_instruction=system_prompt,
-        speech_config=SpeechConfig(
-            voice_config=VoiceConfig(
-                prebuilt_voice_config=PrebuiltVoiceConfig(voice_name="Kore")
-            )
-        ),
-        input_audio_transcription=AudioTranscriptionConfig(),
-        output_audio_transcription=AudioTranscriptionConfig(),
-    )
+
+    config_kwargs = {"response_modalities": ["AUDIO"], "system_instruction": system_prompt}
+    if is_native_audio:
+        config_kwargs["speech_config"] = SpeechConfig(
+            voice_config=VoiceConfig(prebuilt_voice_config=PrebuiltVoiceConfig(voice_name="Kore"))
+        )
+        config_kwargs["input_audio_transcription"] = AudioTranscriptionConfig()
+        config_kwargs["output_audio_transcription"] = AudioTranscriptionConfig()
+
+    live_config = LiveConnectConfig(**config_kwargs)
 
     try:
         logger.info(f"[VoiceCall WS] Connecting to Gemini Live API (Model: {target_model})...")
@@ -144,11 +175,12 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
             config=live_config,
         ) as session:
             logger.info("[VoiceCall WS] Connected to Gemini Live API")
-            await websocket.send_json({"type": "status", "text": "connected"})
+            await websocket.send_json({"type": "status", "text": "connected", "user_speaks_first": not is_native_audio})
 
-            # Send initial greeting
-            initial_msg = scenario.get("initial_message", "안녕하세요! 한국어로 대화해 봐요.")
-            await session.send(input=initial_msg, end_of_turn=True)
+            # Send initial greeting (text only supported on native-audio models)
+            if is_native_audio:
+                initial_msg = scenario.get("initial_message", "안녕하세요! 한국어로 대화해 봐요.")
+                await session.send(input=initial_msg, end_of_turn=True)
 
             async def browser_to_gemini():
                 """브라우저 PCM 오디오 및 제어 메시지 → Gemini Live"""
@@ -170,7 +202,6 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
                                     logger.info(f"[VoiceCall WS] Received 1s of audio data ({len(data)} bytes chunk)")
                                     websocket.state.byte_count = 0
 
-                                from google.genai.types import Blob
                                 await session.send_realtime_input(
                                     audio=Blob(data=data, mime_type="audio/pcm;rate=16000")
                                 )
@@ -189,9 +220,6 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
                 try:
                     while True:
                         async for response in session.receive():
-                            # Log response parts for debugging
-                            # logger.debug(f"[VoiceCall WS] Gemini response: {response}")
-                            
                             if response.data:
                                 try:
                                     # logger.debug(f"[VoiceCall WS] Sending {len(response.data)} bytes to browser")
@@ -218,14 +246,18 @@ async def voice_call_live_ws(websocket: WebSocket, scenario_id: str):
                                             logger.info(f"[VoiceCall WS] AI Transcript: {t}")
                                             await websocket.send_json({"type": "ai_transcript_final", "text": t})
 
-                                    # 2. Try model_draft (Real-time preview)
+                                    # 2. Try model_draft (Real-time preview + [EXIT] detection for 3.1)
                                     if hasattr(sc, 'model_draft') and sc.model_draft and sc.model_draft.parts:
                                         preview_parts = [part.text.strip() for part in sc.model_draft.parts if getattr(part, "text", None)]
                                         preview_text = " ".join(part for part in preview_parts if part).strip()
                                         if preview_text:
+                                            has_exit = "[EXIT]" in preview_text
                                             preview_text = preview_text.replace("[EXIT]", "").strip()
                                             if preview_text:
                                                 await websocket.send_json({"type": "ai_transcript_preview", "text": preview_text})
+                                            if has_exit and not is_native_audio:
+                                                logger.info("[VoiceCall WS] [EXIT] detected in model_draft (3.1 model)")
+                                                await websocket.send_json({"type": "call_concluded_by_ai"})
 
                                     # 3. User input transcription
                                     if hasattr(sc, 'input_transcription') and sc.input_transcription and sc.input_transcription.text:

@@ -71,23 +71,35 @@ onuiai.kr / onui.ai.kr  (DNS A → server IP)
 
 | Variable | Purpose | Default |
 |---|---|---|
-| `MODEL_BACKEND` | AI backend: `ollama`, `openai`, or `gemini` | `ollama` |
+| `MODEL_BACKEND` | AI backend: `ollama`, `openai`, or `gemini` | `gemini` |
 | `OLLAMA_URL` | Ollama server | `http://localhost:11434` |
 | `OLLAMA_MODEL` | Model name | `exaone3.5:2.4b` |
 | `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Gemini API | — |
-| `GEMINI_MODEL` | Gemini model | `gemini-2.5-flash` |
+| `GEMINI_MODEL` | Gemini model for content generation | `gemini-2.0-flash` |
 | `OPENAI_API_KEY` | OpenAI (DALL-E, Whisper) | — |
+| `OPENAI_MODEL` | OpenAI model for content generation | `gpt-4o-mini` |
 | `MZTTS_API_URL` | Korean TTS service | `http://112.220.79.218:56014` |
 | `SECRET_KEY` | Session signing | random at startup |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth | — |
 | `ROMANIZE_MODE` | `force` (always romanize) or `prefer` (keep model output if valid) | `force` |
 | `TTS_BACKEND` | `gemini`, `openai`, `google`, or `mztts` | `gemini` |
+| `GEMINI_LIVE_MODEL` | Gemini model for Live API (voice call WebSocket) | `gemini-2.5-flash-native-audio-latest` |
+| `GEMINI_TTS_MODEL` | Gemini model for TTS | `gemini-1.5-flash` |
+| `GEMINI_TTS_VOICE` | Gemini TTS voice name | `Aoede` |
+| `GEMINI_TTS_MIME` | Gemini TTS output MIME type | `audio/wav` |
+| `OPENAI_TTS_MODEL` | OpenAI TTS model | `tts-1` |
+| `OPENAI_TTS_VOICE` | OpenAI TTS voice | `alloy` |
+| `OPENAI_TTS_FORMAT` | OpenAI TTS output format | `mp3` |
+| `GOOGLE_TTS_LANGUAGE` | Google Cloud TTS language code | `ko-KR` |
+| `GOOGLE_TTS_VOICE` | Google Cloud TTS voice name | `ko-KR-Standard-A` |
+| `GOOGLE_TTS_AUDIO_ENCODING` | Google Cloud TTS encoding | `MP3` |
 | `STT_BACKEND` | `openai`, `google`, `vosk`, or `local` | auto |
 | `VOSK_MODEL_PATH` | Path to Vosk model dir (required when `STT_BACKEND=vosk`) | — |
 | `FLUENCYPRO_WS_URL` | FluencyPro WebSocket URL for fluency evaluation | — |
 | `DALLE_MODEL` / `DALLE_SIZE` / `DALLE_QUALITY` / `DALLE_STYLE` | DALL-E generation params | `gpt-image-1` / `1024x1024` / `standard` / `natural` |
 | `GEMINI_IMAGE_MODEL` | Gemini model used for image generation | `gemini-2.0-flash-preview-image-generation` |
 | `CLARITY_PROJECT_ID` | Microsoft Clarity analytics project ID | — |
+| `DAILY_CREDITS` | Per-user daily credit budget (resets at midnight) | `100` |
 
 ## System Dependencies
 
@@ -114,7 +126,7 @@ All mounted in `main.py` via `app.include_router(...)`:
 | `pages.py` | All HTML page GETs (`/`, `/dashboard`, `/video-learning`, `/onui-beats`, `/voice-call`, `/onui-grammar`, `/daily-expression`, `/sentence-evaluation`, `/learning-progress`, `/login`, `/signup`, `/mypage`, `/privacy`, etc.) |
 | `auth.py` | `/api/signup`, `/api/login`, `/api/logout` and Google OAuth |
 | `user.py` | `/mypage`, `/change-password`, `/api/user/profile`, `/api/user/password/change`, `/api/credits` |
-| `ai_services.py` | `/api/voice-call/scenarios`, `/ws/voice-call/{scenario_id}`, `/api/generate-content`, `/api/gemini/image`, `/api/word-images/cache`, `/api/ollama/*`, `/api/chat/test`, `/api/fluency-check` |
+| `ai_services.py` | `/api/voice-call/scenarios`, `/ws/voice-call/{scenario_id}` (auth + credit-gated), `/api/generate-content`, `/api/gemini/image`, `/api/word-images/cache`, `/api/ollama/*`, `/api/chat/test`, `/api/fluency-check` |
 | `content.py` | `/api/dashboard/quick-stats`, `/api/expressions`, `/api/textbooks`, `/api/attendance/*` |
 | `media.py` | `/api/tube/videos`, `/api/tube/transcripts`, `/api/tube/vocab`, `/api/video-lessons`, `/api/video-progress` |
 | `stt.py` | `/api/stt/proxy`, `/api/stt/whisper`, `/api/stt/google`, `/api/stt/vosk`, `/api/voice-call/stt` |
@@ -153,7 +165,9 @@ Tables: `users`, `word_scores`, `sentence_scores`, `attendance`, `n_documents`/`
 
 ### Session Auth
 
-Cookie-based sessions using an in-memory `active_sessions` dict (token → user info). Token is a 64-char hex string stored in an `auth_token` cookie. Sessions expire after 24 hours. Google OAuth via `authlib`. Admin roles use `is_admin` flag + `role` field (`learner`, `instructor`, `system_admin`).
+Cookie-based sessions using an in-memory `active_sessions` dict (token → user info). Token is a 64-char hex string stored in a `session_token` cookie. Sessions expire after 24 hours. Google OAuth via `authlib`. Admin roles use `is_admin` flag + `role` field (`learner`, `instructor`, `system_admin`).
+
+**Credit system**: `app.state.credit_costs` holds `{"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1, "voice": 5}`. `check_and_consume_credits()` (in `utils.py`) gates all AI endpoints; budget resets daily based on `DAILY_CREDITS`. The WebSocket auth check for voice call reads the cookie directly via `websocket.cookies`.
 
 ### Frontend
 

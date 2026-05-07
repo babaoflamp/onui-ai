@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentAiPreviewTranscript = '';
   let currentAiFinalTranscript = '';
   let nextStartTime = 0;
+  let isWaitingForPlayback = false;
   let summaryModal = null;
 
   const lobby = document.getElementById('lobby');
@@ -35,10 +36,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const endTip = document.getElementById('end-tip');
   const callTimer = document.getElementById('call-timer');
   const tutorAvatar = document.getElementById('tutor-avatar');
-  const tutorName = document.getElementById('tutor-name');
+  const tutorName = null; // element removed from UI
   const scenarioList = document.getElementById('scenario-list');
+  const creditNotice = document.getElementById('credit-notice');
+  const creditRemainingBadge = document.getElementById('credit-remaining-badge');
+  const headerAvatarImg = document.getElementById('header-avatar-img');
 
   let isTranslationEnabled = true;
+
+  async function fetchAndUpdateCredits() {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return null;
+    try {
+      const res = await fetch('/api/credits', { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.success) {
+        if (creditRemainingBadge) creditRemainingBadge.textContent = data.remaining;
+        // Also update sidebar credits bar if present
+        const sidebarBar = document.getElementById('credits-bar');
+        const sidebarLbl = document.getElementById('credits-label');
+        if (sidebarLbl) sidebarLbl.textContent = `${data.remaining} / ${data.daily_limit}`;
+        if (sidebarBar) {
+          const pct = Math.max(0, Math.min(100, (data.remaining / data.daily_limit) * 100));
+          sidebarBar.style.width = pct + '%';
+        }
+        return data.remaining;
+      }
+    } catch (e) {}
+    return null;
+  }
 
   function t(key, fallback) {
     if (typeof translations !== 'undefined' && translations && translations[key]) {
@@ -229,13 +255,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmBtn = document.createElement('button');
     confirmBtn.type = 'button';
     confirmBtn.className = 'flex-1 rounded-[14px] bg-white/10 px-4 py-3 font-black text-white transition hover:bg-white/20';
-    confirmBtn.textContent = '닫기 (대화 기록 보기)';
+    confirmBtn.textContent = t('vc.close_view_log', '닫기 (대화 기록 보기)');
     confirmBtn.addEventListener('click', () => closeSummaryModal());
-    
+
     const lobbyBtn = document.createElement('button');
     lobbyBtn.type = 'button';
     lobbyBtn.className = 'flex-1 rounded-[14px] bg-orange-500 px-4 py-3 font-black text-white transition hover:bg-orange-600';
-    lobbyBtn.textContent = '로비로 돌아가기';
+    lobbyBtn.textContent = t('vc.return_to_lobby', '로비로 돌아가기');
     lobbyBtn.addEventListener('click', () => returnToLobby());
     
     footer.append(confirmBtn, lobbyBtn);
@@ -290,12 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
     closeSummaryModal();
     lobby.classList.add('hidden');
     callScreen.classList.remove('hidden');
-    tutorName.textContent = scenario.tutor_name;
     tutorAvatar.src = scenario.avatar_url;
+    if (headerAvatarImg) headerAvatarImg.src = scenario.avatar_url;
     resetTimer();
     resetLivePreview();
     resetChatLog();
     resetControls('vc.waiting', 'vc.press_to_start');
+    if (creditNotice) creditNotice.classList.remove('hidden');
+    fetchAndUpdateCredits();
   };
 
   async function setupAudioProcessing() {
@@ -420,6 +448,38 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorAvatar.classList.remove('speaking');
   }
 
+  function stopMicInput() {
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    if (processor) {
+      try { processor.port.onmessage = null; } catch(e) {}
+    }
+    if (stream) {
+      try { stream.getTracks().forEach(track => track.stop()); } catch(e) {}
+      stream = null;
+    }
+    recordWave.classList.add('hidden');
+  }
+
+  function waitForPlaybackEnd(callback, maxMs) {
+    maxMs = maxMs || 8000;
+    isWaitingForPlayback = true;
+    const deadline = performance.now() + maxMs;
+    function check() {
+      const audioGone = !audioContext || audioContext.state === 'closed';
+      const playbackDone = audioGone || audioContext.currentTime >= nextStartTime - 0.05;
+      if (playbackDone || performance.now() >= deadline) {
+        isWaitingForPlayback = false;
+        callback();
+        return;
+      }
+      requestAnimationFrame(check);
+    }
+    requestAnimationFrame(check);
+  }
+
   function handleIncomingAudio(arrayBuffer) {
     if (!audioContext || audioContext.state === 'closed') return;
 
@@ -446,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentTime = audioContext.currentTime;
     if (nextStartTime < currentTime) {
-      nextStartTime = currentTime + 0.05;
+      nextStartTime = currentTime + 0.01;
     }
 
     source.start(nextStartTime);
@@ -480,8 +540,12 @@ document.addEventListener('DOMContentLoaded', () => {
       endCallBtn.classList.remove('hidden');
       recordWave.classList.remove('hidden');
       if (endTip) endTip.classList.remove('hidden');
-      recordLabel.textContent = t('vc.live_active', 'AI live conversation is active. Speak freely.');
+      if (creditNotice) creditNotice.classList.add('hidden');
+      recordLabel.textContent = data.user_speaks_first
+        ? t('vc.say_hello_first', '💬 먼저 "안녕하세요"라고 말해보세요!')
+        : t('vc.live_active', 'AI live conversation is active. Speak freely.');
       startTimer();
+      fetchAndUpdateCredits();
       return;
     }
 
@@ -511,12 +575,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (data.type === 'call_concluded_by_ai') {
-      console.log('AI signaled conversation end. Closing in 4s...');
-      setTimeout(() => {
-        if (isConnected) {
-          endCall();
-        }
-      }, 4000); // 4 seconds delay to let audio finish playing
+      stopMicInput();
+      if (!isEndingCall) {
+        // Brief pause lets any in-flight audio chunks arrive and get scheduled,
+        // then endCall's waitForPlaybackEnd waits for actual playback to finish.
+        setTimeout(() => { if (!isEndingCall) endCall(); }, 500);
+      }
       return;
     }
 
@@ -592,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     socket.onclose = () => {
-      cleanupAudio();
+      if (!isWaitingForPlayback) cleanupAudio();
       clearInterval(timerInterval);
       isConnected = false;
       startCallBtn.disabled = false;
@@ -625,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const duration = callTimer ? callTimer.textContent : '00:00';
 
     clearInterval(timerInterval);
-    cleanupAudio();
+    stopMicInput();
 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: 'end_call' }));
@@ -638,7 +702,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setStatus(t('vc.call_ended', 'Call ended'));
     resetControls('vc.call_ended', 'vc.press_to_start');
-    showSummaryModal(duration);
+
+    // Wait for any remaining AI audio to finish before cleanup and summary modal
+    waitForPlaybackEnd(() => {
+      cleanupAudio();
+      if (creditNotice) creditNotice.classList.remove('hidden');
+      showSummaryModal(duration);
+      fetchAndUpdateCredits().then(remaining => {
+        if (remaining === null) return;
+        const metaEl = summaryModal && summaryModal.querySelector('p.text-xs.text-white\\/40');
+        if (metaEl) {
+          metaEl.textContent += ` · ⚡${remaining} ${t('vc.credit_remaining_short', '남음')}`;
+        }
+      });
+    });
   };
 
   document.addEventListener('app:translations-updated', () => {

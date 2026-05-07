@@ -330,7 +330,7 @@ Intelligence{% endblock %} {% block extra_css %}
     </div>
 
     <h1 class="hero-title text-center flex flex-row items-baseline justify-center gap-x-4 whitespace-nowrap">
-      <span id="hero-typing-1" class="bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent"></span>
+      <span id="hero-typing-1" class="text-white"></span>
       <span id="hero-typing-2" class="glow-text bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent italic"></span>
     </h1>
 
@@ -960,11 +960,22 @@ Intelligence{% endblock %} {% block extra_css %}
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    // 1. 기존 로그인 체크 (게스트 상태일 때만 데모 작동)
+    // 1. 기존 로그인 체크 — 서버 세션 유효성 먼저 확인 (재시작 후 세션 소멸 대비)
     const token = localStorage.getItem("auth_token");
     if (token) {
-      const role = localStorage.getItem("user_role");
-      window.location.href = role === "system_admin" ? "/admin/dashboard" : "/dashboard";
+      fetch("/api/user/profile", { credentials: "include" })
+        .then(res => {
+          if (res.ok) {
+            const role = localStorage.getItem("user_role");
+            window.location.href = role === "system_admin" ? "/admin/dashboard" : "/dashboard";
+          } else {
+            // 서버 세션 만료 — localStorage 정리 후 랜딩 페이지 유지
+            ["auth_token", "user_nickname", "user_role", "is_admin"].forEach(k => localStorage.removeItem(k));
+          }
+        })
+        .catch(() => {
+          ["auth_token", "user_nickname", "user_role", "is_admin"].forEach(k => localStorage.removeItem(k));
+        });
       return;
     }
 
@@ -1251,7 +1262,7 @@ Intelligence{% endblock %} {% block extra_css %}
       const typeText = async (element, text, speed = 80) => {
         element.classList.add('typing-cursor');
         for (let i = 0; i < text.length; i++) {
-          element.innerText += text.charAt(i);
+          element.textContent = text.slice(0, i + 1);
           await new Promise(r => setTimeout(r, speed));
         }
         element.classList.remove('typing-cursor');
@@ -1267,8 +1278,8 @@ Intelligence{% endblock %} {% block extra_css %}
           
           if (line1 && line2) {
             // Reset text
-            line1.innerText = "";
-            line2.innerText = "";
+            line1.textContent = "";
+            line2.textContent = "";
             
             // Type lines
             await typeText(line1, text1);

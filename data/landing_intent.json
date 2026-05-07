@@ -194,5 +194,40 @@
     "reason": "landing_signup",
     "native_lang": "ko",
     "ts": 1777520243.9615152
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778043072.3422
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778114643.081263
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778117447.9695914
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778117468.5143738
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778117486.962697
   }
 ]

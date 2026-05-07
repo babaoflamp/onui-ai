@@ -128,7 +128,7 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 TTS_BACKEND = os.getenv("TTS_BACKEND", "gemini")
 SESSION_EXPIRY_SECONDS = int(os.getenv("SESSION_EXPIRY_SECONDS", str(4 * 60 * 60)))
 DAILY_CREDITS = int(os.getenv("DAILY_CREDITS", "100"))
-CREDIT_COSTS = {"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1}
+CREDIT_COSTS = {"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1, "voice": 5}
 
 # TTS Configuration
 GOOGLE_TTS_LANGUAGE = os.getenv("GOOGLE_TTS_LANGUAGE", "ko-KR")
@@ -421,8 +421,8 @@ def _extract_gemini_audio(result: dict) -> dict:
     raise RuntimeError("Gemini TTS response did not include audio data")
 
 
-def _tts_cache_key(text: str, model: str, backend: str = "gemini") -> str:
-    raw = f"{backend}:{model}:{text}".encode("utf-8")
+def _tts_cache_key(text: str, model: str, backend: str = "gemini", voice: str = "") -> str:
+    raw = f"{backend}:{model}:{voice}:{text}".encode("utf-8")
     return hashlib.md5(raw).hexdigest()
 
 
@@ -521,7 +521,7 @@ def _pcm16_to_wav(
     return header + pcm_data
 
 
-def _call_gemini_tts_api(text: str, model: str = None) -> dict:
+def _call_gemini_tts_api(text: str, model: str = None, voice: str = None) -> dict:
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY not configured")
 
@@ -532,10 +532,11 @@ def _call_gemini_tts_api(text: str, model: str = None) -> dict:
         f"Generate speech audio only for the following transcript:\n{text}",
     ]
 
+    effective_voice = voice or GEMINI_TTS_VOICE
     generation_config: dict = {"responseModalities": ["AUDIO"]}
-    if GEMINI_TTS_VOICE:
+    if effective_voice:
         generation_config["speechConfig"] = {
-            "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": GEMINI_TTS_VOICE}}
+            "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": effective_voice}}
         }
 
     last_error = None
