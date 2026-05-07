@@ -27,52 +27,75 @@
       <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="vc.desc">
         Practice Korean in realistic scenarios. AI leads the conversation and gives you feedback.
       </p>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full text-[10px] font-black text-orange-400 uppercase tracking-wider">
+          ⚡ <span data-i18n="vc.credit_cost">통화 시작 시 5 크레딧 소모</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-white/30 uppercase tracking-wider">
+          🔄 <span data-i18n="rp.credit_reset">매일 자정 초기화</span>
+        </span>
+      </div>
     </div>
     <div class="md:w-2/5 relative z-10 flex justify-center md:justify-end">
       <div class="relative w-20 h-20 md:w-28 md:h-28 rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
-        <img src="/static/images/onui-idol-staff.webp" alt="Voice Call AI" class="w-full h-full object-cover">
+        <img id="header-avatar-img" src="/static/images/onui-idol-staff.webp" alt="Voice Call AI" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
       </div>
     </div>
   </div>
 
   <!-- Lobby -->
-  <div id="lobby" class="w-full bg-white/5 border border-white/10 p-6 md:p-10 rounded-[48px] backdrop-blur-xl relative overflow-hidden">
-    <div class="absolute -top-24 -left-24 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full"></div>
-    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-slate-500/10 blur-[100px] rounded-full"></div>
-    <div class="relative z-10">
-      <div id="scenario-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" aria-live="polite">
-        {% for s in scenarios %}
-        <button type="button" onclick='prepareCall({{ s | tojson | safe }})' class="flex flex-col items-center group">
-          <div class="relative w-full aspect-square rounded-[32px] overflow-hidden border-4 border-white/10 shadow-2xl group-hover:border-orange-500/50 transition-all duration-300">
-            <img src="{{ s.avatar_url }}" alt="{{ s.tutor_name }}" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+  <div id="lobby">
+    <div id="scenario-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12" aria-live="polite">
+      {% for s in scenarios %}
+      <div onclick='prepareCall({{ s | tojson | safe }})' role="button" tabindex="0" class="scenario-card cursor-pointer group animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-hidden">
+        <div class="relative aspect-square overflow-hidden">
+          <img src="{{ s.avatar_url }}" alt="{{ s.tutor_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg shadow-lg">▶</div>
           </div>
-          <div class="mt-3 text-center">
-            <h4 class="text-sm font-black text-white group-hover:text-orange-400 transition-colors">{{ s.title }}</h4>
-            <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-0.5">{{ s.tutor_name }}</p>
-          </div>
-        </button>
-        {% endfor %}
+        </div>
+        <div class="p-3">
+          <h3 class="text-sm font-black text-white truncate leading-tight">{{ s.title }}</h3>
+          <p class="text-white/40 text-[10px] mt-0.5 truncate">{{ s.tutor_name }}</p>
+        </div>
       </div>
+      {% endfor %}
     </div>
   </div>
 
   <!-- Call Screen -->
   <div id="call-screen" class="call-container hidden w-full p-6 md:p-8">
     <!-- Top bar -->
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-4">
+    <div class="flex items-center mb-6">
+      <div class="flex flex-wrap items-center gap-4">
         <button onclick="returnToLobby()" class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70" title="로비로 돌아가기">
           ←
         </button>
+        <div id="status-badge" class="px-4 py-2 bg-black/40 border border-white/10 rounded-full text-xs font-black text-white/60 uppercase tracking-widest" data-i18n="vc.ready" role="status" aria-live="polite">준비 중...</div>
         <img id="tutor-avatar" src="/static/images/onui-pure-idol.png" class="caller-avatar" alt="AI Tutor avatar" />
-        <div>
-          <p id="tutor-name" class="text-white font-black text-lg" data-i18n="vc.ai_tutor">AI Tutor</p>
-          <p id="call-timer" class="text-orange-400 font-mono text-sm">00:00</p>
+
+        <!-- Mic / waveform / end-call / timer — right of avatar -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <button id="start-call-btn" type="button" onclick="initiateLiveCall()" class="w-14 h-14 rounded-full bg-orange-500 hover:bg-orange-600 border-2 border-white/10 shadow-xl flex items-center justify-center transition-all text-2xl group" aria-label="Start voice call">
+              <span class="group-hover:scale-110 transition-transform">🎙️</span>
+            </button>
+            <div id="record-wave" class="hidden flex items-end gap-1 h-7">
+              <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:10px"></div>
+              <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:20px"></div>
+              <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:14px"></div>
+              <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:24px"></div>
+              <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:8px"></div>
+            </div>
+            <button id="end-call-btn" type="button" onclick="endCall()" class="hidden w-12 h-12 rounded-full bg-red-500 hover:bg-red-600 border-2 border-white/10 shadow-lg flex items-center justify-center transition-all text-xl group" aria-label="End voice call">
+              <span class="transform rotate-[135deg] group-hover:scale-110 transition-transform text-white">📞</span>
+            </button>
+            <p id="call-timer" class="text-orange-400 font-mono text-sm">00:00</p>
+          </div>
+          <p id="record-label" class="max-w-[360px] text-sm md:text-lg font-black leading-snug text-orange-100" data-i18n="vc.press_to_start">🎙️ 버튼을 눌러 대화를 시작하세요</p>
         </div>
       </div>
-      <div id="status-badge" class="px-4 py-2 bg-black/40 border border-white/10 rounded-full text-xs font-black text-white/60 uppercase tracking-widest" data-i18n="vc.ready" role="status" aria-live="polite">준비 중...</div>
     </div>
 
     <!-- Chat log -->
@@ -80,43 +103,25 @@
       <div class="text-center text-white/20 text-xs py-8" id="chat-placeholder" data-i18n="vc.starting">시나리오를 시작하는 중...</div>
     </div>
 
-    <!-- Recording area -->
-    <div class="bg-white/5 border border-white/8 rounded-3xl p-5">
+    <!-- Info area -->
+    <div class="bg-white/5 border border-white/8 rounded-3xl px-5 py-4 flex flex-col items-center gap-3">
       <!-- User transcript preview -->
-      <div id="stt-preview" class="min-h-[36px] mb-4 text-sm text-white/50 italic px-1 hidden text-center">
+      <div id="stt-preview" class="w-full text-sm text-white/50 italic hidden text-center">
         <span id="stt-text" class="bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20"></span>
       </div>
 
-      <div class="flex flex-col items-center gap-6">
-        <div class="flex items-center justify-center gap-8">
-          <!-- Start/Mic button -->
-          <button id="start-call-btn" type="button" onclick="initiateLiveCall()" class="w-20 h-20 rounded-full bg-orange-500 hover:bg-orange-600 border-4 border-white/10 shadow-2xl flex items-center justify-center transition-all text-3xl group" aria-label="Start voice call">
-            <span class="group-hover:scale-110 transition-transform">🎙️</span>
-          </button>
+      <!-- Credit cost notice (hidden once connected) -->
+      <div id="credit-notice" class="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full">
+        <span class="text-orange-400 text-xs">⚡</span>
+        <span class="text-orange-300/80 text-[11px] font-bold" data-i18n="vc.credit_cost">통화 시작 시 5 크레딧 소모</span>
+        <span class="text-white/20 text-[11px]">(<span id="credit-remaining-badge">—</span> <span data-i18n="vc.credit_remaining_short">남음</span>)</span>
+      </div>
 
-          <!-- Live Waveform Indicator (initially hidden) -->
-          <div id="record-wave" class="hidden flex items-end gap-1.5 h-8">
-            <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:12px"></div>
-            <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:24px"></div>
-            <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:16px"></div>
-            <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:28px"></div>
-            <div class="w-1.5 bg-orange-400 rounded-full transition-all duration-75" style="height:10px"></div>
-          </div>
-
-          <!-- End call -->
-          <button id="end-call-btn" type="button" onclick="endCall()" class="hidden w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 border-4 border-white/10 shadow-xl flex items-center justify-center transition-all text-2xl group" aria-label="End voice call">
-            <span class="transform rotate-[135deg] group-hover:scale-110 transition-transform text-white">📞</span>
-          </button>
-        </div>
-        
-        <p id="record-label" class="text-white/40 text-[10px] font-black uppercase tracking-widest text-center" data-i18n="vc.press_to_start">🎙️ 버튼을 눌러 대화를 시작하세요</p>
-        
-        <!-- Ending Tip -->
-        <div id="end-tip" class="hidden mt-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5 animate-pulse">
-          <p class="text-white/30 text-[9px] font-medium text-center">
-            💡 <span data-i18n="vc.end_tip">"안녕, 다음에 봐"라고 말하거나 종료 버튼을 눌러 대화를 마칠 수 있습니다.</span>
-          </p>
-        </div>
+      <!-- Ending Tip -->
+      <div id="end-tip" class="hidden px-4 py-2 bg-white/5 rounded-2xl border border-white/5 animate-pulse">
+        <p class="text-white/45 text-xs md:text-sm font-semibold text-center leading-relaxed">
+          💡 <span data-i18n="vc.end_tip">"안녕, 다음에 봐"라고 말하거나 종료 버튼을 눌러 대화를 마칠 수 있습니다.</span>
+        </p>
       </div>
     </div>
   </div>
@@ -124,5 +129,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/voice-call.js?v=4.1"></script>
+<script src="/static/js/voice-call.js?v=4.7"></script>
 {% endblock %}
