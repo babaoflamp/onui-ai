@@ -1,0 +1,86 @@
+[
+  {
+    "current_video": {
+      "id": "v1ok2sWgiqA",
+      "title": "🍓 'Strawberry' in Korean?",
+      "catalog_status": "replacement_required",
+      "catalog_status_reason": "insufficient_transcript_coverage",
+      "transcript_coverage": 0.182
+    },
+    "replacement_video": {
+      "id": "",
+      "title": "",
+      "description": "",
+      "level": "1",
+      "source_type": "youtube",
+      "video_url": "",
+      "poster_url": "",
+      "duration": 0,
+      "transcript_offset": 0,
+      "notes": "Transcript must match at least 70% of the runtime before publishing."
+    }
+  },
+  {
+    "current_video": {
+      "id": "llvd1Ife4kY",
+      "title": "👋 Essential Daily Phrases",
+      "catalog_status": "replacement_required",
+      "catalog_status_reason": "insufficient_transcript_coverage",
+      "transcript_coverage": 0.103
+    },
+    "replacement_video": {
+      "id": "",
+      "title": "",
+      "description": "",
+      "level": "1",
+      "source_type": "youtube",
+      "video_url": "",
+      "poster_url": "",
+      "duration": 0,
+      "transcript_offset": 0,
+      "notes": "Transcript must match at least 70% of the runtime before publishing."
+    }
+  },
+  {
+    "current_video": {
+      "id": "OnTFPW5CX0o",
+      "title": "🎵 Korean Music Vocabulary",
+      "catalog_status": "replacement_required",
+      "catalog_status_reason": "insufficient_transcript_coverage",
+      "transcript_coverage": 0.115
+    },
+    "replacement_video": {
+      "id": "",
+      "title": "",
+      "description": "",
+      "level": "2",
+      "source_type": "youtube",
+      "video_url": "",
+      "poster_url": "",
+      "duration": 0,
+      "transcript_offset": 0,
+      "notes": "Transcript must match at least 70% of the runtime before publishing."
+    }
+  },
+  {
+    "current_video": {
+      "id": "qHxSd3O9RtQ",
+      "title": "👗 K-Fashion & Trends",
+      "catalog_status": "transcript_missing",
+      "catalog_status_reason": "missing_transcript",
+      "transcript_coverage": 0.0
+    },
+    "replacement_video": {
+      "id": "",
+      "title": "",
+      "description": "",
+      "level": "3",
+      "source_type": "youtube",
+      "video_url": "",
+      "poster_url": "",
+      "duration": 0,
+      "transcript_offset": 0,
+      "notes": "Transcript must match at least 70% of the runtime before publishing."
+    }
+  }
+]
