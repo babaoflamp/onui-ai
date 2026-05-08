@@ -36,6 +36,8 @@ captured/
 uploads/
 static/videos/
 static/videos/
+static/video/*.mp4
+static/images/tube/*.png
 data/tts_cache/
 data/tmp/
 data/new_sentences_temp.json

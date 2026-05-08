@@ -40,6 +40,8 @@ GEMINI_MODEL = os.getenv(
     "GEMINI_IMAGE_MODEL",
     os.getenv("GEMINI_MODEL", "gemini-2.0-flash-exp"),
 )
+GEMINI_IMAGE_TIMEOUT = int(os.getenv("GEMINI_IMAGE_TIMEOUT", "60"))
+GEMINI_IMAGE_USE_SDK = os.getenv("GEMINI_IMAGE_USE_SDK", "").lower() in {"1", "true", "yes"}
 
 # 이미지 저장 디렉토리
 UPLOAD_DIR = Path("uploads/images")
@@ -302,11 +304,17 @@ def _generate_image_gemini_rest(prompt: str, model_name: str):
         ],
     }
     try:
+        logger.info(
+            "Calling Gemini REST image generation: model=%s timeout=%ss prompt_chars=%s",
+            model_name,
+            GEMINI_IMAGE_TIMEOUT,
+            len(prompt),
+        )
         resp = requests.post(
             url,
             params={"key": GEMINI_API_KEY},
             json=payload,
-            timeout=60,
+            timeout=GEMINI_IMAGE_TIMEOUT,
         )
         if resp.status_code != 200:
             return {"success": False, "error": f"Gemini REST error: {resp.status_code} {resp.text[:200]}"}
@@ -320,8 +328,10 @@ def _generate_image_gemini_rest(prompt: str, model_name: str):
             "mime_type": mime_type or "image/png",
             "model": model_name,
         }
+    except requests.Timeout:
+        return {"success": False, "error": f"Gemini REST timed out after {GEMINI_IMAGE_TIMEOUT}s"}
     except Exception as e:
-        return {"success": False, "error": f"Gemini REST failed: {e}"}
+        return {"success": False, "error": f"Gemini REST failed: {type(e).__name__}: {e}"}
 
 
 async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[str, Any]:
@@ -329,8 +339,8 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
     if not GEMINI_API_KEY:
         return {"success": False, "error": "GEMINI_API_KEY not configured"}
     
-    # SDK 사용 여부 확인
-    sdk_available = bool(_genai_new and hasattr(_genai_new, "Client"))
+    # SDK usage is opt-in because the SDK call has been observed to block without a useful error.
+    sdk_available = GEMINI_IMAGE_USE_SDK and bool(_genai_new and hasattr(_genai_new, "Client"))
     model_name = os.getenv("GEMINI_IMAGE_MODEL", DALLE_MODEL) # DALLE_MODEL might be fallback
 
     # 만약 환경변수에 이미 모델이 설정되어 있다면 우선 사용
@@ -344,9 +354,18 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
         if sdk_available:
             try:
                 _client = _genai_new.Client(api_key=GEMINI_API_KEY)
-                resp = await asyncio.get_event_loop().run_in_executor(
-                    None,
-                    lambda: _client.models.generate_content(model=model_name, contents=prompt),
+                logger.info(
+                    "Calling Gemini SDK image generation: model=%s timeout=%ss prompt_chars=%s",
+                    model_name,
+                    GEMINI_IMAGE_TIMEOUT,
+                    len(prompt),
+                )
+                resp = await asyncio.wait_for(
+                    asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: _client.models.generate_content(model=model_name, contents=prompt),
+                    ),
+                    timeout=GEMINI_IMAGE_TIMEOUT,
                 )
 
                 image_base64, mime_type = _extract_gemini_image_base64(resp)
@@ -369,8 +388,19 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
                         except Exception as e:
                             logger.warning(f"Failed to save Gemini image locally: {e}")
                     return result
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "Gemini SDK timed out after %ss for %s, trying REST fallback...",
+                    GEMINI_IMAGE_TIMEOUT,
+                    model_name,
+                )
             except Exception as e:
-                logger.warning(f"Gemini SDK failed for {model_name}: {e}, trying REST fallback...")
+                logger.warning(
+                    "Gemini SDK failed for %s: %s: %s, trying REST fallback...",
+                    model_name,
+                    type(e).__name__,
+                    e,
+                )
 
         # Fallback to REST
         rest_result = _generate_image_gemini_rest(prompt, model_name)
@@ -389,10 +419,12 @@ async def generate_image_gemini(prompt: str, save_locally: bool = True) -> Dict[
                     logger.warning(f"Failed to save Gemini image locally: {e}")
             return result
 
-        return {"success": False, "error": f"Gemini image generation failed for {model_name}"}
+        error = rest_result.get("error") or "unknown Gemini REST error"
+        logger.error("Gemini image generation failed for %s: %s", model_name, error)
+        return {"success": False, "error": f"Gemini image generation failed for {model_name}: {error}"}
 
     except Exception as e:
-        return {"success": False, "error": f"Gemini image generation failed: {e}"}
+        return {"success": False, "error": f"Gemini image generation failed: {type(e).__name__}: {e}"}
 
 
 def enhance_prompt_for_korean_learning(
@@ -416,24 +448,26 @@ def enhance_prompt_for_korean_learning(
     """
     # 스타일 매핑
     style_descriptions = {
-        "watercolor": "soft watercolor painting, bleeding colors, artistic and traditional",
-        "illustration": "clean modern digital illustration, flat design, educational and friendly, bright colors",
-        "cartoon": "cheerful 2D cartoon style, thick outlines, vibrant and playful",
-        "photorealistic": "high-quality professional photography, photorealistic, 8k resolution, realistic lighting and textures",
-        "oil-painting": "classic oil painting style, visible thick brushstrokes, rich textures, artistic",
-        "sketch": "detailed pencil sketch, fine line art, hand-drawn on paper, artistic grayscale",
-        "digital-art": "modern digital art style, smooth gradients, vibrant and cinematic",
-        "anime": "high-quality anime style, Japanese animation aesthetic, cel-shaded, expressive",
-        "3d-render": "modern 3D rendered style, Octane render, 4k, polished and dimensional, like a Pixar movie"
+        "watercolor": "soft watercolor textbook illustration, gentle colors, clear educational composition",
+        "illustration": "clean modern textbook illustration, flat design, friendly educational style, bright balanced colors",
+        "cartoon": "cheerful 2D educational cartoon illustration, clear outlines, classroom-friendly and age-neutral",
+        "photorealistic": "realistic educational textbook photo style, natural lighting, clear documentary composition",
+        "oil-painting": "classic painted textbook illustration, controlled brushwork, warm and readable educational scene",
+        "sketch": "clean pencil textbook sketch, fine line art, simple grayscale, easy to understand",
+        "digital-art": "polished educational digital illustration, clear shapes, balanced colors, textbook-ready",
+        "anime": "clean educational anime-style textbook illustration, cel-shaded, friendly and not dramatic",
+        "3d-render": "clean 3D educational textbook render, polished but simple, clear objects and readable scene"
     }
 
-    style_desc = style_descriptions.get(style, "illustration style, clean and educational")
+    style_desc = style_descriptions.get(style, "clean educational textbook illustration style")
 
-    # 한국 학습 컨텍스트 추가
+    # 한국어 교재/학습 자료용 컨텍스트 추가
     enhanced_prompt = f"{korean_situation}, {style_desc}, "
-    enhanced_prompt += "bright and clear, suitable for language learning materials, "
-    enhanced_prompt += "Korean cultural context, educational purpose, "
-    enhanced_prompt += "no text, no letters, no words, no writing, no signs with text"
+    enhanced_prompt += "designed for Korean language textbook content, suitable for classroom learning materials, "
+    enhanced_prompt += "one clear everyday scene that helps learners understand the situation visually, "
+    enhanced_prompt += "Korean cultural context, culturally accurate details, age-neutral and inclusive characters, "
+    enhanced_prompt += "simple uncluttered background, bright and clear, safe for educational use, "
+    enhanced_prompt += "no text, no letters, no words, no writing, no captions, no speech bubbles, no signs with text, no logos"
 
     logger.info(f"Enhanced prompt: {enhanced_prompt}")
 

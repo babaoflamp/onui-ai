@@ -2,368 +2,5824 @@
   "self_introduction": [
     {
       "start": 0.5,
-      "end": 2.5,
+      "end": 3.64,
       "trans": "안녕하세요. 저는 오누이입니다.",
       "words": [
-        {"label": "안녕하세요.", "pos": "Expression"},
-        {"label": "저는", "pos": "Noun"},
-        {"label": "오누이입니다.", "pos": "Noun"}
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "저는",
+          "pos": "Noun"
+        },
+        {
+          "label": "오누이입니다.",
+          "pos": "Noun"
+        }
       ]
     },
     {
-      "start": 3.0,
-      "end": 4.5,
+      "start": 4.39,
+      "end": 6.21,
       "trans": "한국에서 왔어요.",
       "words": [
-        {"label": "한국에서", "pos": "Noun"},
-        {"label": "왔어요.", "pos": "Verb"}
+        {
+          "label": "한국에서",
+          "pos": "Noun"
+        },
+        {
+          "label": "왔어요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 5.0,
-      "end": 6.5,
+      "start": 6.96,
+      "end": 9.1,
       "trans": "만나서 반갑습니다.",
       "words": [
-        {"label": "만나서", "pos": "Verb"},
-        {"label": "반갑습니다.", "pos": "Adjective"}
+        {
+          "label": "만나서",
+          "pos": "Verb"
+        },
+        {
+          "label": "반갑습니다.",
+          "pos": "Adjective"
+        }
       ]
     }
   ],
   "cafe_ordering_basic": [
     {
-      "start": 0.5, "end": 3.5,
+      "start": 0.5,
+      "end": 4.52,
       "trans": "안녕하세요. 아이스 아메리카노 한 잔 주세요.",
       "words": [
-        {"label": "안녕하세요.", "pos": "Expression"},
-        {"label": "아이스", "pos": "Noun"},
-        {"label": "아메리카노", "pos": "Noun"},
-        {"label": "한 잔", "pos": "Noun"},
-        {"label": "주세요.", "pos": "Verb"}
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "아이스",
+          "pos": "Noun"
+        },
+        {
+          "label": "아메리카노",
+          "pos": "Noun"
+        },
+        {
+          "label": "한 잔",
+          "pos": "Noun"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 4.0, "end": 6.0,
+      "start": 5.27,
+      "end": 7.61,
       "trans": "네, 4,500원입니다.",
       "words": [
-        {"label": "네,", "pos": "Expression"},
-        {"label": "4,500원입니다.", "pos": "Noun"}
+        {
+          "label": "네,",
+          "pos": "Expression"
+        },
+        {
+          "label": "4,500원입니다.",
+          "pos": "Noun"
+        }
       ]
     },
     {
-      "start": 6.5, "end": 8.5,
+      "start": 8.36,
+      "end": 11.14,
       "trans": "여기 카드로 계산할게요.",
       "words": [
-        {"label": "여기", "pos": "Noun"},
-        {"label": "카드로", "pos": "Noun"},
-        {"label": "계산할게요.", "pos": "Verb"}
+        {
+          "label": "여기",
+          "pos": "Noun"
+        },
+        {
+          "label": "카드로",
+          "pos": "Noun"
+        },
+        {
+          "label": "계산할게요.",
+          "pos": "Verb"
+        }
       ]
     }
   ],
   "asking_directions_intl": [
     {
-      "start": 0.5, "end": 4.5,
+      "start": 0.5,
+      "end": 4.52,
       "trans": "실례합니다, 근처에 지하철역이 어디에 있나요?",
       "words": [
-        {"label": "실례합니다,", "pos": "Expression"},
-        {"label": "근처에", "pos": "Noun"},
-        {"label": "지하철역이", "pos": "Noun"},
-        {"label": "어디에", "pos": "Noun"},
-        {"label": "있나요?", "pos": "Verb"}
+        {
+          "label": "실례합니다,",
+          "pos": "Expression"
+        },
+        {
+          "label": "근처에",
+          "pos": "Noun"
+        },
+        {
+          "label": "지하철역이",
+          "pos": "Noun"
+        },
+        {
+          "label": "어디에",
+          "pos": "Noun"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 5.0, "end": 9.0,
+      "start": 5.27,
+      "end": 9.21,
       "trans": "이 길로 쭉 가다가 오른쪽으로 꺾으세요.",
       "words": [
-        {"label": "이 길로", "pos": "Noun"},
-        {"label": "쭉", "pos": "Adverb"},
-        {"label": "가다가", "pos": "Verb"},
-        {"label": "오른쪽으로", "pos": "Noun"},
-        {"label": "꺾으세요.", "pos": "Verb"}
+        {
+          "label": "이 길로",
+          "pos": "Noun"
+        },
+        {
+          "label": "쭉",
+          "pos": "Adverb"
+        },
+        {
+          "label": "가다가",
+          "pos": "Verb"
+        },
+        {
+          "label": "오른쪽으로",
+          "pos": "Noun"
+        },
+        {
+          "label": "꺾으세요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 9.5, "end": 13.5,
+      "start": 9.96,
+      "end": 13.9,
       "trans": "아, 저기 보이는 건물이군요. 감사합니다!",
       "words": [
-        {"label": "아,", "pos": "Expression"},
-        {"label": "저기", "pos": "Noun"},
-        {"label": "보이는", "pos": "Verb"},
-        {"label": "건물이군요.", "pos": "Noun"},
-        {"label": "감사합니다!", "pos": "Expression"}
+        {
+          "label": "아,",
+          "pos": "Expression"
+        },
+        {
+          "label": "저기",
+          "pos": "Noun"
+        },
+        {
+          "label": "보이는",
+          "pos": "Verb"
+        },
+        {
+          "label": "건물이군요.",
+          "pos": "Noun"
+        },
+        {
+          "label": "감사합니다!",
+          "pos": "Expression"
+        }
       ]
     }
   ],
   "korean_culture_adv": [
     {
-      "start": 0.5, "end": 6.5,
+      "start": 0.5,
+      "end": 6.56,
       "trans": "한국에서는 어른이 먼저 수저를 드신 후에 식사를 시작하는 것이 예의입니다.",
       "words": [
-        {"label": "한국에서는", "pos": "Noun"},
-        {"label": "어른이", "pos": "Noun"},
-        {"label": "먼저", "pos": "Adverb"},
-        {"label": "수저를", "pos": "Noun"},
-        {"label": "드신 후에", "pos": "Verb"},
-        {"label": "식사를", "pos": "Noun"},
-        {"label": "시작하는 것이", "pos": "Verb"},
-        {"label": "예의입니다.", "pos": "Noun"}
+        {
+          "label": "한국에서는",
+          "pos": "Noun"
+        },
+        {
+          "label": "어른이",
+          "pos": "Noun"
+        },
+        {
+          "label": "먼저",
+          "pos": "Adverb"
+        },
+        {
+          "label": "수저를",
+          "pos": "Noun"
+        },
+        {
+          "label": "드신 후에",
+          "pos": "Verb"
+        },
+        {
+          "label": "식사를",
+          "pos": "Noun"
+        },
+        {
+          "label": "시작하는 것이",
+          "pos": "Verb"
+        },
+        {
+          "label": "예의입니다.",
+          "pos": "Noun"
+        }
       ]
     },
     {
-      "start": 7.0, "end": 13.0,
+      "start": 7.31,
+      "end": 13.13,
       "trans": "또한 밥그릇을 들고 먹지 않고 자리에 두고 먹는 특징이 있습니다.",
       "words": [
-        {"label": "또한", "pos": "Adverb"},
-        {"label": "밥그릇을", "pos": "Noun"},
-        {"label": "들고", "pos": "Verb"},
-        {"label": "먹지 않고", "pos": "Verb"},
-        {"label": "자리에", "pos": "Noun"},
-        {"label": "두고", "pos": "Verb"},
-        {"label": "먹는", "pos": "Verb"},
-        {"label": "특징이", "pos": "Noun"},
-        {"label": "있습니다.", "pos": "Verb"}
+        {
+          "label": "또한",
+          "pos": "Adverb"
+        },
+        {
+          "label": "밥그릇을",
+          "pos": "Noun"
+        },
+        {
+          "label": "들고",
+          "pos": "Verb"
+        },
+        {
+          "label": "먹지 않고",
+          "pos": "Verb"
+        },
+        {
+          "label": "자리에",
+          "pos": "Noun"
+        },
+        {
+          "label": "두고",
+          "pos": "Verb"
+        },
+        {
+          "label": "먹는",
+          "pos": "Verb"
+        },
+        {
+          "label": "특징이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 13.5, "end": 19.5,
+      "start": 13.88,
+      "end": 18.86,
       "trans": "이러한 예절을 통해 상대를 존중하는 마음을 표현할 수 있습니다.",
       "words": [
-        {"label": "이러한", "pos": "Adjective"},
-        {"label": "예절을", "pos": "Noun"},
-        {"label": "통해", "pos": "Verb"},
-        {"label": "상대를", "pos": "Noun"},
-        {"label": "존중하는", "pos": "Verb"},
-        {"label": "마음을", "pos": "Noun"},
-        {"label": "표현할 수", "pos": "Verb"},
-        {"label": "있습니다.", "pos": "Verb"}
+        {
+          "label": "이러한",
+          "pos": "Adjective"
+        },
+        {
+          "label": "예절을",
+          "pos": "Noun"
+        },
+        {
+          "label": "통해",
+          "pos": "Verb"
+        },
+        {
+          "label": "상대를",
+          "pos": "Noun"
+        },
+        {
+          "label": "존중하는",
+          "pos": "Verb"
+        },
+        {
+          "label": "마음을",
+          "pos": "Noun"
+        },
+        {
+          "label": "표현할 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
       ]
     }
   ],
   "convenience_store_basic": [
     {
-      "start": 0.5, "end": 2.5,
+      "start": 0.5,
+      "end": 2.24,
       "trans": "봉투 필요하세요?",
       "words": [
-        {"label": "봉투", "pos": "Noun"},
-        {"label": "필요하세요?", "pos": "Adjective"}
+        {
+          "label": "봉투",
+          "pos": "Noun"
+        },
+        {
+          "label": "필요하세요?",
+          "pos": "Adjective"
+        }
       ]
     },
     {
-      "start": 3.0, "end": 5.0,
+      "start": 2.99,
+      "end": 6.17,
       "trans": "네, 한 장 주세요. 얼마예요?",
       "words": [
-        {"label": "네,", "pos": "Expression"},
-        {"label": "한 장", "pos": "Noun"},
-        {"label": "주세요.", "pos": "Verb"},
-        {"label": "얼마예요?", "pos": "Noun"}
+        {
+          "label": "네,",
+          "pos": "Expression"
+        },
+        {
+          "label": "한 장",
+          "pos": "Noun"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        },
+        {
+          "label": "얼마예요?",
+          "pos": "Noun"
+        }
       ]
     },
     {
-      "start": 5.5, "end": 8.0,
+      "start": 6.92,
+      "end": 10.34,
       "trans": "삼천 오백원입니다. 감사합니다.",
       "words": [
-        {"label": "삼천", "pos": "Noun"},
-        {"label": "오백원입니다.", "pos": "Noun"},
-        {"label": "감사합니다.", "pos": "Expression"}
+        {
+          "label": "삼천",
+          "pos": "Noun"
+        },
+        {
+          "label": "오백원입니다.",
+          "pos": "Noun"
+        },
+        {
+          "label": "감사합니다.",
+          "pos": "Expression"
+        }
       ]
     }
   ],
   "daily_routines_basic": [
     {
-      "start": 0.5, "end": 3.5,
+      "start": 0.5,
+      "end": 4.08,
       "trans": "저는 보통 아침 일곱 시에 일어나요.",
       "words": [
-        {"label": "저는", "pos": "Noun"},
-        {"label": "보통", "pos": "Adverb"},
-        {"label": "아침", "pos": "Noun"},
-        {"label": "일곱 시에", "pos": "Noun"},
-        {"label": "일어나요.", "pos": "Verb"}
+        {
+          "label": "저는",
+          "pos": "Noun"
+        },
+        {
+          "label": "보통",
+          "pos": "Adverb"
+        },
+        {
+          "label": "아침",
+          "pos": "Noun"
+        },
+        {
+          "label": "일곱 시에",
+          "pos": "Noun"
+        },
+        {
+          "label": "일어나요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 4.0, "end": 7.0,
+      "start": 4.83,
+      "end": 8.05,
       "trans": "여덟 시에 밥을 먹고 회사에 가요.",
       "words": [
-        {"label": "여덟 시에", "pos": "Noun"},
-        {"label": "밥을", "pos": "Noun"},
-        {"label": "먹고", "pos": "Verb"},
-        {"label": "회사에", "pos": "Noun"},
-        {"label": "가요.", "pos": "Verb"}
+        {
+          "label": "여덟 시에",
+          "pos": "Noun"
+        },
+        {
+          "label": "밥을",
+          "pos": "Noun"
+        },
+        {
+          "label": "먹고",
+          "pos": "Verb"
+        },
+        {
+          "label": "회사에",
+          "pos": "Noun"
+        },
+        {
+          "label": "가요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 7.5, "end": 10.5,
+      "start": 8.8,
+      "end": 12.46,
       "trans": "저녁에는 친구를 만나거나 운동을 해요.",
       "words": [
-        {"label": "저녁에는", "pos": "Noun"},
-        {"label": "친구를", "pos": "Noun"},
-        {"label": "만나거나", "pos": "Verb"},
-        {"label": "운동을", "pos": "Noun"},
-        {"label": "해요.", "pos": "Verb"}
+        {
+          "label": "저녁에는",
+          "pos": "Noun"
+        },
+        {
+          "label": "친구를",
+          "pos": "Noun"
+        },
+        {
+          "label": "만나거나",
+          "pos": "Verb"
+        },
+        {
+          "label": "운동을",
+          "pos": "Noun"
+        },
+        {
+          "label": "해요.",
+          "pos": "Verb"
+        }
       ]
     }
   ],
   "hospital_visit_intl": [
     {
-      "start": 0.5, "end": 4.0,
+      "start": 0.5,
+      "end": 2.96,
       "trans": "어디가 불편해서 오셨나요?",
       "words": [
-        {"label": "어디가", "pos": "Noun"},
-        {"label": "불편해서", "pos": "Adjective"},
-        {"label": "오셨나요?", "pos": "Verb"}
+        {
+          "label": "어디가",
+          "pos": "Noun"
+        },
+        {
+          "label": "불편해서",
+          "pos": "Adjective"
+        },
+        {
+          "label": "오셨나요?",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 4.5, "end": 8.5,
+      "start": 3.71,
+      "end": 7.33,
       "trans": "어제부터 머리가 아프고 열이 나요.",
       "words": [
-        {"label": "어제부터", "pos": "Noun"},
-        {"label": "머리가", "pos": "Noun"},
-        {"label": "아프고", "pos": "Adjective"},
-        {"label": "열이", "pos": "Noun"},
-        {"label": "나요.", "pos": "Verb"}
+        {
+          "label": "어제부터",
+          "pos": "Noun"
+        },
+        {
+          "label": "머리가",
+          "pos": "Noun"
+        },
+        {
+          "label": "아프고",
+          "pos": "Adjective"
+        },
+        {
+          "label": "열이",
+          "pos": "Noun"
+        },
+        {
+          "label": "나요.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 9.0, "end": 13.0,
+      "start": 8.08,
+      "end": 12.14,
       "trans": "감기 기운이 있네요. 약을 처방해 드릴게요.",
       "words": [
-        {"label": "감기", "pos": "Noun"},
-        {"label": "기운이", "pos": "Noun"},
-        {"label": "있네요.", "pos": "Verb"},
-        {"label": "약을", "pos": "Noun"},
-        {"label": "처방해", "pos": "Verb"},
-        {"label": "드릴게요.", "pos": "Verb"}
+        {
+          "label": "감기",
+          "pos": "Noun"
+        },
+        {
+          "label": "기운이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있네요.",
+          "pos": "Verb"
+        },
+        {
+          "label": "약을",
+          "pos": "Noun"
+        },
+        {
+          "label": "처방해",
+          "pos": "Verb"
+        },
+        {
+          "label": "드릴게요.",
+          "pos": "Verb"
+        }
       ]
     }
   ],
   "shopping_clothes_intl": [
     {
-      "start": 0.5, "end": 3.5,
+      "start": 0.5,
+      "end": 3.44,
       "trans": "이 티셔츠 다른 색깔도 있나요?",
       "words": [
-        {"label": "이", "pos": "Noun"},
-        {"label": "티셔츠", "pos": "Noun"},
-        {"label": "다른", "pos": "Adjective"},
-        {"label": "색깔도", "pos": "Noun"},
-        {"label": "있나요?", "pos": "Verb"}
+        {
+          "label": "이",
+          "pos": "Noun"
+        },
+        {
+          "label": "티셔츠",
+          "pos": "Noun"
+        },
+        {
+          "label": "다른",
+          "pos": "Adjective"
+        },
+        {
+          "label": "색깔도",
+          "pos": "Noun"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 4.0, "end": 7.0,
+      "start": 4.19,
+      "end": 9.65,
       "trans": "네, 파란색과 검은색이 있습니다. 입어보시겠어요?",
       "words": [
-        {"label": "네,", "pos": "Expression"},
-        {"label": "파란색과", "pos": "Noun"},
-        {"label": "검은색이", "pos": "Noun"},
-        {"label": "있습니다.", "pos": "Verb"},
-        {"label": "입어보시겠어요?", "pos": "Verb"}
+        {
+          "label": "네,",
+          "pos": "Expression"
+        },
+        {
+          "label": "파란색과",
+          "pos": "Noun"
+        },
+        {
+          "label": "검은색이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        },
+        {
+          "label": "입어보시겠어요?",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 7.5, "end": 11.5,
+      "start": 10.4,
+      "end": 14.78,
       "trans": "미디엄 사이즈로 입어보고 싶어요. 탈의실이 어디죠?",
       "words": [
-        {"label": "미디엄", "pos": "Noun"},
-        {"label": "사이즈로", "pos": "Noun"},
-        {"label": "입어보고", "pos": "Verb"},
-        {"label": "싶어요.", "pos": "Verb"},
-        {"label": "탈의실이", "pos": "Noun"},
-        {"label": "어디죠?", "pos": "Noun"}
+        {
+          "label": "미디엄",
+          "pos": "Noun"
+        },
+        {
+          "label": "사이즈로",
+          "pos": "Noun"
+        },
+        {
+          "label": "입어보고",
+          "pos": "Verb"
+        },
+        {
+          "label": "싶어요.",
+          "pos": "Verb"
+        },
+        {
+          "label": "탈의실이",
+          "pos": "Noun"
+        },
+        {
+          "label": "어디죠?",
+          "pos": "Noun"
+        }
       ]
     }
   ],
   "traditional_market_adv": [
     {
-      "start": 0.5, "end": 5.5,
+      "start": 0.5,
+      "end": 6.12,
       "trans": "전통 시장의 묘미는 상인들과 흥정을 하며 덤을 받는 정에 있습니다.",
       "words": [
-        {"label": "전통", "pos": "Noun"},
-        {"label": "시장의", "pos": "Noun"},
-        {"label": "묘미는", "pos": "Noun"},
-        {"label": "상인들과", "pos": "Noun"},
-        {"label": "흥정을", "pos": "Noun"},
-        {"label": "하며", "pos": "Verb"},
-        {"label": "덤을", "pos": "Noun"},
-        {"label": "받는", "pos": "Verb"},
-        {"label": "정에", "pos": "Noun"},
-        {"label": "있습니다.", "pos": "Verb"}
+        {
+          "label": "전통",
+          "pos": "Noun"
+        },
+        {
+          "label": "시장의",
+          "pos": "Noun"
+        },
+        {
+          "label": "묘미는",
+          "pos": "Noun"
+        },
+        {
+          "label": "상인들과",
+          "pos": "Noun"
+        },
+        {
+          "label": "흥정을",
+          "pos": "Noun"
+        },
+        {
+          "label": "하며",
+          "pos": "Verb"
+        },
+        {
+          "label": "덤을",
+          "pos": "Noun"
+        },
+        {
+          "label": "받는",
+          "pos": "Verb"
+        },
+        {
+          "label": "정에",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 6.0, "end": 12.0,
+      "start": 6.87,
+      "end": 13.33,
       "trans": "대형 마트와 달리 제철 식재료를 저렴하게 구입할 수 있어 인기가 많습니다.",
       "words": [
-        {"label": "대형", "pos": "Noun"},
-        {"label": "마트와", "pos": "Noun"},
-        {"label": "달리", "pos": "Adverb"},
-        {"label": "제철", "pos": "Noun"},
-        {"label": "식재료를", "pos": "Noun"},
-        {"label": "저렴하게", "pos": "Adjective"},
-        {"label": "구입할 수", "pos": "Verb"},
-        {"label": "있어", "pos": "Verb"},
-        {"label": "인기가", "pos": "Noun"},
-        {"label": "많습니다.", "pos": "Adjective"}
+        {
+          "label": "대형",
+          "pos": "Noun"
+        },
+        {
+          "label": "마트와",
+          "pos": "Noun"
+        },
+        {
+          "label": "달리",
+          "pos": "Adverb"
+        },
+        {
+          "label": "제철",
+          "pos": "Noun"
+        },
+        {
+          "label": "식재료를",
+          "pos": "Noun"
+        },
+        {
+          "label": "저렴하게",
+          "pos": "Adjective"
+        },
+        {
+          "label": "구입할 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있어",
+          "pos": "Verb"
+        },
+        {
+          "label": "인기가",
+          "pos": "Noun"
+        },
+        {
+          "label": "많습니다.",
+          "pos": "Adjective"
+        }
       ]
     },
     {
-      "start": 12.5, "end": 17.5,
+      "start": 14.08,
+      "end": 21.06,
       "trans": "또한 떡볶이나 빈대떡 같은 시장 먹거리는 관광객들에게도 필수 코스입니다.",
       "words": [
-        {"label": "또한", "pos": "Adverb"},
-        {"label": "떡볶이나", "pos": "Noun"},
-        {"label": "빈대떡", "pos": "Noun"},
-        {"label": "같은", "pos": "Adjective"},
-        {"label": "시장", "pos": "Noun"},
-        {"label": "먹거리는", "pos": "Noun"},
-        {"label": "관광객들에게도", "pos": "Noun"},
-        {"label": "필수", "pos": "Noun"},
-        {"label": "코스입니다.", "pos": "Noun"}
+        {
+          "label": "또한",
+          "pos": "Adverb"
+        },
+        {
+          "label": "떡볶이나",
+          "pos": "Noun"
+        },
+        {
+          "label": "빈대떡",
+          "pos": "Noun"
+        },
+        {
+          "label": "같은",
+          "pos": "Adjective"
+        },
+        {
+          "label": "시장",
+          "pos": "Noun"
+        },
+        {
+          "label": "먹거리는",
+          "pos": "Noun"
+        },
+        {
+          "label": "관광객들에게도",
+          "pos": "Noun"
+        },
+        {
+          "label": "필수",
+          "pos": "Noun"
+        },
+        {
+          "label": "코스입니다.",
+          "pos": "Noun"
+        }
       ]
     }
   ],
   "business_meeting_adv": [
     {
-      "start": 0.5, "end": 5.0,
+      "start": 0.5,
+      "end": 5.12,
       "trans": "이번 프로젝트의 핵심 성과 지표를 검토해 보도록 하겠습니다.",
       "words": [
-        {"label": "이번", "pos": "Noun"},
-        {"label": "프로젝트의", "pos": "Noun"},
-        {"label": "핵심", "pos": "Noun"},
-        {"label": "성과", "pos": "Noun"},
-        {"label": "지표를", "pos": "Noun"},
-        {"label": "검토해", "pos": "Verb"},
-        {"label": "보도록", "pos": "Verb"},
-        {"label": "하겠습니다.", "pos": "Verb"}
+        {
+          "label": "이번",
+          "pos": "Noun"
+        },
+        {
+          "label": "프로젝트의",
+          "pos": "Noun"
+        },
+        {
+          "label": "핵심",
+          "pos": "Noun"
+        },
+        {
+          "label": "성과",
+          "pos": "Noun"
+        },
+        {
+          "label": "지표를",
+          "pos": "Noun"
+        },
+        {
+          "label": "검토해",
+          "pos": "Verb"
+        },
+        {
+          "label": "보도록",
+          "pos": "Verb"
+        },
+        {
+          "label": "하겠습니다.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 5.5, "end": 10.5,
+      "start": 5.87,
+      "end": 11.13,
       "trans": "시장 점유율 확대를 위해 마케팅 전략을 다각화할 필요가 있습니다.",
       "words": [
-        {"label": "시장", "pos": "Noun"},
-        {"label": "점유율", "pos": "Noun"},
-        {"label": "확대를", "pos": "Noun"},
-        {"label": "위해", "pos": "Verb"},
-        {"label": "마케팅", "pos": "Noun"},
-        {"label": "전략을", "pos": "Noun"},
-        {"label": "다각화할", "pos": "Verb"},
-        {"label": "필요가", "pos": "Noun"},
-        {"label": "있습니다.", "pos": "Verb"}
+        {
+          "label": "시장",
+          "pos": "Noun"
+        },
+        {
+          "label": "점유율",
+          "pos": "Noun"
+        },
+        {
+          "label": "확대를",
+          "pos": "Noun"
+        },
+        {
+          "label": "위해",
+          "pos": "Verb"
+        },
+        {
+          "label": "마케팅",
+          "pos": "Noun"
+        },
+        {
+          "label": "전략을",
+          "pos": "Noun"
+        },
+        {
+          "label": "다각화할",
+          "pos": "Verb"
+        },
+        {
+          "label": "필요가",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
       ]
     },
     {
-      "start": 11.0, "end": 16.0,
+      "start": 11.88,
+      "end": 16.46,
       "trans": "구체적인 실행 방안은 다음 주 회의에서 다시 논의하기로 하죠.",
       "words": [
-        {"label": "구체적인", "pos": "Adjective"},
-        {"label": "실행", "pos": "Noun"},
-        {"label": "방안은", "pos": "Noun"},
-        {"label": "다음 주", "pos": "Noun"},
-        {"label": "회의에서", "pos": "Noun"},
-        {"label": "다시", "pos": "Adverb"},
-        {"label": "논의하기로", "pos": "Verb"},
-        {"label": "하죠.", "pos": "Verb"}
+        {
+          "label": "구체적인",
+          "pos": "Adjective"
+        },
+        {
+          "label": "실행",
+          "pos": "Noun"
+        },
+        {
+          "label": "방안은",
+          "pos": "Noun"
+        },
+        {
+          "label": "다음 주",
+          "pos": "Noun"
+        },
+        {
+          "label": "회의에서",
+          "pos": "Noun"
+        },
+        {
+          "label": "다시",
+          "pos": "Adverb"
+        },
+        {
+          "label": "논의하기로",
+          "pos": "Verb"
+        },
+        {
+          "label": "하죠.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "airport_checkin": [
+    {
+      "start": 1.0,
+      "end": 5.7,
+      "trans": "안녕하세요. 오늘 부산으로 가는 비행기를 체크인하려고 합니다.",
+      "words": [
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "오늘",
+          "pos": "Noun"
+        },
+        {
+          "label": "부산으로",
+          "pos": "Noun"
+        },
+        {
+          "label": "가는",
+          "pos": "Verb"
+        },
+        {
+          "label": "비행기를",
+          "pos": "Noun"
+        },
+        {
+          "label": "체크인하려고",
+          "pos": "Verb"
+        },
+        {
+          "label": "합니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 6.45,
+      "end": 10.27,
+      "trans": "부칠 짐은 하나 있고, 창가 자리로 부탁드립니다.",
+      "words": [
+        {
+          "label": "부칠",
+          "pos": "Verb"
+        },
+        {
+          "label": "짐은",
+          "pos": "Noun"
+        },
+        {
+          "label": "하나",
+          "pos": "Noun"
+        },
+        {
+          "label": "있고,",
+          "pos": "Verb"
+        },
+        {
+          "label": "창가",
+          "pos": "Noun"
+        },
+        {
+          "label": "자리로",
+          "pos": "Noun"
+        },
+        {
+          "label": "부탁드립니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.02,
+      "end": 14.24,
+      "trans": "탑승구는 몇 번인지 알려 주실 수 있을까요?",
+      "words": [
+        {
+          "label": "탑승구는",
+          "pos": "Noun"
+        },
+        {
+          "label": "몇 번인지",
+          "pos": "Noun"
+        },
+        {
+          "label": "알려",
+          "pos": "Verb"
+        },
+        {
+          "label": "주실 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "asking_directions": [
+    {
+      "start": 1.0,
+      "end": 5.78,
+      "trans": "실례합니다. 시청역에 가려면 어디로 가야 하나요?",
+      "words": [
+        {
+          "label": "실례합니다.",
+          "pos": "Expression"
+        },
+        {
+          "label": "시청역에",
+          "pos": "Noun"
+        },
+        {
+          "label": "가려면",
+          "pos": "Verb"
+        },
+        {
+          "label": "어디로",
+          "pos": "Noun"
+        },
+        {
+          "label": "가야",
+          "pos": "Verb"
+        },
+        {
+          "label": "하나요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 6.53,
+      "end": 11.23,
+      "trans": "이 길을 따라 쭉 가다가 사거리에서 왼쪽으로 도세요.",
+      "words": [
+        {
+          "label": "이 길을",
+          "pos": "Noun"
+        },
+        {
+          "label": "따라",
+          "pos": "Verb"
+        },
+        {
+          "label": "쭉",
+          "pos": "Adverb"
+        },
+        {
+          "label": "가다가",
+          "pos": "Verb"
+        },
+        {
+          "label": "사거리에서",
+          "pos": "Noun"
+        },
+        {
+          "label": "왼쪽으로",
+          "pos": "Noun"
+        },
+        {
+          "label": "도세요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.98,
+      "end": 16.64,
+      "trans": "걸어서 오 분 정도 걸리고, 길 건너편에 입구가 보여요.",
+      "words": [
+        {
+          "label": "걸어서",
+          "pos": "Verb"
+        },
+        {
+          "label": "오 분",
+          "pos": "Noun"
+        },
+        {
+          "label": "정도",
+          "pos": "Noun"
+        },
+        {
+          "label": "걸리고,",
+          "pos": "Verb"
+        },
+        {
+          "label": "길",
+          "pos": "Noun"
+        },
+        {
+          "label": "건너편에",
+          "pos": "Noun"
+        },
+        {
+          "label": "입구가",
+          "pos": "Noun"
+        },
+        {
+          "label": "보여요.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "cafe_ordering": [
+    {
+      "start": 1.0,
+      "end": 5.62,
+      "trans": "안녕하세요. 따뜻한 라테 한 잔하고 아이스티 하나 주세요.",
+      "words": [
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "따뜻한",
+          "pos": "Adjective"
+        },
+        {
+          "label": "라테",
+          "pos": "Noun"
+        },
+        {
+          "label": "한 잔하고",
+          "pos": "Noun"
+        },
+        {
+          "label": "아이스티",
+          "pos": "Noun"
+        },
+        {
+          "label": "하나",
+          "pos": "Noun"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 6.37,
+      "end": 10.67,
+      "trans": "라테는 큰 사이즈로 하고, 시럽은 조금만 넣어 주세요.",
+      "words": [
+        {
+          "label": "라테는",
+          "pos": "Noun"
+        },
+        {
+          "label": "큰",
+          "pos": "Adjective"
+        },
+        {
+          "label": "사이즈로",
+          "pos": "Noun"
+        },
+        {
+          "label": "하고,",
+          "pos": "Verb"
+        },
+        {
+          "label": "시럽은",
+          "pos": "Noun"
+        },
+        {
+          "label": "조금만",
+          "pos": "Adverb"
+        },
+        {
+          "label": "넣어",
+          "pos": "Verb"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.42,
+      "end": 15.24,
+      "trans": "포장해 갈 거라서 컵홀더도 같이 부탁드립니다.",
+      "words": [
+        {
+          "label": "포장해",
+          "pos": "Verb"
+        },
+        {
+          "label": "갈 거라서",
+          "pos": "Verb"
+        },
+        {
+          "label": "컵홀더도",
+          "pos": "Noun"
+        },
+        {
+          "label": "같이",
+          "pos": "Adverb"
+        },
+        {
+          "label": "부탁드립니다.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "clothes_shopping": [
+    {
+      "start": 1.0,
+      "end": 4.98,
+      "trans": "이 셔츠 마음에 드는데, 더 큰 사이즈가 있나요?",
+      "words": [
+        {
+          "label": "이",
+          "pos": "Noun"
+        },
+        {
+          "label": "셔츠",
+          "pos": "Noun"
+        },
+        {
+          "label": "마음에",
+          "pos": "Noun"
+        },
+        {
+          "label": "드는데,",
+          "pos": "Verb"
+        },
+        {
+          "label": "더",
+          "pos": "Adverb"
+        },
+        {
+          "label": "큰",
+          "pos": "Adjective"
+        },
+        {
+          "label": "사이즈가",
+          "pos": "Noun"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 5.73,
+      "end": 10.31,
+      "trans": "피팅룸에서 입어 보고 다른 색깔도 비교해 보고 싶어요.",
+      "words": [
+        {
+          "label": "피팅룸에서",
+          "pos": "Noun"
+        },
+        {
+          "label": "입어",
+          "pos": "Verb"
+        },
+        {
+          "label": "보고",
+          "pos": "Verb"
+        },
+        {
+          "label": "다른",
+          "pos": "Adjective"
+        },
+        {
+          "label": "색깔도",
+          "pos": "Noun"
+        },
+        {
+          "label": "비교해",
+          "pos": "Verb"
+        },
+        {
+          "label": "보고",
+          "pos": "Verb"
+        },
+        {
+          "label": "싶어요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.06,
+      "end": 14.28,
+      "trans": "이걸로 할게요. 카드로 결제하겠습니다.",
+      "words": [
+        {
+          "label": "이걸로",
+          "pos": "Noun"
+        },
+        {
+          "label": "할게요.",
+          "pos": "Verb"
+        },
+        {
+          "label": "카드로",
+          "pos": "Noun"
+        },
+        {
+          "label": "결제하겠습니다.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "convenience_store": [
+    {
+      "start": 1.0,
+      "end": 4.14,
+      "trans": "이 도시락하고 물 한 병 계산해 주세요.",
+      "words": [
+        {
+          "label": "이",
+          "pos": "Noun"
+        },
+        {
+          "label": "도시락하고",
+          "pos": "Noun"
+        },
+        {
+          "label": "물",
+          "pos": "Noun"
+        },
+        {
+          "label": "한 병",
+          "pos": "Noun"
+        },
+        {
+          "label": "계산해",
+          "pos": "Verb"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 4.89,
+      "end": 9.55,
+      "trans": "전자레인지에 데워 주실 수 있나요? 봉투도 필요해요.",
+      "words": [
+        {
+          "label": "전자레인지에",
+          "pos": "Noun"
+        },
+        {
+          "label": "데워",
+          "pos": "Verb"
+        },
+        {
+          "label": "주실 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb"
+        },
+        {
+          "label": "봉투도",
+          "pos": "Noun"
+        },
+        {
+          "label": "필요해요.",
+          "pos": "Adjective"
+        }
+      ]
+    },
+    {
+      "start": 10.3,
+      "end": 13.84,
+      "trans": "멤버십 적립하고 카드로 결제하겠습니다.",
+      "words": [
+        {
+          "label": "멤버십",
+          "pos": "Noun"
+        },
+        {
+          "label": "적립하고",
+          "pos": "Verb"
+        },
+        {
+          "label": "카드로",
+          "pos": "Noun"
+        },
+        {
+          "label": "결제하겠습니다.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "doctor_visit": [
+    {
+      "start": 1.0,
+      "end": 4.66,
+      "trans": "어제부터 목이 아프고 기침이 계속 나요.",
+      "words": [
+        {
+          "label": "어제부터",
+          "pos": "Noun"
+        },
+        {
+          "label": "목이",
+          "pos": "Noun"
+        },
+        {
+          "label": "아프고",
+          "pos": "Adjective"
+        },
+        {
+          "label": "기침이",
+          "pos": "Noun"
+        },
+        {
+          "label": "계속",
+          "pos": "Adverb"
+        },
+        {
+          "label": "나요.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 5.41,
+      "end": 9.87,
+      "trans": "열은 심하지 않지만 삼킬 때마다 통증이 있습니다.",
+      "words": [
+        {
+          "label": "열은",
+          "pos": "Noun"
+        },
+        {
+          "label": "심하지",
+          "pos": "Adjective"
+        },
+        {
+          "label": "않지만",
+          "pos": "Verb"
+        },
+        {
+          "label": "삼킬 때마다",
+          "pos": "Verb"
+        },
+        {
+          "label": "통증이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 10.62,
+      "end": 14.76,
+      "trans": "약은 식후에 먹으면 되는지 설명해 주세요.",
+      "words": [
+        {
+          "label": "약은",
+          "pos": "Noun"
+        },
+        {
+          "label": "식후에",
+          "pos": "Noun"
+        },
+        {
+          "label": "먹으면",
+          "pos": "Verb"
+        },
+        {
+          "label": "되는지",
+          "pos": "Verb"
+        },
+        {
+          "label": "설명해",
+          "pos": "Verb"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "hotel_checkin": [
+    {
+      "start": 1.0,
+      "end": 5.7,
+      "trans": "안녕하세요. 오늘부터 이틀 동안 예약한 방이 있습니다.",
+      "words": [
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "오늘부터",
+          "pos": "Noun"
+        },
+        {
+          "label": "이틀",
+          "pos": "Noun"
+        },
+        {
+          "label": "동안",
+          "pos": "Noun"
+        },
+        {
+          "label": "예약한",
+          "pos": "Verb"
+        },
+        {
+          "label": "방이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 6.45,
+      "end": 10.67,
+      "trans": "조식 시간과 와이파이 비밀번호를 알려 주실 수 있나요?",
+      "words": [
+        {
+          "label": "조식",
+          "pos": "Noun"
+        },
+        {
+          "label": "시간과",
+          "pos": "Noun"
+        },
+        {
+          "label": "와이파이",
+          "pos": "Noun"
+        },
+        {
+          "label": "비밀번호를",
+          "pos": "Noun"
+        },
+        {
+          "label": "알려",
+          "pos": "Verb"
+        },
+        {
+          "label": "주실 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.42,
+      "end": 15.16,
+      "trans": "체크아웃은 몇 시까지인지 확인하고 싶습니다.",
+      "words": [
+        {
+          "label": "체크아웃은",
+          "pos": "Noun"
+        },
+        {
+          "label": "몇 시까지인지",
+          "pos": "Noun"
+        },
+        {
+          "label": "확인하고",
+          "pos": "Verb"
+        },
+        {
+          "label": "싶습니다.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "restaurant_ordering": [
+    {
+      "start": 1.0,
+      "end": 6.02,
+      "trans": "안녕하세요. 두 명인데 창가 자리로 앉을 수 있을까요?",
+      "words": [
+        {
+          "label": "안녕하세요.",
+          "pos": "Expression"
+        },
+        {
+          "label": "두 명인데",
+          "pos": "Noun"
+        },
+        {
+          "label": "창가",
+          "pos": "Noun"
+        },
+        {
+          "label": "자리로",
+          "pos": "Noun"
+        },
+        {
+          "label": "앉을 수",
+          "pos": "Verb"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 6.77,
+      "end": 10.83,
+      "trans": "추천 메뉴 하나하고 비빔밥 두 그릇 주문하겠습니다.",
+      "words": [
+        {
+          "label": "추천",
+          "pos": "Noun"
+        },
+        {
+          "label": "메뉴",
+          "pos": "Noun"
+        },
+        {
+          "label": "하나하고",
+          "pos": "Noun"
+        },
+        {
+          "label": "비빔밥",
+          "pos": "Noun"
+        },
+        {
+          "label": "두 그릇",
+          "pos": "Noun"
+        },
+        {
+          "label": "주문하겠습니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 11.58,
+      "end": 16.04,
+      "trans": "음식은 덜 맵게 해 주시고, 물도 부탁드립니다.",
+      "words": [
+        {
+          "label": "음식은",
+          "pos": "Noun"
+        },
+        {
+          "label": "덜",
+          "pos": "Adverb"
+        },
+        {
+          "label": "맵게",
+          "pos": "Adjective"
+        },
+        {
+          "label": "해",
+          "pos": "Verb"
+        },
+        {
+          "label": "주시고,",
+          "pos": "Verb"
+        },
+        {
+          "label": "물도",
+          "pos": "Noun"
+        },
+        {
+          "label": "부탁드립니다.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "subway_navigation": [
+    {
+      "start": 1.0,
+      "end": 4.98,
+      "trans": "홍대입구역에 가려면 몇 호선을 타야 하나요?",
+      "words": [
+        {
+          "label": "홍대입구역에",
+          "pos": "Noun"
+        },
+        {
+          "label": "가려면",
+          "pos": "Verb"
+        },
+        {
+          "label": "몇 호선을",
+          "pos": "Noun"
+        },
+        {
+          "label": "타야",
+          "pos": "Verb"
+        },
+        {
+          "label": "하나요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 5.73,
+      "end": 10.23,
+      "trans": "여기서 이 호선을 타고 합정역에서 갈아타면 됩니다.",
+      "words": [
+        {
+          "label": "여기서",
+          "pos": "Noun"
+        },
+        {
+          "label": "이 호선을",
+          "pos": "Noun"
+        },
+        {
+          "label": "타고",
+          "pos": "Verb"
+        },
+        {
+          "label": "합정역에서",
+          "pos": "Noun"
+        },
+        {
+          "label": "갈아타면",
+          "pos": "Verb"
+        },
+        {
+          "label": "됩니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 10.98,
+      "end": 14.88,
+      "trans": "교통카드를 찍고 들어간 뒤에 표지판을 따라가세요.",
+      "words": [
+        {
+          "label": "교통카드를",
+          "pos": "Noun"
+        },
+        {
+          "label": "찍고",
+          "pos": "Verb"
+        },
+        {
+          "label": "들어간",
+          "pos": "Verb"
+        },
+        {
+          "label": "뒤에",
+          "pos": "Noun"
+        },
+        {
+          "label": "표지판을",
+          "pos": "Noun"
+        },
+        {
+          "label": "따라가세요.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "workplace_greetings": [
+    {
+      "start": 1.0,
+      "end": 4.82,
+      "trans": "좋은 아침입니다. 주말 잘 보내셨어요?",
+      "words": [
+        {
+          "label": "좋은",
+          "pos": "Adjective"
+        },
+        {
+          "label": "아침입니다.",
+          "pos": "Noun"
+        },
+        {
+          "label": "주말",
+          "pos": "Noun"
+        },
+        {
+          "label": "잘",
+          "pos": "Adverb"
+        },
+        {
+          "label": "보내셨어요?",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 5.57,
+      "end": 9.55,
+      "trans": "오늘 오전 회의 자료를 미리 공유드리겠습니다.",
+      "words": [
+        {
+          "label": "오늘",
+          "pos": "Noun"
+        },
+        {
+          "label": "오전",
+          "pos": "Noun"
+        },
+        {
+          "label": "회의",
+          "pos": "Noun"
+        },
+        {
+          "label": "자료를",
+          "pos": "Noun"
+        },
+        {
+          "label": "미리",
+          "pos": "Adverb"
+        },
+        {
+          "label": "공유드리겠습니다.",
+          "pos": "Verb"
+        }
+      ]
+    },
+    {
+      "start": 10.3,
+      "end": 14.64,
+      "trans": "확인하신 뒤에 의견이 있으면 편하게 말씀해 주세요.",
+      "words": [
+        {
+          "label": "확인하신",
+          "pos": "Verb"
+        },
+        {
+          "label": "뒤에",
+          "pos": "Noun"
+        },
+        {
+          "label": "의견이",
+          "pos": "Noun"
+        },
+        {
+          "label": "있으면",
+          "pos": "Verb"
+        },
+        {
+          "label": "편하게",
+          "pos": "Adjective"
+        },
+        {
+          "label": "말씀해",
+          "pos": "Verb"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb"
+        }
+      ]
+    }
+  ],
+  "weather_small_talk": [
+    {
+      "start": 0.5,
+      "end": 3.52,
+      "trans": "오늘 날씨가 정말 좋네요.",
+      "words": [
+        {
+          "label": "오늘",
+          "pos": "Noun",
+          "mean": "today"
+        },
+        {
+          "label": "날씨가",
+          "pos": "Noun",
+          "mean": "weather"
+        },
+        {
+          "label": "정말",
+          "pos": "Adverb",
+          "mean": "really"
+        },
+        {
+          "label": "좋네요.",
+          "pos": "Adjective",
+          "mean": "is nice"
+        }
+      ]
+    },
+    {
+      "start": 4.27,
+      "end": 7.37,
+      "trans": "네, 바람도 시원해서 기분이 좋아요.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "바람도",
+          "pos": "Noun",
+          "mean": "wind also"
+        },
+        {
+          "label": "시원해서",
+          "pos": "Adjective",
+          "mean": "because it is cool"
+        },
+        {
+          "label": "기분이",
+          "pos": "Noun",
+          "mean": "mood"
+        },
+        {
+          "label": "좋아요.",
+          "pos": "Adjective",
+          "mean": "is good"
+        }
+      ]
+    },
+    {
+      "start": 8.12,
+      "end": 10.58,
+      "trans": "내일은 비가 온대요.",
+      "words": [
+        {
+          "label": "내일은",
+          "pos": "Noun",
+          "mean": "tomorrow"
+        },
+        {
+          "label": "비가",
+          "pos": "Noun",
+          "mean": "rain"
+        },
+        {
+          "label": "온대요.",
+          "pos": "Verb",
+          "mean": "they say it will come"
+        }
+      ]
+    },
+    {
+      "start": 11.33,
+      "end": 14.23,
+      "trans": "그럼 우산을 꼭 챙기세요.",
+      "words": [
+        {
+          "label": "그럼",
+          "pos": "Adverb",
+          "mean": "then"
+        },
+        {
+          "label": "우산을",
+          "pos": "Noun",
+          "mean": "umbrella"
+        },
+        {
+          "label": "꼭",
+          "pos": "Adverb",
+          "mean": "definitely"
+        },
+        {
+          "label": "챙기세요.",
+          "pos": "Verb",
+          "mean": "please bring"
+        }
+      ]
+    }
+  ],
+  "family_intro_basic": [
+    {
+      "start": 0.5,
+      "end": 3.08,
+      "trans": "우리 가족은 네 명이에요.",
+      "words": [
+        {
+          "label": "우리",
+          "pos": "Noun",
+          "mean": "our"
+        },
+        {
+          "label": "가족은",
+          "pos": "Noun",
+          "mean": "family"
+        },
+        {
+          "label": "네 명이에요.",
+          "pos": "Noun",
+          "mean": "four people"
+        }
+      ]
+    },
+    {
+      "start": 3.83,
+      "end": 6.65,
+      "trans": "부모님과 여동생이 있어요.",
+      "words": [
+        {
+          "label": "부모님과",
+          "pos": "Noun",
+          "mean": "parents and"
+        },
+        {
+          "label": "여동생이",
+          "pos": "Noun",
+          "mean": "younger sister"
+        },
+        {
+          "label": "있어요.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    },
+    {
+      "start": 7.4,
+      "end": 12.06,
+      "trans": "아버지는 회사원이고 어머니는 선생님이에요.",
+      "words": [
+        {
+          "label": "아버지는",
+          "pos": "Noun",
+          "mean": "father"
+        },
+        {
+          "label": "회사원이고",
+          "pos": "Noun",
+          "mean": "office worker and"
+        },
+        {
+          "label": "어머니는",
+          "pos": "Noun",
+          "mean": "mother"
+        },
+        {
+          "label": "선생님이에요.",
+          "pos": "Noun",
+          "mean": "teacher"
+        }
+      ]
+    },
+    {
+      "start": 12.81,
+      "end": 16.63,
+      "trans": "주말에는 가족과 같이 밥을 먹어요.",
+      "words": [
+        {
+          "label": "주말에는",
+          "pos": "Noun",
+          "mean": "on weekends"
+        },
+        {
+          "label": "가족과",
+          "pos": "Noun",
+          "mean": "with family"
+        },
+        {
+          "label": "같이",
+          "pos": "Adverb",
+          "mean": "together"
+        },
+        {
+          "label": "밥을",
+          "pos": "Noun",
+          "mean": "meal"
+        },
+        {
+          "label": "먹어요.",
+          "pos": "Verb",
+          "mean": "eat"
+        }
+      ]
+    }
+  ],
+  "hobbies_weekend": [
+    {
+      "start": 0.5,
+      "end": 2.52,
+      "trans": "취미가 뭐예요?",
+      "words": [
+        {
+          "label": "취미가",
+          "pos": "Noun",
+          "mean": "hobby"
+        },
+        {
+          "label": "뭐예요?",
+          "pos": "Expression",
+          "mean": "what is it"
+        }
+      ]
+    },
+    {
+      "start": 3.27,
+      "end": 6.89,
+      "trans": "저는 주말에 그림 그리는 것을 좋아해요.",
+      "words": [
+        {
+          "label": "저는",
+          "pos": "Noun",
+          "mean": "I"
+        },
+        {
+          "label": "주말에",
+          "pos": "Noun",
+          "mean": "on weekends"
+        },
+        {
+          "label": "그림",
+          "pos": "Noun",
+          "mean": "picture"
+        },
+        {
+          "label": "그리는",
+          "pos": "Verb",
+          "mean": "drawing"
+        },
+        {
+          "label": "것을",
+          "pos": "Noun",
+          "mean": "thing"
+        },
+        {
+          "label": "좋아해요.",
+          "pos": "Verb",
+          "mean": "like"
+        }
+      ]
+    },
+    {
+      "start": 7.64,
+      "end": 11.18,
+      "trans": "가끔 친구와 공원에서 산책해요.",
+      "words": [
+        {
+          "label": "가끔",
+          "pos": "Adverb",
+          "mean": "sometimes"
+        },
+        {
+          "label": "친구와",
+          "pos": "Noun",
+          "mean": "with a friend"
+        },
+        {
+          "label": "공원에서",
+          "pos": "Noun",
+          "mean": "at the park"
+        },
+        {
+          "label": "산책해요.",
+          "pos": "Verb",
+          "mean": "take a walk"
+        }
+      ]
+    },
+    {
+      "start": 11.93,
+      "end": 14.67,
+      "trans": "이번 주말에도 같이 갈래요?",
+      "words": [
+        {
+          "label": "이번",
+          "pos": "Noun",
+          "mean": "this"
+        },
+        {
+          "label": "주말에도",
+          "pos": "Noun",
+          "mean": "weekend too"
+        },
+        {
+          "label": "같이",
+          "pos": "Adverb",
+          "mean": "together"
+        },
+        {
+          "label": "갈래요?",
+          "pos": "Verb",
+          "mean": "want to go"
+        }
+      ]
+    }
+  ],
+  "taxi_destination": [
+    {
+      "start": 0.5,
+      "end": 3.52,
+      "trans": "기사님, 홍대입구역으로 가 주세요.",
+      "words": [
+        {
+          "label": "기사님,",
+          "pos": "Noun",
+          "mean": "driver"
+        },
+        {
+          "label": "홍대입구역으로",
+          "pos": "Noun",
+          "mean": "to Hongdae Station"
+        },
+        {
+          "label": "가 주세요.",
+          "pos": "Verb",
+          "mean": "please go"
+        }
+      ]
+    },
+    {
+      "start": 4.27,
+      "end": 6.85,
+      "trans": "네, 어느 출구로 가면 될까요?",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "어느",
+          "pos": "Noun",
+          "mean": "which"
+        },
+        {
+          "label": "출구로",
+          "pos": "Noun",
+          "mean": "to exit"
+        },
+        {
+          "label": "가면",
+          "pos": "Verb",
+          "mean": "if go"
+        },
+        {
+          "label": "될까요?",
+          "pos": "Verb",
+          "mean": "would be okay"
+        }
+      ]
+    },
+    {
+      "start": 7.6,
+      "end": 10.46,
+      "trans": "2번 출구 앞에서 내려 주세요.",
+      "words": [
+        {
+          "label": "2번",
+          "pos": "Noun",
+          "mean": "number two"
+        },
+        {
+          "label": "출구",
+          "pos": "Noun",
+          "mean": "exit"
+        },
+        {
+          "label": "앞에서",
+          "pos": "Noun",
+          "mean": "in front"
+        },
+        {
+          "label": "내려 주세요.",
+          "pos": "Verb",
+          "mean": "please let me off"
+        }
+      ]
+    },
+    {
+      "start": 11.21,
+      "end": 13.83,
+      "trans": "요금은 얼마나 나올까요?",
+      "words": [
+        {
+          "label": "요금은",
+          "pos": "Noun",
+          "mean": "fare"
+        },
+        {
+          "label": "얼마나",
+          "pos": "Adverb",
+          "mean": "how much"
+        },
+        {
+          "label": "나올까요?",
+          "pos": "Verb",
+          "mean": "will come out"
+        }
+      ]
+    }
+  ],
+  "phone_number_booking": [
+    {
+      "start": 0.5,
+      "end": 4.24,
+      "trans": "안녕하세요, 오늘 저녁 예약하고 싶어요.",
+      "words": [
+        {
+          "label": "안녕하세요,",
+          "pos": "Expression",
+          "mean": "hello"
+        },
+        {
+          "label": "오늘",
+          "pos": "Noun",
+          "mean": "today"
+        },
+        {
+          "label": "저녁",
+          "pos": "Noun",
+          "mean": "evening"
+        },
+        {
+          "label": "예약하고",
+          "pos": "Verb",
+          "mean": "reserve"
+        },
+        {
+          "label": "싶어요.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.99,
+      "end": 6.97,
+      "trans": "몇 분이 오시나요?",
+      "words": [
+        {
+          "label": "몇 분이",
+          "pos": "Noun",
+          "mean": "how many people"
+        },
+        {
+          "label": "오시나요?",
+          "pos": "Verb",
+          "mean": "are coming"
+        }
+      ]
+    },
+    {
+      "start": 7.72,
+      "end": 14.18,
+      "trans": "두 명이고, 전화번호는 010-1234-5678이에요.",
+      "words": [
+        {
+          "label": "두 명이고,",
+          "pos": "Noun",
+          "mean": "two people"
+        },
+        {
+          "label": "전화번호는",
+          "pos": "Noun",
+          "mean": "phone number"
+        },
+        {
+          "label": "010-1234-5678이에요.",
+          "pos": "Noun",
+          "mean": "is 010-1234-5678"
+        }
+      ]
+    },
+    {
+      "start": 14.93,
+      "end": 17.83,
+      "trans": "네, 일곱 시로 예약해 드릴게요.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "일곱 시로",
+          "pos": "Noun",
+          "mean": "for seven o'clock"
+        },
+        {
+          "label": "예약해",
+          "pos": "Verb",
+          "mean": "reserve"
+        },
+        {
+          "label": "드릴게요.",
+          "pos": "Verb",
+          "mean": "will do for you"
+        }
+      ]
+    }
+  ],
+  "pharmacy_basic": [
+    {
+      "start": 0.5,
+      "end": 3.48,
+      "trans": "목이 아프고 기침이 나요.",
+      "words": [
+        {
+          "label": "목이",
+          "pos": "Noun",
+          "mean": "throat"
+        },
+        {
+          "label": "아프고",
+          "pos": "Adjective",
+          "mean": "hurts and"
+        },
+        {
+          "label": "기침이",
+          "pos": "Noun",
+          "mean": "cough"
+        },
+        {
+          "label": "나요.",
+          "pos": "Verb",
+          "mean": "comes out"
+        }
+      ]
+    },
+    {
+      "start": 4.23,
+      "end": 6.89,
+      "trans": "감기약을 살 수 있을까요?",
+      "words": [
+        {
+          "label": "감기약을",
+          "pos": "Noun",
+          "mean": "cold medicine"
+        },
+        {
+          "label": "살 수",
+          "pos": "Verb",
+          "mean": "can buy"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb",
+          "mean": "would there be"
+        }
+      ]
+    },
+    {
+      "start": 7.64,
+      "end": 10.26,
+      "trans": "식사 후에 한 알씩 드세요.",
+      "words": [
+        {
+          "label": "식사",
+          "pos": "Noun",
+          "mean": "meal"
+        },
+        {
+          "label": "후에",
+          "pos": "Noun",
+          "mean": "after"
+        },
+        {
+          "label": "한 알씩",
+          "pos": "Noun",
+          "mean": "one pill each"
+        },
+        {
+          "label": "드세요.",
+          "pos": "Verb",
+          "mean": "please take"
+        }
+      ]
+    },
+    {
+      "start": 11.01,
+      "end": 13.47,
+      "trans": "네, 물도 많이 마실게요.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "물도",
+          "pos": "Noun",
+          "mean": "water too"
+        },
+        {
+          "label": "많이",
+          "pos": "Adverb",
+          "mean": "a lot"
+        },
+        {
+          "label": "마실게요.",
+          "pos": "Verb",
+          "mean": "will drink"
+        }
+      ]
+    }
+  ],
+  "school_schedule": [
+    {
+      "start": 0.5,
+      "end": 3.52,
+      "trans": "월요일에는 한국어 수업이 있어요.",
+      "words": [
+        {
+          "label": "월요일에는",
+          "pos": "Noun",
+          "mean": "on Monday"
+        },
+        {
+          "label": "한국어",
+          "pos": "Noun",
+          "mean": "Korean language"
+        },
+        {
+          "label": "수업이",
+          "pos": "Noun",
+          "mean": "class"
+        },
+        {
+          "label": "있어요.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    },
+    {
+      "start": 4.27,
+      "end": 7.29,
+      "trans": "수업은 오전 아홉 시에 시작해요.",
+      "words": [
+        {
+          "label": "수업은",
+          "pos": "Noun",
+          "mean": "class"
+        },
+        {
+          "label": "오전",
+          "pos": "Noun",
+          "mean": "morning"
+        },
+        {
+          "label": "아홉 시에",
+          "pos": "Noun",
+          "mean": "at nine"
+        },
+        {
+          "label": "시작해요.",
+          "pos": "Verb",
+          "mean": "starts"
+        }
+      ]
+    },
+    {
+      "start": 8.04,
+      "end": 10.98,
+      "trans": "화요일에는 숙제가 많아요.",
+      "words": [
+        {
+          "label": "화요일에는",
+          "pos": "Noun",
+          "mean": "on Tuesday"
+        },
+        {
+          "label": "숙제가",
+          "pos": "Noun",
+          "mean": "homework"
+        },
+        {
+          "label": "많아요.",
+          "pos": "Adjective",
+          "mean": "is a lot"
+        }
+      ]
+    },
+    {
+      "start": 11.73,
+      "end": 14.59,
+      "trans": "그래도 수업이 재미있어요.",
+      "words": [
+        {
+          "label": "그래도",
+          "pos": "Adverb",
+          "mean": "still"
+        },
+        {
+          "label": "수업이",
+          "pos": "Noun",
+          "mean": "class"
+        },
+        {
+          "label": "재미있어요.",
+          "pos": "Adjective",
+          "mean": "is fun"
+        }
+      ]
+    }
+  ],
+  "paying_card_cash": [
+    {
+      "start": 0.5,
+      "end": 2.6,
+      "trans": "카드로 결제할게요.",
+      "words": [
+        {
+          "label": "카드로",
+          "pos": "Noun",
+          "mean": "by card"
+        },
+        {
+          "label": "결제할게요.",
+          "pos": "Verb",
+          "mean": "will pay"
+        }
+      ]
+    },
+    {
+      "start": 3.35,
+      "end": 5.66,
+      "trans": "영수증 필요하세요?",
+      "words": [
+        {
+          "label": "영수증",
+          "pos": "Noun",
+          "mean": "receipt"
+        },
+        {
+          "label": "필요하세요?",
+          "pos": "Adjective",
+          "mean": "do you need"
+        }
+      ]
+    },
+    {
+      "start": 6.41,
+      "end": 9.11,
+      "trans": "네, 영수증도 주세요.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "영수증도",
+          "pos": "Noun",
+          "mean": "receipt too"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb",
+          "mean": "please give"
+        }
+      ]
+    },
+    {
+      "start": 9.86,
+      "end": 12.87,
+      "trans": "현금으로 내면 할인되나요?",
+      "words": [
+        {
+          "label": "현금으로",
+          "pos": "Noun",
+          "mean": "in cash"
+        },
+        {
+          "label": "내면",
+          "pos": "Verb",
+          "mean": "if pay"
+        },
+        {
+          "label": "할인되나요?",
+          "pos": "Verb",
+          "mean": "is it discounted"
+        }
+      ]
+    }
+  ],
+  "photo_request": [
+    {
+      "start": 0.5,
+      "end": 3.76,
+      "trans": "실례지만 사진 좀 찍어 주실 수 있나요?",
+      "words": [
+        {
+          "label": "실례지만",
+          "pos": "Expression",
+          "mean": "excuse me but"
+        },
+        {
+          "label": "사진",
+          "pos": "Noun",
+          "mean": "photo"
+        },
+        {
+          "label": "좀",
+          "pos": "Adverb",
+          "mean": "a bit"
+        },
+        {
+          "label": "찍어 주실 수 있나요?",
+          "pos": "Verb",
+          "mean": "could you take"
+        }
+      ]
+    },
+    {
+      "start": 4.51,
+      "end": 7.01,
+      "trans": "네, 어디를 누르면 돼요?",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "어디를",
+          "pos": "Noun",
+          "mean": "where"
+        },
+        {
+          "label": "누르면",
+          "pos": "Verb",
+          "mean": "if press"
+        },
+        {
+          "label": "돼요?",
+          "pos": "Verb",
+          "mean": "is okay"
+        }
+      ]
+    },
+    {
+      "start": 7.76,
+      "end": 10.3,
+      "trans": "여기 버튼을 눌러 주세요.",
+      "words": [
+        {
+          "label": "여기",
+          "pos": "Noun",
+          "mean": "here"
+        },
+        {
+          "label": "버튼을",
+          "pos": "Noun",
+          "mean": "button"
+        },
+        {
+          "label": "눌러 주세요.",
+          "pos": "Verb",
+          "mean": "please press"
+        }
+      ]
+    },
+    {
+      "start": 11.05,
+      "end": 13.67,
+      "trans": "감사합니다, 잘 나왔어요!",
+      "words": [
+        {
+          "label": "감사합니다,",
+          "pos": "Expression",
+          "mean": "thank you"
+        },
+        {
+          "label": "잘",
+          "pos": "Adverb",
+          "mean": "well"
+        },
+        {
+          "label": "나왔어요!",
+          "pos": "Verb",
+          "mean": "came out"
+        }
+      ]
+    }
+  ],
+  "delivery_order_basic": [
+    {
+      "start": 0.5,
+      "end": 3.56,
+      "trans": "김치찌개 하나 배달해 주세요.",
+      "words": [
+        {
+          "label": "김치찌개",
+          "pos": "Noun",
+          "mean": "kimchi stew"
+        },
+        {
+          "label": "하나",
+          "pos": "Noun",
+          "mean": "one"
+        },
+        {
+          "label": "배달해",
+          "pos": "Verb",
+          "mean": "deliver"
+        },
+        {
+          "label": "주세요.",
+          "pos": "Verb",
+          "mean": "please give"
+        }
+      ]
+    },
+    {
+      "start": 4.31,
+      "end": 8.06,
+      "trans": "주소는 서울시 마포구 Onui 빌딩이에요.",
+      "words": [
+        {
+          "label": "주소는",
+          "pos": "Noun",
+          "mean": "address"
+        },
+        {
+          "label": "서울시",
+          "pos": "Noun",
+          "mean": "Seoul City"
+        },
+        {
+          "label": "마포구",
+          "pos": "Noun",
+          "mean": "Mapo-gu"
+        },
+        {
+          "label": "Onui",
+          "pos": "Noun",
+          "mean": "Onui"
+        },
+        {
+          "label": "빌딩이에요.",
+          "pos": "Noun",
+          "mean": "is building"
+        }
+      ]
+    },
+    {
+      "start": 8.81,
+      "end": 11.58,
+      "trans": "몇 분 정도 걸리나요?",
+      "words": [
+        {
+          "label": "몇 분",
+          "pos": "Noun",
+          "mean": "how many minutes"
+        },
+        {
+          "label": "정도",
+          "pos": "Noun",
+          "mean": "about"
+        },
+        {
+          "label": "걸리나요?",
+          "pos": "Verb",
+          "mean": "does it take"
+        }
+      ]
+    },
+    {
+      "start": 12.33,
+      "end": 15.15,
+      "trans": "약 삼십 분 후에 도착합니다.",
+      "words": [
+        {
+          "label": "약",
+          "pos": "Adverb",
+          "mean": "about"
+        },
+        {
+          "label": "삼십 분",
+          "pos": "Noun",
+          "mean": "thirty minutes"
+        },
+        {
+          "label": "후에",
+          "pos": "Noun",
+          "mean": "after"
+        },
+        {
+          "label": "도착합니다.",
+          "pos": "Verb",
+          "mean": "arrives"
+        }
+      ]
+    }
+  ],
+  "bank_account": [
+    {
+      "start": 0.5,
+      "end": 3.75,
+      "trans": "안녕하세요, 계좌를 만들고 싶습니다.",
+      "words": [
+        {
+          "label": "안녕하세요,",
+          "pos": "Expression",
+          "mean": "hello"
+        },
+        {
+          "label": "계좌를",
+          "pos": "Noun",
+          "mean": "account"
+        },
+        {
+          "label": "만들고",
+          "pos": "Verb",
+          "mean": "make"
+        },
+        {
+          "label": "싶습니다.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.5,
+      "end": 8.35,
+      "trans": "신분증과 외국인등록증을 보여 주세요.",
+      "words": [
+        {
+          "label": "신분증과",
+          "pos": "Noun",
+          "mean": "ID and"
+        },
+        {
+          "label": "외국인등록증을",
+          "pos": "Noun",
+          "mean": "alien registration card"
+        },
+        {
+          "label": "보여 주세요.",
+          "pos": "Verb",
+          "mean": "please show"
+        }
+      ]
+    },
+    {
+      "start": 9.1,
+      "end": 12.52,
+      "trans": "인터넷 뱅킹도 같이 신청할 수 있나요?",
+      "words": [
+        {
+          "label": "인터넷 뱅킹도",
+          "pos": "Noun",
+          "mean": "internet banking too"
+        },
+        {
+          "label": "같이",
+          "pos": "Adverb",
+          "mean": "together"
+        },
+        {
+          "label": "신청할 수",
+          "pos": "Verb",
+          "mean": "can apply"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb",
+          "mean": "is there"
+        }
+      ]
+    },
+    {
+      "start": 13.27,
+      "end": 16.93,
+      "trans": "네, 비밀번호를 여기에서 입력하시면 됩니다.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "비밀번호를",
+          "pos": "Noun",
+          "mean": "password"
+        },
+        {
+          "label": "여기에서",
+          "pos": "Noun",
+          "mean": "here"
+        },
+        {
+          "label": "입력하시면",
+          "pos": "Verb",
+          "mean": "if you enter"
+        },
+        {
+          "label": "됩니다.",
+          "pos": "Verb",
+          "mean": "it is okay"
+        }
+      ]
+    },
+    {
+      "start": 17.68,
+      "end": 20.83,
+      "trans": "감사합니다. 천천히 해 볼게요.",
+      "words": [
+        {
+          "label": "감사합니다.",
+          "pos": "Expression",
+          "mean": "thank you"
+        },
+        {
+          "label": "천천히",
+          "pos": "Adverb",
+          "mean": "slowly"
+        },
+        {
+          "label": "해 볼게요.",
+          "pos": "Verb",
+          "mean": "will try"
+        }
+      ]
+    }
+  ],
+  "post_office_package": [
+    {
+      "start": 0.5,
+      "end": 3.51,
+      "trans": "이 택배를 부산으로 보내고 싶어요.",
+      "words": [
+        {
+          "label": "이",
+          "pos": "Noun",
+          "mean": "this"
+        },
+        {
+          "label": "택배를",
+          "pos": "Noun",
+          "mean": "package"
+        },
+        {
+          "label": "부산으로",
+          "pos": "Noun",
+          "mean": "to Busan"
+        },
+        {
+          "label": "보내고",
+          "pos": "Verb",
+          "mean": "send"
+        },
+        {
+          "label": "싶어요.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.26,
+      "end": 7.51,
+      "trans": "일반 배송과 빠른 배송이 있습니다.",
+      "words": [
+        {
+          "label": "일반 배송과",
+          "pos": "Noun",
+          "mean": "standard shipping and"
+        },
+        {
+          "label": "빠른 배송이",
+          "pos": "Noun",
+          "mean": "express shipping"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    },
+    {
+      "start": 8.26,
+      "end": 11.37,
+      "trans": "빠른 배송은 언제 도착하나요?",
+      "words": [
+        {
+          "label": "빠른 배송은",
+          "pos": "Noun",
+          "mean": "express shipping"
+        },
+        {
+          "label": "언제",
+          "pos": "Noun",
+          "mean": "when"
+        },
+        {
+          "label": "도착하나요?",
+          "pos": "Verb",
+          "mean": "arrives"
+        }
+      ]
+    },
+    {
+      "start": 12.12,
+      "end": 15.42,
+      "trans": "내일 오후쯤 도착할 예정입니다.",
+      "words": [
+        {
+          "label": "내일",
+          "pos": "Noun",
+          "mean": "tomorrow"
+        },
+        {
+          "label": "오후쯤",
+          "pos": "Noun",
+          "mean": "around afternoon"
+        },
+        {
+          "label": "도착할",
+          "pos": "Verb",
+          "mean": "will arrive"
+        },
+        {
+          "label": "예정입니다.",
+          "pos": "Noun",
+          "mean": "is scheduled"
+        }
+      ]
+    },
+    {
+      "start": 16.17,
+      "end": 19.13,
+      "trans": "그럼 빠른 배송으로 해 주세요.",
+      "words": [
+        {
+          "label": "그럼",
+          "pos": "Adverb",
+          "mean": "then"
+        },
+        {
+          "label": "빠른 배송으로",
+          "pos": "Noun",
+          "mean": "by express shipping"
+        },
+        {
+          "label": "해 주세요.",
+          "pos": "Verb",
+          "mean": "please do"
+        }
+      ]
+    }
+  ],
+  "real_estate_viewing": [
+    {
+      "start": 0.5,
+      "end": 4.35,
+      "trans": "이 방은 보증금과 월세가 얼마인가요?",
+      "words": [
+        {
+          "label": "이 방은",
+          "pos": "Noun",
+          "mean": "this room"
+        },
+        {
+          "label": "보증금과",
+          "pos": "Noun",
+          "mean": "deposit and"
+        },
+        {
+          "label": "월세가",
+          "pos": "Noun",
+          "mean": "monthly rent"
+        },
+        {
+          "label": "얼마인가요?",
+          "pos": "Expression",
+          "mean": "how much is it"
+        }
+      ]
+    },
+    {
+      "start": 5.1,
+      "end": 10.01,
+      "trans": "보증금은 천만 원이고 월세는 육십만 원입니다.",
+      "words": [
+        {
+          "label": "보증금은",
+          "pos": "Noun",
+          "mean": "deposit"
+        },
+        {
+          "label": "천만 원이고",
+          "pos": "Noun",
+          "mean": "ten million won and"
+        },
+        {
+          "label": "월세는",
+          "pos": "Noun",
+          "mean": "rent"
+        },
+        {
+          "label": "육십만 원입니다.",
+          "pos": "Noun",
+          "mean": "is six hundred thousand won"
+        }
+      ]
+    },
+    {
+      "start": 10.76,
+      "end": 14.42,
+      "trans": "햇빛이 잘 들어오고 방이 조용해요.",
+      "words": [
+        {
+          "label": "햇빛이",
+          "pos": "Noun",
+          "mean": "sunlight"
+        },
+        {
+          "label": "잘",
+          "pos": "Adverb",
+          "mean": "well"
+        },
+        {
+          "label": "들어오고",
+          "pos": "Verb",
+          "mean": "comes in and"
+        },
+        {
+          "label": "방이",
+          "pos": "Noun",
+          "mean": "room"
+        },
+        {
+          "label": "조용해요.",
+          "pos": "Adjective",
+          "mean": "is quiet"
+        }
+      ]
+    },
+    {
+      "start": 15.17,
+      "end": 19.48,
+      "trans": "관리비에는 무엇이 포함되어 있나요?",
+      "words": [
+        {
+          "label": "관리비에는",
+          "pos": "Noun",
+          "mean": "in maintenance fee"
+        },
+        {
+          "label": "무엇이",
+          "pos": "Noun",
+          "mean": "what"
+        },
+        {
+          "label": "포함되어",
+          "pos": "Verb",
+          "mean": "included"
+        },
+        {
+          "label": "있나요?",
+          "pos": "Verb",
+          "mean": "is there"
+        }
+      ]
+    },
+    {
+      "start": 20.23,
+      "end": 23.38,
+      "trans": "수도와 인터넷 비용이 포함됩니다.",
+      "words": [
+        {
+          "label": "수도와",
+          "pos": "Noun",
+          "mean": "water and"
+        },
+        {
+          "label": "인터넷",
+          "pos": "Noun",
+          "mean": "internet"
+        },
+        {
+          "label": "비용이",
+          "pos": "Noun",
+          "mean": "cost"
+        },
+        {
+          "label": "포함됩니다.",
+          "pos": "Verb",
+          "mean": "is included"
+        }
+      ]
+    }
+  ],
+  "hair_salon": [
+    {
+      "start": 0.5,
+      "end": 3.51,
+      "trans": "머리를 조금만 다듬고 싶어요.",
+      "words": [
+        {
+          "label": "머리를",
+          "pos": "Noun",
+          "mean": "hair"
+        },
+        {
+          "label": "조금만",
+          "pos": "Adverb",
+          "mean": "just a little"
+        },
+        {
+          "label": "다듬고",
+          "pos": "Verb",
+          "mean": "trim"
+        },
+        {
+          "label": "싶어요.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.26,
+      "end": 6.67,
+      "trans": "앞머리는 어떻게 해 드릴까요?",
+      "words": [
+        {
+          "label": "앞머리는",
+          "pos": "Noun",
+          "mean": "bangs"
+        },
+        {
+          "label": "어떻게",
+          "pos": "Adverb",
+          "mean": "how"
+        },
+        {
+          "label": "해 드릴까요?",
+          "pos": "Verb",
+          "mean": "shall I do"
+        }
+      ]
+    },
+    {
+      "start": 7.42,
+      "end": 10.07,
+      "trans": "눈썹 위까지 잘라 주세요.",
+      "words": [
+        {
+          "label": "눈썹",
+          "pos": "Noun",
+          "mean": "eyebrows"
+        },
+        {
+          "label": "위까지",
+          "pos": "Noun",
+          "mean": "up to above"
+        },
+        {
+          "label": "잘라 주세요.",
+          "pos": "Verb",
+          "mean": "please cut"
+        }
+      ]
+    },
+    {
+      "start": 10.82,
+      "end": 13.88,
+      "trans": "너무 짧지 않게 부탁드려요.",
+      "words": [
+        {
+          "label": "너무",
+          "pos": "Adverb",
+          "mean": "too"
+        },
+        {
+          "label": "짧지 않게",
+          "pos": "Adjective",
+          "mean": "not too short"
+        },
+        {
+          "label": "부탁드려요.",
+          "pos": "Expression",
+          "mean": "please"
+        }
+      ]
+    },
+    {
+      "start": 14.63,
+      "end": 17.59,
+      "trans": "네, 자연스럽게 해 드릴게요.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "자연스럽게",
+          "pos": "Adverb",
+          "mean": "naturally"
+        },
+        {
+          "label": "해 드릴게요.",
+          "pos": "Verb",
+          "mean": "will do for you"
+        }
+      ]
+    }
+  ],
+  "lost_item_report": [
+    {
+      "start": 0.5,
+      "end": 4.81,
+      "trans": "지하철에서 가방을 잃어버렸어요.",
+      "words": [
+        {
+          "label": "지하철에서",
+          "pos": "Noun",
+          "mean": "on the subway"
+        },
+        {
+          "label": "가방을",
+          "pos": "Noun",
+          "mean": "bag"
+        },
+        {
+          "label": "잃어버렸어요.",
+          "pos": "Verb",
+          "mean": "lost"
+        }
+      ]
+    },
+    {
+      "start": 5.56,
+      "end": 8.38,
+      "trans": "언제 어디에서 내리셨나요?",
+      "words": [
+        {
+          "label": "언제",
+          "pos": "Noun",
+          "mean": "when"
+        },
+        {
+          "label": "어디에서",
+          "pos": "Noun",
+          "mean": "where"
+        },
+        {
+          "label": "내리셨나요?",
+          "pos": "Verb",
+          "mean": "did you get off"
+        }
+      ]
+    },
+    {
+      "start": 9.13,
+      "end": 12.69,
+      "trans": "어제 저녁에 시청역에서 내렸습니다.",
+      "words": [
+        {
+          "label": "어제",
+          "pos": "Noun",
+          "mean": "yesterday"
+        },
+        {
+          "label": "저녁에",
+          "pos": "Noun",
+          "mean": "in the evening"
+        },
+        {
+          "label": "시청역에서",
+          "pos": "Noun",
+          "mean": "at City Hall Station"
+        },
+        {
+          "label": "내렸습니다.",
+          "pos": "Verb",
+          "mean": "got off"
+        }
+      ]
+    },
+    {
+      "start": 13.44,
+      "end": 17.94,
+      "trans": "검은색 작은 가방이고 안에 지갑이 있어요.",
+      "words": [
+        {
+          "label": "검은색",
+          "pos": "Noun",
+          "mean": "black color"
+        },
+        {
+          "label": "작은",
+          "pos": "Adjective",
+          "mean": "small"
+        },
+        {
+          "label": "가방이고",
+          "pos": "Noun",
+          "mean": "bag and"
+        },
+        {
+          "label": "안에",
+          "pos": "Noun",
+          "mean": "inside"
+        },
+        {
+          "label": "지갑이",
+          "pos": "Noun",
+          "mean": "wallet"
+        },
+        {
+          "label": "있어요.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    },
+    {
+      "start": 18.69,
+      "end": 21.6,
+      "trans": "찾으면 연락드리겠습니다.",
+      "words": [
+        {
+          "label": "찾으면",
+          "pos": "Verb",
+          "mean": "if found"
+        },
+        {
+          "label": "연락드리겠습니다.",
+          "pos": "Verb",
+          "mean": "will contact"
+        }
+      ]
+    }
+  ],
+  "making_appointment": [
+    {
+      "start": 0.5,
+      "end": 3.8,
+      "trans": "내일 병원 예약을 변경하고 싶습니다.",
+      "words": [
+        {
+          "label": "내일",
+          "pos": "Noun",
+          "mean": "tomorrow"
+        },
+        {
+          "label": "병원",
+          "pos": "Noun",
+          "mean": "hospital"
+        },
+        {
+          "label": "예약을",
+          "pos": "Noun",
+          "mean": "appointment"
+        },
+        {
+          "label": "변경하고",
+          "pos": "Verb",
+          "mean": "change"
+        },
+        {
+          "label": "싶습니다.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.55,
+      "end": 7.46,
+      "trans": "어떤 시간으로 바꾸시겠어요?",
+      "words": [
+        {
+          "label": "어떤",
+          "pos": "Noun",
+          "mean": "which"
+        },
+        {
+          "label": "시간으로",
+          "pos": "Noun",
+          "mean": "to time"
+        },
+        {
+          "label": "바꾸시겠어요?",
+          "pos": "Verb",
+          "mean": "would you change"
+        }
+      ]
+    },
+    {
+      "start": 8.21,
+      "end": 11.82,
+      "trans": "오전보다 오후 세 시가 좋습니다.",
+      "words": [
+        {
+          "label": "오전보다",
+          "pos": "Noun",
+          "mean": "rather than morning"
+        },
+        {
+          "label": "오후",
+          "pos": "Noun",
+          "mean": "afternoon"
+        },
+        {
+          "label": "세 시가",
+          "pos": "Noun",
+          "mean": "three o'clock"
+        },
+        {
+          "label": "좋습니다.",
+          "pos": "Adjective",
+          "mean": "is good"
+        }
+      ]
+    },
+    {
+      "start": 12.57,
+      "end": 16.47,
+      "trans": "확인했습니다. 오후 세 시로 변경됐습니다.",
+      "words": [
+        {
+          "label": "확인했습니다.",
+          "pos": "Verb",
+          "mean": "confirmed"
+        },
+        {
+          "label": "오후",
+          "pos": "Noun",
+          "mean": "afternoon"
+        },
+        {
+          "label": "세 시로",
+          "pos": "Noun",
+          "mean": "to three o'clock"
+        },
+        {
+          "label": "변경됐습니다.",
+          "pos": "Verb",
+          "mean": "has been changed"
+        }
+      ]
+    },
+    {
+      "start": 17.22,
+      "end": 18.72,
+      "trans": "감사합니다.",
+      "words": [
+        {
+          "label": "감사합니다.",
+          "pos": "Expression",
+          "mean": "thank you"
+        }
+      ]
+    }
+  ],
+  "delivery_problem": [
+    {
+      "start": 0.5,
+      "end": 4.3,
+      "trans": "방금 받은 배달 음식에 반찬이 빠졌어요.",
+      "words": [
+        {
+          "label": "방금",
+          "pos": "Adverb",
+          "mean": "just now"
+        },
+        {
+          "label": "받은",
+          "pos": "Verb",
+          "mean": "received"
+        },
+        {
+          "label": "배달 음식에",
+          "pos": "Noun",
+          "mean": "in delivery food"
+        },
+        {
+          "label": "반찬이",
+          "pos": "Noun",
+          "mean": "side dish"
+        },
+        {
+          "label": "빠졌어요.",
+          "pos": "Verb",
+          "mean": "is missing"
+        }
+      ]
+    },
+    {
+      "start": 5.05,
+      "end": 8.56,
+      "trans": "죄송합니다. 어떤 반찬이 없었나요?",
+      "words": [
+        {
+          "label": "죄송합니다.",
+          "pos": "Expression",
+          "mean": "sorry"
+        },
+        {
+          "label": "어떤",
+          "pos": "Noun",
+          "mean": "which"
+        },
+        {
+          "label": "반찬이",
+          "pos": "Noun",
+          "mean": "side dish"
+        },
+        {
+          "label": "없었나요?",
+          "pos": "Adjective",
+          "mean": "was missing"
+        }
+      ]
+    },
+    {
+      "start": 9.31,
+      "end": 13.06,
+      "trans": "김치와 단무지가 오지 않았습니다.",
+      "words": [
+        {
+          "label": "김치와",
+          "pos": "Noun",
+          "mean": "kimchi and"
+        },
+        {
+          "label": "단무지가",
+          "pos": "Noun",
+          "mean": "pickled radish"
+        },
+        {
+          "label": "오지 않았습니다.",
+          "pos": "Verb",
+          "mean": "did not come"
+        }
+      ]
+    },
+    {
+      "start": 13.81,
+      "end": 18.26,
+      "trans": "바로 다시 보내 드리거나 환불해 드릴게요.",
+      "words": [
+        {
+          "label": "바로",
+          "pos": "Adverb",
+          "mean": "right away"
+        },
+        {
+          "label": "다시",
+          "pos": "Adverb",
+          "mean": "again"
+        },
+        {
+          "label": "보내 드리거나",
+          "pos": "Verb",
+          "mean": "send or"
+        },
+        {
+          "label": "환불해",
+          "pos": "Verb",
+          "mean": "refund"
+        },
+        {
+          "label": "드릴게요.",
+          "pos": "Verb",
+          "mean": "will do for you"
+        }
+      ]
+    },
+    {
+      "start": 19.01,
+      "end": 21.23,
+      "trans": "다시 보내 주세요.",
+      "words": [
+        {
+          "label": "다시",
+          "pos": "Adverb",
+          "mean": "again"
+        },
+        {
+          "label": "보내 주세요.",
+          "pos": "Verb",
+          "mean": "please send"
+        }
+      ]
+    }
+  ],
+  "job_interview_intro": [
+    {
+      "start": 0.5,
+      "end": 5.36,
+      "trans": "안녕하세요, 저는 고객 응대 경험이 많은 지원자입니다.",
+      "words": [
+        {
+          "label": "안녕하세요,",
+          "pos": "Expression",
+          "mean": "hello"
+        },
+        {
+          "label": "저는",
+          "pos": "Noun",
+          "mean": "I"
+        },
+        {
+          "label": "고객 응대",
+          "pos": "Noun",
+          "mean": "customer service"
+        },
+        {
+          "label": "경험이",
+          "pos": "Noun",
+          "mean": "experience"
+        },
+        {
+          "label": "많은",
+          "pos": "Adjective",
+          "mean": "many"
+        },
+        {
+          "label": "지원자입니다.",
+          "pos": "Noun",
+          "mean": "applicant"
+        }
+      ]
+    },
+    {
+      "start": 6.11,
+      "end": 9.22,
+      "trans": "이전 회사에서 2년 동안 일했습니다.",
+      "words": [
+        {
+          "label": "이전",
+          "pos": "Noun",
+          "mean": "previous"
+        },
+        {
+          "label": "회사에서",
+          "pos": "Noun",
+          "mean": "at company"
+        },
+        {
+          "label": "2년 동안",
+          "pos": "Noun",
+          "mean": "for two years"
+        },
+        {
+          "label": "일했습니다.",
+          "pos": "Verb",
+          "mean": "worked"
+        }
+      ]
+    },
+    {
+      "start": 9.97,
+      "end": 13.99,
+      "trans": "제 장점은 문제를 차분하게 해결하는 것입니다.",
+      "words": [
+        {
+          "label": "제",
+          "pos": "Noun",
+          "mean": "my"
+        },
+        {
+          "label": "장점은",
+          "pos": "Noun",
+          "mean": "strength"
+        },
+        {
+          "label": "문제를",
+          "pos": "Noun",
+          "mean": "problem"
+        },
+        {
+          "label": "차분하게",
+          "pos": "Adverb",
+          "mean": "calmly"
+        },
+        {
+          "label": "해결하는",
+          "pos": "Verb",
+          "mean": "solving"
+        },
+        {
+          "label": "것입니다.",
+          "pos": "Noun",
+          "mean": "thing"
+        }
+      ]
+    },
+    {
+      "start": 14.74,
+      "end": 18.45,
+      "trans": "팀과 소통하는 것도 자신 있습니다.",
+      "words": [
+        {
+          "label": "팀과",
+          "pos": "Noun",
+          "mean": "with team"
+        },
+        {
+          "label": "소통하는",
+          "pos": "Verb",
+          "mean": "communicating"
+        },
+        {
+          "label": "것도",
+          "pos": "Noun",
+          "mean": "also"
+        },
+        {
+          "label": "자신 있습니다.",
+          "pos": "Adjective",
+          "mean": "am confident"
+        }
+      ]
+    },
+    {
+      "start": 19.2,
+      "end": 22.86,
+      "trans": "좋습니다. 자세히 말씀해 주세요.",
+      "words": [
+        {
+          "label": "좋습니다.",
+          "pos": "Adjective",
+          "mean": "good"
+        },
+        {
+          "label": "자세히",
+          "pos": "Adverb",
+          "mean": "in detail"
+        },
+        {
+          "label": "말씀해 주세요.",
+          "pos": "Verb",
+          "mean": "please tell"
+        }
+      ]
+    }
+  ],
+  "public_office_document": [
+    {
+      "start": 0.5,
+      "end": 3.92,
+      "trans": "주민등록등본을 발급받고 싶습니다.",
+      "words": [
+        {
+          "label": "주민등록등본을",
+          "pos": "Noun",
+          "mean": "resident registration copy"
+        },
+        {
+          "label": "발급받고",
+          "pos": "Verb",
+          "mean": "receive issuance"
+        },
+        {
+          "label": "싶습니다.",
+          "pos": "Verb",
+          "mean": "want to"
+        }
+      ]
+    },
+    {
+      "start": 4.67,
+      "end": 7.32,
+      "trans": "어떤 용도로 필요하세요?",
+      "words": [
+        {
+          "label": "어떤",
+          "pos": "Noun",
+          "mean": "what kind"
+        },
+        {
+          "label": "용도로",
+          "pos": "Noun",
+          "mean": "for purpose"
+        },
+        {
+          "label": "필요하세요?",
+          "pos": "Adjective",
+          "mean": "do you need"
+        }
+      ]
+    },
+    {
+      "start": 8.07,
+      "end": 11.92,
+      "trans": "회사 제출용으로 한 부 필요합니다.",
+      "words": [
+        {
+          "label": "회사",
+          "pos": "Noun",
+          "mean": "company"
+        },
+        {
+          "label": "제출용으로",
+          "pos": "Noun",
+          "mean": "for submission"
+        },
+        {
+          "label": "한 부",
+          "pos": "Noun",
+          "mean": "one copy"
+        },
+        {
+          "label": "필요합니다.",
+          "pos": "Adjective",
+          "mean": "is needed"
+        }
+      ]
+    },
+    {
+      "start": 12.67,
+      "end": 16.83,
+      "trans": "신분증을 확인한 후에 발급해 드리겠습니다.",
+      "words": [
+        {
+          "label": "신분증을",
+          "pos": "Noun",
+          "mean": "ID"
+        },
+        {
+          "label": "확인한",
+          "pos": "Verb",
+          "mean": "checked"
+        },
+        {
+          "label": "후에",
+          "pos": "Noun",
+          "mean": "after"
+        },
+        {
+          "label": "발급해",
+          "pos": "Verb",
+          "mean": "issue"
+        },
+        {
+          "label": "드리겠습니다.",
+          "pos": "Verb",
+          "mean": "will do for you"
+        }
+      ]
+    },
+    {
+      "start": 17.58,
+      "end": 20.09,
+      "trans": "수수료는 얼마인가요?",
+      "words": [
+        {
+          "label": "수수료는",
+          "pos": "Noun",
+          "mean": "fee"
+        },
+        {
+          "label": "얼마인가요?",
+          "pos": "Expression",
+          "mean": "how much is it"
+        }
+      ]
+    }
+  ],
+  "inviting_friend": [
+    {
+      "start": 0.5,
+      "end": 3.56,
+      "trans": "이번 토요일에 우리 집에 올래요?",
+      "words": [
+        {
+          "label": "이번",
+          "pos": "Noun",
+          "mean": "this"
+        },
+        {
+          "label": "토요일에",
+          "pos": "Noun",
+          "mean": "on Saturday"
+        },
+        {
+          "label": "우리 집에",
+          "pos": "Noun",
+          "mean": "to my house"
+        },
+        {
+          "label": "올래요?",
+          "pos": "Verb",
+          "mean": "want to come"
+        }
+      ]
+    },
+    {
+      "start": 4.31,
+      "end": 7.32,
+      "trans": "좋아요. 몇 시에 가면 돼요?",
+      "words": [
+        {
+          "label": "좋아요.",
+          "pos": "Adjective",
+          "mean": "sounds good"
+        },
+        {
+          "label": "몇 시에",
+          "pos": "Noun",
+          "mean": "at what time"
+        },
+        {
+          "label": "가면",
+          "pos": "Verb",
+          "mean": "if go"
+        },
+        {
+          "label": "돼요?",
+          "pos": "Verb",
+          "mean": "is okay"
+        }
+      ]
+    },
+    {
+      "start": 8.07,
+      "end": 11.22,
+      "trans": "저녁 여섯 시쯤 오세요.",
+      "words": [
+        {
+          "label": "저녁",
+          "pos": "Noun",
+          "mean": "evening"
+        },
+        {
+          "label": "여섯 시쯤",
+          "pos": "Noun",
+          "mean": "around six"
+        },
+        {
+          "label": "오세요.",
+          "pos": "Verb",
+          "mean": "please come"
+        }
+      ]
+    },
+    {
+      "start": 11.97,
+      "end": 14.88,
+      "trans": "제가 피자를 주문해 놓을게요.",
+      "words": [
+        {
+          "label": "제가",
+          "pos": "Noun",
+          "mean": "I"
+        },
+        {
+          "label": "피자를",
+          "pos": "Noun",
+          "mean": "pizza"
+        },
+        {
+          "label": "주문해",
+          "pos": "Verb",
+          "mean": "order"
+        },
+        {
+          "label": "놓을게요.",
+          "pos": "Verb",
+          "mean": "will prepare"
+        }
+      ]
+    },
+    {
+      "start": 15.63,
+      "end": 17.25,
+      "trans": "기대돼요!",
+      "words": [
+        {
+          "label": "기대돼요!",
+          "pos": "Verb",
+          "mean": "I'm excited"
+        }
+      ]
+    }
+  ],
+  "apartment_repair_request": [
+    {
+      "start": 0.5,
+      "end": 5.07,
+      "trans": "안녕하세요, 부엌 싱크대에서 물이 계속 새고 있습니다.",
+      "words": [
+        {
+          "label": "안녕하세요,",
+          "pos": "Expression",
+          "mean": "hello"
+        },
+        {
+          "label": "부엌",
+          "pos": "Noun",
+          "mean": "kitchen"
+        },
+        {
+          "label": "싱크대에서",
+          "pos": "Noun",
+          "mean": "from sink"
+        },
+        {
+          "label": "물이",
+          "pos": "Noun",
+          "mean": "water"
+        },
+        {
+          "label": "계속",
+          "pos": "Adverb",
+          "mean": "continuously"
+        },
+        {
+          "label": "새고 있습니다.",
+          "pos": "Verb",
+          "mean": "is leaking"
+        }
+      ]
+    },
+    {
+      "start": 5.82,
+      "end": 8.69,
+      "trans": "언제부터 그런 문제가 있었나요?",
+      "words": [
+        {
+          "label": "언제부터",
+          "pos": "Noun",
+          "mean": "since when"
+        },
+        {
+          "label": "그런",
+          "pos": "Adjective",
+          "mean": "such"
+        },
+        {
+          "label": "문제가",
+          "pos": "Noun",
+          "mean": "problem"
+        },
+        {
+          "label": "있었나요?",
+          "pos": "Verb",
+          "mean": "was there"
+        }
+      ]
+    },
+    {
+      "start": 9.44,
+      "end": 13.6,
+      "trans": "어젯밤부터 심해졌고 바닥도 젖었습니다.",
+      "words": [
+        {
+          "label": "어젯밤부터",
+          "pos": "Noun",
+          "mean": "since last night"
+        },
+        {
+          "label": "심해졌고",
+          "pos": "Adjective",
+          "mean": "became worse"
+        },
+        {
+          "label": "바닥도",
+          "pos": "Noun",
+          "mean": "floor too"
+        },
+        {
+          "label": "젖었습니다.",
+          "pos": "Verb",
+          "mean": "got wet"
+        }
+      ]
+    },
+    {
+      "start": 14.35,
+      "end": 19.02,
+      "trans": "가능하면 오늘 중으로 기사님을 보내 주실 수 있을까요?",
+      "words": [
+        {
+          "label": "가능하면",
+          "pos": "Adverb",
+          "mean": "if possible"
+        },
+        {
+          "label": "오늘 중으로",
+          "pos": "Noun",
+          "mean": "within today"
+        },
+        {
+          "label": "기사님을",
+          "pos": "Noun",
+          "mean": "technician"
+        },
+        {
+          "label": "보내 주실 수",
+          "pos": "Verb",
+          "mean": "could send"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb",
+          "mean": "would it be possible"
+        }
+      ]
+    },
+    {
+      "start": 19.77,
+      "end": 23.93,
+      "trans": "확인 후 방문 시간을 문자로 안내드리겠습니다.",
+      "words": [
+        {
+          "label": "확인 후",
+          "pos": "Noun",
+          "mean": "after checking"
+        },
+        {
+          "label": "방문 시간을",
+          "pos": "Noun",
+          "mean": "visit time"
+        },
+        {
+          "label": "문자로",
+          "pos": "Noun",
+          "mean": "by text"
+        },
+        {
+          "label": "안내드리겠습니다.",
+          "pos": "Verb",
+          "mean": "will inform"
+        }
+      ]
+    }
+  ],
+  "work_feedback_meeting": [
+    {
+      "start": 0.5,
+      "end": 4.76,
+      "trans": "이번 프로젝트는 일정 관리가 조금 아쉬웠습니다.",
+      "words": [
+        {
+          "label": "이번",
+          "pos": "Noun",
+          "mean": "this"
+        },
+        {
+          "label": "프로젝트는",
+          "pos": "Noun",
+          "mean": "project"
+        },
+        {
+          "label": "일정 관리가",
+          "pos": "Noun",
+          "mean": "schedule management"
+        },
+        {
+          "label": "조금",
+          "pos": "Adverb",
+          "mean": "a little"
+        },
+        {
+          "label": "아쉬웠습니다.",
+          "pos": "Adjective",
+          "mean": "was lacking"
+        }
+      ]
+    },
+    {
+      "start": 5.51,
+      "end": 10.01,
+      "trans": "맞습니다. 중간 확인 과정이 부족했던 것 같습니다.",
+      "words": [
+        {
+          "label": "맞습니다.",
+          "pos": "Expression",
+          "mean": "that's right"
+        },
+        {
+          "label": "중간",
+          "pos": "Noun",
+          "mean": "middle"
+        },
+        {
+          "label": "확인 과정이",
+          "pos": "Noun",
+          "mean": "checking process"
+        },
+        {
+          "label": "부족했던",
+          "pos": "Adjective",
+          "mean": "was insufficient"
+        },
+        {
+          "label": "것 같습니다.",
+          "pos": "Expression",
+          "mean": "seems"
+        }
+      ]
+    },
+    {
+      "start": 10.76,
+      "end": 16.36,
+      "trans": "다음에는 역할과 마감일을 더 명확히 정하면 좋겠습니다.",
+      "words": [
+        {
+          "label": "다음에는",
+          "pos": "Noun",
+          "mean": "next time"
+        },
+        {
+          "label": "역할과",
+          "pos": "Noun",
+          "mean": "roles and"
+        },
+        {
+          "label": "마감일을",
+          "pos": "Noun",
+          "mean": "deadline"
+        },
+        {
+          "label": "더",
+          "pos": "Adverb",
+          "mean": "more"
+        },
+        {
+          "label": "명확히",
+          "pos": "Adverb",
+          "mean": "clearly"
+        },
+        {
+          "label": "정하면",
+          "pos": "Verb",
+          "mean": "if set"
+        },
+        {
+          "label": "좋겠습니다.",
+          "pos": "Adjective",
+          "mean": "would be good"
+        }
+      ]
+    },
+    {
+      "start": 17.11,
+      "end": 21.22,
+      "trans": "좋은 의견입니다. 공유 문서도 같이 만들겠습니다.",
+      "words": [
+        {
+          "label": "좋은",
+          "pos": "Adjective",
+          "mean": "good"
+        },
+        {
+          "label": "의견입니다.",
+          "pos": "Noun",
+          "mean": "opinion"
+        },
+        {
+          "label": "공유 문서도",
+          "pos": "Noun",
+          "mean": "shared document too"
+        },
+        {
+          "label": "같이",
+          "pos": "Adverb",
+          "mean": "together"
+        },
+        {
+          "label": "만들겠습니다.",
+          "pos": "Verb",
+          "mean": "will make"
+        }
+      ]
+    },
+    {
+      "start": 21.97,
+      "end": 26.88,
+      "trans": "그렇게 하면 팀 전체가 진행 상황을 쉽게 볼 수 있습니다.",
+      "words": [
+        {
+          "label": "그렇게 하면",
+          "pos": "Expression",
+          "mean": "if we do that"
+        },
+        {
+          "label": "팀 전체가",
+          "pos": "Noun",
+          "mean": "whole team"
+        },
+        {
+          "label": "진행 상황을",
+          "pos": "Noun",
+          "mean": "progress status"
+        },
+        {
+          "label": "쉽게",
+          "pos": "Adverb",
+          "mean": "easily"
+        },
+        {
+          "label": "볼 수 있습니다.",
+          "pos": "Verb",
+          "mean": "can see"
+        }
+      ]
+    }
+  ],
+  "university_presentation_qna": [
+    {
+      "start": 0.5,
+      "end": 4.85,
+      "trans": "발표 잘 들었습니다. 연구 대상은 몇 명이었나요?",
+      "words": [
+        {
+          "label": "발표",
+          "pos": "Noun",
+          "mean": "presentation"
+        },
+        {
+          "label": "잘",
+          "pos": "Adverb",
+          "mean": "well"
+        },
+        {
+          "label": "들었습니다.",
+          "pos": "Verb",
+          "mean": "listened"
+        },
+        {
+          "label": "연구 대상은",
+          "pos": "Noun",
+          "mean": "research subjects"
+        },
+        {
+          "label": "몇 명이었나요?",
+          "pos": "Expression",
+          "mean": "how many people was it"
+        }
+      ]
+    },
+    {
+      "start": 5.6,
+      "end": 9.81,
+      "trans": "총 백 명의 대학생을 대상으로 설문했습니다.",
+      "words": [
+        {
+          "label": "총",
+          "pos": "Adverb",
+          "mean": "total"
+        },
+        {
+          "label": "백 명의",
+          "pos": "Noun",
+          "mean": "one hundred people"
+        },
+        {
+          "label": "대학생을",
+          "pos": "Noun",
+          "mean": "college students"
+        },
+        {
+          "label": "대상으로",
+          "pos": "Noun",
+          "mean": "as subjects"
+        },
+        {
+          "label": "설문했습니다.",
+          "pos": "Verb",
+          "mean": "surveyed"
+        }
+      ]
+    },
+    {
+      "start": 10.56,
+      "end": 14.22,
+      "trans": "결과가 특정 전공에 치우치지는 않았나요?",
+      "words": [
+        {
+          "label": "결과가",
+          "pos": "Noun",
+          "mean": "result"
+        },
+        {
+          "label": "특정",
+          "pos": "Adjective",
+          "mean": "specific"
+        },
+        {
+          "label": "전공에",
+          "pos": "Noun",
+          "mean": "major"
+        },
+        {
+          "label": "치우치지는",
+          "pos": "Verb",
+          "mean": "be biased"
+        },
+        {
+          "label": "않았나요?",
+          "pos": "Verb",
+          "mean": "wasn't it"
+        }
+      ]
+    },
+    {
+      "start": 14.97,
+      "end": 20.33,
+      "trans": "그 점을 고려해서 전공별 비율을 비슷하게 맞췄습니다.",
+      "words": [
+        {
+          "label": "그 점을",
+          "pos": "Noun",
+          "mean": "that point"
+        },
+        {
+          "label": "고려해서",
+          "pos": "Verb",
+          "mean": "considering"
+        },
+        {
+          "label": "전공별",
+          "pos": "Noun",
+          "mean": "by major"
+        },
+        {
+          "label": "비율을",
+          "pos": "Noun",
+          "mean": "ratio"
+        },
+        {
+          "label": "비슷하게",
+          "pos": "Adverb",
+          "mean": "similarly"
+        },
+        {
+          "label": "맞췄습니다.",
+          "pos": "Verb",
+          "mean": "matched"
+        }
+      ]
+    },
+    {
+      "start": 21.08,
+      "end": 25.48,
+      "trans": "추가 자료는 발표 후 공유하겠습니다.",
+      "words": [
+        {
+          "label": "추가 자료는",
+          "pos": "Noun",
+          "mean": "additional materials"
+        },
+        {
+          "label": "발표 후",
+          "pos": "Noun",
+          "mean": "after presentation"
+        },
+        {
+          "label": "공유하겠습니다.",
+          "pos": "Verb",
+          "mean": "will share"
+        }
+      ]
+    }
+  ],
+  "news_opinion": [
+    {
+      "start": 0.5,
+      "end": 4.95,
+      "trans": "오늘 뉴스에서 대중교통 요금 인상 이야기를 봤어요.",
+      "words": [
+        {
+          "label": "오늘",
+          "pos": "Noun",
+          "mean": "today"
+        },
+        {
+          "label": "뉴스에서",
+          "pos": "Noun",
+          "mean": "in the news"
+        },
+        {
+          "label": "대중교통",
+          "pos": "Noun",
+          "mean": "public transportation"
+        },
+        {
+          "label": "요금",
+          "pos": "Noun",
+          "mean": "fare"
+        },
+        {
+          "label": "인상",
+          "pos": "Noun",
+          "mean": "increase"
+        },
+        {
+          "label": "이야기를",
+          "pos": "Noun",
+          "mean": "story"
+        },
+        {
+          "label": "봤어요.",
+          "pos": "Verb",
+          "mean": "saw"
+        }
+      ]
+    },
+    {
+      "start": 5.7,
+      "end": 10.15,
+      "trans": "저는 필요성은 이해하지만 부담도 크다고 생각해요.",
+      "words": [
+        {
+          "label": "저는",
+          "pos": "Noun",
+          "mean": "I"
+        },
+        {
+          "label": "필요성은",
+          "pos": "Noun",
+          "mean": "necessity"
+        },
+        {
+          "label": "이해하지만",
+          "pos": "Verb",
+          "mean": "understand but"
+        },
+        {
+          "label": "부담도",
+          "pos": "Noun",
+          "mean": "burden too"
+        },
+        {
+          "label": "크다고",
+          "pos": "Adjective",
+          "mean": "is big"
+        },
+        {
+          "label": "생각해요.",
+          "pos": "Verb",
+          "mean": "think"
+        }
+      ]
+    },
+    {
+      "start": 10.9,
+      "end": 15.06,
+      "trans": "특히 학생과 직장인에게 영향이 있을 것 같아요.",
+      "words": [
+        {
+          "label": "특히",
+          "pos": "Adverb",
+          "mean": "especially"
+        },
+        {
+          "label": "학생과",
+          "pos": "Noun",
+          "mean": "students and"
+        },
+        {
+          "label": "직장인에게",
+          "pos": "Noun",
+          "mean": "to workers"
+        },
+        {
+          "label": "영향이",
+          "pos": "Noun",
+          "mean": "effect"
+        },
+        {
+          "label": "있을 것 같아요.",
+          "pos": "Expression",
+          "mean": "seems there will be"
+        }
+      ]
+    },
+    {
+      "start": 15.81,
+      "end": 19.56,
+      "trans": "대신 서비스 개선이 함께 이루어져야 합니다.",
+      "words": [
+        {
+          "label": "대신",
+          "pos": "Adverb",
+          "mean": "instead"
+        },
+        {
+          "label": "서비스",
+          "pos": "Noun",
+          "mean": "service"
+        },
+        {
+          "label": "개선이",
+          "pos": "Noun",
+          "mean": "improvement"
+        },
+        {
+          "label": "함께",
+          "pos": "Adverb",
+          "mean": "together"
+        },
+        {
+          "label": "이루어져야",
+          "pos": "Verb",
+          "mean": "must be made"
+        },
+        {
+          "label": "합니다.",
+          "pos": "Verb",
+          "mean": "must"
+        }
+      ]
+    },
+    {
+      "start": 20.31,
+      "end": 24.62,
+      "trans": "맞아요. 단순한 인상보다 설명이 중요합니다.",
+      "words": [
+        {
+          "label": "맞아요.",
+          "pos": "Expression",
+          "mean": "right"
+        },
+        {
+          "label": "단순한",
+          "pos": "Adjective",
+          "mean": "simple"
+        },
+        {
+          "label": "인상보다",
+          "pos": "Noun",
+          "mean": "than increase"
+        },
+        {
+          "label": "설명이",
+          "pos": "Noun",
+          "mean": "explanation"
+        },
+        {
+          "label": "중요합니다.",
+          "pos": "Adjective",
+          "mean": "is important"
+        }
+      ]
+    }
+  ],
+  "culture_comparison_honorifics": [
+    {
+      "start": 0.5,
+      "end": 4.61,
+      "trans": "한국어에서는 상대에 따라 말투가 달라집니다.",
+      "words": [
+        {
+          "label": "한국어에서는",
+          "pos": "Noun",
+          "mean": "in Korean"
+        },
+        {
+          "label": "상대에 따라",
+          "pos": "Expression",
+          "mean": "depending on the person"
+        },
+        {
+          "label": "말투가",
+          "pos": "Noun",
+          "mean": "speech style"
+        },
+        {
+          "label": "달라집니다.",
+          "pos": "Verb",
+          "mean": "changes"
+        }
+      ]
+    },
+    {
+      "start": 5.36,
+      "end": 10.12,
+      "trans": "처음 만난 사람에게는 보통 존댓말을 사용합니다.",
+      "words": [
+        {
+          "label": "처음",
+          "pos": "Noun",
+          "mean": "first"
+        },
+        {
+          "label": "만난",
+          "pos": "Verb",
+          "mean": "met"
+        },
+        {
+          "label": "사람에게는",
+          "pos": "Noun",
+          "mean": "to person"
+        },
+        {
+          "label": "보통",
+          "pos": "Adverb",
+          "mean": "usually"
+        },
+        {
+          "label": "존댓말을",
+          "pos": "Noun",
+          "mean": "honorific speech"
+        },
+        {
+          "label": "사용합니다.",
+          "pos": "Verb",
+          "mean": "use"
+        }
+      ]
+    },
+    {
+      "start": 10.87,
+      "end": 15.27,
+      "trans": "제 문화에서는 나이보다 친밀도가 더 중요해요.",
+      "words": [
+        {
+          "label": "제 문화에서는",
+          "pos": "Noun",
+          "mean": "in my culture"
+        },
+        {
+          "label": "나이보다",
+          "pos": "Noun",
+          "mean": "than age"
+        },
+        {
+          "label": "친밀도가",
+          "pos": "Noun",
+          "mean": "closeness"
+        },
+        {
+          "label": "더",
+          "pos": "Adverb",
+          "mean": "more"
+        },
+        {
+          "label": "중요해요.",
+          "pos": "Adjective",
+          "mean": "is important"
+        }
+      ]
+    },
+    {
+      "start": 16.02,
+      "end": 21.57,
+      "trans": "그래서 한국의 존댓말 체계가 처음에는 어렵게 느껴졌어요.",
+      "words": [
+        {
+          "label": "그래서",
+          "pos": "Adverb",
+          "mean": "so"
+        },
+        {
+          "label": "한국의",
+          "pos": "Noun",
+          "mean": "Korea's"
+        },
+        {
+          "label": "존댓말",
+          "pos": "Noun",
+          "mean": "honorific speech"
+        },
+        {
+          "label": "체계가",
+          "pos": "Noun",
+          "mean": "system"
+        },
+        {
+          "label": "처음에는",
+          "pos": "Noun",
+          "mean": "at first"
+        },
+        {
+          "label": "어렵게",
+          "pos": "Adjective",
+          "mean": "difficult"
+        },
+        {
+          "label": "느껴졌어요.",
+          "pos": "Verb",
+          "mean": "felt"
+        }
+      ]
+    },
+    {
+      "start": 22.32,
+      "end": 26.22,
+      "trans": "연습하다 보면 상황에 맞게 말할 수 있습니다.",
+      "words": [
+        {
+          "label": "연습하다 보면",
+          "pos": "Expression",
+          "mean": "as you practice"
+        },
+        {
+          "label": "상황에 맞게",
+          "pos": "Expression",
+          "mean": "appropriately to the situation"
+        },
+        {
+          "label": "말할 수",
+          "pos": "Verb",
+          "mean": "can speak"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    }
+  ],
+  "travel_complaint_refund": [
+    {
+      "start": 0.5,
+      "end": 4.66,
+      "trans": "예약한 방과 실제 방이 많이 달랐습니다.",
+      "words": [
+        {
+          "label": "예약한",
+          "pos": "Verb",
+          "mean": "reserved"
+        },
+        {
+          "label": "방과",
+          "pos": "Noun",
+          "mean": "room and"
+        },
+        {
+          "label": "실제",
+          "pos": "Noun",
+          "mean": "actual"
+        },
+        {
+          "label": "방이",
+          "pos": "Noun",
+          "mean": "room"
+        },
+        {
+          "label": "많이",
+          "pos": "Adverb",
+          "mean": "a lot"
+        },
+        {
+          "label": "달랐습니다.",
+          "pos": "Adjective",
+          "mean": "was different"
+        }
+      ]
+    },
+    {
+      "start": 5.41,
+      "end": 10.22,
+      "trans": "사진에는 창문이 있었지만 실제로는 없었습니다.",
+      "words": [
+        {
+          "label": "사진에는",
+          "pos": "Noun",
+          "mean": "in photo"
+        },
+        {
+          "label": "창문이",
+          "pos": "Noun",
+          "mean": "window"
+        },
+        {
+          "label": "있었지만",
+          "pos": "Verb",
+          "mean": "there was but"
+        },
+        {
+          "label": "실제로는",
+          "pos": "Adverb",
+          "mean": "actually"
+        },
+        {
+          "label": "없었습니다.",
+          "pos": "Adjective",
+          "mean": "was not"
+        }
+      ]
+    },
+    {
+      "start": 10.97,
+      "end": 15.23,
+      "trans": "불편을 드려 죄송합니다. 어떤 보상을 원하시나요?",
+      "words": [
+        {
+          "label": "불편을",
+          "pos": "Noun",
+          "mean": "inconvenience"
+        },
+        {
+          "label": "드려",
+          "pos": "Verb",
+          "mean": "give"
+        },
+        {
+          "label": "죄송합니다.",
+          "pos": "Expression",
+          "mean": "sorry"
+        },
+        {
+          "label": "어떤",
+          "pos": "Noun",
+          "mean": "what kind"
+        },
+        {
+          "label": "보상을",
+          "pos": "Noun",
+          "mean": "compensation"
+        },
+        {
+          "label": "원하시나요?",
+          "pos": "Verb",
+          "mean": "do you want"
+        }
+      ]
+    },
+    {
+      "start": 15.98,
+      "end": 21.44,
+      "trans": "하루 요금의 일부를 환불해 주시면 좋겠습니다.",
+      "words": [
+        {
+          "label": "하루",
+          "pos": "Noun",
+          "mean": "one day"
+        },
+        {
+          "label": "요금의",
+          "pos": "Noun",
+          "mean": "of fee"
+        },
+        {
+          "label": "일부를",
+          "pos": "Noun",
+          "mean": "part"
+        },
+        {
+          "label": "환불해",
+          "pos": "Verb",
+          "mean": "refund"
+        },
+        {
+          "label": "주시면",
+          "pos": "Verb",
+          "mean": "if you give"
+        },
+        {
+          "label": "좋겠습니다.",
+          "pos": "Adjective",
+          "mean": "would be good"
+        }
+      ]
+    },
+    {
+      "start": 22.19,
+      "end": 26.04,
+      "trans": "확인 후 가능한 보상안을 안내드리겠습니다.",
+      "words": [
+        {
+          "label": "확인 후",
+          "pos": "Noun",
+          "mean": "after checking"
+        },
+        {
+          "label": "가능한",
+          "pos": "Adjective",
+          "mean": "possible"
+        },
+        {
+          "label": "보상안을",
+          "pos": "Noun",
+          "mean": "compensation plan"
+        },
+        {
+          "label": "안내드리겠습니다.",
+          "pos": "Verb",
+          "mean": "will inform"
+        }
+      ]
+    }
+  ],
+  "health_insurance_claim": [
+    {
+      "start": 0.5,
+      "end": 4.85,
+      "trans": "병원비 보험 청구를 하려면 어떤 서류가 필요하나요?",
+      "words": [
+        {
+          "label": "병원비",
+          "pos": "Noun",
+          "mean": "medical expense"
+        },
+        {
+          "label": "보험 청구를",
+          "pos": "Noun",
+          "mean": "insurance claim"
+        },
+        {
+          "label": "하려면",
+          "pos": "Verb",
+          "mean": "in order to do"
+        },
+        {
+          "label": "어떤",
+          "pos": "Noun",
+          "mean": "what"
+        },
+        {
+          "label": "서류가",
+          "pos": "Noun",
+          "mean": "documents"
+        },
+        {
+          "label": "필요하나요?",
+          "pos": "Adjective",
+          "mean": "are needed"
+        }
+      ]
+    },
+    {
+      "start": 5.6,
+      "end": 9.02,
+      "trans": "진료비 영수증과 진단서가 필요합니다.",
+      "words": [
+        {
+          "label": "진료비",
+          "pos": "Noun",
+          "mean": "medical fee"
+        },
+        {
+          "label": "영수증과",
+          "pos": "Noun",
+          "mean": "receipt and"
+        },
+        {
+          "label": "진단서가",
+          "pos": "Noun",
+          "mean": "medical certificate"
+        },
+        {
+          "label": "필요합니다.",
+          "pos": "Adjective",
+          "mean": "is needed"
+        }
+      ]
+    },
+    {
+      "start": 9.77,
+      "end": 13.24,
+      "trans": "모바일 앱으로 제출해도 되나요?",
+      "words": [
+        {
+          "label": "모바일 앱으로",
+          "pos": "Noun",
+          "mean": "through mobile app"
+        },
+        {
+          "label": "제출해도",
+          "pos": "Verb",
+          "mean": "even if submit"
+        },
+        {
+          "label": "되나요?",
+          "pos": "Verb",
+          "mean": "is okay"
+        }
+      ]
+    },
+    {
+      "start": 13.99,
+      "end": 17.79,
+      "trans": "네, 사진을 선명하게 찍어서 올리시면 됩니다.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "사진을",
+          "pos": "Noun",
+          "mean": "photo"
+        },
+        {
+          "label": "선명하게",
+          "pos": "Adverb",
+          "mean": "clearly"
+        },
+        {
+          "label": "찍어서",
+          "pos": "Verb",
+          "mean": "take and"
+        },
+        {
+          "label": "올리시면",
+          "pos": "Verb",
+          "mean": "if upload"
+        },
+        {
+          "label": "됩니다.",
+          "pos": "Verb",
+          "mean": "it is okay"
+        }
+      ]
+    },
+    {
+      "start": 18.54,
+      "end": 22.2,
+      "trans": "처리 결과는 문자로 받을 수 있습니다.",
+      "words": [
+        {
+          "label": "처리 결과는",
+          "pos": "Noun",
+          "mean": "processing result"
+        },
+        {
+          "label": "문자로",
+          "pos": "Noun",
+          "mean": "by text"
+        },
+        {
+          "label": "받을 수",
+          "pos": "Verb",
+          "mean": "can receive"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    }
+  ],
+  "contract_negotiation": [
+    {
+      "start": 0.5,
+      "end": 4.16,
+      "trans": "계약 기간을 6개월로 조정할 수 있을까요?",
+      "words": [
+        {
+          "label": "계약 기간을",
+          "pos": "Noun",
+          "mean": "contract period"
+        },
+        {
+          "label": "6개월로",
+          "pos": "Noun",
+          "mean": "to six months"
+        },
+        {
+          "label": "조정할 수",
+          "pos": "Verb",
+          "mean": "can adjust"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb",
+          "mean": "would it be possible"
+        }
+      ]
+    },
+    {
+      "start": 4.91,
+      "end": 8.57,
+      "trans": "원래 조건은 1년이지만 협의는 가능합니다.",
+      "words": [
+        {
+          "label": "원래",
+          "pos": "Adverb",
+          "mean": "originally"
+        },
+        {
+          "label": "조건은",
+          "pos": "Noun",
+          "mean": "condition"
+        },
+        {
+          "label": "1년이지만",
+          "pos": "Noun",
+          "mean": "one year but"
+        },
+        {
+          "label": "협의는",
+          "pos": "Noun",
+          "mean": "discussion"
+        },
+        {
+          "label": "가능합니다.",
+          "pos": "Adjective",
+          "mean": "is possible"
+        }
+      ]
+    },
+    {
+      "start": 9.32,
+      "end": 13.67,
+      "trans": "대신 월 이용료가 조금 올라갈 수 있습니다.",
+      "words": [
+        {
+          "label": "대신",
+          "pos": "Adverb",
+          "mean": "instead"
+        },
+        {
+          "label": "월 이용료가",
+          "pos": "Noun",
+          "mean": "monthly fee"
+        },
+        {
+          "label": "조금",
+          "pos": "Adverb",
+          "mean": "a little"
+        },
+        {
+          "label": "올라갈 수",
+          "pos": "Verb",
+          "mean": "can go up"
+        },
+        {
+          "label": "있습니다.",
+          "pos": "Verb",
+          "mean": "there is"
+        }
+      ]
+    },
+    {
+      "start": 14.42,
+      "end": 19.23,
+      "trans": "그 부분은 이해합니다. 변경된 금액을 알려 주세요.",
+      "words": [
+        {
+          "label": "그 부분은",
+          "pos": "Noun",
+          "mean": "that part"
+        },
+        {
+          "label": "이해합니다.",
+          "pos": "Verb",
+          "mean": "understand"
+        },
+        {
+          "label": "변경된",
+          "pos": "Verb",
+          "mean": "changed"
+        },
+        {
+          "label": "금액을",
+          "pos": "Noun",
+          "mean": "amount"
+        },
+        {
+          "label": "알려 주세요.",
+          "pos": "Verb",
+          "mean": "please let me know"
+        }
+      ]
+    },
+    {
+      "start": 19.98,
+      "end": 24.43,
+      "trans": "오늘 안으로 수정된 계약서를 보내 드리겠습니다.",
+      "words": [
+        {
+          "label": "오늘 안으로",
+          "pos": "Noun",
+          "mean": "within today"
+        },
+        {
+          "label": "수정된",
+          "pos": "Verb",
+          "mean": "revised"
+        },
+        {
+          "label": "계약서를",
+          "pos": "Noun",
+          "mean": "contract"
+        },
+        {
+          "label": "보내 드리겠습니다.",
+          "pos": "Verb",
+          "mean": "will send"
+        }
+      ]
+    }
+  ],
+  "neighbor_noise_complaint": [
+    {
+      "start": 0.5,
+      "end": 4.95,
+      "trans": "죄송하지만 밤늦게 음악 소리가 너무 크게 들립니다.",
+      "words": [
+        {
+          "label": "죄송하지만",
+          "pos": "Expression",
+          "mean": "sorry but"
+        },
+        {
+          "label": "밤늦게",
+          "pos": "Adverb",
+          "mean": "late at night"
+        },
+        {
+          "label": "음악 소리가",
+          "pos": "Noun",
+          "mean": "music sound"
+        },
+        {
+          "label": "너무",
+          "pos": "Adverb",
+          "mean": "too"
+        },
+        {
+          "label": "크게",
+          "pos": "Adjective",
+          "mean": "loudly"
+        },
+        {
+          "label": "들립니다.",
+          "pos": "Verb",
+          "mean": "is heard"
+        }
+      ]
+    },
+    {
+      "start": 5.7,
+      "end": 8.95,
+      "trans": "아, 불편하게 해 드려서 죄송합니다.",
+      "words": [
+        {
+          "label": "아,",
+          "pos": "Expression",
+          "mean": "ah"
+        },
+        {
+          "label": "불편하게",
+          "pos": "Adjective",
+          "mean": "uncomfortable"
+        },
+        {
+          "label": "해 드려서",
+          "pos": "Verb",
+          "mean": "made for you"
+        },
+        {
+          "label": "죄송합니다.",
+          "pos": "Expression",
+          "mean": "sorry"
+        }
+      ]
+    },
+    {
+      "start": 9.7,
+      "end": 14.97,
+      "trans": "가능하면 밤 열 시 이후에는 볼륨을 낮춰 주실 수 있을까요?",
+      "words": [
+        {
+          "label": "가능하면",
+          "pos": "Adverb",
+          "mean": "if possible"
+        },
+        {
+          "label": "밤",
+          "pos": "Noun",
+          "mean": "night"
+        },
+        {
+          "label": "열 시 이후에는",
+          "pos": "Noun",
+          "mean": "after ten o'clock"
+        },
+        {
+          "label": "볼륨을",
+          "pos": "Noun",
+          "mean": "volume"
+        },
+        {
+          "label": "낮춰 주실 수",
+          "pos": "Verb",
+          "mean": "could lower"
+        },
+        {
+          "label": "있을까요?",
+          "pos": "Verb",
+          "mean": "would it be possible"
+        }
+      ]
+    },
+    {
+      "start": 15.72,
+      "end": 19.02,
+      "trans": "네, 앞으로는 더 조심하겠습니다.",
+      "words": [
+        {
+          "label": "네,",
+          "pos": "Expression",
+          "mean": "yes"
+        },
+        {
+          "label": "앞으로는",
+          "pos": "Noun",
+          "mean": "from now on"
+        },
+        {
+          "label": "더",
+          "pos": "Adverb",
+          "mean": "more"
+        },
+        {
+          "label": "조심하겠습니다.",
+          "pos": "Verb",
+          "mean": "will be careful"
+        }
+      ]
+    },
+    {
+      "start": 19.77,
+      "end": 22.08,
+      "trans": "이해해 주셔서 감사합니다.",
+      "words": [
+        {
+          "label": "이해해",
+          "pos": "Verb",
+          "mean": "understand"
+        },
+        {
+          "label": "주셔서",
+          "pos": "Verb",
+          "mean": "for giving"
+        },
+        {
+          "label": "감사합니다.",
+          "pos": "Expression",
+          "mean": "thank you"
+        }
+      ]
+    }
+  ],
+  "recycling_policy_discussion": [
+    {
+      "start": 0.5,
+      "end": 5.31,
+      "trans": "우리 아파트는 이번 달부터 분리수거 규칙이 바뀝니다.",
+      "words": [
+        {
+          "label": "우리",
+          "pos": "Noun",
+          "mean": "our"
+        },
+        {
+          "label": "아파트는",
+          "pos": "Noun",
+          "mean": "apartment"
+        },
+        {
+          "label": "이번 달부터",
+          "pos": "Noun",
+          "mean": "from this month"
+        },
+        {
+          "label": "분리수거",
+          "pos": "Noun",
+          "mean": "recycling sorting"
+        },
+        {
+          "label": "규칙이",
+          "pos": "Noun",
+          "mean": "rules"
+        },
+        {
+          "label": "바뀝니다.",
+          "pos": "Verb",
+          "mean": "change"
+        }
+      ]
+    },
+    {
+      "start": 6.06,
+      "end": 10.03,
+      "trans": "플라스틱은 라벨을 제거한 후에 버려야 합니다.",
+      "words": [
+        {
+          "label": "플라스틱은",
+          "pos": "Noun",
+          "mean": "plastic"
+        },
+        {
+          "label": "라벨을",
+          "pos": "Noun",
+          "mean": "label"
+        },
+        {
+          "label": "제거한",
+          "pos": "Verb",
+          "mean": "removed"
+        },
+        {
+          "label": "후에",
+          "pos": "Noun",
+          "mean": "after"
+        },
+        {
+          "label": "버려야",
+          "pos": "Verb",
+          "mean": "must throw away"
+        },
+        {
+          "label": "합니다.",
+          "pos": "Verb",
+          "mean": "must"
+        }
+      ]
+    },
+    {
+      "start": 10.78,
+      "end": 15.18,
+      "trans": "규칙이 복잡하지만 환경을 위해 필요하다고 생각해요.",
+      "words": [
+        {
+          "label": "규칙이",
+          "pos": "Noun",
+          "mean": "rules"
+        },
+        {
+          "label": "복잡하지만",
+          "pos": "Adjective",
+          "mean": "complicated but"
+        },
+        {
+          "label": "환경을",
+          "pos": "Noun",
+          "mean": "environment"
+        },
+        {
+          "label": "위해",
+          "pos": "Verb",
+          "mean": "for"
+        },
+        {
+          "label": "필요하다고",
+          "pos": "Adjective",
+          "mean": "necessary"
+        },
+        {
+          "label": "생각해요.",
+          "pos": "Verb",
+          "mean": "think"
+        }
+      ]
+    },
+    {
+      "start": 15.93,
+      "end": 20.04,
+      "trans": "맞아요. 대신 안내문이 더 쉽게 쓰이면 좋겠습니다.",
+      "words": [
+        {
+          "label": "맞아요.",
+          "pos": "Expression",
+          "mean": "right"
+        },
+        {
+          "label": "대신",
+          "pos": "Adverb",
+          "mean": "instead"
+        },
+        {
+          "label": "안내문이",
+          "pos": "Noun",
+          "mean": "notice"
+        },
+        {
+          "label": "더",
+          "pos": "Adverb",
+          "mean": "more"
+        },
+        {
+          "label": "쉽게",
+          "pos": "Adverb",
+          "mean": "easily"
+        },
+        {
+          "label": "쓰이면",
+          "pos": "Verb",
+          "mean": "if written"
+        },
+        {
+          "label": "좋겠습니다.",
+          "pos": "Adjective",
+          "mean": "would be good"
+        }
+      ]
+    },
+    {
+      "start": 20.79,
+      "end": 24.4,
+      "trans": "관리사무소에 그림 안내를 요청해 볼게요.",
+      "words": [
+        {
+          "label": "관리사무소에",
+          "pos": "Noun",
+          "mean": "to management office"
+        },
+        {
+          "label": "그림",
+          "pos": "Noun",
+          "mean": "picture"
+        },
+        {
+          "label": "안내를",
+          "pos": "Noun",
+          "mean": "guide"
+        },
+        {
+          "label": "요청해",
+          "pos": "Verb",
+          "mean": "request"
+        },
+        {
+          "label": "볼게요.",
+          "pos": "Verb",
+          "mean": "will try"
+        }
       ]
     }
   ]

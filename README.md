@@ -10,7 +10,7 @@ AI 기반 한국어 학습 플랫폼 — 발음 평가, AI 대화, 영상 학습
 |---|---|---|
 | 홈 대시보드 | `/dashboard` | 학습 현황, 출석 스트릭, 기능 바로가기 |
 | 오늘의 표현 | `/daily-expression` | 매일 새로운 한국어 표현 + 문화 맥락 |
-| OnuiTube | `/video-learning` | 한/영 이중 자막 영상 + 클릭 사전 |
+| OnuiTube | `/video-learning` | 50개 숏폼 영상 + 이중 자막 + 클릭 사전 + 진도 저장 |
 | 오누이 비츠 | `/onui-beats` | K-Pop 가사 빈칸 채우기 게임 |
 | AI 음성 통화 | `/voice-call` | AI 튜터와 실시간 음성 회화 연습 |
 | AI 역할극 | `/roleplay` | 역사 인물·상황별 시나리오 대화 |
@@ -31,6 +31,7 @@ AI 기반 한국어 학습 플랫폼 — 발음 평가, AI 대화, 영상 학습
 - **TTS**: Gemini TTS / OpenAI TTS / Google Cloud TTS / MzTTS
 - **STT**: Local (Vosk) / Google Cloud / OpenAI Whisper
 - **발음 평가**: SpeechPro API (음소 단위 분석)
+- **영상 학습**: 로컬 MP4 기반 OnuiTube, Gemini 썸네일, Gemini/OpenAI TTS
 
 ---
 
@@ -74,6 +75,8 @@ OLLAMA_MODEL=exaone3.5:7.8b
 # TTS 백엔드: gemini | openai | google | mztts
 TTS_BACKEND=gemini
 GEMINI_TTS_MODEL=gemini-2.5-flash-preview-tts
+OPENAI_TTS_MODEL=gpt-4o-mini-tts
+OPENAI_TTS_VOICE=marin
 
 # STT 백엔드: openai | google | vosk | local
 STT_BACKEND=local
@@ -170,6 +173,8 @@ sudo certbot renew             # 실제 갱신
 | `GEMINI_API_KEY` | Gemini API 키 | — |
 | `GEMINI_MODEL` | Gemini 모델명 | `gemini-2.5-pro` |
 | `GEMINI_IMAGE_MODEL` | Gemini 이미지 생성 모델 | `gemini-2.5-flash-img` |
+| `GEMINI_IMAGE_TIMEOUT` | Gemini 이미지 REST 호출 timeout(초) | `60` |
+| `GEMINI_IMAGE_USE_SDK` | Gemini 이미지 생성 SDK 사용 여부 (`1`이면 SDK, 기본은 REST) | 비활성 |
 | `OPENAI_API_KEY` | OpenAI API 키 | — |
 | `OPENAI_MODEL` | OpenAI 텍스트 모델명 | `gpt-4.1-nano` |
 | `DALLE_MODEL` | DALL-E 이미지 모델 | `gpt-image-1.5` |
@@ -177,8 +182,8 @@ sudo certbot renew             # 실제 갱신
 | `OLLAMA_MODEL` | Ollama 모델명 | `exaone3.5:7.8b` |
 | `TTS_BACKEND` | TTS 백엔드: `gemini` / `openai` / `google` / `mztts` | `gemini` |
 | `GEMINI_TTS_MODEL` | Gemini TTS 모델 | `gemini-2.5-flash-preview-tts` |
-| `OPENAI_TTS_MODEL` | OpenAI TTS 모델 | `tts-1` |
-| `OPENAI_TTS_VOICE` | OpenAI TTS 음성 | `alloy` |
+| `OPENAI_TTS_MODEL` | OpenAI TTS 모델 (`gpt-4o-mini-tts`, `tts-1`, `tts-1-hd`) | `tts-1` |
+| `OPENAI_TTS_VOICE` | OpenAI TTS 음성 (`marin`, `coral`, `shimmer`, `nova`, `sage`, etc.) | `alloy` |
 | `STT_BACKEND` | STT 백엔드: `openai` / `google` / `vosk` / `local` | `local` |
 | `VOSK_MODEL_PATH` | Vosk 모델 디렉터리 경로 | — |
 | `ONUI_TMP_DIR` | 오디오 변환용 임시 디렉터리 | 시스템 기본 tmp |
@@ -234,7 +239,8 @@ onui-ai/
 ├── static/
 │   ├── js/                  # 페이지별 JavaScript (kebab-case)
 │   ├── css/                 # 페이지별 CSS (kebab-case)
-│   └── images/
+│   ├── images/tube/         # OnuiTube 썸네일 이미지
+│   └── video/               # OnuiTube 로컬 MP4 영상
 │
 ├── data/
 │   ├── users.db             # SQLite 사용자 DB
@@ -244,10 +250,78 @@ onui-ai/
 │   ├── voice-call.json      # AI 음성 통화 시나리오
 │   ├── roleplay-scenarios.json
 │   ├── onui-tube.json       # OnuiTube 영상 메타데이터
+│   ├── onui-tube-transcripts.json  # OnuiTube 자막·단어 데이터
 │   └── tts_cache/           # TTS 오디오 캐시
 │
 ├── scripts/                 # 일회성 데이터 관리 스크립트
 └── docs/                    # 설계 문서
+```
+
+---
+
+## OnuiTube 콘텐츠 관리
+
+OnuiTube는 `/video-learning`에서 제공되는 세로형 숏폼 영상 학습 기능입니다.
+
+- 현재 카탈로그: **50개 영상**
+- 레벨 분포: **Lv.1 18개 / Lv.2 18개 / Lv.3 14개**
+- 신규 30개는 **Lv.1/Lv.2/Lv.3 각 10개**로 구성
+- 영상 파일: `static/video/*.mp4`
+- 썸네일: `static/images/tube/*.png` 또는 `.jpg`
+- 메타데이터: `data/onui-tube.json`
+- 자막·단어 데이터: `data/onui-tube-transcripts.json`
+
+> 생성된 MP4와 썸네일 PNG는 Git에 커밋하지 않습니다. 운영 서버에는 생성 결과물을 직접 배포하거나, 별도 object storage(S3/GCS/R2 등)에 업로드한 뒤 카탈로그 URL을 맞춥니다. Git에는 생성 스크립트, 메타데이터, 자막 데이터만 보관합니다.
+
+### 썸네일 생성
+
+```bash
+source .venv/bin/activate
+GEMINI_IMAGE_TIMEOUT=60 python scripts/generate_tube_images.py --ids <video_id...>
+```
+
+기본은 Gemini REST 경로를 사용합니다. SDK를 강제로 쓰려면 `GEMINI_IMAGE_USE_SDK=1`을 설정합니다.
+
+### 영상 생성
+
+```bash
+source .venv/bin/activate
+python scripts/generate_tube_videos.py \
+  --ids <video_id...> \
+  --tts-backend openai \
+  --tts-model gpt-4o-mini-tts \
+  --tts-voice marin \
+  --tts-instructions "Speak in Korean with a bright, warm, cute, youthful feminine voice. Keep pronunciation very clear for Korean learners. Read the Korean text exactly once without adding any words." \
+  --retime-from-audio \
+  --sentence-gap 0.75 \
+  --tail-padding 0.25 \
+  --cache-version <version>
+```
+
+기존 Leda 톤이 필요한 경우 Gemini TTS를 사용할 수 있습니다. 단, Gemini TTS는 일일 quota 제한이 있으므로 대량 생성 시 실패한 ID만 재실행합니다.
+
+```bash
+python scripts/generate_tube_videos.py \
+  --ids <video_id...> \
+  --tts-backend gemini \
+  --tts-voice Leda \
+  --retime-from-audio
+```
+
+### 검증
+
+```bash
+python3 scripts/audit_onuitube_catalog.py
+python3 -m json.tool data/onui-tube.json
+python3 -m json.tool data/onui-tube-transcripts.json
+node --check static/js/video-learning.js
+```
+
+정상 상태 예:
+
+```text
+OnuiTube catalog audit
+total=50 ready=50 replacement_required=0 transcript_missing=0
 ```
 
 ---

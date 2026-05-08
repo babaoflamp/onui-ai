@@ -1,4 +1,6 @@
   document.addEventListener("DOMContentLoaded", () => {
+    const AUTO_PAUSE_GRACE_SECONDS = 0.15;
+
     let ytPlayer = null;
     let transcripts = [];
     let currentSubtitleIndex = -1;
@@ -10,9 +12,15 @@
     let currentOffset = 0;
     let activeLevel = 'all';
     let saveProgressTimer = null;
+    let pendingResumeTime = 0;
+    let progressByVideo = {};
+    let videoProgressFailureCount = 0;
+    let videoProgressRetryAt = 0;
     let ttsAudio = null;
     let timeUpdateInterval = null;
     let vocabularyLookup = null;
+    let isYouTubeApiReady = !!(window.YT && window.YT.Player);
+    let youtubeReadyResolvers = [];
 
     const lobby             = document.getElementById('tube-lobby');
     const playerScreen      = document.getElementById('player-screen');
@@ -53,12 +61,100 @@
     const btnOffsetPlus     = document.getElementById('btn-offset-plus');
     const offsetLabel       = document.getElementById('offset-label');
 
+    function getCookie(name) {
+      const encodedName = encodeURIComponent(name) + '=';
+      return document.cookie
+        .split(';')
+        .map((item) => item.trim())
+        .find((item) => item.startsWith(encodedName))
+        ?.slice(encodedName.length) || '';
+    }
+
+    function getCurrentUserId() {
+      return getCookie('user_id');
+    }
+
+    function getAuthHeaders(extra = {}) {
+      const token = localStorage.getItem('auth_token');
+      return token ? { ...extra, Authorization: `Bearer ${token}` } : extra;
+    }
+
+    function getInitialVideos() {
+      return Array.isArray(window.__INITIAL_VIDEOS) ? window.__INITIAL_VIDEOS : [];
+    }
+
+    function renderLobbyError(message) {
+      videoGrid.innerHTML = `
+        <div class="col-span-full py-20 text-center text-white/35 font-black uppercase tracking-widest">
+          ${escapeHtml(message)}
+        </div>
+      `;
+    }
+
     // ── YouTube IFrame API ──────────────────────────────
     window.onYouTubeIframeAPIReady = () => {
       console.log("[OnuiTube] YouTube API Ready");
+      isYouTubeApiReady = true;
+      youtubeReadyResolvers.forEach((resolve) => resolve());
+      youtubeReadyResolvers = [];
     };
 
-    function initYouTubePlayer(videoId) {
+    function waitForYouTubeApi() {
+      if (window.YT && window.YT.Player) {
+        isYouTubeApiReady = true;
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        youtubeReadyResolvers.push(resolve);
+        window.setTimeout(() => {
+          if (isYouTubeApiReady || (window.YT && window.YT.Player)) {
+            resolve();
+            return;
+          }
+          reject(new Error('YouTube player API did not load.'));
+        }, 8000);
+      });
+    }
+
+    function extractYouTubeVideoId(video) {
+      const rawUrl = String(video.video_url || '').trim();
+      const rawId = String(video.id || '').trim();
+
+      if (/^[a-zA-Z0-9_-]{11}$/.test(rawId)) return rawId;
+      if (!rawUrl) return rawId;
+
+      try {
+        const url = new URL(rawUrl, window.location.origin);
+        const queryId = url.searchParams.get('v');
+        if (queryId) return queryId;
+
+        const parts = url.pathname.split('/').filter(Boolean);
+        const embedIndex = parts.findIndex((part) => part === 'embed' || part === 'shorts');
+        if (embedIndex !== -1 && parts[embedIndex + 1]) return parts[embedIndex + 1];
+        if (url.hostname.includes('youtu.be') && parts[0]) return parts[0];
+      } catch (error) {
+        console.warn('[OnuiTube] Unable to parse YouTube URL:', rawUrl, error);
+      }
+
+      return rawId;
+    }
+
+    async function initYouTubePlayer(video) {
+      const videoId = extractYouTubeVideoId(video);
+      if (!videoId) {
+        showToast('YouTube 영상 ID를 찾지 못했습니다.', 'error');
+        return false;
+      }
+
+      try {
+        await waitForYouTubeApi();
+      } catch (error) {
+        console.error('[OnuiTube] YouTube API unavailable:', error);
+        showToast('YouTube 플레이어를 불러오지 못했습니다.', 'error');
+        return false;
+      }
+
       if (ytPlayer) {
         try { ytPlayer.destroy(); } catch(e) {}
         ytPlayer = null;
@@ -91,6 +187,7 @@
         events: {
           onReady: (event) => {
             console.log("[OnuiTube] YT Player Ready");
+            applyPendingResume();
             startTimePolling();
           },
           onStateChange: (event) => {
@@ -106,6 +203,7 @@
           }
         }
       });
+      return true;
     }
 
     function initLocalPlayer(videoUrl) {
@@ -117,6 +215,9 @@
       videoPlayer.classList.remove('hidden');
       videoPlayer.src = videoUrl;
       videoPlayer.load();
+      videoPlayer.onloadedmetadata = () => {
+        applyPendingResume();
+      };
       videoPlayer.play().catch(console.warn);
 
       videoPlayer.onplay = () => {
@@ -149,6 +250,7 @@
         if (dur > 0) {
           updateProgressUI(cur, dur);
           handleTimeUpdate(cur);
+          scheduleProgressSave(cur, dur);
         }
       }, 100); // 10fps for smooth subtitle sync
     }
@@ -247,6 +349,94 @@
         if (shouldPlay) videoPlayer.play().catch(console.warn);
       }
       handleTimeUpdate(targetTime);
+    }
+
+    function applyPendingResume() {
+      if (!pendingResumeTime || pendingResumeTime < 2) return;
+      const { duration } = getPlaybackState();
+      const targetTime = duration > 0 ? Math.min(pendingResumeTime, Math.max(0, duration - 1)) : pendingResumeTime;
+      pendingResumeTime = 0;
+      seekPlayback(targetTime, true);
+    }
+
+    async function loadVideoProgress() {
+      const userId = getCurrentUserId();
+      if (!userId) return;
+
+      try {
+        const resp = await fetch(`/api/video-progress/${encodeURIComponent(userId)}`, {
+          headers: getAuthHeaders(),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.progress && typeof data.progress === 'object') {
+          progressByVideo = data.progress;
+        }
+      } catch (error) {
+        console.warn('[OnuiTube] Failed to load video progress:', error);
+      }
+    }
+
+    async function saveCurrentProgress(cur, dur) {
+      if (!currentVideoId || !dur) return;
+      if (Date.now() < videoProgressRetryAt) return;
+
+      const watchedSeconds = Math.max(0, Math.floor(cur || 0));
+      const durationSeconds = Math.max(0, Math.floor(dur || 0));
+      const completed = durationSeconds > 0 && watchedSeconds >= Math.max(1, durationSeconds - 2);
+      const lastPosition = completed ? 0 : watchedSeconds;
+
+      try {
+        const resp = await fetch('/api/video-progress', {
+          method: 'POST',
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            video_id: currentVideoId,
+            watched_seconds: watchedSeconds,
+            duration_seconds: durationSeconds,
+            last_position: lastPosition,
+            completed,
+          }),
+        });
+        if (!resp.ok) {
+          videoProgressFailureCount += 1;
+          const backoffMs = resp.status === 503
+            ? Math.min(300000, 30000 * videoProgressFailureCount)
+            : Math.min(60000, 5000 * videoProgressFailureCount);
+          videoProgressRetryAt = Date.now() + backoffMs;
+          if (resp.status !== 503) {
+            console.warn(`[OnuiTube] Video progress save failed (${resp.status}); retrying in ${Math.round(backoffMs / 1000)}s.`);
+          }
+          return;
+        }
+        videoProgressFailureCount = 0;
+        videoProgressRetryAt = 0;
+        progressByVideo[currentVideoId] = {
+          watched_seconds: watchedSeconds,
+          duration_seconds: durationSeconds,
+          last_position: lastPosition,
+          completed,
+        };
+      } catch (error) {
+        console.warn('[OnuiTube] Failed to save video progress:', error);
+      }
+    }
+
+    function scheduleProgressSave(cur, dur) {
+      if (!currentVideoId || saveProgressTimer || !dur) return;
+      saveProgressTimer = window.setTimeout(() => {
+        saveProgressTimer = null;
+        const state = getPlaybackState();
+        saveCurrentProgress(state.currentTime || cur, state.duration || dur);
+      }, 5000);
+    }
+
+    function flushProgressSave() {
+      if (saveProgressTimer) {
+        clearTimeout(saveProgressTimer);
+        saveProgressTimer = null;
+      }
+      const { currentTime, duration } = getPlaybackState();
+      return saveCurrentProgress(currentTime, duration);
     }
 
     function getSentenceIndexForTime(time) {
@@ -399,14 +589,24 @@
     // ── 로비 로드 ────────────────────────────────────────
     async function loadLobby() {
       try {
-        const resp = await fetch('/api/tube/videos');
-        const data = await resp.json();
+        const resp = await fetch('/api/tube/videos', { headers: getAuthHeaders() });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          throw new Error(data.detail || data.error || '영상 목록을 불러오지 못했습니다.');
+        }
         if (data.success && data.videos) {
           allVideos = data.videos;
           renderGrid(allVideos);
+          return;
         }
+        throw new Error('영상 목록을 불러오지 못했습니다.');
       } catch (err) {
         console.error(err);
+        if (!allVideos.length) {
+          renderLobbyError(err.message || '영상 목록을 불러오지 못했습니다.');
+        } else {
+          showToast('최신 영상 목록을 불러오지 못해 저장된 목록을 표시합니다.', 'info');
+        }
       }
     }
 
@@ -423,6 +623,11 @@
 
       videos.forEach((v, idx) => {
         const card = document.createElement('div');
+        const title = escapeHtml(v.title || '');
+        const posterUrl = escapeHtml(v.poster_url || '');
+        const loadingMode = idx < 5 ? 'eager' : 'lazy';
+        const fetchPriority = idx === 0 ? 'high' : 'auto';
+        const level = escapeHtml(v.level || '');
         const hasTranscript = !!v.has_transcript;
         const isLearningReady = !!v.is_learning_ready;
         const catalogStatus = v.catalog_status || (isLearningReady ? 'ready' : (hasTranscript ? 'replacement_required' : 'transcript_missing'));
@@ -444,14 +649,14 @@
         card.innerHTML = `
           <div class="card-content">
             <div class="shorts-thumb">
-              <img src="${v.poster_url}" class="w-full h-full object-cover" alt="${v.title}" loading="lazy">
+              <img src="${posterUrl}" class="w-full h-full object-cover" alt="${title}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}">
             </div>
             <div class="card-overlay-top">
-              <span class="px-2 py-0.5 bg-orange-500 text-white text-[9px] font-black rounded-full shadow-sm">Lv.${v.level}</span>
+              <span class="px-2 py-0.5 bg-orange-500 text-white text-[9px] font-black rounded-full shadow-sm">Lv.${level}</span>
               ${statusBadge}
             </div>
             <div class="card-overlay">
-              <h3 class="text-xs font-black text-white leading-tight line-clamp-2 drop-shadow-md">${v.title}</h3>
+              <h3 class="text-xs font-black text-white leading-tight line-clamp-2 drop-shadow-md">${title}</h3>
             </div>
             <div class="absolute inset-0 flex items-center justify-center ${isPlayable ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-all duration-300 z-10">
                <div class="w-11 h-11 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-2xl scale-90 group-hover:scale-100 transition-transform">
@@ -506,16 +711,24 @@
     }
 
     // ── 플레이어 초기화 ──────────────────────────────────
-    function initPlayer(v) {
+    async function initPlayer(v) {
+      await flushProgressSave();
       currentVideoId = v.id;
       currentOffset = v.transcript_offset || 0;
+      const progress = progressByVideo[currentVideoId] || {};
+      pendingResumeTime = Number(progress.completed ? 0 : progress.last_position || 0) || 0;
       document.getElementById('player-title').innerText = v.title;
       document.getElementById('player-desc').innerText = v.description || '';
 
       if (v.source_type === 'local' || v.local_video_url) {
+        if (!v.local_video_url) {
+          showToast('로컬 영상 경로가 없습니다.', 'error');
+          return;
+        }
         initLocalPlayer(v.local_video_url);
       } else {
-        initYouTubePlayer(v.id);
+        const initialized = await initYouTubePlayer(v);
+        if (!initialized) return;
       }
       
       currentSpeed = 1.0;
@@ -528,14 +741,19 @@
       captionsContainer.innerHTML = '';
 
       // 자막 로드 (plural transcripts 키 사용 보장)
-      fetch(`/api/tube/transcripts/${v.id}`)
-        .then(r => r.json())
+      fetch(`/api/tube/transcripts/${v.id}`, { headers: getAuthHeaders() })
+        .then(r => r.ok ? r.json() : Promise.reject(new Error('자막을 불러오지 못했습니다.')))
         .then(data => {
           if (data.success && data.transcripts) {
             transcripts = data.transcripts;
+          } else {
+            throw new Error('자막을 불러오지 못했습니다.');
           }
         })
-        .catch(console.error);
+        .catch((error) => {
+          console.error(error);
+          showToast(error.message || '자막을 불러오지 못했습니다.', 'error');
+        });
 
       lobby.classList.add('hidden');
       playerScreen.classList.remove('hidden');
@@ -627,8 +845,9 @@
         } else if (currentSubtitleIndex !== -1) {
           const current = transcripts[currentSubtitleIndex];
           const currentEnd = current.end + currentOffset;
+          const pauseAt = currentEnd + AUTO_PAUSE_GRACE_SECONDS;
           const beforeNextSentence = currentSubtitleIndex >= transcripts.length - 1 || time < (transcripts[currentSubtitleIndex + 1].start + currentOffset);
-          if (!autoPauseToggle.checked || time < currentEnd || !beforeNextSentence) {
+          if (!autoPauseToggle.checked || time < pauseAt || !beforeNextSentence) {
             currentSubtitleIndex = -1;
             autoPauseFired = false;
             renderCaptions(-1);
@@ -638,11 +857,12 @@
 
       if (currentSubtitleIndex !== -1 && autoPauseToggle.checked && !autoPauseFired) {
         const cur = transcripts[currentSubtitleIndex];
-        if (time >= (cur.end + currentOffset)) {
+        const pauseAt = cur.end + currentOffset + AUTO_PAUSE_GRACE_SECONDS;
+        if (time >= pauseAt) {
           autoPauseFired = true;
           if (ytPlayer) ytPlayer.pauseVideo();
           else if (!videoPlayer.classList.contains('hidden')) videoPlayer.pause();
-          seekPlayback(cur.end + currentOffset, false);
+          seekPlayback(pauseAt, false);
         }
       }
     }
@@ -704,16 +924,23 @@
       }
     }
 
-    btnBack.onclick = () => {
+    btnBack.onclick = async () => {
+      await flushProgressSave();
       if (ytPlayer) ytPlayer.stopVideo();
       if (videoPlayer) {
         videoPlayer.pause();
         videoPlayer.src = "";
       }
       if (timeUpdateInterval) clearInterval(timeUpdateInterval);
+      currentVideoId = null;
+      pendingResumeTime = 0;
       playerScreen.classList.add('hidden');
       lobby.classList.remove('hidden');
     };
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) flushProgressSave();
+    });
 
     searchBtn.onclick = applyLobbyFilters;
     searchInput.addEventListener('input', applyLobbyFilters);
@@ -779,7 +1006,13 @@
       URL.revokeObjectURL(url);
     };
 
+    allVideos = getInitialVideos();
+    if (allVideos.length) {
+      renderGrid(allVideos);
+    }
+
     loadVocabularyLookup();
+    loadVideoProgress();
     loadLobby();
     loadSavedVocab();
   });
