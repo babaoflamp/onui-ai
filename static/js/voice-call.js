@@ -100,6 +100,36 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorAvatar.setAttribute('alt', tutorAlt);
   }
 
+  async function hasAudioInputDevice() {
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== 'function') {
+      return null;
+    }
+
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      return devices.some((device) => device.kind === 'audioinput');
+    } catch (error) {
+      console.warn('Unable to enumerate media devices:', error);
+      return null;
+    }
+  }
+
+  function getMicSetupMessage(error) {
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+      return t('vc.mic_unsupported', 'This browser does not support microphone access.');
+    }
+
+    if (error && error.name === 'NotFoundError') {
+      return t('vc.no_microphone', 'No microphone was found. Connect or enable an input device, then try again.');
+    }
+
+    if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
+      return t('vc.mic_permission_denied', 'Microphone access was blocked. Allow microphone permission, then try again.');
+    }
+
+    return t('vc.mic_error', 'Microphone access failed. Check your input device and browser permissions.');
+  }
+
   function resetTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
@@ -372,8 +402,12 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.error('Audio setup failed:', error);
       const msg = error.message || 'Unknown error';
-      setStatus(t('vc.audio_error', `Audio setup failed: ${msg}`));
       resetControls('vc.ready', 'vc.press_to_start');
+      setStatus(t('vc.audio_error', `Audio setup failed: ${msg}`));
+      cleanupAudio();
+      if (socket && socket.readyState <= WebSocket.OPEN) {
+        socket.close();
+      }
     }
   }
 
@@ -618,13 +652,31 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (!audioContext) return;
 
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        throw new Error('getUserMedia not supported');
+      }
+
+      const hasAudioInput = await hasAudioInputDevice();
+      if (hasAudioInput === false) {
+        const noDeviceError = new Error('No audio input device found');
+        noDeviceError.name = 'NotFoundError';
+        throw noDeviceError;
+      }
+
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       
       if (!audioContext) return;
     } catch (error) {
-      console.error('Initial audio/mic setup failed:', error);
-      setStatus(t('vc.mic_error', 'Microphone access denied or audio not supported.'));
+      console.warn('Initial audio/mic setup failed:', error);
       resetControls('vc.ready', 'vc.press_to_start');
+      setStatus(getMicSetupMessage(error));
+      cleanupAudio();
       return;
     }
 
