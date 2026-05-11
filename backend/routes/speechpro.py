@@ -2,6 +2,10 @@ import logging
 import sqlite3
 
 logger = logging.getLogger(__name__)
+
+# CEFR ↔ Korean level mapping for level filter compatibility
+_CEFR_TO_KR = {"A1": "초급1", "A2": "초급2", "B1": "중급1", "B2": "중급2", "C1": "고급1", "C2": "고급2"}
+_KR_TO_CEFR = {v: k for k, v in _CEFR_TO_KR.items()}
 import os
 import tempfile
 import time
@@ -144,8 +148,13 @@ async def get_speechpro_sentences(
     try:
         precomputed = load_precomputed()
         if level and level.lower() != "all":
-            # Support partial matching (e.g., "초급" matches "초급1", "초급2")
-            precomputed = [s for s in precomputed if level in s.get("level", "")]
+            level_upper = level.upper()
+            alt_level = _CEFR_TO_KR.get(level_upper) or _KR_TO_CEFR.get(level_upper, "")
+            precomputed = [
+                s for s in precomputed
+                if level_upper in s.get("level", "").upper()
+                or (alt_level and alt_level in s.get("level", ""))
+            ]
 
         total = len(precomputed)
 

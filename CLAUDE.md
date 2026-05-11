@@ -22,7 +22,7 @@ pkill -f uvicorn
 
 # Run tests
 python -m pytest
-python -m pytest tests/unit   # scoped run (test_onui_tube_catalog.py lives here)
+python -m pytest tests/unit   # scoped run
 ```
 
 ### Production (PM2)
@@ -30,6 +30,7 @@ python -m pytest tests/unit   # scoped run (test_onui_tube_catalog.py lives here
 ```bash
 ./start-service.sh    # starts onui-ai via PM2
 ./stop-service.sh     # stops both PM2 processes
+./restart.sh          # restarts onui-ai + onui-ai-ngrok via PM2
 
 pm2 status            # check process health
 pm2 logs onui-ai      # tail application logs
@@ -114,7 +115,7 @@ onuiai.kr / onui.ai.kr  (DNS A → server IP)
 - TTS helpers (MzTTS, Gemini, Google, OpenAI) and audio conversion utilities
 - SQLite DB init (`data/users.db`) via `_init_user_db()` and `_ensure_*` helpers
 - App factory, middleware setup (CORS, session, logging)
-- All `app.include_router(...)` mounts (lines 673–685)
+- All `app.include_router(...)` mounts (bottom of file, ~line 680+)
 - WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation) live in `backend/routes/ai_services.py`
 
 ### Routers in `backend/routes/`
