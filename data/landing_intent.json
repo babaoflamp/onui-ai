@@ -229,5 +229,26 @@
     "reason": "landing_signup",
     "native_lang": "ko",
     "ts": 1778117486.962697
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778201196.4681735
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778459916.345783
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1778461956.0729942
   }
 ]
