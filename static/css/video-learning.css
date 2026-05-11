@@ -32,66 +32,6 @@
     background: #000;
   }
 
-  /* 자막 오버레이 */
-  .captions-layer {
-    position: absolute;
-    bottom: 80px;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    z-index: 20;
-    pointer-events: none;
-    padding: 0 12px;
-  }
-
-  .caption-box {
-    display: inline-block;
-    background: rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(8px);
-    padding: 10px 18px 8px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    pointer-events: auto;
-    max-width: 100%;
-  }
-
-  .caption-word {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 6px;
-    transition: background 0.2s;
-    display: inline-block;
-    position: relative;
-  }
-
-  .caption-word:hover {
-    background: rgba(249, 115, 22, 0.45);
-  }
-
-  .caption-translation {
-    font-size: 0.9rem;
-    color: #fb923c;
-    font-weight: 600;
-    margin-top: 4px;
-  }
-
-  .panel-word {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    padding: 3px 8px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.06);
-    transition: background 0.15s;
-    line-height: 1.5;
-  }
-  .panel-word:hover { background: rgba(249,115,22,0.35); }
-  .panel-word.active { background: rgba(249,115,22,0.55); }
-
   /* 커스텀 비디오 컨트롤바 */
   .video-controls {
     position: absolute;
@@ -165,6 +105,16 @@
     overflow: hidden;
   }
 
+  .shorts-thumb::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #1a1a2e 25%, #2a2a4e 50%, #1a1a2e 75%);
+    background-size: 200% 100%;
+    animation: thumb-shimmer 1.5s infinite;
+    z-index: 0;
+  }
+
   .shorts-thumb img {
     width: 102% !important; /* 미세한 빈틈 방지를 위해 2% 더 크게 설정 */
     height: 102% !important;
@@ -175,6 +125,18 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+  }
+
+  .shorts-thumb img.loaded {
+    opacity: 1;
+  }
+
+  @keyframes thumb-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 
   /* 정보 오버레이 (하단 완전 블랙) */

@@ -625,6 +625,7 @@
         const card = document.createElement('div');
         const title = escapeHtml(v.title || '');
         const posterUrl = escapeHtml(v.poster_url || '');
+        const webpUrl = escapeHtml(v.poster_url ? v.poster_url.replace(/\.(jpg|jpeg|png)$/i, '.webp') : '');
         const loadingMode = idx < 5 ? 'eager' : 'lazy';
         const fetchPriority = idx === 0 ? 'high' : 'auto';
         const level = escapeHtml(v.level || '');
@@ -649,7 +650,10 @@
         card.innerHTML = `
           <div class="card-content">
             <div class="shorts-thumb">
-              <img src="${posterUrl}" class="w-full h-full object-cover" alt="${title}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}">
+              <picture>
+                ${webpUrl ? `<source srcset="${webpUrl}" type="image/webp">` : ''}
+                <img src="${posterUrl}" class="w-full h-full object-cover" alt="${title}" loading="${loadingMode}" decoding="async" fetchpriority="${fetchPriority}">
+              </picture>
             </div>
             <div class="card-overlay-top">
               <span class="px-2 py-0.5 bg-orange-500 text-white text-[9px] font-black rounded-full shadow-sm">Lv.${level}</span>
@@ -682,6 +686,12 @@
           initPlayer(v);
         };
         videoGrid.appendChild(card);
+        const thumbImg = card.querySelector('.shorts-thumb img');
+        if (thumbImg) {
+          thumbImg.onload = () => thumbImg.classList.add('loaded');
+          thumbImg.onerror = () => thumbImg.classList.add('loaded');
+          if (thumbImg.complete) thumbImg.classList.add('loaded');
+        }
       });
     }
 
