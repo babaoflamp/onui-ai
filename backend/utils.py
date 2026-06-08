@@ -23,6 +23,8 @@ from difflib import SequenceMatcher
 
 from fastapi import Request, HTTPException, Depends
 
+from backend.database import ensure_rag_tables as ensure_rag_schema
+
 logger = logging.getLogger("uvicorn.error")
 
 # Constants defaults
@@ -45,6 +47,8 @@ T_TABLE = ["", "k", "k", "ks", "n", "nj", "nh", "t", "l", "lg", "lm", "lb", "ls"
 def get_secret_key() -> str:
     key = os.getenv("SECRET_KEY", "")
     if not key:
+        if os.getenv("APP_ENV", "development").strip().lower() == "production":
+            raise RuntimeError("SECRET_KEY must be set when APP_ENV=production")
         logger.warning("[SECURITY] SECRET_KEY not set. Using transient key.")
         return "transient-secret-key-for-dev-only"
     return key
@@ -86,9 +90,12 @@ def parse_session_token(token: str) -> Optional[dict]:
     except Exception: return None
 
 def get_session(request: Request) -> Optional[dict]:
-    token = request.headers.get("Authorization", "").replace("Bearer ", "") or \
-            request.cookies.get("session_token", "") or \
-            request.query_params.get("token", "")
+    auth_header = request.headers.get("Authorization", "")
+    token = ""
+    if auth_header.startswith("Bearer "):
+        token = auth_header.removeprefix("Bearer ").strip()
+    if not token:
+        token = request.cookies.get("session_token", "")
     return parse_session_token(token) if token else None
 
 @lru_cache(maxsize=128)
@@ -109,6 +116,10 @@ def _get_user_by_id_cached(db_path: str, user_id: int) -> Optional[tuple]:
 def get_user_by_id(db_path: str, user_id: int) -> Optional[dict]:
     res = _get_user_by_id_cached(db_path, user_id)
     return dict(res) if res else None
+
+
+def clear_user_cache() -> None:
+    _get_user_by_id_cached.cache_clear()
 
 def get_current_user(request: Request, session: dict = Depends(get_session)) -> dict:
     if not session: raise HTTPException(status_code=401, detail="토큰이 없습니다.")
@@ -238,25 +249,58 @@ def transcribe_with_vosk(wav_path: str, model_path: str) -> str:
     return " ".join([r for r in res if r])
 
 def ensure_rag_tables(conn):
-    conn.executescript("""
-        CREATE TABLE IF NOT EXISTS rag_settings (key TEXT PRIMARY KEY, value TEXT);
-        CREATE TABLE IF NOT EXISTS rag_documents (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, source TEXT, content TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
-    """)
+    ensure_rag_schema(conn)
     conn.commit()
 
-def rag_chunk_text(text: str, chunk_size: int = 500) -> list:
-    return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
+def rag_chunk_text(text: str, chunk_size: int = 500, max_chars: int = None) -> list:
+    size = max_chars or chunk_size
+    size = max(1, int(size or 500))
+    return [text[i : i + size] for i in range(0, len(text), size)]
 
-def rag_get_settings(db_path: str) -> dict:
-    conn = sqlite3.connect(db_path)
+def _conn_from_db_or_conn(db_or_conn):
+    if isinstance(db_or_conn, sqlite3.Connection):
+        return db_or_conn, False
+    return sqlite3.connect(db_or_conn), True
+
+def rag_get_settings(db_or_conn) -> dict:
+    conn, should_close = _conn_from_db_or_conn(db_or_conn)
     try:
-        rows = conn.execute("SELECT key, value FROM rag_settings").fetchall()
-        return {r[0]: r[1] for r in rows}
-    finally: conn.close()
+        ensure_rag_schema(conn)
+        row = conn.execute("SELECT enabled, top_k, updated_at FROM rag_settings WHERE id = 1").fetchone()
+        if not row:
+            return {"enabled": False, "top_k": 5}
+        return {"enabled": bool(row[0]), "top_k": int(row[1] or 5), "updated_at": row[2]}
+    finally:
+        if should_close:
+            conn.close()
 
 def rag_search(db_path: str, query: str, limit: int = 5) -> list:
     conn = sqlite3.connect(db_path)
     try:
-        rows = conn.execute("SELECT id, title, source, content FROM rag_documents LIMIT ?", (limit,)).fetchall()
+        ensure_rag_schema(conn)
+        q = (query or '').strip()
+        if q:
+            rows = conn.execute(
+                """
+                SELECT c.id, d.title, d.source, c.content
+                FROM rag_chunks_fts f
+                JOIN rag_chunks c ON c.id = f.chunk_id
+                JOIN rag_documents d ON d.id = c.document_id
+                WHERE rag_chunks_fts MATCH ?
+                LIMIT ?
+                """,
+                (q, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT c.id, d.title, d.source, c.content
+                FROM rag_chunks c
+                JOIN rag_documents d ON d.id = c.document_id
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
         return [{"id": r[0], "title": r[1], "source": r[2], "content": r[3]} for r in rows]
-    finally: conn.close()
+    finally:
+        conn.close()

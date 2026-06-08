@@ -5,6 +5,7 @@ from backend.utils import (
     get_current_user,
     get_current_admin_user,
     get_optional_user,
+    get_user_by_id,
     get_session,
     create_session_token,
     parse_session_token,

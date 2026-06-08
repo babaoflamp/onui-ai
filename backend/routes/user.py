@@ -11,6 +11,8 @@ from fastapi.templating import Jinja2Templates
 from backend.routes.deps import (
     get_current_user,
     get_optional_user,
+    get_user_by_id,
+    get_session,
     get_user_credits,
     hash_password,
     verify_password
@@ -26,22 +28,29 @@ def _clear_user_cache(request: Request):
     if hasattr(request.app.state, "clear_user_cache"):
         request.app.state.clear_user_cache()
 
+def _redirect_if_no_current_user(request: Request):
+    session = get_session(request)
+    if not session:
+        return RedirectResponse(url="/login", status_code=302)
+    db_path = getattr(request.app.state, "db_path", "data/users.db")
+    if not get_user_by_id(db_path, session["user_id"]):
+        return RedirectResponse(url="/login", status_code=302)
+    return None
+
+
 # HTML Pages
 @router.get("/mypage")
 def mypage_page(request: Request):
-    # We could use a dependency for redirect but for now keep it simple
-    active_sessions = getattr(request.app.state, "active_sessions", {})
-    token = request.cookies.get("session_token", "")
-    if not token or token not in active_sessions:
-        return RedirectResponse(url="/login", status_code=302)
+    redirect = _redirect_if_no_current_user(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "mypage.html")
 
 @router.get("/change-password")
 def change_password_page(request: Request):
-    active_sessions = getattr(request.app.state, "active_sessions", {})
-    token = request.cookies.get("session_token", "")
-    if not token or token not in active_sessions:
-        return RedirectResponse(url="/login", status_code=302)
+    redirect = _redirect_if_no_current_user(request)
+    if redirect:
+        return redirect
     return templates.TemplateResponse(request, "change-password.html")
 
 # API Endpoints

@@ -66,6 +66,7 @@ from backend.utils import (
     ensure_wav_16k_mono,
     transcribe_with_vosk,
     active_sessions,
+    clear_user_cache,
     normalize_role,
     ROLE_LEARNER,
     ROLE_INSTRUCTOR,
@@ -74,6 +75,8 @@ from backend.utils import (
     _get_state
 )
 from backend.services.learning_progress_service import LearningProgressService
+from backend.config import load_settings
+from backend.database import initialize_database
 from backend.services.speechpro_service import (
     call_speechpro_gtp,
     call_speechpro_model,
@@ -86,10 +89,9 @@ from backend.services.speechpro_service import (
 # 기본 설정 및 경로
 # ==========================================
 load_dotenv(override=True)
-DB_PATH = Path("data/users.db")
-DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-APP_TMP_DIR = Path(os.getenv("ONUI_TMP_DIR", "data/tmp"))
-APP_TMP_DIR.mkdir(parents=True, exist_ok=True)
+settings = load_settings()
+DB_PATH = settings.db_path
+APP_TMP_DIR = settings.app_tmp_dir
 
 # 환경 변수 설정
 os.environ["TMPDIR"] = str(APP_TMP_DIR)
@@ -118,30 +120,30 @@ if not any(isinstance(h, TimedRotatingFileHandler) for h in logger.handlers):
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 # 모델/TTS 설정
-MODEL_BACKEND = os.getenv("MODEL_BACKEND", "gemini")
-OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "exaone")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-TTS_BACKEND = os.getenv("TTS_BACKEND", "gemini")
-SESSION_EXPIRY_SECONDS = int(os.getenv("SESSION_EXPIRY_SECONDS", str(4 * 60 * 60)))
-DAILY_CREDITS = int(os.getenv("DAILY_CREDITS", "100"))
-CREDIT_COSTS = {"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1, "voice": 5}
+MODEL_BACKEND = settings.model_backend
+OLLAMA_URL = settings.ollama_url
+OLLAMA_MODEL = settings.ollama_model
+GEMINI_API_KEY = settings.gemini_api_key
+GEMINI_MODEL = settings.gemini_model
+OPENAI_API_KEY = settings.openai_api_key
+OPENAI_MODEL = settings.openai_model
+TTS_BACKEND = settings.tts_backend
+SESSION_EXPIRY_SECONDS = settings.session_expiry_seconds
+DAILY_CREDITS = settings.daily_credits
+CREDIT_COSTS = settings.credit_costs
 
 # TTS Configuration
-GOOGLE_TTS_LANGUAGE = os.getenv("GOOGLE_TTS_LANGUAGE", "ko-KR")
-GOOGLE_TTS_VOICE = os.getenv("GOOGLE_TTS_VOICE", "ko-KR-Standard-A")
-GOOGLE_TTS_AUDIO_ENCODING = os.getenv("GOOGLE_TTS_AUDIO_ENCODING", "MP3")
-OPENAI_TTS_MODEL = os.getenv("OPENAI_TTS_MODEL", "tts-1")
-OPENAI_TTS_VOICE = os.getenv("OPENAI_TTS_VOICE", "alloy")
-OPENAI_TTS_FORMAT = os.getenv("OPENAI_TTS_FORMAT", "mp3")
-GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-1.5-flash")
-GEMINI_TTS_VOICE = os.getenv("GEMINI_TTS_VOICE", "Aoede")
-GEMINI_TTS_MIME = os.getenv("GEMINI_TTS_MIME", "audio/wav")
-TTS_CACHE_DIR = Path(os.getenv("TTS_CACHE_DIR", "data/tts_cache"))
-TTS_CACHE_MAX = int(os.getenv("TTS_CACHE_MAX", "500"))
+GOOGLE_TTS_LANGUAGE = settings.google_tts_language
+GOOGLE_TTS_VOICE = settings.google_tts_voice
+GOOGLE_TTS_AUDIO_ENCODING = settings.google_tts_audio_encoding
+OPENAI_TTS_MODEL = settings.openai_tts_model
+OPENAI_TTS_VOICE = settings.openai_tts_voice
+OPENAI_TTS_FORMAT = settings.openai_tts_format
+GEMINI_TTS_MODEL = settings.gemini_tts_model
+GEMINI_TTS_VOICE = settings.gemini_tts_voice
+GEMINI_TTS_MIME = settings.gemini_tts_mime
+TTS_CACHE_DIR = settings.tts_cache_dir
+TTS_CACHE_MAX = settings.tts_cache_max
 TTS_CACHE = {}
 
 # OpenAI Client
@@ -165,8 +167,8 @@ if GEMINI_API_KEY and GENAI_AVAILABLE:
 oauth = OAuth()
 oauth.register(
     name="google",
-    client_id=os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    client_id=settings.google_client_id,
+    client_secret=settings.google_client_secret,
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     client_kwargs={"scope": "openid email profile"},
 )
@@ -175,45 +177,7 @@ oauth.register(
 # 헬퍼 함수 및 데이터베이스 초기화
 # ==========================================
 def _init_user_db():
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE, nickname TEXT, password_hash TEXT, google_id TEXT,
-                native_lang TEXT, affiliation TEXT, time_pref TEXT, interests TEXT,
-                goal TEXT, exam_level TEXT, reason TEXT, style TEXT, created_at TEXT,
-                is_admin INTEGER DEFAULT 0, role TEXT DEFAULT 'learner',
-                credits_used INTEGER DEFAULT 0, credits_reset_date TEXT
-            )
-        """)
-        conn.executescript("""
-            CREATE TABLE IF NOT EXISTS sentence_scores (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
-                sentence_id TEXT NOT NULL, sentence_text TEXT, level TEXT,
-                score_first REAL, score_best REAL, score_latest REAL,
-                accuracy_first REAL, accuracy_best REAL, accuracy_latest REAL,
-                completeness_latest REAL, fluency_accuracy_latest REAL,
-                attempt_count INTEGER DEFAULT 1, term_id TEXT DEFAULT '2026-1',
-                device_type TEXT, ui_lang TEXT DEFAULT 'en', last_attempted_at TEXT,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_sentence_scores_user_sentence ON sentence_scores(user_id, sentence_id);
-            CREATE TABLE IF NOT EXISTS word_score_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL,
-                word_id TEXT NOT NULL, score INTEGER NOT NULL,
-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE INDEX IF NOT EXISTS idx_word_score_user_word ON word_score_history(user_id, word_id, created_at);
-            CREATE TABLE IF NOT EXISTS user_voice_recordings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, sentence_id TEXT,
-                file_path TEXT, score REAL, created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            );
-        """)
-        conn.commit()
-    finally:
-        conn.close()
+    initialize_database(str(DB_PATH))
 
 def _get_user_by_id(user_id: int) -> dict:
     return get_user_by_id(str(DB_PATH), user_id)
@@ -229,6 +193,29 @@ def _get_user_by_nickname(nickname: str) -> Optional[dict]:
     row = conn.execute("SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE nickname=?", (nickname.strip(),)).fetchone()
     conn.close()
     return dict(row) if row else None
+
+def _get_user_by_google_id(google_id: str) -> Optional[dict]:
+    conn = sqlite3.connect(DB_PATH); conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE google_id=?", (google_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def _create_google_user(email: str, nickname: str, google_id: str) -> dict:
+    clean_email = (email or "").strip().lower()
+    clean_nickname = (nickname or clean_email.split("@")[0]).strip()
+    if not clean_email or not EMAIL_REGEX.match(clean_email):
+        raise HTTPException(status_code=400, detail="Google 계정 이메일이 올바르지 않습니다.")
+    conn = sqlite3.connect(DB_PATH); conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.execute(
+            "INSERT INTO users (email, nickname, google_id, created_at, role) VALUES (?,?,?,?,?)",
+            (clean_email, clean_nickname, google_id, datetime.utcnow().isoformat(), ROLE_LEARNER),
+        )
+        conn.commit()
+        row = conn.execute("SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE id=?", (cursor.lastrowid,)).fetchone()
+        return dict(row)
+    finally:
+        conn.close()
 
 def _store_user_signup(payload: dict) -> dict:
     email = (payload.get("email") or "").strip().lower()
@@ -614,13 +601,20 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             return JSONResponse(status_code=500, content={"error": "Internal Server Error"})
 
 app.add_middleware(LoggingMiddleware)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(settings.allowed_origins),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ==========================================
 # 앱 상태 및 라우터
 # ==========================================
 templates = Jinja2Templates(directory="templates")
-templates.env.globals["CLARITY_PROJECT_ID"] = os.getenv("CLARITY_PROJECT_ID", "")
+templates.env.globals["CLARITY_PROJECT_ID"] = settings.clarity_project_id
+app.state.settings = settings
 app.state.templates = templates
 learning_service = LearningProgressService()
 app.state.learning_service = learning_service
@@ -633,6 +627,7 @@ app.state.role_system_admin = ROLE_SYSTEM_ADMIN
 app.state.role_choices = ROLE_CHOICES
 app.state.oauth = oauth
 app.state.session_expiry_seconds = SESSION_EXPIRY_SECONDS
+app.state.session_cookie_secure = settings.session_cookie_secure
 app.state.check_and_consume_credits = check_and_consume_credits
 app.state.credit_costs = CREDIT_COSTS
 app.state.active_sessions = active_sessions
@@ -649,24 +644,31 @@ app.state.tts_backend = TTS_BACKEND
 app.state.openai_tts_model = OPENAI_TTS_MODEL
 app.state.openai_tts_voice = OPENAI_TTS_VOICE
 app.state.openai_tts_format = OPENAI_TTS_FORMAT
+app.state.google_tts_language = GOOGLE_TTS_LANGUAGE
+app.state.google_tts_voice = GOOGLE_TTS_VOICE
+app.state.google_tts_audio_encoding = GOOGLE_TTS_AUDIO_ENCODING
 app.state.gemini_tts_model = GEMINI_TTS_MODEL
 app.state.gemini_tts_mime = GEMINI_TTS_MIME
+app.state.app_tmp_dir = str(APP_TMP_DIR)
 app.state.call_gemini_tts_api = _call_gemini_tts_api
 app.state.tts_cache_key = _tts_cache_key
 app.state.get_tts_cache = _get_tts_cache
 app.state.set_tts_cache = _set_tts_cache
 app.state.amplify_pcm16 = _amplify_pcm16
 app.state.pcm16_to_wav = _pcm16_to_wav
-app.state.stt_backend = os.getenv("STT_BACKEND", "openai")
+app.state.stt_backend = settings.stt_backend
 
 # Missing Auth Hooks
 app.state.get_user_by_email = _get_user_by_email
 app.state.get_user_by_nickname = _get_user_by_nickname
+app.state.get_user_by_google_id = _get_user_by_google_id
+app.state.create_google_user = _create_google_user
 app.state.store_user_signup = _store_user_signup
 app.state.verify_password = verify_password
 app.state.create_session_token = create_session_token
 app.state.parse_session_token = parse_session_token
 app.state.extract_session_from_request = get_session
+app.state.clear_user_cache = clear_user_cache
 
 # SpeechPro hooks
 app.state.load_speechpro_precomputed_sentences = load_speechpro_precomputed_sentences

@@ -189,7 +189,10 @@ sudo certbot renew             # 실제 갱신
 | `ONUI_TMP_DIR` | 오디오 변환용 임시 디렉터리 | 시스템 기본 tmp |
 | `ROMANIZE_MODE` | 로마자 표기: `force` / `prefer` | `force` |
 | `KRDICT_API_KEY` | 국립국어원 한국어기초사전 API 키 | — |
-| `SECRET_KEY` | 세션 서명 키 | 랜덤 생성 |
+| `APP_ENV` | 실행 환경 (`production`이면 `SECRET_KEY` 필수) | `development` |
+| `ALLOWED_ORIGINS` | CORS 허용 origin CSV 목록 | 로컬 9002 + 운영 도메인 |
+| `SESSION_COOKIE_SECURE` | 세션 쿠키 Secure 플래그 (`1`/`true`이면 활성) | `0` |
+| `SECRET_KEY` | 세션 서명 키 | production 필수 |
 | `MZTTS_API_URL` | MzTTS 서버 주소 (mztts 백엔드 사용 시) | — |
 | `FLUENCYPRO_WS_URL` | FluencyPro WebSocket URL | — |
 | `CLARITY_PROJECT_ID` | MS Clarity 애널리틱스 프로젝트 ID | — |

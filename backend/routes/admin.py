@@ -14,10 +14,14 @@ from fastapi.templating import Jinja2Templates
 from backend.routes.deps import (
     get_current_admin_user, 
     get_optional_user,
+    get_user_by_id,
+    get_session,
     load_json_data,
     get_user_credits,
     hash_password,
-    ensure_rag_tables
+    ensure_rag_tables,
+    rag_chunk_text,
+    rag_get_settings,
 )
 
 router = APIRouter()
@@ -182,17 +186,15 @@ def _last_activity_from_logs(
 
 def _check_admin_for_page(request: Request):
     """For HTML admin pages: returns RedirectResponse to /admin/login if not admin, else None."""
-    # We use the app state to get the check logic or just implement it here
-    active_sessions = getattr(request.app.state, "active_sessions", {})
-    
-    token = request.cookies.get("session_token", "")
-    if not token or token not in active_sessions:
+    session = get_session(request)
+    if not session:
         return RedirectResponse(url="/admin/login", status_code=302)
-        
-    session = active_sessions[token]
-    if not session.get("is_admin"):
+
+    db_path = getattr(request.app.state, "db_path", "data/users.db")
+    user = get_user_by_id(db_path, session["user_id"])
+    if not user or not user.get("is_admin"):
         return RedirectResponse(url="/admin/login", status_code=302)
-        
+
     return None
 
 def _get_user_stats(db_path: str) -> dict:

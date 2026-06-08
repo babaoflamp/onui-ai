@@ -36,6 +36,64 @@ def _append_json_record(path: str, record: dict):
         json.dump(rows, f, ensure_ascii=False, indent=2)
 
 
+def _set_login_cookies(
+    request: Request,
+    response,
+    *,
+    token: str,
+    user: dict,
+    role: str | None = None,
+    include_role: bool = False,
+):
+    session_expiry_seconds = _get_state(request, "session_expiry_seconds")
+    if not isinstance(session_expiry_seconds, int) or session_expiry_seconds <= 0:
+        raise RuntimeError("Session config not configured")
+
+    secure_cookie = bool(_get_state(request, "session_cookie_secure", False))
+    response.set_cookie(
+        key="session_token",
+        value=token,
+        max_age=session_expiry_seconds,
+        httponly=True,
+        secure=secure_cookie,
+        samesite="lax",
+        path="/",
+    )
+    response.set_cookie(
+        key="user_nickname",
+        value=urllib.parse.quote(user["nickname"]),
+        max_age=session_expiry_seconds,
+        secure=secure_cookie,
+        samesite="lax",
+        path="/",
+    )
+    response.set_cookie(
+        key="user_id",
+        value=str(user["id"]),
+        max_age=session_expiry_seconds,
+        secure=secure_cookie,
+        samesite="lax",
+        path="/",
+    )
+    if include_role:
+        response.set_cookie(
+            key="user_role",
+            value=role or "learner",
+            max_age=session_expiry_seconds,
+            secure=secure_cookie,
+            samesite="lax",
+            path="/",
+        )
+        response.set_cookie(
+            key="is_admin",
+            value="true" if user.get("is_admin") else "false",
+            max_age=session_expiry_seconds,
+            secure=secure_cookie,
+            samesite="lax",
+            path="/",
+        )
+
+
 @router.post("/api/signup")
 async def signup(request: Request):
     payload = await request.json()
@@ -155,42 +213,13 @@ async def auth_google_callback(request: Request):
     )
 
     response = RedirectResponse(url="/dashboard")
-    response.set_cookie(
-        key="session_token",
-        value=session_token,
-        max_age=session_expiry_seconds,
-        httponly=True,
-        samesite="lax",
-        path="/",
-    )
-    safe_nickname = urllib.parse.quote(user["nickname"])
-    response.set_cookie(
-        key="user_nickname",
-        value=safe_nickname,
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="user_id",
-        value=str(user["id"]),
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="user_role",
-        value=normalize_role(user.get("role"), user.get("is_admin")),
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="is_admin",
-        value="true" if user.get("is_admin") else "false",
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
+    _set_login_cookies(
+        request,
+        response,
+        token=session_token,
+        user=user,
+        role=normalize_role(user.get("role"), user.get("is_admin")),
+        include_role=True,
     )
     return response
 
@@ -257,29 +286,7 @@ async def login(request: Request):
     }
 
     response = JSONResponse(content=response_data)
-    response.set_cookie(
-        key="session_token",
-        value=token,
-        max_age=session_expiry_seconds,
-        httponly=True,
-        samesite="lax",
-        path="/",
-    )
-    safe_nickname = urllib.parse.quote(user["nickname"])
-    response.set_cookie(
-        key="user_nickname",
-        value=safe_nickname,
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
-    )
-    response.set_cookie(
-        key="user_id",
-        value=str(user["id"]),
-        max_age=session_expiry_seconds,
-        samesite="lax",
-        path="/",
-    )
+    _set_login_cookies(request, response, token=token, user=user, role=role)
     return response
 
 

@@ -16,3 +16,4 @@ pydub
 aiohttp
 aiofiles
 yt-dlp
+authlib
