@@ -25,25 +25,6 @@ def test_initialize_database_creates_cross_feature_tables(tmp_path):
         assert "study_sessions" in tables
         assert "user_video_progress" in tables
         assert "rag_chunks" in tables
-        assert "ai_feature_settings" in tables
-        assert "ai_coach_recommendations" in tables
-        assert "ai_learning_reports" in tables
-        assert "speaking_mission_attempts" in tables
-        assert "lesson_packages" in tables
-
-        ai_features = {
-            row[0]
-            for row in conn.execute(
-                "SELECT feature_key FROM ai_feature_settings WHERE enabled = 1"
-            )
-        }
-        assert {
-            "ai_coach",
-            "ai_feedback_reports",
-            "speaking_missions",
-            "lesson_packages",
-            "admin_ai_insights",
-        } <= ai_features
 
         conn.execute(
             "INSERT INTO saved_textbooks (user_id, topic, dialogue) VALUES (?, ?, ?)",

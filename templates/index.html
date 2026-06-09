@@ -95,211 +95,6 @@ Intelligence{% endblock %} {% block extra_css %}
   .glow-text {
     text-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
   }
-
-  .ai-launch-panel {
-    width: min(100%, 980px);
-    margin: 30px auto 6px;
-    padding: 22px;
-    border-radius: 32px;
-    background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), rgba(249, 115, 22, 0.08)), rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow: 0 30px 90px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
-    text-align: left;
-  }
-
-  .ai-launch-panel__head {
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    align-items: flex-start;
-    margin-bottom: 18px;
-  }
-
-  .ai-launch-panel__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(20,184,166,0.12);
-    border: 1px solid rgba(45,212,191,0.18);
-    color: #5eead4;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .ai-launch-panel h2 {
-    color: #fff;
-    font-size: clamp(1.35rem, 3vw, 2.1rem);
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1.08;
-    margin: 0;
-  }
-
-  .ai-launch-panel__copy {
-    color: rgba(255,255,255,0.58);
-    font-size: 0.92rem;
-    line-height: 1.6;
-    max-width: 660px;
-    margin-top: 10px;
-  }
-
-  .ai-launch-panel__badge {
-    flex: 0 0 auto;
-    padding: 10px 14px;
-    border-radius: 18px;
-    background: rgba(249,115,22,0.12);
-    border: 1px solid rgba(249,115,22,0.24);
-    color: #fb923c;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .ai-launch-grid {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .ai-launch-card {
-    min-height: 118px;
-    padding: 13px;
-    border-radius: 18px;
-    background: rgba(0,0,0,0.26);
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .ai-launch-card strong {
-    color: #fff;
-    font-size: 12px;
-    line-height: 1.25;
-    font-weight: 900;
-  }
-
-  .ai-launch-card span {
-    color: rgba(255,255,255,0.48);
-    font-size: 11px;
-    line-height: 1.42;
-    font-weight: 650;
-  }
-
-  .ai-suite-section {
-    padding-bottom: 88px;
-  }
-
-  .ai-suite-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .ai-suite-card {
-    grid-column: span 4;
-    min-height: 230px;
-    padding: 24px;
-    border-radius: 28px;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.08);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ai-suite-card::after {
-    content: '';
-    position: absolute;
-    inset: auto -40px -70px auto;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    background: rgba(20,184,166,0.08);
-    filter: blur(45px);
-  }
-
-  .ai-suite-card--wide {
-    grid-column: span 6;
-  }
-
-  .ai-suite-card__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 18px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .ai-suite-card__icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.10);
-    font-size: 24px;
-  }
-
-  .ai-suite-card__tag {
-    color: rgba(255,255,255,0.42);
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
-
-  .ai-suite-card h3 {
-    position: relative;
-    z-index: 1;
-    color: #fff;
-    font-size: 1.24rem;
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    margin-bottom: 10px;
-  }
-
-  .ai-suite-card p {
-    position: relative;
-    z-index: 1;
-    color: rgba(255,255,255,0.58);
-    font-size: 0.9rem;
-    line-height: 1.62;
-    font-weight: 550;
-    margin: 0;
-  }
-
-  .ai-suite-card ul {
-    position: relative;
-    z-index: 1;
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 8px;
-  }
-
-  .ai-suite-card li {
-    color: rgba(255,255,255,0.66);
-    font-size: 12px;
-    line-height: 1.45;
-    font-weight: 750;
-  }
-
-  .ai-suite-card li::before {
-    content: '•';
-    color: #2dd4bf;
-    margin-right: 8px;
-  }
   /* ✨ Typing Cursor Animation */
   .typing-cursor::after {
     content: '|';
@@ -470,17 +265,6 @@ Intelligence{% endblock %} {% block extra_css %}
     .bento-mid  { grid-column: span 12; }
     .bento-sm   { grid-column: span 6; }
     .bento-wide { grid-column: span 12; }
-    .ai-launch-panel__head { flex-direction: column; }
-    .ai-launch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .ai-suite-card, .ai-suite-card--wide { grid-column: span 12; }
-  }
-
-  @media (max-width: 640px) {
-    .hero-container { padding-top: 130px; }
-    .hero-title { white-space: normal !important; flex-direction: column !important; gap: 0 !important; }
-    .ai-launch-grid { grid-template-columns: 1fr; }
-    .ai-launch-panel { padding: 16px; border-radius: 24px; }
-    .ai-launch-card { min-height: auto; }
   }
 
   @media (max-width: 480px) {
@@ -554,32 +338,7 @@ Intelligence{% endblock %} {% block extra_css %}
       발음부터 문법, 회화까지 — AI 오누이와 함께하는 가장 몰입적인 한국어 학습 경험
     </p>
 
-    <div class="ai-launch-panel reveal-card">
-      <div class="ai-launch-panel__head">
-        <div>
-          <div class="ai-launch-panel__eyebrow">
-            <span class="w-1.5 h-1.5 bg-teal-300 rounded-full animate-pulse"></span>
-            New AI Learning Engine
-          </div>
-          <h2>매일 루틴을 짜주고, 약점을 찾아주고, 말하기 미션까지 관리하는 한국어 AI 학습 코치</h2>
-          <p class="ai-launch-panel__copy">
-            새롭게 추가된 7개 기능이 학습 데이터를 분석해 오늘 할 일, 3주 보강 커리큘럼, 세션 피드백, 수업 패키지, 관리자 인사이트까지 하나의 흐름으로 연결합니다.
-          </p>
-        </div>
-        <div class="ai-launch-panel__badge">7 New AI Features</div>
-      </div>
-      <div class="ai-launch-grid" aria-label="New AI education features">
-        <div class="ai-launch-card"><strong>AI 학습 코치</strong><span>오늘의 15분 루틴과 완료 상태를 자동 추천</span></div>
-        <div class="ai-launch-card"><strong>약점 지도</strong><span>발음, 유창성, 어휘, 듣기, 지속성을 우선순위화</span></div>
-        <div class="ai-launch-card"><strong>개인 커리큘럼</strong><span>부족한 영역 중심의 3주 보강 플랜 생성</span></div>
-        <div class="ai-launch-card"><strong>세션 리포트</strong><span>연습 후 강점, 교정점, 다음 연습을 정리</span></div>
-        <div class="ai-launch-card"><strong>말하기 미션</strong><span>환불, 주문, 길 묻기 같은 실제 상황 평가</span></div>
-        <div class="ai-launch-card"><strong>수업 패키지</strong><span>주제별 표현, 대화, 퀴즈, 숙제를 한 번에 생성</span></div>
-        <div class="ai-launch-card"><strong>관리자 인사이트</strong><span>위험 학습자와 공통 약점을 수업 운영에 반영</span></div>
-      </div>
-    </div>
-
-    <div class="flex flex-wrap items-center justify-center gap-2 mb-2 mt-6">
+    <div class="flex flex-wrap items-center justify-center gap-2 mb-2">
       <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag1">K-Culture Learners</span>
       <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag2">New Korea Residents</span>
       <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black tracking-wider text-white/70 uppercase" data-i18n="land.persona_tag3">Workplace Beginners</span>
@@ -605,8 +364,8 @@ Intelligence{% endblock %} {% block extra_css %}
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
-        <span class="stat-num">16</span>
-        <span class="stat-label" data-i18n="land.stat2">AI 학습 기능</span>
+        <span class="stat-num">9</span>
+        <span class="stat-label" data-i18n="land.stat2">학습 모드</span>
       </div>
       <div class="stat-divider"></div>
       <div class="stat-item">
@@ -618,61 +377,6 @@ Intelligence{% endblock %} {% block extra_css %}
         <span class="stat-num text-orange-400">AI</span>
         <span class="stat-label" data-i18n="land.stat4">실시간 분석</span>
       </div>
-    </div>
-  </section>
-
-  <!-- 🧠 New AI Education Suite -->
-  <section class="ai-suite-section max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-[10px] font-black uppercase tracking-widest text-teal-300 mb-4">
-        AI EDUCATION SUITE
-      </div>
-      <h2 class="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
-        학습자는 더 똑똑하게, 교사는 더 쉽게 운영합니다
-      </h2>
-      <p class="text-white/45 text-base font-medium max-w-2xl mx-auto leading-relaxed">
-        오누이는 단순 대화형 AI를 넘어, 학습 기록을 바탕으로 진단, 추천, 실전 연습, 리포트, 수업 운영까지 이어지는 교육용 AI 앱으로 확장되었습니다.
-      </p>
-    </div>
-
-    <div class="ai-suite-grid">
-      <article class="ai-suite-card ai-suite-card--wide reveal-card">
-        <div class="ai-suite-card__top"><div class="ai-suite-card__icon">🧭</div><span class="ai-suite-card__tag">Learner Coach</span></div>
-        <h3>오늘의 AI 루틴과 약점 기반 커리큘럼</h3>
-        <p>발음 점수, 영상 학습, 저장 단어, 학습일을 분석해 오늘 끝낼 루틴과 3주 보강 플랜을 제안합니다.</p>
-        <ul>
-          <li>대시보드에서 오늘의 추천 루틴 확인</li>
-          <li>학습 보고서에서 약점 지도와 개인 커리큘럼 제공</li>
-        </ul>
-      </article>
-
-      <article class="ai-suite-card ai-suite-card--wide reveal-card">
-        <div class="ai-suite-card__top"><div class="ai-suite-card__icon">🎤</div><span class="ai-suite-card__tag">Speaking Mission</span></div>
-        <h3>실전 말하기 미션과 세션 피드백</h3>
-        <p>편의점 환불, 식당 주문, 결석 설명처럼 실제 생활에 가까운 미션을 수행하고, 결과 리포트로 다음 연습을 확인합니다.</p>
-        <ul>
-          <li>필수 표현 사용 여부와 발화 완성도 자동 평가</li>
-          <li>강점, 교정점, 더 자연스러운 표현, 다음 연습 제안</li>
-        </ul>
-      </article>
-
-      <article class="ai-suite-card reveal-card">
-        <div class="ai-suite-card__top"><div class="ai-suite-card__icon">📦</div><span class="ai-suite-card__tag">Lesson Package</span></div>
-        <h3>교사용 AI 수업 패키지</h3>
-        <p>주제와 레벨만 입력하면 워밍업 질문, 핵심 표현, 대화문, 발음 문장, 역할극, 퀴즈, 숙제를 한 번에 구성합니다.</p>
-      </article>
-
-      <article class="ai-suite-card reveal-card">
-        <div class="ai-suite-card__top"><div class="ai-suite-card__icon">📊</div><span class="ai-suite-card__tag">Admin Insight</span></div>
-        <h3>관리자 AI 인사이트</h3>
-        <p>위험 학습자, 공통 약점, AI 활동량을 관리자 대시보드에서 확인해 수업 개입과 운영 결정을 빠르게 돕습니다.</p>
-      </article>
-
-      <article class="ai-suite-card reveal-card">
-        <div class="ai-suite-card__top"><div class="ai-suite-card__icon">🛡️</div><span class="ai-suite-card__tag">Transparent AI</span></div>
-        <h3>안전하고 투명한 AI 안내</h3>
-        <p>AI 추천과 자동 평가는 학습 참고용임을 명확히 표시하고, 관리자가 기능별 사용 여부를 직접 제어할 수 있습니다.</p>
-      </article>
     </div>
   </section>
 

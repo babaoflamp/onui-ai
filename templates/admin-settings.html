@@ -147,15 +147,6 @@ content %}
       </div>
     </div>
 
-    <!-- AI Feature Settings -->
-    <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">🧠 AI Education Features</h2>
-      <p class="text-xs text-gray-500 mb-4">학습자 AI 코치, 리포트, 말하기 미션, 수업 패키지, 관리자 인사이트 기능을 운영 단위로 켜고 끌 수 있습니다.</p>
-      <div id="aiFeatureSettings" class="space-y-3">
-        <p class="text-sm text-gray-400">Loading...</p>
-      </div>
-    </div>
-
     <!-- Logging Settings -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
       <h2 class="text-lg font-semibold text-gray-900 mb-4" data-i18n="adm.logging_settings">📋 Logging Settings</h2>
@@ -231,53 +222,6 @@ content %}
       return token;
     }
 
-    const featureLabels = {
-      ai_coach: "AI 학습 코치",
-      ai_feedback_reports: "세션 피드백 리포트",
-      speaking_missions: "말하기 미션",
-      lesson_packages: "AI 수업 패키지",
-      admin_ai_insights: "관리자 AI 인사이트",
-    };
-
-    async function loadAIFeatureSettings(token) {
-      const wrap = document.getElementById("aiFeatureSettings");
-      if (!wrap) return;
-      try {
-        const res = await fetch("/api/admin/ai-feature-settings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("AI 기능 설정을 불러오지 못했습니다.");
-        const data = await res.json();
-        const settings = data.settings || [];
-        wrap.innerHTML = settings.map((item) => `
-          <label class="flex items-center justify-between gap-4 p-3 rounded-lg border border-gray-100 bg-gray-50">
-            <span>
-              <span class="block text-sm font-semibold text-gray-900">${featureLabels[item.feature_key] || item.feature_key}</span>
-              <span class="block text-xs text-gray-500">${item.feature_key}</span>
-            </span>
-            <input type="checkbox" class="ai-feature-toggle h-5 w-5 rounded border-gray-300 text-orange-500 focus:ring-orange-400" data-feature-key="${item.feature_key}" ${item.enabled ? "checked" : ""} />
-          </label>`).join("") || '<p class="text-sm text-gray-400">No AI feature settings.</p>';
-      } catch (err) {
-        wrap.innerHTML = `<p class="text-sm text-red-500">${err.message}</p>`;
-      }
-    }
-
-    async function saveAIFeatureSettings(token) {
-      const toggles = Array.from(document.querySelectorAll(".ai-feature-toggle"));
-      if (!toggles.length) return;
-      const settings = {};
-      toggles.forEach((el) => {
-        settings[el.dataset.featureKey] = el.checked;
-      });
-      const res = await fetch("/api/admin/ai-feature-settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ settings }),
-      });
-      if (!res.ok) throw new Error("AI 기능 설정 저장에 실패했습니다.");
-      await loadAIFeatureSettings(token);
-    }
-
     // Load current settings (from env or server)
     async function loadSettings() {
       const token = ensureAdmin();
@@ -317,7 +261,6 @@ content %}
         document.getElementById("romanizeMode").value =
           settings.romanize_mode || "force";
 
-        await loadAIFeatureSettings(token);
         setStatus("설정을 불러왔습니다.", true);
       } catch (err) {
         console.error("Failed to load settings", err);
@@ -331,12 +274,12 @@ content %}
 
       setStatus("설정을 저장하는 중...", true);
 
-      try {
-        await saveAIFeatureSettings(token);
-        setStatus("AI 기능 설정을 저장했습니다. 모델/환경 설정은 환경변수로 관리됩니다.", true);
-      } catch (err) {
-        setStatus(err.message || "설정 저장에 실패했습니다.", false);
-      }
+      // Note: Settings are read-only from environment variables
+      // In production, implement a proper settings update endpoint
+      setStatus(
+        "설정은 환경변수로 관리됩니다. 서버를 재시작하여 변경사항을 적용해주세요.",
+        false,
+      );
     };
 
     window.downloadLogs = function () {

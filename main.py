@@ -629,7 +629,6 @@ app.state.oauth = oauth
 app.state.session_expiry_seconds = SESSION_EXPIRY_SECONDS
 app.state.session_cookie_secure = settings.session_cookie_secure
 app.state.check_and_consume_credits = check_and_consume_credits
-app.state.daily_credits = DAILY_CREDITS
 app.state.credit_costs = CREDIT_COSTS
 app.state.active_sessions = active_sessions
 app.state.logger = logger
@@ -693,7 +692,6 @@ from backend.routes.ai_services import router as ai_services_router
 from backend.routes.stt import router as stt_router
 from backend.routes.media import router as media_router
 from backend.routes.content import router as content_router
-from backend.routes.ai_learning import router as ai_learning_router
 from backend.routes.pages import router as pages_router
 
 app.include_router(learning_progress_router)
@@ -708,7 +706,6 @@ app.include_router(ai_services_router)
 app.include_router(stt_router)
 app.include_router(media_router)
 app.include_router(content_router)
-app.include_router(ai_learning_router)
 app.include_router(pages_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")

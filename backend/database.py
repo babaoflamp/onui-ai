@@ -23,7 +23,6 @@ def initialize_database(db_path: str = DEFAULT_DB_PATH) -> None:
         ensure_content_tables(conn)
         ensure_lms_tables(conn)
         ensure_media_tables(conn)
-        ensure_ai_learning_tables(conn)
         ensure_rag_tables(conn)
         conn.commit()
     finally:
@@ -265,80 +264,6 @@ def ensure_media_tables(conn: sqlite3.Connection) -> None:
         );
         """
     )
-
-
-def ensure_ai_learning_tables(conn: sqlite3.Connection) -> None:
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS ai_feature_settings (
-            feature_key TEXT PRIMARY KEY,
-            enabled INTEGER NOT NULL DEFAULT 1,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS ai_coach_recommendations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            recommendation_date TEXT NOT NULL,
-            routine_json TEXT NOT NULL,
-            weakness_json TEXT,
-            status TEXT NOT NULL DEFAULT 'active',
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, recommendation_date)
-        );
-        CREATE INDEX IF NOT EXISTS idx_ai_coach_user_date
-            ON ai_coach_recommendations(user_id, recommendation_date DESC);
-
-        CREATE TABLE IF NOT EXISTS ai_learning_reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            source_type TEXT NOT NULL,
-            source_id TEXT,
-            input_text TEXT,
-            report_json TEXT NOT NULL,
-            ai_used INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_ai_learning_reports_user
-            ON ai_learning_reports(user_id, created_at DESC);
-
-        CREATE TABLE IF NOT EXISTS speaking_mission_attempts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            mission_id TEXT NOT NULL,
-            transcript TEXT,
-            score REAL DEFAULT 0,
-            result_json TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_speaking_mission_attempts_user
-            ON speaking_mission_attempts(user_id, created_at DESC);
-
-        CREATE TABLE IF NOT EXISTS lesson_packages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            topic TEXT NOT NULL,
-            level TEXT,
-            package_json TEXT NOT NULL,
-            ai_used INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE INDEX IF NOT EXISTS idx_lesson_packages_user
-            ON lesson_packages(user_id, created_at DESC);
-        """
-    )
-    for feature in (
-        "ai_coach",
-        "ai_feedback_reports",
-        "speaking_missions",
-        "lesson_packages",
-        "admin_ai_insights",
-    ):
-        conn.execute(
-            "INSERT OR IGNORE INTO ai_feature_settings (feature_key, enabled) VALUES (?, 1)",
-            (feature,),
-        )
 
 
 def ensure_rag_tables(conn: sqlite3.Connection) -> None:
