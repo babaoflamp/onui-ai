@@ -41,6 +41,7 @@ async function loadProgressData() {
 
     updateUI(statsData);
     renderWeeklyGraph(statsData.daily_log);
+    loadAICurriculum(token);
 
     const fluencyGrade =
       statsData.avg_score >= 90
@@ -229,3 +230,48 @@ function renderFluencyMetrics(data) {
 }
 
 document.addEventListener("DOMContentLoaded", loadProgressData);
+
+
+async function loadAICurriculum(token) {
+  const weaknessEl = document.getElementById("aiWeaknessMap");
+  const curriculumEl = document.getElementById("aiCurriculum");
+  if (!weaknessEl || !curriculumEl) return;
+  try {
+    const headers = { Authorization: `Bearer ${token}` };
+    const [weakRes, curRes] = await Promise.all([
+      fetch("/api/coach/weakness-map", { headers }),
+      fetch("/api/coach/curriculum", { headers }),
+    ]);
+    const [weakData, curData] = await Promise.all([weakRes.json(), curRes.json()]);
+    const categories = weakData?.weakness_map?.categories || [];
+    weaknessEl.innerHTML = categories.slice(0, 6).map(renderWeaknessRow).join("") || '<p class="text-white/60">분석할 데이터가 아직 부족합니다.</p>';
+    const weeks = curData?.curriculum?.weeks || [];
+    curriculumEl.innerHTML = weeks.map(renderCurriculumWeek).join("") || '<p class="text-white/60">추천 커리큘럼이 없습니다.</p>';
+  } catch (err) {
+    console.error("AI curriculum failed", err);
+    weaknessEl.innerHTML = '<p class="text-white/60">AI 약점 지도를 불러오지 못했습니다.</p>';
+  }
+}
+
+function renderWeaknessRow(item) {
+  const pct = Math.max(0, Math.min(100, Number(item.score || 0)));
+  return `
+    <a href="${item.url || "/dashboard"}" class="block no-underline p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors">
+      <div class="flex justify-between items-center gap-4 mb-2">
+        <span class="text-white font-black">${item.label}</span>
+        <span class="text-white/70 text-sm font-bold">우선도 ${pct}%</span>
+      </div>
+      <div class="w-full bg-white/10 rounded-full h-2 mb-3"><div class="bg-orange-500 h-full rounded-full" style="width:${pct}%"></div></div>
+      <p class="text-sm text-white/75">${item.next_action}</p>
+    </a>`;
+}
+
+function renderCurriculumWeek(week) {
+  const activities = (week.activities || []).map(a => `<a href="${a.url}" class="text-sm text-blue-300 hover:text-blue-200">${a.title} · ${a.minutes}분</a>`).join('<span class="text-white/25"> / </span>');
+  return `
+    <div class="p-4 rounded-2xl bg-white/5">
+      <div class="flex items-center justify-between mb-2"><p class="text-white font-black">Week ${week.week}: ${week.focus}</p></div>
+      <p class="text-sm text-white/75 mb-3">${week.goal}</p>
+      <div>${activities}</div>
+    </div>`;
+}

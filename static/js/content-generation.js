@@ -406,6 +406,65 @@
     sc.innerHTML = `${correct===total?"🎉":correct>=total/2?"👍":"💪"} <span style="color:#f97316;">${correct}</span>/${total} ${translations["cg.quiz_correct_label"] || "정답"}`;
   }
 
+  function renderLessonPackage(pkg) {
+    const panel = document.getElementById("lesson-package-panel");
+    if (!panel || !pkg) return;
+    const expressions = (pkg.key_expressions || []).slice(0, 4).map((item) => {
+      if (typeof item === "string") return `<li>${escapeHtml(item)}</li>`;
+      const korean = item.korean || item.expression || item.text || "";
+      const meaning = item.meaning || item.translation || item.note || "";
+      return `<li><strong>${escapeHtml(korean)}</strong>${meaning ? ` <span style="color:rgba(255,255,255,0.42);">${escapeHtml(meaning)}</span>` : ""}</li>`;
+    }).join("");
+    const quiz = (pkg.quiz || []).slice(0, 2).map((q, i) => `<li>Q${i + 1}. ${escapeHtml(q.question || q)}</li>`).join("");
+    const homework = Array.isArray(pkg.homework) ? pkg.homework.join(" · ") : (pkg.homework || "");
+    panel.style.display = "block";
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+        <strong style="color:#5eead4;font-size:13px;">${escapeHtml(pkg.title || "AI 수업 패키지")}</strong>
+        <span style="color:rgba(255,255,255,0.34);font-size:11px;">${escapeHtml(pkg.level || currentLevel)}</span>
+      </div>
+      <div style="font-weight:800;color:rgba(255,255,255,0.55);margin-bottom:4px;">핵심 표현</div>
+      <ul style="margin:0 0 8px 16px;padding:0;">${expressions || "<li>표현 없음</li>"}</ul>
+      <div style="font-weight:800;color:rgba(255,255,255,0.55);margin-bottom:4px;">퀴즈</div>
+      <ul style="margin:0 0 8px 16px;padding:0;">${quiz || "<li>퀴즈 없음</li>"}</ul>
+      ${homework ? `<div style="color:rgba(255,255,255,0.48);"><strong>숙제:</strong> ${escapeHtml(homework)}</div>` : ""}
+      <div style="margin-top:8px;color:rgba(255,255,255,0.3);font-size:11px;">AI 생성 수업안은 교사가 검토한 뒤 사용하는 것을 권장합니다.</div>`;
+  }
+
+  async function generateLessonPackage() {
+    currentTopic = document.getElementById("topic").value.trim();
+    currentLevel = document.getElementById("level").value;
+    if (!currentTopic) {
+      setTopicError(tr("cg.topic_required", "레슨 주제를 입력해주세요."));
+      document.getElementById("topic").focus();
+      showToast(tr("cg.topic_required", "레슨 주제를 입력해주세요."));
+      return;
+    }
+    clearTopicError();
+    setButtonLoading("btn-package", true, "⏳");
+    const panel = document.getElementById("lesson-package-panel");
+    if (panel) {
+      panel.style.display = "block";
+      panel.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);"><span style="width:14px;height:14px;border-radius:50%;border:2px solid #2dd4bf;border-top-color:transparent;animation:spin 0.8s linear infinite;"></span>수업 패키지를 생성하는 중...</div>`;
+    }
+    try {
+      const res = await fetch("/api/lesson-packages/generate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({topic: currentTopic, level: currentLevel, use_ai: true})
+      });
+      const data = await readJsonResponse(res);
+      renderLessonPackage(data.package);
+      fetchCredits();
+      showToast("수업 패키지를 생성했습니다.");
+    } catch(e) {
+      if (panel) panel.innerHTML = `<span style="color:#f87171;">${escapeHtml(e.message)}</span>`;
+      showToast(e.message);
+    } finally {
+      setButtonLoading("btn-package", false);
+    }
+  }
+
   // ── 저장 및 서버 연동 ───────────────────────────────────────────
   let fetchedTextbooks = [];
 

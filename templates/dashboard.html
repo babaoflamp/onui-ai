@@ -2,136 +2,150 @@
 {% block title %}학습 대시보드 - 오누이 한국어{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/dashboard.css" />
+<link rel="stylesheet" href="/static/css/dashboard.css?v=2" />
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto space-y-12">
-  <!-- 📊 Quick Stats Row -->
-  <div id="quick-stats" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="suno-card py-5 text-center">
-      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.streak">Streak</p>
-      <p class="text-4xl font-black text-white"><span id="qs-streak">0</span><span class="text-base text-white/80 ml-1">D</span></p>
+<div class="dashboard-shell">
+  <section class="dash-hero" aria-labelledby="dash-hero-title">
+    <div class="dash-hero__copy">
+      <div class="dash-eyebrow">
+        <span class="dash-live-dot"></span>
+        Today Learning Command
+      </div>
+      <h1 id="dash-hero-title">오늘은 <span id="dashboard-nickname">Learner</span>님의 AI 루틴부터 시작하세요</h1>
+      <p id="dashboard-date" class="dash-hero__date">Loading today...</p>
+      <p class="dash-hero__desc">발음, 어휘, 듣기, 말하기 데이터를 모아 지금 가장 효과적인 다음 행동을 추천합니다.</p>
+      <div class="dash-hero__actions">
+        <a id="hero-primary-cta" href="/speechpro-practice" class="dash-btn dash-btn--primary">오늘 루틴 시작</a>
+        <a id="hero-secondary-cta" href="/learning-progress" class="dash-btn dash-btn--ghost">약점 지도 보기</a>
+      </div>
     </div>
-    <div class="suno-card py-5 text-center">
-      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.avg_accuracy">Avg Score</p>
-      <p class="text-4xl font-black text-white"><span id="qs-score">-</span></p>
+
+    <div class="dash-next-card" aria-live="polite">
+      <div class="dash-next-card__top">
+        <span class="dash-chip dash-chip--accent">NEXT ACTION</span>
+        <span id="hero-next-minutes" class="dash-muted">AI 추천</span>
+      </div>
+      <h2 id="hero-next-action-title">AI 코치가 오늘의 첫 단계를 준비 중입니다</h2>
+      <p id="hero-next-action-desc">학습 기록을 기반으로 가장 효과적인 루틴을 불러옵니다.</p>
+      <div id="hero-next-action-meta" class="dash-next-card__meta">AI/자동 추천은 학습 참고용입니다.</div>
     </div>
-    <div class="suno-card py-5 text-center">
-      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="pr.evaluations">Evaluations</p>
-      <p class="text-4xl font-black text-white"><span id="qs-total">0</span></p>
+  </section>
+
+  <section id="quick-stats" class="dash-stat-grid hidden" aria-label="Quick learning stats">
+    <div class="dash-stat-card">
+      <span class="dash-stat-card__label" data-i18n="pr.streak">Streak</span>
+      <strong><span id="qs-streak">0</span><small>D</small></strong>
     </div>
-    <a href="/learning-progress" class="suno-card py-5 text-center hover:bg-white/10 transition-colors">
-      <p class="text-sm font-black text-white uppercase tracking-widest mb-2" data-i18n="dash.report">Report</p>
-      <p class="text-2xl" aria-hidden="true">📊</p>
-      <p class="text-sm text-white mt-1" data-i18n="dash.view_full">View Full →</p>
+    <div class="dash-stat-card">
+      <span class="dash-stat-card__label" data-i18n="pr.avg_accuracy">Avg Score</span>
+      <strong id="qs-score">-</strong>
+    </div>
+    <div class="dash-stat-card">
+      <span class="dash-stat-card__label" data-i18n="pr.evaluations">Evaluations</span>
+      <strong id="qs-total">0</strong>
+    </div>
+    <a href="/learning-progress" class="dash-stat-card dash-stat-card--link">
+      <span class="dash-stat-card__label">Full Report</span>
+      <strong>Open</strong>
     </a>
-  </div>
+  </section>
 
-  <!-- 🎤 Recent Evaluation Feed (Suno style) -->
-  <section>
-    <h2 class="section-header">
-      <span data-i18n="dash.recent_pron">Recent Pronunciation</span>
-      <span id="recent-pron-count" class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded font-black tracking-widest">0</span>
-    </h2>
+  <section class="dash-section dash-section--today" aria-labelledby="today-plan-title">
+    <div class="dash-section__header">
+      <div>
+        <p class="dash-section__kicker">AI Learning Coach</p>
+        <h2 id="today-plan-title">오늘의 학습 루틴</h2>
+      </div>
+      <span class="dash-chip">TODAY</span>
+    </div>
+    <div id="ai-coach-routine" class="dash-routine-grid" aria-live="polite" aria-busy="true">
+      <div class="dash-skeleton"></div>
+      <div class="dash-skeleton"></div>
+      <div class="dash-skeleton"></div>
+      <div class="dash-skeleton"></div>
+    </div>
+  </section>
 
-    <div
-      id="recent-evaluation-feed"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <!-- JS로 동적 생성됨. 기본 상태: 3개의 스켈레톤 카드 -->
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
-        <div class="skeleton skeleton--text" style="width:60%"></div>
+  <section class="dash-insight-grid" aria-label="AI learning insights">
+    <article class="dash-panel dash-panel--weakness">
+      <div class="dash-panel__head">
+        <span class="dash-chip dash-chip--teal">WEAKNESS</span>
+        <a href="/learning-progress">Report</a>
       </div>
-      <div class="skeleton-card hidden md:flex" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
-        <div class="skeleton skeleton--text" style="width:60%"></div>
+      <h2 id="weakness-primary">약점 분석 준비 중</h2>
+      <p id="weakness-summary">학습 데이터를 기반으로 우선 보강 영역을 불러옵니다.</p>
+      <div id="weakness-categories" class="dash-mini-list"></div>
+    </article>
+
+    <article class="dash-panel">
+      <div class="dash-panel__head">
+        <span class="dash-chip dash-chip--blue">MISSIONS</span>
+        <span id="speaking-mission-count" class="dash-count">0</span>
       </div>
-      <div class="skeleton-card hidden lg:flex" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
-        <div class="skeleton skeleton--text" style="width:60%"></div>
+      <div id="speaking-mission-feed" class="dash-stack" aria-live="polite"></div>
+    </article>
+
+    <article class="dash-panel">
+      <div class="dash-panel__head">
+        <span class="dash-chip dash-chip--purple">AI FEEDBACK</span>
+        <span class="dash-muted">SAFE AI</span>
+      </div>
+      <div id="ai-feedback-feed" class="dash-stack" aria-live="polite"></div>
+    </article>
+  </section>
+
+  <section class="dash-two-col">
+    <div class="dash-section">
+      <div class="dash-section__header">
+        <div>
+          <p class="dash-section__kicker">Recent Activity</p>
+          <h2 data-i18n="dash.recent_pron">최근 발음 평가</h2>
+        </div>
+        <span id="recent-pron-count" class="dash-chip dash-chip--accent">0</span>
+      </div>
+      <div id="recent-evaluation-feed" class="dash-card-grid" aria-live="polite" aria-busy="true">
+        <div class="dash-skeleton"></div>
+        <div class="dash-skeleton"></div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section__header">
+        <div>
+          <p class="dash-section__kicker">Vocabulary</p>
+          <h2>OnuiTube 저장 단어</h2>
+        </div>
+        <span id="tube-vocab-count" class="dash-chip">0</span>
+      </div>
+      <div id="tube-vocab-feed" class="dash-card-grid" aria-live="polite" aria-busy="true">
+        <div class="dash-skeleton"></div>
+        <div class="dash-skeleton"></div>
       </div>
     </div>
   </section>
 
-  <section>
-    <h2 class="section-header">
-      <span>OnuiTube Vocabulary</span>
-      <span id="tube-vocab-count" class="text-xs bg-white/10 text-white px-2 py-0.5 rounded font-black tracking-widest">0</span>
-    </h2>
-
-    <div
-      id="tube-vocab-feed"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      aria-live="polite"
-      aria-busy="true"
-    >
-      <div class="skeleton-card" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
+  <section class="dash-section">
+    <div class="dash-section__header">
+      <div>
+        <p class="dash-section__kicker">Learning Shortcuts</p>
+        <h2 data-i18n="dash.track_recommend">바로 시작할 학습</h2>
       </div>
-      <div class="skeleton-card hidden md:flex" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
-      </div>
-      <div class="skeleton-card hidden lg:flex" aria-hidden="true">
-        <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--text"></div>
-        <div class="skeleton skeleton--text" style="width:80%"></div>
-      </div>
+      <span class="dash-muted">Choose a mode</span>
     </div>
-  </section>
-
-  <!-- 📚 Recommended Track -->
-  <section>
-    <h2 class="section-header" data-i18n="dash.track_recommend">Learning Track Recommendation</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      <a href="/video-learning" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">🎬</div>
-        <p class="font-bold">Onui YouTube</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.onuitube_desc">Video-based VOD learning</p>
-      </a>
-      <a href="/onui-beats" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">🎵</div>
-        <p class="font-bold">Onui Beats</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.onuibeats_desc">K-Pop Lyrics filling</p>
-      </a>
-      <a href="/voice-call" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">📞</div>
-        <p class="font-bold">AI Voice Call</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.voicecall_desc">Real-time voice conversation</p>
-      </a>
-      <a href="/roleplay" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">🎭</div>
-        <p class="font-bold" data-i18n="nav.roleplay">AI Roleplay</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.roleplay_desc">Chat with historical figures</p>
-      </a>
-      <a href="/speechpro-practice" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">🎙️</div>
-        <p class="font-bold" data-i18n="nav.pron_test">SpeechPro Eval</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.pron_desc">Phoneme-level precision analysis</p>
-      </a>
-      <a href="/content-generation" class="suno-card group text-center py-8">
-        <div class="text-4xl mb-4" aria-hidden="true">📘</div>
-        <p class="font-bold" data-i18n="nav.content_generation">AI Textbook</p>
-        <p class="text-xs text-white/65 mt-2" data-i18n="dash.textbook_desc">Customized textbook generation</p>
-      </a>
+    <div class="dash-shortcuts">
+      <a href="/speechpro-practice" class="dash-shortcut"><span>🎙️</span><strong>SpeechPro Eval</strong><small>발음 진단</small></a>
+      <a href="/voice-call" class="dash-shortcut"><span>📞</span><strong>AI Voice Call</strong><small>실시간 대화</small></a>
+      <a href="/roleplay" class="dash-shortcut"><span>🎭</span><strong>AI Roleplay</strong><small>상황 회화</small></a>
+      <a href="/video-learning" class="dash-shortcut"><span>📺</span><strong>OnuiTube</strong><small>영상 + 단어</small></a>
+      <a href="/content-generation" class="dash-shortcut"><span>📦</span><strong>Lesson Maker</strong><small>수업 패키지</small></a>
+      <a href="/onui-grammar" class="dash-shortcut"><span>✏️</span><strong>Grammar</strong><small>문법 코치</small></a>
     </div>
   </section>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/dashboard.js" defer></script>
+<script src="/static/js/dashboard.js?v=2" defer></script>
 {% endblock %}
