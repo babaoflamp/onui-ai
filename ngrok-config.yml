@@ -2,7 +2,11 @@ version: "2"
 authtoken: 3AVOGf0HxxdcvnMH4I5hAdGN6qz_2yaz1HBB69EpdkzjQy1Wf
 web_addr: false
 tunnels:
-  onui-ai:
+  onui-ai-primary:
+    proto: http
+    addr: 9002
+    domain: opportunity.ai.kr
+  onui-ai-secondary:
     proto: http
     addr: 9002
     domain: onui.ai.kr

@@ -14,6 +14,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from backend.utils import _get_state
+from backend.database import ensure_lms_tables
 
 router = APIRouter()
 
@@ -29,6 +30,8 @@ def _db(request: Request):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
+    ensure_lms_tables(conn)
+    conn.commit()
     return conn
 
 

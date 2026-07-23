@@ -474,3 +474,72 @@ def set_speechpro_url(url: str) -> None:
     """SpeechPro API URL 설정"""
     global SPEECHPRO_URL
     SPEECHPRO_URL = url
+
+import os
+import csv
+import json
+import threading
+import time
+
+_SPEECHPRO_SENTENCES_CACHE = None
+_SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE = {}
+_SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK = threading.Lock()
+
+def load_speechpro_precomputed_sentences():
+    global _SPEECHPRO_SENTENCES_CACHE
+    if _SPEECHPRO_SENTENCES_CACHE is not None: return _SPEECHPRO_SENTENCES_CACHE
+    sentences = []
+    json_path = "data/speechpro-sentences.json"
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                for s in json.load(f):
+                    sentences.append({
+                        "id": s.get("id"), "sentenceKr": s.get("sentenceKr", ""),
+                        "sentenceEn": s.get("sentenceEn", ""), "level": s.get("level", ""),
+                        "difficulty": s.get("difficulty", ""), "tags": s.get("tags", []),
+                        "category": s.get("category", ""), "tips": s.get("tips", ""),
+                        "syll_ltrs": s.get("syll_ltrs", ""), "syll_phns": s.get("syll_phns", ""),
+                        "fst": s.get("fst", ""), "source": "curated",
+                    })
+        except Exception: pass
+    csv_path = "data/sp_ko_questions.csv"
+    if os.path.exists(csv_path):
+        try:
+            with open(csv_path, "r", encoding="utf-8", newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    txt = normalize_spaces(row.get("sentence", ""))
+                    sentences.append({
+                        "id": 1000 + int(row.get("ko_id", 0)),
+                        "sentenceKr": txt, "level": row.get("level", "초급"),
+                        "syll_ltrs": row.get("syll_ltrs", ""), "syll_phns": row.get("syll_phns", ""),
+                        "fst": row.get("fst", ""), "source": "precomputed"
+                    })
+        except Exception: pass
+    _SPEECHPRO_SENTENCES_CACHE = sentences
+    return sentences
+
+def find_precomputed_sentence(text: str):
+    norm = normalize_spaces(text or "")
+    for s in load_speechpro_precomputed_sentences():
+        if normalize_spaces(s.get("sentenceKr", "")) == norm: return s
+    return None
+
+def get_or_build_speechpro_precomputed_sentence(text: str):
+    norm = normalize_spaces(text or "")
+    if not norm: return None
+    preset = find_precomputed_sentence(norm)
+    if preset and preset.get("fst"): return preset
+    with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK:
+        if norm in _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE: return _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[norm]
+    try:
+        rid = f"pre_{int(time.time())}"
+        gtp = call_speechpro_gtp(norm, rid)
+        if gtp.error_code != 0: return None
+        mdl = call_speechpro_model(norm, gtp.syll_ltrs, gtp.syll_phns, rid)
+        if mdl.error_code != 0: return None
+        built = {"sentenceKr": norm, "syll_ltrs": mdl.syll_ltrs, "syll_phns": mdl.syll_phns, "fst": mdl.fst, "source": "runtime"}
+        with _SPEECHPRO_RUNTIME_PRECOMPUTED_LOCK: _SPEECHPRO_RUNTIME_PRECOMPUTED_CACHE[norm] = built
+        return built
+    except Exception: return None

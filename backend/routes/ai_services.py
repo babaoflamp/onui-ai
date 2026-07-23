@@ -16,6 +16,7 @@ from difflib import SequenceMatcher
 from fastapi import APIRouter, Request, HTTPException, Depends, Form, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from backend.database import ensure_content_tables
 from backend.routes.deps import (
     get_current_user,
     get_user_credits,
@@ -315,6 +316,8 @@ def _log_ai_content(
     db_path = request.app.state.db_path
     try:
         conn = sqlite3.connect(db_path)
+        ensure_content_tables(conn)
+        conn.commit()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO ai_content_history (user_id, content_type, model_used, prompt, result) VALUES (?, ?, ?, ?, ?)",

@@ -123,18 +123,18 @@
   }
 
   async function loadSentences(isMore = false) {
-    if (!isMore) { appState.sentenceOffset = 0; appState.sentenceAll = []; }
-    let url = `/api/speechpro/sentences?limit=${appState.sentenceLimit}&offset=${appState.sentenceOffset}`;
+    appState.sentenceOffset = 0;
+    appState.sentenceAll = [];
+    let url = `/api/speechpro/sentences`;
     const lvl = document.getElementById('level-filter').value;
-    if (lvl) url += `&level=${lvl}`;
+    if (lvl) url += `?level=${lvl}`;
     const res = await fetch(url);
     const payload = await res.json();
-    const newItems = payload.data || [];
-    appState.sentenceAll = isMore ? [...appState.sentenceAll, ...newItems] : newItems;
-    appState.sentenceOffset += newItems.length;
-    appState.hasMoreSentences = newItems.length >= appState.sentenceLimit;
+    appState.sentenceAll = Array.isArray(payload) ? payload : (payload.data || []);
+    appState.sentenceOffset = appState.sentenceAll.length;
+    appState.hasMoreSentences = false;
     renderSentenceList();
-    document.getElementById('load-more-sentences').classList.toggle('hidden', !appState.hasMoreSentences);
+    document.getElementById('load-more-sentences').classList.add('hidden');
   }
 
   function renderSentenceList() {

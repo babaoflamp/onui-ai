@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /api/
 Disallow: /uploads/
 
-Sitemap: https://onuiai.kr/sitemap.xml
+Sitemap: https://opportunity.ai.kr/sitemap.xml

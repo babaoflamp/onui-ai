@@ -1,9 +1,9 @@
 #!/bin/bash
-# onui.ai.kr 도메인 연결 설정 스크립트
-# 실행: sudo bash scripts/setup-domain-onui-ai-kr.sh
+# opportunity.ai.kr 및 onui.ai.kr 도메인 연결 설정 스크립트
+# 실행: sudo bash scripts/setup-domains.sh
 set -e
 
-DOMAIN="onui.ai.kr"
+DOMAIN="opportunity.ai.kr"
 EMAIL="babaoflamp@gmail.com"
 PROJECT_DIR="/home/scottk/Projects/onui-ai"
 NGINX_CONF="/etc/nginx/sites-available/${DOMAIN}"
@@ -25,7 +25,7 @@ cat > "$NGINX_CONF" << 'NGINX_CONF_EOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name onui.ai.kr www.onui.ai.kr;
+    server_name opportunity.ai.kr www.opportunity.ai.kr onui.ai.kr www.onui.ai.kr;
 
     location /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -44,23 +44,28 @@ systemctl restart nginx
 echo ""
 echo "=== [4/6] DNS 전파 확인 ==="
 SERVER_IP=$(curl -s https://api.ipify.org)
-RESOLVED_IP=$(nslookup ${DOMAIN} 8.8.8.8 2>/dev/null | awk '/^Address: / { print $2 }' | tail -1)
+RESOLVED_IP1=$(nslookup opportunity.ai.kr 8.8.8.8 2>/dev/null | awk '/^Address: / { print $2 }' | tail -1)
+RESOLVED_IP2=$(nslookup onui.ai.kr 8.8.8.8 2>/dev/null | awk '/^Address: / { print $2 }' | tail -1)
 echo "  서버 공인 IP : $SERVER_IP"
-echo "  DNS 조회 결과: $RESOLVED_IP"
+echo "  DNS 조회 결과 (opportunity.ai.kr): $RESOLVED_IP1"
+echo "  DNS 조회 결과 (onui.ai.kr): $RESOLVED_IP2"
 
-if [ "$SERVER_IP" != "$RESOLVED_IP" ]; then
+if [ "$SERVER_IP" != "$RESOLVED_IP1" ] || [ "$SERVER_IP" != "$RESOLVED_IP2" ]; then
     echo ""
-    echo "  ⚠️  DNS가 아직 전파되지 않았습니다."
-    echo "  도메인 등록 업체에서 아래 레코드를 설정하세요:"
-    echo "    A  @    $SERVER_IP"
-    echo "    A  www  $SERVER_IP"
+    echo "  ⚠️  DNS가 아직 전파되지 않았습니다. 두 도메인 모두 연결이 필요합니다."
+    echo "  도메인 등록 업체에서 아래 레코드를 서버 IP($SERVER_IP)로 설정하세요:"
+    echo "    A  @    (opportunity.ai.kr)"
+    echo "    A  www  (opportunity.ai.kr)"
+    echo "    A  @    (onui.ai.kr)"
+    echo "    A  www  (onui.ai.kr)"
     echo ""
     exit 1
 fi
 
 echo ""
 echo "=== [5/6] SSL 인증서 발급 (Let's Encrypt) ==="
-certbot --nginx -d "${DOMAIN}" -d "www.${DOMAIN}" \
+certbot --nginx -d "opportunity.ai.kr" -d "www.opportunity.ai.kr" \
+    -d "onui.ai.kr" -d "www.onui.ai.kr" \
     --email "${EMAIL}" \
     --agree-tos \
     --no-eff-email \
@@ -69,7 +74,7 @@ certbot --nginx -d "${DOMAIN}" -d "www.${DOMAIN}" \
 
 echo ""
 echo "=== [5b/6] 완전한 nginx 설정 적용 (WebSocket, static 서빙, body size) ==="
-cp "${PROJECT_DIR}/nginx-onui.ai.kr.conf" "$NGINX_CONF"
+cp "${PROJECT_DIR}/nginx-domains.conf" "$NGINX_CONF"
 nginx -t && systemctl reload nginx
 
 echo ""

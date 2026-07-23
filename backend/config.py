@@ -27,8 +27,8 @@ class Settings:
         (
             "http://localhost:9002",
             "http://127.0.0.1:9002",
+            "https://opportunity.ai.kr",
             "https://onui.ai.kr",
-            "https://onuiai.kr",
         ),
     ))
 

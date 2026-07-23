@@ -22,7 +22,15 @@ SOURCE_FILE = Path("data/locales/en.json")
 OUT_DIR = Path("data/locales")
 
 # 번역할 언어 목록 (언어 코드: 영어로 된 언어명)
-TARGET_LANGS = {"ja": "Japanese", "zh": "Simplified Chinese"}
+TARGET_LANGS = {
+    "ja": "Japanese",
+    "zh": "Simplified Chinese",
+    "vi": "Vietnamese",
+    "ne": "Nepali",
+    "id": "Indonesian (Bahasa Indonesia)",
+    "mn": "Mongolian (Cyrillic script)",
+    "lo": "Lao (Lao script)",
+}
 
 
 def translate_with_gemini(source_data, target_lang_name):

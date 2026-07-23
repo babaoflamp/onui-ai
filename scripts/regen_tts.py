@@ -21,19 +21,20 @@ import requests
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 GEMINI_TTS_MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
+GEMINI_TTS_VOICE = os.getenv("GEMINI_TTS_VOICE", "Aoede")
 TTS_CACHE_DIR = project_root / "data" / "tts_cache"
 
 SENTENCES = [
-    "벚꽃이 정말 예쁘네요!",
-    "주말에 꽃놀이 하러 갈까요?",
-    "새해 복 많이 받으세요!",
-    "이제 곧 봄이 오겠네요.",
-    "오늘따라 하늘이 정말 높아 보여요.",
+    "벚꽃길을 같이 걸어요.",
+    "이번 주말에 봄꽃 보러 갈까요?",
+    "새해에도 건강하세요.",
+    "따뜻한 봄이 기다려져요.",
+    "가을 하늘이 참 맑아요.",
 ]
 
 
 def cache_key(text: str) -> str:
-    raw = f"gemini:{GEMINI_TTS_MODEL}:{text}".encode("utf-8")
+    raw = f"gemini:{GEMINI_TTS_MODEL}:{GEMINI_TTS_VOICE}:{text}".encode("utf-8")
     return hashlib.md5(raw).hexdigest()
 
 
@@ -69,14 +70,14 @@ def amplify_pcm16(pcm_data: bytes, target_peak: float = 1.0) -> bytes:
 def call_gemini_tts(text: str) -> dict:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_TTS_MODEL}:generateContent?key={GEMINI_API_KEY}"
 
-    # Use Korean-optimised voice "Kore" for better pronunciation
+    # Match the app's default Gemini TTS voice so pre-generated files hit the same cache.
     payload = {
         "contents": [{"role": "user", "parts": [{"text": text}]}],
         "generationConfig": {
             "responseModalities": ["AUDIO"],
             "speechConfig": {
                 "voiceConfig": {
-                    "prebuiltVoiceConfig": {"voiceName": "Kore"}
+                    "prebuiltVoiceConfig": {"voiceName": GEMINI_TTS_VOICE}
                 }
             }
         }
@@ -114,7 +115,8 @@ def regen(text: str):
     content_type = result["content_type"]
 
     # Convert PCM16 → WAV if needed
-    if content_type.startswith("audio/L16") or content_type.startswith("audio/pcm"):
+    content_type_lower = content_type.lower()
+    if content_type_lower.startswith("audio/l16") or content_type_lower.startswith("audio/pcm"):
         audio = pcm16_to_wav(audio)
         content_type = "audio/wav"
 

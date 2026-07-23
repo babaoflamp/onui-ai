@@ -56,8 +56,10 @@ if [ -n "$NGROK_AUTHTOKEN" ]; then
   "$NGROK_BIN" config add-authtoken "$NGROK_AUTHTOKEN" --config=ngrok-config.yml >/dev/null 2>&1 || true
 fi
 
-# ngrok 시작 (NGROK_DOMAIN이 설정된 경우 해당 도메인 사용)
-if [ -n "$NGROK_DOMAIN" ]; then
+if grep -q "tunnels:" ngrok-config.yml; then
+  echo "Starting ngrok with all configured tunnels"
+  exec "$NGROK_BIN" start --all --config=ngrok-config.yml
+elif [ -n "$NGROK_DOMAIN" ]; then
   echo "Starting ngrok with domain: $NGROK_DOMAIN"
   exec "$NGROK_BIN" http --config=ngrok-config.yml --url="$NGROK_DOMAIN" 9002
 else

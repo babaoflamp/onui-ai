@@ -9,6 +9,7 @@ from pathlib import Path
 from fastapi import APIRouter, Request, HTTPException, Depends, Form
 from fastapi.responses import JSONResponse
 
+from backend.database import ensure_content_tables
 from backend.routes.deps import (
     get_current_user,
     load_json_data,
@@ -249,6 +250,8 @@ async def attendance_check_in(request: Request, user: dict = Depends(get_current
     today = datetime.now().date().isoformat()
     conn = sqlite3.connect(db_path)
     try:
+        ensure_content_tables(conn)
+        conn.commit()
         cursor = conn.cursor()
         cursor.execute("INSERT OR IGNORE INTO attendance (user_id, date) VALUES (?, ?)", (user["id"], today))
         conn.commit()
@@ -266,6 +269,8 @@ async def attendance_month(request: Request, year: int, month: int, user: dict =
     else: end_date = datetime(year, month + 1, 1).date()
     conn = sqlite3.connect(db_path)
     try:
+        ensure_content_tables(conn)
+        conn.commit()
         cursor = conn.cursor()
         cursor.execute("SELECT date FROM attendance WHERE user_id = ? AND date >= ? AND date < ?", (user["id"], start_date.isoformat(), end_date.isoformat()))
         days = [int(r[0].split("-")[2]) for r in cursor.fetchall()]
@@ -294,6 +299,8 @@ async def list_saved_textbooks(request: Request, user: dict = Depends(get_curren
     db_path = getattr(request.app.state, "db_path", "data/users.db")
     conn = sqlite3.connect(db_path)
     try:
+        ensure_content_tables(conn)
+        conn.commit()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute(
@@ -330,6 +337,8 @@ async def save_textbook(request: Request, user: dict = Depends(get_current_user)
     db_path = getattr(request.app.state, "db_path", "data/users.db")
     conn = sqlite3.connect(db_path)
     try:
+        ensure_content_tables(conn)
+        conn.commit()
         cursor = conn.cursor()
         cursor.execute(
             """
@@ -356,6 +365,8 @@ async def delete_textbook(textbook_id: int, request: Request, user: dict = Depen
     db_path = getattr(request.app.state, "db_path", "data/users.db")
     conn = sqlite3.connect(db_path)
     try:
+        ensure_content_tables(conn)
+        conn.commit()
         cursor = conn.cursor()
         cursor.execute(
             "DELETE FROM saved_textbooks WHERE id = ? AND user_id = ?",

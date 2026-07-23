@@ -40,20 +40,20 @@ def test_load_settings_parses_security_options(monkeypatch, tmp_path):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("SECRET_KEY", "prod-secret")
     monkeypatch.setenv("SESSION_COOKIE_SECURE", "true")
-    monkeypatch.setenv("ALLOWED_ORIGINS", "https://onui.ai.kr, https://onuiai.kr")
+    monkeypatch.setenv("ALLOWED_ORIGINS", "https://opportunity.ai.kr, https://onui.ai.kr, https://onuiai.kr")
     monkeypatch.setenv("DB_PATH", str(tmp_path / "users.db"))
     monkeypatch.setenv("ONUI_TMP_DIR", str(tmp_path / "tmp"))
 
     settings = load_settings()
 
     assert settings.session_cookie_secure is True
-    assert settings.allowed_origins == ("https://onui.ai.kr", "https://onuiai.kr")
+    assert settings.allowed_origins == ("https://opportunity.ai.kr", "https://onui.ai.kr", "https://onuiai.kr")
 
 
-def test_main_registers_oauth_and_cache_hooks():
-    source = Path("main.py").read_text()
+def test_app_factory_registers_oauth_and_cache_hooks():
+    source = Path("backend/core/app.py").read_text()
 
-    assert "app.state.get_user_by_google_id = _get_user_by_google_id" in source
-    assert "app.state.create_google_user = _create_google_user" in source
+    assert "app.state.get_user_by_google_id" in source
+    assert "app.state.create_google_user" in source
     assert "app.state.clear_user_cache = clear_user_cache" in source
     assert "allow_origins=list(settings.allowed_origins)" in source

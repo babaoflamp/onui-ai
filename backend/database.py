@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+import base64
+import hashlib
+import os
 
 
 DEFAULT_DB_PATH = "data/users.db"
@@ -354,3 +357,111 @@ def _add_missing_columns(conn: sqlite3.Connection, table_name: str, columns: dic
     for name, definition in columns.items():
         if name not in existing:
             conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {name} {definition}")
+
+import re
+from typing import Optional
+from fastapi import HTTPException
+from datetime import datetime
+ROLE_LEARNER = "learner"
+PBKDF_ITERATIONS = 120_000
+
+def _hash_password(password: str) -> str:
+    salt = os.urandom(16)
+    derived = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, PBKDF_ITERATIONS)
+    return f"{base64.b64encode(salt).decode()}${base64.b64encode(derived).decode()}"
+
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+def get_user_by_email(db_path: str, email: str) -> Optional[dict]:
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE email=?",
+        (email.strip().lower(),)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_user_by_nickname(db_path: str, nickname: str) -> Optional[dict]:
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE nickname=?",
+        (nickname.strip(),)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_user_by_google_id(db_path: str, google_id: str) -> Optional[dict]:
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE google_id=?",
+        (google_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def create_google_user(db_path: str, email: str, nickname: str, google_id: str) -> dict:
+    clean_email = (email or "").strip().lower()
+    clean_nickname = (nickname or clean_email.split("@")[0]).strip()
+    if not clean_email or not EMAIL_REGEX.match(clean_email):
+        raise HTTPException(status_code=400, detail="Google 계정 이메일이 올바르지 않습니다.")
+    
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.execute(
+            "INSERT INTO users (email, nickname, google_id, created_at, role) VALUES (?,?,?,?,?)",
+            (clean_email, clean_nickname, google_id, datetime.utcnow().isoformat(), ROLE_LEARNER),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT id, email, nickname, password_hash, is_admin, role FROM users WHERE id=?",
+            (cursor.lastrowid,)
+        ).fetchone()
+        return dict(row)
+    finally:
+        conn.close()
+
+def store_user_signup(db_path: str, payload: dict) -> dict:
+    email = (payload.get("email") or "").strip().lower()
+    nickname = (payload.get("nickname") or "").strip()
+    password = payload.get("password") or ""
+    if not (email and EMAIL_REGEX.match(email) and nickname and len(password) >= 8):
+        raise HTTPException(status_code=400, detail="입력값이 올바르지 않습니다.")
+    
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute(
+            "INSERT INTO users (email, nickname, password_hash, created_at, role) VALUES (?,?,?,?,?)",
+            (email, nickname, _hash_password(password), datetime.utcnow().isoformat(), ROLE_LEARNER)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="이미 가입된 이메일입니다.")
+    finally:
+        conn.close()
+    return {"email": email, "nickname": nickname}
+
+def get_word_score_history(db_path: str, user_id: int, word_id: str) -> list:
+    conn = sqlite3.connect(db_path)
+    try:
+        rows = conn.execute(
+            "SELECT score, created_at FROM word_score_history WHERE user_id=? AND word_id=? ORDER BY created_at DESC",
+            (user_id, word_id)
+        ).fetchall()
+        return [{"score": r[0], "date": r[1]} for r in rows]
+    finally:
+        conn.close()
+
+def get_sentence_score_history(db_path: str, user_id: int, sentence_id: str) -> list:
+    conn = sqlite3.connect(db_path)
+    try:
+        rows = conn.execute(
+            "SELECT score_latest, last_attempted_at FROM sentence_scores WHERE user_id=? AND sentence_id=? ORDER BY last_attempted_at DESC",
+            (user_id, sentence_id)
+        ).fetchall()
+        return [{"score": r[0], "date": r[1]} for r in rows]
+    finally:
+        conn.close()

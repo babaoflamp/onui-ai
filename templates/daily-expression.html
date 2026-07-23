@@ -116,14 +116,15 @@ endblock %} {% block extra_css %}
           </div>
 
           <div
-            class="sentence-kr text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter"
+            class="sentence-kr text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter notranslate"
             id="sentenceKr"
+            translate="no"
           >
             <span data-i18n="de.loading">Loading phrase...</span>
           </div>
 
           <!-- Romanized pronunciation -->
-          <div class="romanized-text" id="romanizedText"></div>
+          <div class="romanized-text notranslate" id="romanizedText" translate="no"></div>
 
           <div
             class="sentence-en text-lg md:text-xl text-white/40 font-bold mb-10 tracking-tight"
@@ -164,5 +165,5 @@ endblock %} {% block extra_css %}
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<script src="/static/js/daily-expression.js"></script>
+<script src="/static/js/daily-expression.js?v=leda-tts-2"></script>
 {% endblock %}

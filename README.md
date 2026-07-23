@@ -19,7 +19,7 @@ AI 기반 한국어 학습 플랫폼 — 발음 평가, AI 대화, 영상 학습
 | 자유 발음 분석 | `/sentence-evaluation` | 원하는 문장 자유 입력 → AI 발음 코칭 |
 | 내 학습 보고서 | `/learning-progress` | 학습 통계, 발음 점수 추이, 출석 현황 |
 
-> 4개 언어 지원: 한국어 · English · 日本語 · 中文
+> 9개 UI 언어: 한국어 · English · 日本語 · 中文 · Tiếng Việt · नेपाली (정적 번역) + Indonesia · Монгол · ລາວ (Google 웹사이트 번역)
 
 ---
 
@@ -101,8 +101,8 @@ python -m uvicorn main:app --host 127.0.0.1 --port 9002 --reload
 
 | 환경 | URL |
 |---|---|
-| 프로덕션 (메인) | `https://onui.ai.kr` |
-| 프로덕션 (보조) | `https://onuiai.kr` |
+| 메인 서비스 | `https://opportunity.ai.kr` |
+| 보조 (리다이렉트) | `https://onuiai.kr` |
 
 ### PM2로 서비스 관리
 
@@ -119,16 +119,16 @@ PM2 설정: `ecosystem.config.js` / 로그: `logs/pm2-out.log`, `logs/pm2-error.
 
 ### ngrok는 수동으로만 사용
 
-운영 공개는 `onui.ai.kr` / `onuiai.kr` 도메인을 사용합니다. `ngrok`는 외부 데모나 임시 공유가 필요할 때만 수동으로 실행합니다.
+운영 공개는 `opportunity.ai.kr` / `onuiai.kr` 도메인을 사용합니다. `ngrok`는 외부 데모나 임시 공유가 필요할 때만 수동으로 실행합니다.
 
 ```bash
 ./scripts/run-ngrok.sh
 ```
 
-### Nginx + SSL 설정 (onui.ai.kr)
+### Nginx + SSL 설정 (opportunity.ai.kr)
 
 ```
-onui.ai.kr (DNS A → 공인 IP)
+opportunity.ai.kr (DNS A → 공인 IP)
   └→ nginx (80/443, SSL termination, Let's Encrypt)
        └→ uvicorn (127.0.0.1:9002)
 ```
@@ -155,7 +155,7 @@ sudo bash scripts/setup-domain.sh
 - Let's Encrypt SSL 인증서 발급 및 자동 갱신
 - 정적 파일 디렉터리 ACL 권한 설정
 
-nginx 설정 파일: `nginx-onui.ai.kr.conf` (또는 `nginx-onuiai.kr.conf`)
+nginx 설정 파일: `nginx-opportunity.ai.kr.conf` (또는 `nginx-onuiai.kr.conf`)
 
 **SSL 인증서 수동 갱신:**
 ```bash
@@ -247,7 +247,7 @@ onui-ai/
 │
 ├── data/
 │   ├── users.db             # SQLite 사용자 DB
-│   ├── locales/             # i18n 번역 파일 (ko/en/ja/zh)
+│   ├── locales/             # i18n 번역 파일 (ko/en/ja/zh/vi/ne/id/mn/lo)
 │   ├── vocabulary.json      # 72개 어휘 (A1-B2)
 │   ├── sentences.json       # 35개 연습 문장
 │   ├── voice-call.json      # AI 음성 통화 시나리오
@@ -334,7 +334,11 @@ total=50 ready=50 replacement_required=0 transcript_missing=0
 - **라우터**: 새 기능은 `backend/routes/`에 라우터로 추가하고 `main.py`에서 `include_router()`로 마운트합니다. 페이지 GET은 `pages.py`, API는 목적에 맞는 라우터 파일로 분리합니다.
 - **서비스**: 외부 API 연동 로직은 `backend/services/`에 별도 파일로 분리합니다.
 - **유틸리티**: 공통 함수는 `backend/utils.py`에 추가하고 라우터에서는 `deps.py`를 통해 import합니다.
-- **i18n**: 새 UI 문자열을 추가할 때 `data/locales/ko.json`, `en.json`, `ja.json`, `zh.json` 네 파일 모두에 키를 추가합니다.
+- **i18n (하이브리드)**:
+  - 정적 로케일: `ko` / `en` / `ja` / `zh` / `vi` / `ne` → `data/locales/*.json` + `data-i18n`
+  - Google 웹사이트 번역: `id` / `mn` / `lo` → 영어 UI 렌더 후 숨겨진 Google Translate Element
+  - 새 정적 UI 문자열은 `ko/en/ja/zh/vi/ne` 파일에 모두 추가
+  - 학습용 한국어 텍스트는 `notranslate` 클래스로 보호 (발음 문장, 가사, 자막, 채팅 등)
 - **DB 스키마**: `main.py`의 `_ensure_*` 헬퍼로 컬럼·테이블을 추가합니다. 마이그레이션 프레임워크는 사용하지 않습니다.
 - **정적 자산**: JS/CSS 파일명은 kebab-case로 대응 템플릿과 동일한 이름을 사용합니다.
 - **커밋 스타일**: `feat:`, `fix:`, `refactor:`, `chore:` 접두사 + 선택적 scope (예: `fix(ui): ...`).

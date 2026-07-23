@@ -11,7 +11,7 @@
 
 | 항목 | 내용 |
 |---|---|
-| 서비스 URL | `https://onui.ai.kr` / `https://onuiai.kr` |
+| 서비스 URL | `https://opportunity.ai.kr` (메인), `https://onuiai.kr` (보조) |
 | 지원 언어 | 한국어 · English · 日本語 · 中文 (UI 4개 국어) |
 | 대상 | 한국어 학습자 (외국인 / 재외동포) |
 | 운영 방식 | 자체 서버 (On-premise) + PM2 + nginx |
@@ -117,7 +117,7 @@ onui-ai/
 
 ```
 인터넷
-  └→ onui.ai.kr (DNS A → 서버 공인 IP)
+  └→ opportunity.ai.kr (DNS A → 서버 공인 IP)
        └→ nginx (443 SSL · Let's Encrypt)
             └→ uvicorn 127.0.0.1:9002
                   ↑

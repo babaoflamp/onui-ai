@@ -9,6 +9,7 @@ from fastapi import APIRouter, Request, HTTPException, Depends, Form
 from fastapi.responses import JSONResponse
 
 from backend.routes.deps import get_current_user, load_json_data
+from backend.database import ensure_media_tables
 from backend.services.onui_tube_catalog import (
     annotate_tube_videos,
     build_tube_catalog_summary,
@@ -21,22 +22,7 @@ logger = logging.getLogger("uvicorn.error")
 
 
 def _ensure_saved_vocab_table(conn: sqlite3.Connection):
-    conn.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS user_saved_vocab (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            label TEXT NOT NULL,
-            pos TEXT,
-            meaning TEXT,
-            source TEXT DEFAULT 'tube',
-            saved_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, label)
-        );
-        CREATE INDEX IF NOT EXISTS idx_saved_vocab_user
-            ON user_saved_vocab(user_id, saved_at);
-        """
-    )
+    ensure_media_tables(conn)
     conn.commit()
 
 @router.get("/api/tube/videos")
@@ -260,20 +246,11 @@ async def api_video_lessons(user: dict = Depends(get_current_user)):
 
 def _ensure_video_progress_table(db_path: str = "data/users.db"):
     conn = sqlite3.connect(db_path)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS user_video_progress (
-            user_id TEXT NOT NULL,
-            video_id TEXT NOT NULL,
-            watched_seconds INTEGER DEFAULT 0,
-            duration_seconds INTEGER DEFAULT 0,
-            completed INTEGER DEFAULT 0,
-            last_position INTEGER DEFAULT 0,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (user_id, video_id)
-        )
-    """)
-    conn.commit()
-    conn.close()
+    try:
+        ensure_media_tables(conn)
+        conn.commit()
+    finally:
+        conn.close()
 
 @router.get("/api/video-progress/{user_id}")
 async def get_video_progress(user_id: str, request: Request, user: dict = Depends(get_current_user)):

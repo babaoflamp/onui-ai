@@ -75,12 +75,12 @@ pm2 restart onui-ai   # Restart the application
 ```
 PM2 configuration is in `ecosystem.config.js`. Logs are stored in `logs/pm2-out.log` and `logs/pm2-error.log`.
 
-**Nginx + SSL Setup (for `onui.ai.kr`):**
+**Nginx + SSL Setup (for `opportunity.ai.kr`):**
 The `scripts/setup-domain-onui-ai-kr.sh` script automates Nginx reverse proxy configuration, Let's Encrypt SSL, and UFW firewall settings. It requires DNS `A` records to be propagated.
 ```bash
 sudo bash scripts/setup-domain-onui-ai-kr.sh
 ```
-Nginx configuration is located in `nginx-onui.ai.kr.conf`.
+Nginx configuration is located in `nginx-opportunity.ai.kr.conf`.
 
 ## Development Conventions
 

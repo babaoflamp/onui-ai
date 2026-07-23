@@ -1,10 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for AI coding agents working in this repository. Keep this file accurate when architecture changes.
 
 ## Project Overview
 
-**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web platform. Backend: FastAPI (Python). Frontend: Jinja2 templates + Tailwind CSS. The app runs at port 9002 (both dev and production via PM2).
+**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web platform.
+
+- **Backend**: FastAPI (Python), SQLite (`data/users.db`)
+- **Frontend**: Jinja2 templates + Tailwind CSS (CDN)
+- **Port**: 9002 (dev and production via PM2)
+- **UI languages**: static `ko/en/ja/zh/vi/ne` + Google Translate widget for `id/mn/lo`
 
 ## Development Commands
 
@@ -13,44 +18,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env
 
-# Dev server (hot reload) — 반드시 9002 포트 사용
+# Dev server (hot reload) — always port 9002
 source .venv/bin/activate && python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
+# or: python main.py
 
 # Stop dev server
 pkill -f uvicorn
 
-# Run tests
+# Tests
 python -m pytest
-python -m pytest tests/unit   # scoped run
+python -m pytest tests/unit
 ```
 
 ### Production (PM2)
 
 ```bash
 ./start-service.sh    # starts onui-ai via PM2
-./stop-service.sh     # stops both PM2 processes
-./restart.sh          # restarts onui-ai + onui-ai-ngrok via PM2
+./stop-service.sh
+./restart.sh
 
-pm2 status            # check process health
-pm2 logs onui-ai      # tail application logs
-pm2 restart onui-ai   # restart without full stop
+pm2 status
+pm2 logs onui-ai
+pm2 restart onui-ai
 ```
 
-PM2 config is in `ecosystem.config.js`. App logs go to `logs/pm2-out.log` and `logs/pm2-error.log`.
+PM2 config: `ecosystem.config.js`. Logs: `logs/pm2-out.log`, `logs/pm2-error.log`.
 
 ### Production URLs & Network Topology
 
 ```
-onuiai.kr / onui.ai.kr  (DNS A → server IP)
+onuiai.kr / opportunity.ai.kr  (DNS A → server IP)
   └→ nginx (80/443, SSL via Let's Encrypt)
-  │   configs: nginx-onuiai.kr.conf, nginx-onui.ai.kr.conf
+  │   configs: nginx-onuiai.kr.conf, nginx-opportunity.ai.kr.conf
        └→ uvicorn (127.0.0.1:9002)
            ↑
-          optional manual ngrok tunnel (run only when temporarily needed)
+          optional manual ngrok tunnel (scripts/run-ngrok.sh)
 ```
 
-`scripts/setup-domain.sh` / `scripts/setup-domain-onui-ai-kr.sh` handle first-time nginx + certbot setup. SSL renewal: `sudo certbot renew`.
+Domain setup: `scripts/setup-domain.sh`, `scripts/setup-domain-onui-ai-kr.sh`. SSL: `sudo certbot renew`.
 
 ### Feature URL Map
 
@@ -70,178 +77,191 @@ onuiai.kr / onui.ai.kr  (DNS A → server IP)
 
 ## Key Environment Variables (`.env`)
 
+Defined primarily in `backend/config.py` (`Settings` / `load_settings()`). Template: `.env.example`.
+
 | Variable | Purpose | Default |
 |---|---|---|
+| `APP_ENV` | `development` / `production` (`SECRET_KEY` required in production) | `development` |
 | `MODEL_BACKEND` | AI backend: `ollama`, `openai`, or `gemini` | `gemini` |
 | `OLLAMA_URL` | Ollama server | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Model name | `exaone3.5:2.4b` |
-| `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Gemini API | — |
-| `GEMINI_MODEL` | Gemini model for content generation | `gemini-2.0-flash` |
-| `OPENAI_API_KEY` | OpenAI (DALL-E, Whisper) | — |
-| `OPENAI_MODEL` | OpenAI model for content generation | `gpt-4o-mini` |
-| `MZTTS_API_URL` | Korean TTS service | `http://112.220.79.218:56014` |
-| `SECRET_KEY` | Session signing | random at startup |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth | — |
-| `ROMANIZE_MODE` | `force` (always romanize) or `prefer` (keep model output if valid) | `force` |
+| `OLLAMA_MODEL` | Model name | `exaone` |
+| `GEMINI_API_KEY` | Gemini API | — |
+| `GEMINI_MODEL` | Content generation model | `gemini-2.0-flash` |
+| `OPENAI_API_KEY` | OpenAI (DALL-E, Whisper, chat) | — |
+| `OPENAI_MODEL` | OpenAI content model | `gpt-4o-mini` |
 | `TTS_BACKEND` | `gemini`, `openai`, `google`, or `mztts` | `gemini` |
-| `GEMINI_LIVE_MODEL` | Gemini model for Live API (voice call WebSocket) | `gemini-2.5-flash-native-audio-latest` |
-| `GEMINI_TTS_MODEL` | Gemini model for TTS | `gemini-1.5-flash` |
-| `GEMINI_TTS_VOICE` | Gemini TTS voice name | `Aoede` |
-| `GEMINI_TTS_MIME` | Gemini TTS output MIME type | `audio/wav` |
-| `OPENAI_TTS_MODEL` | OpenAI TTS model | `tts-1` |
-| `OPENAI_TTS_VOICE` | OpenAI TTS voice | `alloy` |
-| `OPENAI_TTS_FORMAT` | OpenAI TTS output format | `mp3` |
-| `GOOGLE_TTS_LANGUAGE` | Google Cloud TTS language code | `ko-KR` |
-| `GOOGLE_TTS_VOICE` | Google Cloud TTS voice name | `ko-KR-Standard-A` |
-| `GOOGLE_TTS_AUDIO_ENCODING` | Google Cloud TTS encoding | `MP3` |
-| `STT_BACKEND` | `openai`, `google`, `vosk`, or `local` | auto |
-| `VOSK_MODEL_PATH` | Path to Vosk model dir (required when `STT_BACKEND=vosk`) | — |
-| `FLUENCYPRO_WS_URL` | FluencyPro WebSocket URL for fluency evaluation | — |
-| `DALLE_MODEL` / `DALLE_SIZE` / `DALLE_QUALITY` / `DALLE_STYLE` | DALL-E generation params | `gpt-image-1` / `1024x1024` / `standard` / `natural` |
-| `GEMINI_IMAGE_MODEL` | Gemini model used for image generation | `gemini-2.0-flash-preview-image-generation` |
-| `CLARITY_PROJECT_ID` | Microsoft Clarity analytics project ID | — |
-| `DAILY_CREDITS` | Per-user daily credit budget (resets at midnight) | `100` |
+| `GEMINI_TTS_MODEL` / `GEMINI_TTS_VOICE` / `GEMINI_TTS_MIME` | Gemini TTS | see config |
+| `OPENAI_TTS_MODEL` / `OPENAI_TTS_VOICE` / `OPENAI_TTS_FORMAT` | OpenAI TTS | `tts-1` / `alloy` / `mp3` |
+| `GOOGLE_TTS_*` | Google Cloud TTS language/voice/encoding | `ko-KR` / Standard-A / MP3 |
+| `STT_BACKEND` | `openai`, `google`, `vosk`, or `local` | `openai` |
+| `VOSK_MODEL_PATH` | Vosk model dir (when local/vosk STT) | — |
+| `SECRET_KEY` | Session HMAC signing | required in production |
+| `SESSION_EXPIRY_SECONDS` | Cookie / session lifetime | `14400` (4h in config) |
+| `SESSION_COOKIE_SECURE` | Secure cookie flag | `false` |
+| `ALLOWED_ORIGINS` | CORS origins (CSV) | localhost:9002 + opportunity.ai.kr |
+| `DAILY_CREDITS` | Per-user daily credit budget | `100` |
+| `DB_PATH` | SQLite path | `data/users.db` |
+| `ONUI_TMP_DIR` | Scratch/temp dir | `data/tmp` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth | — |
+| `CLARITY_PROJECT_ID` | Microsoft Clarity | — |
+| `KRDICT_API_KEY` | Korean dictionary API | — |
+
+Also used elsewhere (not all on `Settings`): `GEMINI_LIVE_MODEL`, `GEMINI_IMAGE_MODEL`, `DALLE_*`, `FLUENCYPRO_WS_URL`, `ROMANIZE_MODE`, `MZTTS_API_URL`.
 
 ## System Dependencies
 
-`ffmpeg` must be installed on the host — used for audio conversion (PCM → 8kHz mono WAV) in FluencyPro and SpeechPro routes.
+**ffmpeg** must be installed — used for audio conversion (e.g. PCM → 8kHz mono WAV) in FluencyPro and SpeechPro routes.
 
 ## Architecture
 
-### Entry Point (`main.py`, ~700 lines)
+### Entry Point (`main.py`)
 
-`main.py` is now a thin orchestrator. It handles:
-- Imports, env config, AI client initialization (lines 1–100)
-- TTS helpers (MzTTS, Gemini, Google, OpenAI) and audio conversion utilities
-- SQLite DB init (`data/users.db`) via `_init_user_db()` and `_ensure_*` helpers
-- App factory, middleware setup (CORS, session, logging)
-- All `app.include_router(...)` mounts (bottom of file, ~line 680+)
-- WebSocket endpoints at `/ws/voice-call/{scenario_id}` (Gemini Live API streaming) and `/ws/fluency` (FluencyPro real-time evaluation) live in `backend/routes/ai_services.py`
+Thin bootstrap only:
 
-### Routers in `backend/routes/`
+1. `create_app()` from `backend.core.app`
+2. Apply temp-dir env from settings
+3. `initialize_database(settings.db_path)`
+4. Optional `__main__` uvicorn on port 9002
 
-All mounted in `main.py` via `app.include_router(...)`:
+### App Factory (`backend/core/app.py`)
 
-| Router | Key Routes |
+`create_app()`:
+
+- Loads settings + logging (`logs/detailed.log`, midnight rotation)
+- Builds FastAPI app, Jinja2 templates, OAuth (authlib Google)
+- Initializes Gemini / Gemini Live / OpenAI clients when keys present
+- Populates `app.state` (settings, db helpers, AI clients, credit costs, SpeechPro helpers, …)
+- Mounts `/static` and `/uploads`
+- CORS from `settings.allowed_origins`
+- Includes all routers
+
+### Config (`backend/config.py`)
+
+Frozen `Settings` dataclass. Prefer reading configuration from `request.app.state.settings` or fields already copied onto `app.state` — avoid scattering raw `os.getenv` in new route code.
+
+### Database (`backend/database.py`)
+
+SQLite at `data/users.db` (or `DB_PATH`). Schema created/migrated via `initialize_database()` and `ensure_*` helpers — no Alembic/migration framework.
+
+Tables include: `users`, `sentence_scores`, `word_score_history`, attendance/LMS, media progress, RAG (`n_documents` / `n_chunks` / FTS5), admin logging, etc.
+
+### Routers (`backend/routes/`)
+
+Mounted in `backend/core/app.py`:
+
+| Router | Key routes |
 |---|---|
-| `pages.py` | All HTML page GETs (`/`, `/dashboard`, `/video-learning`, `/onui-beats`, `/voice-call`, `/onui-grammar`, `/daily-expression`, `/sentence-evaluation`, `/learning-progress`, `/login`, `/signup`, `/mypage`, `/privacy`, etc.) |
-| `auth.py` | `/api/signup`, `/api/login`, `/api/logout` and Google OAuth |
-| `user.py` | `/mypage`, `/change-password`, `/api/user/profile`, `/api/user/password/change`, `/api/credits` |
-| `ai_services.py` | `/api/voice-call/scenarios`, `/ws/voice-call/{scenario_id}` (auth + credit-gated), `/api/generate-content`, `/api/gemini/image`, `/api/word-images/cache`, `/api/ollama/*`, `/api/chat/test`, `/api/fluency-check` |
-| `content.py` | `/api/dashboard/quick-stats`, `/api/expressions`, `/api/textbooks`, `/api/attendance/*` |
-| `media.py` | `/api/tube/videos`, `/api/tube/transcripts`, `/api/tube/vocab`, `/api/video-lessons`, `/api/video-progress` |
-| `stt.py` | `/api/stt/proxy`, `/api/stt/whisper`, `/api/stt/google`, `/api/stt/vosk`, `/api/voice-call/stt` |
-| `learning_progress.py` | `/api/learning/*` — per-user progress tracking |
-| `tts.py` | `/api/tts/*` — TTS generation |
-| `speechpro.py` | `/api/speechpro/*` — pronunciation evaluation |
-| `roleplay.py` | `/roleplay`, `/api/roleplay/*` — AI historical figure roleplay |
-| `lms.py` | LMS routes — grades, attendance, time-on-task |
-| `admin.py` | `/api/admin/*` — admin dashboard, user management, logs |
+| `pages.py` | HTML GETs: `/`, `/dashboard`, `/video-learning`, `/onui-beats`, `/voice-call`, `/onui-grammar`, `/daily-expression`, `/sentence-evaluation`, `/learning-progress`, `/login`, `/signup`, `/mypage`, `/privacy`, admin pages |
+| `auth.py` | `/api/signup`, `/api/login`, `/api/logout`, Google OAuth |
+| `user.py` | Profile/password/credits APIs |
+| `ai_services.py` | Content gen, image, chat, voice-call scenarios, WebSockets (`/ws/voice-call/{scenario_id}`, fluency) |
+| `content.py` | Dashboard stats, expressions, textbooks, attendance, locale JSON (`/data/locales/{filename}`) |
+| `media.py` | OnuiTube videos/transcripts/vocab, video lessons/progress |
+| `stt.py` | STT proxy / Whisper / Google / Vosk / voice-call STT |
+| `learning_progress.py` | `/api/learning/*` |
+| `tts.py` | `/api/tts/*` |
+| `speechpro.py` | `/api/speechpro/*` pronunciation evaluation |
+| `roleplay.py` | `/roleplay`, `/api/roleplay/*` |
+| `lms.py` | Grades, attendance, time-on-task |
+| `admin.py` | `/api/admin/*` |
 
-`deps.py` re-exports everything from `backend/utils.py` for use in routers — always import from `deps.py` inside routes, not directly from `utils.py` or `main.py`.
+`deps.py` re-exports helpers from `backend.utils` — **import from `deps` inside routes**, not from `main` or ad-hoc globals.
 
 ### `backend/utils.py`
 
-Comprehensive shared utility module. Exports: auth helpers (`get_current_user`, `get_current_admin_user`, `get_optional_user`, `get_session`, `create_session_token`, `parse_session_token`, `hash_password`, `verify_password`), data helpers (`load_json_data`, `get_user_credits`, `check_and_consume_credits`), RAG utilities (`ensure_rag_tables`, `rag_chunk_text`, `rag_get_settings`, `rag_search`), Korean language utils (`romanize_korean`, `parse_model_output`), Ollama helpers (`list_ollama_models`), and audio utils (`ensure_wav_16k_mono`, `transcribe_with_vosk`).
+Auth (`get_current_user`, `get_session`, session tokens, password hashing), credits (`check_and_consume_credits`, `get_user_credits`), RAG helpers, Hangul romanizer, Ollama listing, audio helpers (`ensure_wav_16k_mono`, `transcribe_with_vosk`), JSON data loading.
 
-Routers receive AI clients, DB helpers, and other dependencies via `request.app.state`. Always use utilities from `backend/utils.py` (via `deps.py`) rather than importing globals from `main.py`.
+Routers receive AI clients and DB helpers via `request.app.state`.
 
-### Services in `backend/services/`
+### Services (`backend/services/`)
 
 | Service | Purpose |
 |---|---|
-| `speechpro_service.py` | Pronunciation evaluation via external SpeechPro API |
-| `fluencypro_service.py` | Writing fluency evaluation |
-| `learning_progress_service.py` | Track per-user learning progress in SQLite |
-| `krdict_service.py` | Korean dictionary lookup (KRDICT API) |
+| `speechpro_service.py` | Pronunciation evaluation (SpeechPro API + precomputed sentences) |
+| `fluencypro_service.py` | Fluency evaluation |
+| `learning_progress_service.py` | Per-user learning progress (SQLite) |
+| `krdict_service.py` | Korean dictionary (KRDICT API) |
 | `dalle_service.py` | Image generation (DALL-E / Gemini) |
+| `tts_service.py` | Shared TTS / audio conversion helpers |
+| `ai_services.py` | Shared AI helpers (e.g. pronunciation feedback) |
 | `analytics_service.py` | Usage analytics |
-| `onui_tube_catalog.py` | Annotates OnuiTube videos with transcript/vocab metadata at page render time |
+| `onui_tube_catalog.py` | OnuiTube catalog annotation at page render |
 
-### Database
+### Session Auth & Credits
 
-SQLite at `data/users.db`. Schema is created/migrated programmatically in `_init_user_db()` (main.py line 176). The DB is called at startup and uses `_ensure_*` helper functions to add columns/tables to existing DBs — no migration framework.
-
-Tables: `users`, `word_scores`, `sentence_scores`, `attendance`, `n_documents`/`n_chunks`/`n_settings` (RAG with SQLite FTS5), LMS tables, admin logging tables.
-
-### Session Auth
-
-Cookie-based sessions using an in-memory `active_sessions` dict (token → user info). Token is a 64-char hex string stored in a `session_token` cookie. Sessions expire after 24 hours. Google OAuth via `authlib`. Admin roles use `is_admin` flag + `role` field (`learner`, `instructor`, `system_admin`).
-
-**Credit system**: `app.state.credit_costs` holds `{"lesson": 3, "image": 10, "quiz": 2, "chat": 2, "tts": 1, "voice": 5}`. `check_and_consume_credits()` (in `utils.py`) gates all AI endpoints; budget resets daily based on `DAILY_CREDITS`. The WebSocket auth check for voice call reads the cookie directly via `websocket.cookies`.
+- Cookie-based sessions: signed token in `session_token` cookie; in-memory `active_sessions` cache
+- Roles: `learner`, `instructor`, `system_admin` (+ `is_admin`)
+- Google OAuth via authlib when client id/secret set
+- Credits: `app.state.credit_costs` default `lesson=3, image=10, quiz=2, chat=2, tts=1, voice=5`; daily reset via `DAILY_CREDITS`
+- Voice-call WebSocket auth reads the session cookie and is credit-gated
 
 ### Frontend
 
-- **`templates/base.html`**: Master layout — navigation, i18n initialization, character popup. All pages extend this.
-- **`templates/components/`**: Reusable Jinja2 partials — `character-popup.html`, `floating-buttons.html`, `ai-avatar.html`.
-- **`static/js/` and `static/css/`**: Feature-specific assets with kebab-case names matching their template (e.g., `word-puzzle.js` ↔ `word-puzzle.html`).
-- Tailwind CSS is loaded via CDN (not compiled locally).
-- Most feature pages have a dedicated JS file in `static/js/` matching their name (e.g., `voice-call.js`, `onui-beats.js`, `video-learning.js`, `daily-expression.js`, `onui-grammar.js`, `speechpro-practice.js`, `dashboard.js`, `learning-progress.js`, `content-generation.js`, `ai-roleplay.js`). Shared utilities: `i18n.js`, `ui-components.js`, `floating-buttons.js`, `auth.js`, `audio-processor.js`.
+- `templates/base.html` — master layout, nav, i18n, character popup
+- `templates/components/` — `character-popup.html`, `floating-buttons.html`, `ai-avatar.html`
+- Feature JS/CSS in `static/js/` and `static/css/` (kebab-case, name-matched to templates)
+- Tailwind via CDN (not compiled)
 
-Notable templates: `ai-roleplay.html`, `voice-call.html`, `video-learning.html`, `onui-beats.html`, `sentence-evaluation.html`, `speechpro-practice.html`, `content-generation.html`, `daily-expression.html`, `learning-progress.html`, `dashboard.html`, `onui-grammar.html` (AI Grammar Coach), and a full admin section (`admin-dashboard.html`, `admin-users.html`, `admin-logs.html`, `admin-settings.html`, `admin-system.html`, `admin-api.html`). Dev/test templates (`api-test.html`, `stt-multi-test.html`) are not user-facing.
+Notable pages: dashboard, daily-expression, video-learning, onui-beats, voice-call, ai-roleplay, content-generation, speechpro-practice, sentence-evaluation, learning-progress, onui-grammar, admin-* pages. Dev-only: `api-test.html`, `stt-multi-test.html`.
 
-File storage under `uploads/` (served at `/uploads`):
-- `uploads/` — user profile images and miscellaneous uploads
-- `uploads/images/` — DALL-E / Gemini generated vocabulary images (persisted, not temp)
-- `uploads/audio/` — pronunciation recordings; auto-cleaned after 30 days
+Uploads served at `/uploads`:
 
-### i18n System
+- profile / misc uploads
+- `uploads/images/` — generated vocab images
+- `uploads/audio/` — pronunciation recordings
 
-UI strings are translated client-side. Locale files live in `data/locales/{lang}.json` (supports `ko`, `en`, `ja`, `zh`) and are served as static JSON at `/data/locales/`. `static/js/i18n.js` fetches the file on page load, then applies translations to any element with a `data-i18n="key"` attribute. The active language is persisted in `localStorage` under `app_lang`.
+### i18n (hybrid)
 
-**FOUC prevention**: `base.html` sets `document.documentElement.style.visibility = "hidden"` immediately; `i18n.js` clears it after translations are applied. When adding new translatable strings, add the key to all four locale files.
+- **Static (curated)**: `data/locales/{ko,en,ja,zh,vi,ne}.json` via `data-i18n`
+- **Google Website Translate** (no new JSON required): `id`, `mn`, `lo`
+  - Loads English UI first, then hidden `translate.google.com` Element (`#google_translate_element` in `base.html`)
+  - Cookie `googtrans=/en/{code}`; leaving Google mode reloads to clear DOM mutations
+- Served static JSON at `/data/locales/` (`content.py`)
+- Language in `localStorage` key `app_lang`
+- FOUC prevention: `base.html` hides document until i18n applies
+- **Korean practice content**: `class="notranslate"` / `translate="no"` on sentences, lyrics, captions, chat logs
+- **Add new curated UI strings** to all static locale files (`ko/en/ja/zh/vi/ne`)
+- Optional leftover `id.json`/`mn.json`/`lo.json` are **not used** when Google path is active
 
 ### Data Files (`data/`)
 
-Static JSON datasets read at startup or on-demand:
-- `sentences.json` — 35 sentences for listening/puzzle activities
-- `vocabulary.json` — 72 vocabulary words (A1–B2)
-- `pronunciation-words.json` / `speechpro-sentences.json` — pronunciation practice content
-- `expressions.json` — daily expressions served via `/api/expressions`
-- `folktales.json` — 10 Korean folktales
-- `cultural-expressions.json` — 30 cultural expressions
-- `voice-call.json` — voice call scenario definitions (used by `/ws/voice-call/` WebSocket)
-- `onui-beats.json` — music/lyrics data for Onui Beats feature
-- `onui-tube.json` / `onui-tube-transcripts.json` — video metadata and transcripts for OnuiTube
-- `roleplay-scenarios.json` — historical figure scenarios for AI Roleplay
-- `tongue-twister-metadata.json` — tongue twister content
-- `sp_ko_questions.json` — SpeechPro Korean question bank
-- `landing_intent.json` — landing page intake/onboarding intent data
-- `word_image_cache.json` — cached DALL-E image URLs for vocabulary words
-- `landing_intake.json` — extended onboarding intake data (alongside `landing_intent.json`)
-- `tts_cache/` — pre-generated TTS audio files (`.bin` = audio, `.json` = metadata)
+Static JSON used at runtime (partial list):
+
+- `sentences.json`, `vocabulary.json`, `expressions.json`, `cultural-expressions.json`
+- `pronunciation-words.json`, `speechpro-sentences.json`, `sp_ko_questions.json`
+- `voice-call.json`, `roleplay-scenarios.json`, `onui-beats.json`
+- `onui-tube.json`, `onui-tube-transcripts.json`
+- `folktales.json`, `landing_intent.json`, `landing_intake.json`
+- `word_image_cache.json`, `tongue-twister-metadata.json`
+- `tts_cache/` — pre-generated TTS (`.bin` + `.json` metadata)
+- `locales/` — UI translations
 
 ### Scripts (`scripts/`)
 
-Utility scripts for one-off data management — not part of the app runtime:
-- `generate_locales.py` / `translate_locales.py` — generate and machine-translate locale JSON files
-- `import_excel_sentences.py` / `sync_sentences_json.py` / `merge_sentences.py` — manage `sentences.json`
-- `audit_onuitube_catalog.py` / `build_onuitube_replacement_template.py` — OnuiTube video catalog audit and replacement template builder
-- `generate_tube_transcript.py` / `generate_tube_videos.py` — yt-dlp pipeline for OnuiTube content
-- `generate_tube_images.py` / `generate_roleplay_images.py` / `generate_folktale_images.py` / `generate_landing_images.py` — DALL-E / Gemini image generation for static content
-- `regen_tts.py` — regenerate pre-built TTS cache files
-- `rotate-logs.py` — manual log rotation (also configured via `onui-ai-logrotate.conf`)
+One-off tools only (not app runtime): locale gen/translate, sentence import, OnuiTube catalog/video/image pipelines, roleplay/folktale/landing images, TTS regen, domain setup, logrotate, ngrok helper.
 
 ### Dependency Note
 
-`requirements.txt` pins `openai<2.0.0`. The codebase uses the v1 `OpenAI` client style — upgrading to v2 would break DALL-E and Whisper integrations.
+`requirements.txt` pins `openai<2.0.0`. Code uses the v1 `OpenAI` client style — upgrading to v2 breaks DALL-E/Whisper integrations.
 
 ## Coding Conventions
 
-- Python: 4-space indentation, snake_case for modules and functions.
-- Templates: mirror the Tailwind utility patterns already in use; don't introduce new CSS frameworks.
-- Static assets: kebab-case filenames; keep CSS/JS co-located by feature name.
-- Commit style: `feat:`, `fix:`, `refactor:`, `chore:` prefixes with optional scope (e.g., `fix(ui): ...`).
+- Python: 4-space indentation, snake_case modules and functions
+- Templates: mirror existing Tailwind utility patterns; no new CSS frameworks
+- Static assets: kebab-case; keep CSS/JS co-located by feature
+- Prefer `request.app.state` and `backend.routes.deps` over importing from `main`
+- Commits: `feat:`, `fix:`, `refactor:`, `chore:` with optional scope (e.g. `fix(ui): ...`)
 
 ## AI Backend Routing
 
-The `MODEL_BACKEND` env var controls which LLM handles content generation:
-- `ollama` → local EXAONE model via Ollama REST API
-- `openai` → OpenAI GPT via `openai` SDK
-- `gemini` → Gemini via `google-genai` SDK
+`MODEL_BACKEND` selects the content LLM:
 
-TTS and STT have separate backend selectors (`TTS_BACKEND`, `STT_BACKEND`) and can differ from the main `MODEL_BACKEND`.
+- `ollama` → local EXAONE via Ollama REST
+- `openai` → OpenAI GPT SDK
+- `gemini` → `google-genai` SDK
 
-Image generation (`dalle_service.py`) uses DALL-E when `OPENAI_API_KEY` is set, falling back to Gemini image generation otherwise.
+TTS (`TTS_BACKEND`) and STT (`STT_BACKEND`) are independent of `MODEL_BACKEND`.
 
-The app includes a built-in Hangul→Latin romanizer (syllable-table lookup) that requires no extra packages. The `korean_romanizer` package is optional and used automatically if installed.
+Image generation (`dalle_service.py`): DALL-E when `OPENAI_API_KEY` is set, else Gemini image models.
+
+Built-in Hangul→Latin romanizer (syllable tables) needs no extra package; optional `korean_romanizer` if installed.

@@ -1,39 +1,91 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
-- `main.py` is the FastAPI entry point.
-- `backend/` holds business logic (`services/`), lightweight models (`models/`), and utilities (`utils/`).
-- `templates/` contains Jinja2 HTML templates grouped by feature area.
-- `static/` contains CSS, JS, and images; feature-specific assets use kebab-case names (e.g., `pronunciation-practice.css`).
-- `data/` stores JSON datasets and SQLite files used by the app.
-- `tests/` is organized into `unit/`, `integration/`, and `api/` directories.
-- `docs/`, `scripts/`, and `tools/` contain documentation, utilities, and helper scripts.
+## Project Overview
+**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web app. Backend: FastAPI + SQLite. Frontend: Jinja2 + Tailwind (CDN). Dev/prod server port: **9002**.
 
-## Build, Test, and Development Commands
-- `python -m venv .venv` and `source .venv/bin/activate` to create/activate a virtualenv.
-- `python -m pip install -r requirements.txt` to install dependencies.
-- `python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload` for the hot-reload dev server.
-- `python main.py` for a simple local run without uvicorn flags.
-- `pkill -f uvicorn` to stop the dev server.
-- `./start-service.sh` and `./stop-service.sh` for systemd service workflows.
+## Project Structure
+- `main.py` — thin entry: `create_app()`, DB init, uvicorn on port 9002
+- `backend/config.py` — `Settings` dataclass + `load_settings()` (env-driven)
+- `backend/core/app.py` — app factory: middleware, `app.state`, router mounts
+- `backend/database.py` — SQLite schema init/migrations (`initialize_database`)
+- `backend/utils.py` — auth, credits, romanizer, RAG helpers, audio utils
+- `backend/routes/` — FastAPI routers (import deps from `deps.py`, not `main`)
+- `backend/services/` — SpeechPro, TTS, DALL-E, FluencyPro, learning progress, etc.
+- `templates/` — Jinja2 pages; `templates/components/` for partials
+- `static/js|css/` — feature assets (kebab-case, co-located by feature)
+- `data/` — JSON datasets, locales, SQLite (`users.db`), TTS cache
+- `tests/unit/` — pytest suite
+- `scripts/` — one-off data/image/domain utilities (not runtime)
 
-## Coding Style & Naming Conventions
-- Python: 4-space indentation; keep modules in snake_case (e.g., `learning_progress_service.py`).
-- Templates: keep Jinja2 structure minimal and match existing Tailwind utility patterns.
-- Static assets: prefer kebab-case filenames and colocate CSS/JS with the feature they style.
-- When in doubt, mirror the surrounding file’s style instead of reformatting.
+## Build, Test, and Development
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # never commit real secrets
 
-## Testing Guidelines
-- Place tests under `tests/unit`, `tests/integration`, and `tests/api`.
-- Use pytest: `python -m pytest` or scoped runs like `python -m pytest tests/unit`.
-- Name tests `test_*.py` and test functions `test_*` for pytest discovery.
+# Dev (hot reload) — always port 9002
+python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
+# or: python main.py
 
-## Commit & Pull Request Guidelines
-- Recent history mixes conventional commits and descriptive summaries. Prefer:
-  - `feat: ...`, `fix: ...`, `chore: ...`, `refactor: ...`
-  - Optional scope: `feat(ui): ...`
-- PRs should include a concise summary, test notes, and screenshots for UI changes.
+pkill -f uvicorn       # stop dev server
+python -m pytest
+python -m pytest tests/unit
+```
+
+### Production (PM2)
+```bash
+./start-service.sh     # start via PM2
+./stop-service.sh
+./restart.sh
+pm2 status | pm2 logs onui-ai | pm2 restart onui-ai
+```
+PM2 config: `ecosystem.config.js`. Logs: `logs/pm2-out.log`, `logs/pm2-error.log`.
+
+Host dependency: **ffmpeg** (audio conversion for SpeechPro / FluencyPro).
+
+## Coding Style
+- Python: 4-space indent, snake_case modules/functions
+- Templates: match existing Tailwind patterns; no new CSS frameworks
+- Static assets: kebab-case; keep CSS/JS paired with the feature template
+- Prefer mirroring surrounding style over reformatting
+- Routes: use `request.app.state` for clients/settings; import helpers from `backend.routes.deps`
+- Commit style: `feat:`, `fix:`, `refactor:`, `chore:` (+ optional scope)
+
+## Testing
+- Tests live under `tests/unit` (`test_*.py` / `test_*`)
+- Run: `python -m pytest` or `python -m pytest tests/unit`
 
 ## Configuration & Secrets
-- Use `.env` for local configuration; `MODEL_BACKEND`, `OLLAMA_URL`, and related values are documented in `README.md`.
-- Do not commit secrets or local database copies; use `.env.example` as the template.
+- Configure via `.env` (see `.env.example` and `backend/config.py`)
+- Key selectors: `MODEL_BACKEND` (`gemini`|`openai`|`ollama`), `TTS_BACKEND`, `STT_BACKEND`
+- Production requires `APP_ENV=production` + `SECRET_KEY`
+- Do not commit secrets, `.env`, or local DB copies
+
+## Architecture Notes (for agents)
+- Routers are mounted in `backend/core/app.py`, not `main.py`
+- Cookie sessions (`session_token`); roles: `learner` | `instructor` | `system_admin`
+- AI endpoints gated by daily credits (`DAILY_CREDITS` / `app.state.credit_costs`)
+- i18n hybrid (`static/js/i18n.js`):
+  - **Static locales** (curated JSON): `ko`, `en`, `ja`, `zh`, `vi`, `ne` → `data/locales/{lang}.json`
+  - **Google Website Translate**: `id`, `mn`, `lo` (and any non-static lang) → English UI + hidden Google Element
+- New curated UI strings: add keys to **all static** locale files (`ko/en/ja/zh/vi/ne`)
+- Korean learning content: mark with `class="notranslate"` / `translate="no"` so Google does not translate practice text
+- `openai` package is pinned `<2.0.0` — do not upgrade without migration
+
+## Feature URL Map
+| Feature | Route |
+|---|---|
+| Dashboard | `/dashboard` |
+| Daily Expression | `/daily-expression` |
+| OnuiTube | `/video-learning` |
+| Onui Beats | `/onui-beats` |
+| AI Voice Call | `/voice-call` |
+| AI Roleplay | `/roleplay` |
+| Content Generation | `/content-generation` |
+| Pronunciation (SpeechPro) | `/speechpro-practice` |
+| Sentence Evaluation | `/sentence-evaluation` |
+| Learning Progress | `/learning-progress` |
+| AI Grammar Coach | `/onui-grammar` |
+
+## PRs
+- Concise summary, test notes, and screenshots for UI changes

@@ -142,7 +142,7 @@
   }
 
   // ── IndexedDB TTS Cache ──────────────────────────────
-  const DB_NAME = 'OnuiTTSCache';
+  const DB_NAME = 'OnuiTTSCacheLedaV2';
   const STORE_NAME = 'audio_cache';
   const DB_VERSION = 1;
 
@@ -205,7 +205,7 @@
         const resp = await fetch('/api/tts/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, language_code: 'ko' })
+          body: JSON.stringify({ text, language_code: 'ko', voice: 'Leda' })
         });
 
         if (!resp.ok) throw new Error('TTS failed');

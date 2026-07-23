@@ -19,7 +19,7 @@ FILES_TO_PARSE = [
 ]
 
 # 기존에 지원하던 언어 및 새로 추가할 확장 언어
-EXISTING_LANGS = ["en", "ja", "zh"]
+EXISTING_LANGS = ["en", "ja", "zh", "vi"]
 NEW_LANGS = []
 
 

@@ -3,15 +3,15 @@
     "id": 101,
     "month": 1,
     "level": "A1",
-    "sentenceKr": "새해 복 많이 받으세요!",
-    "sentenceEn": "Happy New Year! (Wishing you lots of luck in the new year!)",
+    "sentenceKr": "새해에도 건강하세요.",
+    "sentenceEn": "Please stay healthy in the new year.",
     "cultureNote": "한국의 새해 인사말로, 설날에 어른들께 세배를 드리며 이 말을 건넵니다.",
     "cultureNoteEn": "This is Korea's New Year greeting, said while bowing to elders during Seollal (Lunar New Year).",
     "situation": "상황: 새해 인사",
     "situationEn": "Situation: New Year Greeting",
     "tag": "#새해인사 #설날",
     "tagEn": "#NewYear #Seollal",
-    "romanized": "saehae bok mani badeuseyo!"
+    "romanized": "saehaeedo geonganghaseyo."
   },
   {
     "id": 102,
@@ -45,15 +45,15 @@
     "id": 202,
     "month": 2,
     "level": "B1",
-    "sentenceKr": "이제 곧 봄이 오겠네요.",
-    "sentenceEn": "Spring will be here soon.",
+    "sentenceKr": "따뜻한 봄이 기다려져요.",
+    "sentenceEn": "I'm looking forward to warm spring.",
     "cultureNote": "한국의 겨울은 매섭지만, 2월 말이 되면 봄을 기대하는 이야기가 많아집니다.",
     "cultureNoteEn": "Korean winters are harsh, but by late February, people start talking about the arrival of spring.",
     "situation": "상황: 날씨 대화",
     "situationEn": "Situation: Weather Talk",
     "tag": "#계절 #봄",
     "tagEn": "#Season #Spring",
-    "romanized": "ije got bomi ogetneyo."
+    "romanized": "ttatteuthan bomi gidaryeojyeoyo."
   },
   {
     "id": 301,
@@ -87,29 +87,29 @@
     "id": 401,
     "month": 4,
     "level": "A1",
-    "sentenceKr": "벚꽃이 정말 예쁘네요!",
-    "sentenceEn": "The cherry blossoms are so beautiful!",
+    "sentenceKr": "벚꽃길을 같이 걸어요.",
+    "sentenceEn": "Let's walk along the cherry blossom path together.",
     "cultureNote": "4월이면 한국 곳곳에서 벚꽃 축제가 열립니다. 여의도, 경주, 진해가 유명한 명소입니다.",
     "cultureNoteEn": "Cherry blossom festivals are held across Korea in April. Yeouido, Gyeongju, and Jinhae are famous spots.",
     "situation": "상황: 봄 나들이",
     "situationEn": "Situation: Spring Outing",
     "tag": "#벚꽃 #봄나들이",
     "tagEn": "#CherryBlossom #SpringOuting",
-    "romanized": "beotkkochi jeongmal yeppeuneyo!"
+    "romanized": "beotkkotgireul gachi georeoyo."
   },
   {
     "id": 402,
     "month": 4,
     "level": "A2",
-    "sentenceKr": "주말에 꽃놀이 하러 갈까요?",
-    "sentenceEn": "Shall we go flower-viewing this weekend?",
-    "cultureNote": "꽃놀이(kkotnori)는 봄꽃 구경을 나가는 한국의 전통 봄 문화입니다.",
-    "cultureNoteEn": "\"Kkotnori\" (flower play/viewing) is a traditional Korean spring custom of going out to enjoy blossoms.",
+    "sentenceKr": "이번 주말에 봄꽃 보러 갈까요?",
+    "sentenceEn": "Shall we go see spring flowers this weekend?",
+    "cultureNote": "봄꽃 구경은 봄에 꽃이 핀 곳을 찾아가 산책하며 즐기는 한국의 봄 문화입니다.",
+    "cultureNoteEn": "Spring flower viewing is a Korean spring custom of visiting places in bloom and enjoying a walk.",
     "situation": "상황: 봄 나들이 제안",
     "situationEn": "Situation: Proposing a Spring Outing",
     "tag": "#꽃놀이 #주말",
     "tagEn": "#FlowerViewing #Weekend",
-    "romanized": "jumare kkotnori hareo galkkayo?"
+    "romanized": "ibeon jumare bomkkot boreo galkkayo?"
   },
   {
     "id": 501,
@@ -241,15 +241,15 @@
     "id": 902,
     "month": 9,
     "level": "A2",
-    "sentenceKr": "오늘따라 하늘이 정말 높아 보여요.",
-    "sentenceEn": "The sky looks especially high today.",
-    "cultureNote": "\"하늘이 높다\"는 가을 하늘의 맑고 높음을 표현하는 한국 특유의 표현입니다.",
-    "cultureNoteEn": "\"The sky is high\" is a uniquely Korean expression describing the clear, lofty autumn sky — a beloved seasonal phrase.",
+    "sentenceKr": "가을 하늘이 참 맑아요.",
+    "sentenceEn": "The autumn sky is very clear.",
+    "cultureNote": "가을에는 공기가 맑아 하늘이 더 푸르게 보인다고 이야기합니다.",
+    "cultureNoteEn": "In autumn, people often say the clear air makes the sky look even bluer.",
     "situation": "상황: 가을 날씨",
     "situationEn": "Situation: Autumn Weather",
     "tag": "#가을 #하늘",
     "tagEn": "#Autumn #Sky",
-    "romanized": "oneulttara haneuri jeongmal nopa boyeoyo."
+    "romanized": "gaeul haneuri cham malgayo."
   },
   {
     "id": 1001,
