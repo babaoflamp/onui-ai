@@ -2,7 +2,7 @@
   {
     "id": "beat_001",
     "title": "섞일수록 빛나 (비빔밥)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/섞일수록 빛나 (비빔밥).mp3",
     "image_url": "/static/images/beats/beat_001.jpg",
     "description": "월드팝",
@@ -87,7 +87,7 @@
   {
     "id": "beat_002",
     "title": "바람에 스며든 색 (한복)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/바람에 스며든 색 (한복).mp3",
     "image_url": "/static/images/beats/beat_002.jpg",
     "description": "전통 발라드",
@@ -172,7 +172,7 @@
   {
     "id": "beat_003",
     "title": "바람이 머무는 곳 (제주)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/바람이 머무는 곳 (제주).mp3",
     "image_url": "/static/images/beats/beat_003.jpg",
     "description": "어쿠스틱",
@@ -257,7 +257,7 @@
   {
     "id": "beat_004",
     "title": "오늘은 우리 집 (설날)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/오늘은 우리 집 (설날).mp3",
     "image_url": "/static/images/beats/beat_004.jpg",
     "description": "따뜻한 발라드",
@@ -342,7 +342,7 @@
   {
     "id": "beat_005",
     "title": "한 잔 더 할래? (막걸리)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/한 잔 더 할래_ (막걸리).mp3",
     "image_url": "/static/images/beats/beat_005.jpg",
     "description": "트로트 팝 (트로트 + K-pop 믹스)",
@@ -427,7 +427,7 @@
   {
     "id": "beat_006",
     "title": "빛나는 이 도시 (남산)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/빛나는 이 도시 (남산).mp3",
     "image_url": "/static/images/beats/beat_006.jpg",
     "description": "감성 팝",
@@ -512,7 +512,7 @@
   {
     "id": "beat_007",
     "title": "끝까지 서 있을게 (이순신)",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/끝까지 서 있을게 (이순신).mp3",
     "image_url": "/static/images/beats/beat_007.jpg",
     "description": "영화음악 / 웅장",
@@ -597,7 +597,7 @@
   {
     "id": "beat_008",
     "title": "꽃이 피는 순간",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/꽃이 피는 순간.mp3",
     "image_url": "/static/images/beats/beat_008.jpg",
     "description": "밝은 어쿠스틱 팝",
@@ -687,7 +687,7 @@
   {
     "id": "beat_009",
     "title": "파도가 닿는 곳",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/파도가 닿는 곳.mp3",
     "image_url": "/static/images/beats/beat_009.jpg",
     "description": "청량 K-pop / 댄스",
@@ -777,7 +777,7 @@
   {
     "id": "beat_010",
     "title": "붉게 물든 길",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/붉게 물든 길.mp3",
     "image_url": "/static/images/beats/beat_010.jpg",
     "description": "스타일: 감성 팝 / 트래블송",
@@ -867,7 +867,7 @@
   {
     "id": "beat_011",
     "title": "눈 내리는 밤",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/눈 내리는 밤.mp3",
     "image_url": "/static/images/beats/beat_011.jpg",
     "description": "K-pop 캐롤",
@@ -957,7 +957,7 @@
   {
     "id": "beat_012",
     "title": "안녕, 나야",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/안녕, 나야.mp3",
     "image_url": "/static/images/beats/beat_012.jpg",
     "description": "밝은 K-pop / 입문용",
@@ -1042,7 +1042,7 @@
   {
     "id": "beat_013",
     "title": "바쁜데 귀여워",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/바쁜데 귀여워.mp3",
     "image_url": "/static/images/beats/beat_013.jpg",
     "description": "경쾌한 팝 / 리듬감",
@@ -1127,7 +1127,7 @@
   {
     "id": "beat_014",
     "title": "괜찮아, 너라서",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/괜찮아, 너라서.mp3",
     "image_url": "/static/images/beats/beat_014.jpg",
     "description": "감동 팝 / 응원곡",
@@ -1207,7 +1207,7 @@
   {
     "id": "beat_015",
     "title": "또 왜 그래?",
-    "artist": "Onui AI",
+    "artist": "OAI",
     "audio_url": "/static/audio/beats/또 왜 그래_.mp3",
     "image_url": "/static/images/beats/beat_015.jpg",
     "description": "어쿠스틱 팝 / AKMU 느낌",

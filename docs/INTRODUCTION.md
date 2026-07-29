@@ -1,4 +1,4 @@
-# 오누이 한국어 (ONUI AI Speech Intelligence)
+# OAI 한국어 (OAI Speech Intelligence)
 ### AI 기반 한국어 학습 플랫폼 소개
 
 > **"Learn Korean Like Me"** — 발음 AI부터 역할극, K-Pop까지. 한 곳에서 완성하는 한국어 학습.

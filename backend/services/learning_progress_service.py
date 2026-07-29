@@ -709,7 +709,7 @@ class LearningProgressService:
 
         # 5. 첫 학습 (오빠: 환영)
         if stats.get('total_practices', 0) == 1:
-            message = "오누이 한국어에 오신 걸 환영해요! 오늘부터 함께 한국어 발음을 연습해볼까요? 천천히 하나씩 해나가면 돼요 😊"
+            message = "OAI 한국어에 오신 걸 환영해요! 오늘부터 함께 한국어 발음을 연습해볼까요? 천천히 하나씩 해나가면 돼요 😊"
             triggers.append(('greeting', 'oppa', message, '첫 학습'))
 
         # 6. 학습 재개 (호랑이: 경고)

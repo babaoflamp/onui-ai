@@ -264,7 +264,7 @@ def create_app() -> FastAPI:
     logger = setup_logging()
     
     # 2. Initialize FastAPI app
-    app = FastAPI(title="Onui AI Korean Learning")
+    app = FastAPI(title="OAI Korean Learning")
     
     # Setup App State
     db_path = str(settings.db_path)
