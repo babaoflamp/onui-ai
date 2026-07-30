@@ -1,5 +1,5 @@
 /**
- * i18n.js - Onui Internationalization Helper
+ * i18n.js - OAI Internationalization Helper
  *
  * Hybrid strategy:
  * - STATIC_LOCALES: load curated data/locales/{lang}.json (data-i18n)

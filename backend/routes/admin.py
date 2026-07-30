@@ -584,7 +584,7 @@ async def admin_access_summary(
         "/roleplay": "AI 롤플레이",
         "/voice-call": "AI 음성통화",
         "/onui-grammar": "AI 문법코치",
-        "/onui-beats": "오누이 비츠",
+        "/onui-beats": "OAI Beats",
         "/daily-expression": "오늘의 표현",
         "/sentence-evaluation": "문장 평가",
         "/learning-progress": "학습 진도",

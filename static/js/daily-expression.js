@@ -142,7 +142,7 @@
   }
 
   // ── IndexedDB TTS Cache ──────────────────────────────
-  const DB_NAME = 'OnuiTTSCacheLedaV2';
+  const DB_NAME = 'OAITTSCacheLedaV2';
   const STORE_NAME = 'audio_cache';
   const DB_VERSION = 1;
 

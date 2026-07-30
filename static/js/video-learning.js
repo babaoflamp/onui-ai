@@ -93,7 +93,7 @@
 
     // ── YouTube IFrame API ──────────────────────────────
     window.onYouTubeIframeAPIReady = () => {
-      console.log("[OnuiTube] YouTube API Ready");
+      console.log("[OAITube] YouTube API Ready");
       isYouTubeApiReady = true;
       youtubeReadyResolvers.forEach((resolve) => resolve());
       youtubeReadyResolvers = [];
@@ -134,7 +134,7 @@
         if (embedIndex !== -1 && parts[embedIndex + 1]) return parts[embedIndex + 1];
         if (url.hostname.includes('youtu.be') && parts[0]) return parts[0];
       } catch (error) {
-        console.warn('[OnuiTube] Unable to parse YouTube URL:', rawUrl, error);
+        console.warn('[OAITube] Unable to parse YouTube URL:', rawUrl, error);
       }
 
       return rawId;
@@ -150,7 +150,7 @@
       try {
         await waitForYouTubeApi();
       } catch (error) {
-        console.error('[OnuiTube] YouTube API unavailable:', error);
+        console.error('[OAITube] YouTube API unavailable:', error);
         showToast('YouTube 플레이어를 불러오지 못했습니다.', 'error');
         return false;
       }
@@ -186,7 +186,7 @@
         },
         events: {
           onReady: (event) => {
-            console.log("[OnuiTube] YT Player Ready");
+            console.log("[OAITube] YT Player Ready");
             applyPendingResume();
             startTimePolling();
           },
@@ -198,7 +198,7 @@
             }
           },
           onError: (event) => {
-            console.error("[OnuiTube] YT Player Error:", event.data);
+            console.error("[OAITube] YT Player Error:", event.data);
             showToast('영상을 불러오지 못했습니다. (Error: ' + event.data + ')', 'error');
           }
         }
@@ -372,7 +372,7 @@
           progressByVideo = data.progress;
         }
       } catch (error) {
-        console.warn('[OnuiTube] Failed to load video progress:', error);
+        console.warn('[OAITube] Failed to load video progress:', error);
       }
     }
 
@@ -404,7 +404,7 @@
             : Math.min(60000, 5000 * videoProgressFailureCount);
           videoProgressRetryAt = Date.now() + backoffMs;
           if (resp.status !== 503) {
-            console.warn(`[OnuiTube] Video progress save failed (${resp.status}); retrying in ${Math.round(backoffMs / 1000)}s.`);
+            console.warn(`[OAITube] Video progress save failed (${resp.status}); retrying in ${Math.round(backoffMs / 1000)}s.`);
           }
           return;
         }
@@ -417,7 +417,7 @@
           completed,
         };
       } catch (error) {
-        console.warn('[OnuiTube] Failed to save video progress:', error);
+        console.warn('[OAITube] Failed to save video progress:', error);
       }
     }
 
@@ -497,7 +497,7 @@
           }
         });
       } catch (err) {
-        console.warn('[OnuiTube] Failed to load vocabulary lookup:', err);
+        console.warn('[OAITube] Failed to load vocabulary lookup:', err);
       }
 
       return vocabularyLookup;
@@ -1009,7 +1009,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = 'onuitube-vocab.csv';
+      link.download = 'oaitube-vocab.csv';
       document.body.appendChild(link);
       link.click();
       link.remove();

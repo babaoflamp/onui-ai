@@ -1,4 +1,4 @@
-// Onui Grammar — chat UI with character selector and POST /api/messenger/chat.
+// OAI Grammar — chat UI with character selector and POST /api/messenger/chat.
 
 const chatBody = document.getElementById("chat-body");
 const chatForm = document.getElementById("chat-form");

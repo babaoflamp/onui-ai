@@ -77,9 +77,9 @@ async function loadSunoStyleDashboard() {
       tubeVocabFeed.innerHTML = `
         <a href="/video-learning" class="empty-state col-span-1 no-underline hover:bg-white/5 transition-colors">
           <div class="empty-state__icon" aria-hidden="true">📚</div>
-          <p class="empty-state__title">No saved OnuiTube words yet</p>
+          <p class="empty-state__title">No saved OAITube words yet</p>
           <p class="empty-state__desc">Save words from video-learning and review them here.</p>
-          <span class="empty-state__action btn btn-primary btn-sm">Go to OnuiTube</span>
+          <span class="empty-state__action btn btn-primary btn-sm">Go to OAITube</span>
         </a>
       `;
     }
@@ -163,8 +163,8 @@ function createVocabCard(item) {
       </div>
       <h3 class="text-3xl font-black text-white mb-2 leading-tight">${label}</h3>
       ${pos ? `<p class="text-xs font-black uppercase tracking-[0.25em] text-white mb-3">${pos}</p>` : ""}
-      <p class="text-base text-white leading-relaxed line-clamp-3">${meaning || "Saved from OnuiTube vocabulary."}</p>
-      <div class="mt-auto pt-6 text-sm font-bold text-white/85">Open in OnuiTube</div>
+      <p class="text-base text-white leading-relaxed line-clamp-3">${meaning || "Saved from OAITube vocabulary."}</p>
+      <div class="mt-auto pt-6 text-sm font-bold text-white/85">Open in OAITube</div>
       <div class="play-overlay" aria-hidden="true">
         <div class="w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center shadow-2xl scale-110">
           <span class="text-white text-xl">📚</span>

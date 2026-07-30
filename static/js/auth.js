@@ -1,5 +1,5 @@
 /**
- * auth.js - Onui Authentication Helper
+ * auth.js - OAI Authentication Helper
  */
 
 document.addEventListener("DOMContentLoaded", () => {
