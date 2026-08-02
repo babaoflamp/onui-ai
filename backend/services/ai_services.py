@@ -1,11 +1,15 @@
 import json
+import logging
 import requests
 from backend.config import load_settings
 from backend.services.speechpro_service import normalize_spaces
 
+logger = logging.getLogger(__name__)
+
 # Model Settings
 settings = load_settings()
 MODEL_BACKEND = settings.model_backend
+MODEL_BACKEND_FALLBACK = settings.model_backend_fallback
 OLLAMA_URL = settings.ollama_url
 OLLAMA_MODEL = settings.ollama_model
 GEMINI_API_KEY = settings.gemini_api_key
@@ -27,6 +31,80 @@ if GEMINI_API_KEY:
         gemini_client = genai.Client(api_key=GEMINI_API_KEY)
     except ImportError:
         pass
+
+
+def _get_backend_list(primary: str, fallback: str = "") -> list[str]:
+    """Return deduplicated list of backends to try (primary first, then fallback)."""
+    backends = [primary.strip().lower()]
+    if fallback and fallback.strip():
+        fb = fallback.strip().lower()
+        if fb != backends[0]:
+            backends.append(fb)
+    return backends
+
+
+async def _call_llm(
+    prompt: str,
+    primary_backend: str = "",
+    fallback_backend: str = "",
+    *,
+    gemini_model: str | None = None,
+    openai_model: str | None = None,
+    openai_temperature: float = 0.4,
+    ollama_model: str | None = None,
+    ollama_url: str | None = None,
+) -> str:
+    """Call the LLM with automatic fallback. Tries primary backend first, then fallback on failure."""
+    backends = _get_backend_list(
+        primary_backend or MODEL_BACKEND,
+        fallback_backend or MODEL_BACKEND_FALLBACK,
+    )
+    g_model = gemini_model or GEMINI_MODEL
+    o_model = openai_model or OPENAI_MODEL
+    o_url = ollama_url or OLLAMA_URL
+    l_model = ollama_model or OLLAMA_MODEL
+
+    last_error = None
+    for backend in backends:
+        try:
+            if backend == "gemini":
+                if not gemini_client:
+                    raise RuntimeError("Gemini client not initialized")
+                resp = gemini_client.models.generate_content(model=g_model, contents=prompt)
+                out = (getattr(resp, "text", None) or "").strip()
+                if out:
+                    return out
+            elif backend == "openai":
+                if not client:
+                    raise RuntimeError("OpenAI client not initialized")
+                resp = client.chat.completions.create(
+                    model=o_model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=openai_temperature,
+                )
+                out = (resp.choices[0].message.content or "").strip()
+                if out:
+                    return out
+            elif backend == "ollama":
+                payload = {
+                    "model": l_model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"temperature": openai_temperature},
+                }
+                resp = requests.post(f"{o_url.rstrip('/')}/api/generate", json=payload, timeout=60)
+                resp.raise_for_status()
+                out = (resp.json().get("response") or "").strip()
+                if out:
+                    return out
+            else:
+                raise RuntimeError(f"Unsupported model backend: {backend}")
+        except Exception as e:
+            logger.warning(f"[LLM] {backend} failed: {e}")
+            last_error = e
+            continue  # try next backend
+
+    raise RuntimeError(f"All backends failed ({backends}). Last error: {last_error}")
 
 
 async def generate_pronunciation_feedback(text: str, score_result, ui_lang: str = "en") -> str:
@@ -65,41 +143,7 @@ Detailed result (JSON):
 {detail_json}
 """.strip()
 
-    backend = (MODEL_BACKEND or "").strip().lower()
-
-    if backend == "gemini":
-        if not gemini_client:
-            raise RuntimeError("Gemini client not initialized")
-        resp = gemini_client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-        )
-        out = (getattr(resp, "text", None) or "").strip()
-    elif backend == "openai":
-        if not client:
-            raise RuntimeError("OpenAI client not initialized")
-        resp = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.4,
-        )
-        out = (resp.choices[0].message.content or "").strip()
-    elif backend == "ollama":
-        payload = {
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.4},
-        }
-        resp = requests.post(
-            f"{OLLAMA_URL.rstrip('/')}/api/generate",
-            json=payload,
-            timeout=60,
-        )
-        resp.raise_for_status()
-        out = (resp.json().get("response") or "").strip()
-    else:
-        raise RuntimeError(f"Unsupported model backend: {MODEL_BACKEND}")
+    out = await _call_llm(prompt, openai_temperature=0.4)
 
     if not out:
         raise RuntimeError("AI feedback response was empty")

@@ -20,7 +20,7 @@
                 Premium Companion
             </div>
             <h1 class="text-2xl md:text-3xl font-black text-white mb-2 tracking-tighter leading-tight">
-                AI <span class="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent italic pb-2 pr-2">Roleplay</span>
+                AI <span class="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent italic pb-2 pr-2"><span data-i18n="rp.title_sub">Roleplay</span></span>
             </h1>
             <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="rp.desc">
                 Practice real-life conversations with AI 'OAI' in various scenarios like cafes, airports, and hospitals!
@@ -63,8 +63,8 @@
                     <svg class="w-5 h-5 text-white/50 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
                 <div>
-                    <h2 id="current-scenario-title" class="text-xl font-black text-white tracking-tight">Scenario Title</h2>
-                    <p id="current-scenario-level" class="text-orange-500 text-[10px] font-black uppercase tracking-widest">Level: A1-A2</p>
+                    <h2 id="current-scenario-title" class="text-xl font-black text-white tracking-tight"><span data-i18n="rp.scenario_title">Scenario Title</span></h2>
+                    <p id="current-scenario-level" class="text-orange-500 text-[10px] font-black uppercase tracking-widest"><span data-i18n="rp.level_label">Level</span>: A1-A2</p>
                 </div>
             </div>
             <button id="finish-btn" onclick="finishRoleplay()" class="px-6 py-3 bg-white/5 text-white/80 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all border border-white/10" data-i18n="rp.finish_btn">
@@ -83,7 +83,7 @@
                 {% include "components/ai-avatar.html" %}
             </div>
             <div class="flex-1">
-                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Objectives</h3>
+                <h3 class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4"><span data-i18n="rp.objectives">Objectives</span></h3>
                 <div class="flex flex-wrap gap-3" id="scenario-goals">
                     <!-- Goals will be listed here -->
                 </div>

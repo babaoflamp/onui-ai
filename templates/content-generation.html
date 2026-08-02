@@ -61,7 +61,7 @@
         <option value="고급" data-i18n="cg.level_advanced">🔴 고급</option>
       </select>
       <button id="gen-btn" class="gen-btn" onclick="toggleGeneration()">
-        <span id="gen-icon">🪄</span><span id="gen-label">생성</span>
+        <span id="gen-icon">🪄</span><span id="gen-label" data-i18n="cg.btn_generate">Generate</span>
       </button>
     </div>
 
@@ -96,7 +96,7 @@
       <span class="text-white/50" id="credit-remaining">—</span>
       <span class="text-white/20">/</span>
       <span class="text-white/20" id="credit-total">—</span>
-      <span class="text-white/20">daily credits</span>
+      <span class="text-white/20"><span data-i18n="sidebar.credits">daily credits</span></span>
       <div class="ml-auto flex-shrink-0 w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
         <div id="credit-bar-fill" class="h-full bg-orange-500 rounded-full transition-all duration-500" style="width:100%"></div>
       </div>
@@ -120,16 +120,16 @@
           <div class="ac-icon" style="background:rgba(249,115,22,0.15);color:#fb923c;">🖼️</div>
           <div class="ac-info">
             <span class="ac-title" data-i18n="cg.btn_image">이미지 생성</span>
-            <span class="ac-cost cost-req">-10⚡ 크레딧</span>
+            <span class="ac-cost cost-req" data-i18n="cg.credit_image_cost">-10⚡ credits</span>
           </div>
         </button>
         <div class="ac-options">
           <select id="image-style" class="image-style-select-inline">
-            <option value="photorealistic" selected>📸 실사 사진풍</option>
-            <option value="illustration">🎨 일러스트 화풍</option>
-            <option value="anime">🎎 애니메이션 화풍</option>
-            <option value="sketch">✏️ 연필 스케치풍</option>
-            <option value="3d-render">🧊 3D 렌더링풍</option>
+            <option value="photorealistic" selected><span data-i18n="cg.style_realistic">📸 Realistic Photo</span></option>
+            <option value="illustration"><span data-i18n="cg.style_illustration">🎨 Illustration</span></option>
+            <option value="anime"><span data-i18n="cg.style_animation">🎎 Animation Style</span></option>
+            <option value="sketch"><span data-i18n="cg.style_sketch">✏️ Pencil Sketch</span></option>
+            <option value="3d-render"><span data-i18n="cg.style_3d">🧊 3D Render</span></option>
           </select>
         </div>
       </div>
@@ -140,7 +140,7 @@
           <div class="ac-icon" style="background:rgba(168,85,247,0.15);color:#c084fc;">🧩</div>
           <div class="ac-info">
             <span class="ac-title" data-i18n="cg.btn_quiz">AI 퀴즈 풀기</span>
-            <span class="ac-cost cost-req">-2⚡ 크레딧</span>
+            <span class="ac-cost cost-req" data-i18n="cg.credit_quiz_cost">-2⚡ credits</span>
           </div>
         </button>
       </div>

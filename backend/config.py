@@ -33,6 +33,7 @@ class Settings:
     ))
 
     model_backend: str = field(default_factory=lambda: os.getenv("MODEL_BACKEND", "gemini"))
+    model_backend_fallback: str = field(default_factory=lambda: os.getenv("MODEL_BACKEND_FALLBACK", ""))
     ollama_url: str = field(default_factory=lambda: os.getenv("OLLAMA_URL", "http://localhost:11434"))
     ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "exaone"))
     gemini_api_key: str | None = field(default_factory=lambda: os.getenv("GEMINI_API_KEY"))

@@ -37,77 +37,101 @@ def load_scenarios():
     return _scenarios_cache
 
 async def _llm_chat(request: Request, messages: list, system_prompt: str, temperature: float = 0.7) -> str:
-    """멀티턴 대화 LLM 호출 — 백엔드 분기를 한 곳에서 처리."""
-    backend = os.getenv("MODEL_BACKEND", "ollama")
+    """멀티턴 대화 LLM 호출 — 백엔드 분기 + 폴백을 한 곳에서 처리."""
+    primary = request.app.state.model_backend
+    fallback = getattr(request.app.state, "model_backend_fallback", "")
+    backends = [primary] if primary else ["ollama"]
+    if fallback and fallback != primary:
+        backends.append(fallback)
 
-    if backend == "gemini":
-        from google.genai import types as genai_types
-        contents = [
-            genai_types.Content(
-                role="user" if m["role"] == "user" else "model",
-                parts=[genai_types.Part(text=m["content"])]
-            )
-            for m in messages
-        ]
-        config = genai_types.GenerateContentConfig(system_instruction=system_prompt, temperature=temperature)
-        resp = request.app.state.gemini_client.models.generate_content(
-            model=request.app.state.gemini_model, contents=contents, config=config
-        )
-        return resp.text or ""
-
-    if backend == "openai":
-        resp = request.app.state.openai_client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            messages=[{"role": "system", "content": system_prompt}] + messages,
-            temperature=temperature,
-        )
-        return resp.choices[0].message.content or ""
-
-    # ollama
-    prompt = system_prompt + "\n\n대화 기록:\n" + "\n".join(
-        f"{m['role']}: {m['content']}" for m in messages
-    )
-    resp = await asyncio.to_thread(
-        requests.post,
-        f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
-        json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b"), "prompt": prompt,
-              "stream": False, "options": {"temperature": temperature}},
-        timeout=60,
-    )
-    if resp.status_code != 200:
-        raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
-    return resp.json().get("response", "")
+    for backend in backends:
+        try:
+            if backend == "gemini":
+                from google.genai import types as genai_types
+                contents = [
+                    genai_types.Content(
+                        role="user" if m["role"] == "user" else "model",
+                        parts=[genai_types.Part(text=m["content"])]
+                    )
+                    for m in messages
+                ]
+                config = genai_types.GenerateContentConfig(system_instruction=system_prompt, temperature=temperature)
+                resp = request.app.state.gemini_client.models.generate_content(
+                    model=request.app.state.gemini_model, contents=contents, config=config
+                )
+                out = resp.text or ""
+                if out: return out
+            elif backend == "openai":
+                resp = request.app.state.openai_client.chat.completions.create(
+                    model=request.app.state.openai_model,
+                    messages=[{"role": "system", "content": system_prompt}] + messages,
+                    temperature=temperature,
+                )
+                out = resp.choices[0].message.content or ""
+                if out: return out
+            elif backend == "ollama":
+                prompt = system_prompt + "\n\n대화 기록:\n" + "\n".join(
+                    f"{m['role']}: {m['content']}" for m in messages
+                )
+                resp = await asyncio.to_thread(
+                    requests.post,
+                    f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
+                    json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:7.8b"), "prompt": prompt,
+                          "stream": False, "options": {"temperature": temperature}},
+                    timeout=60,
+                )
+                if resp.status_code != 200:
+                    raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
+                out = resp.json().get("response", "")
+                if out: return out
+        except Exception:
+            if backend == backends[-1]:
+                raise
+            continue  # try fallback
+    raise RuntimeError("All LLM backends failed")
 
 
 async def _llm_complete(request: Request, prompt: str, temperature: float = 0.7) -> str:
-    """단일 프롬프트 LLM 호출 — 평가 등 단일턴 용도."""
-    backend = os.getenv("MODEL_BACKEND", "ollama")
+    """단일 프롬프트 LLM 호출 — 평가 등 단일턴 용도 + 폴백."""
+    primary = request.app.state.model_backend
+    fallback = getattr(request.app.state, "model_backend_fallback", "")
+    backends = [primary] if primary else ["ollama"]
+    if fallback and fallback != primary:
+        backends.append(fallback)
 
-    if backend == "gemini":
-        resp = request.app.state.gemini_client.models.generate_content(
-            model=request.app.state.gemini_model, contents=prompt
-        )
-        return resp.text or ""
-
-    if backend == "openai":
-        resp = request.app.state.openai_client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperature,
-        )
-        return resp.choices[0].message.content or ""
-
-    # ollama
-    resp = await asyncio.to_thread(
-        requests.post,
-        f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
-        json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b"), "prompt": prompt,
-              "stream": False, "options": {"temperature": temperature}},
-        timeout=60,
-    )
-    if resp.status_code != 200:
-        raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
-    return resp.json().get("response", "")
+    for backend in backends:
+        try:
+            if backend == "gemini":
+                resp = request.app.state.gemini_client.models.generate_content(
+                    model=request.app.state.gemini_model, contents=prompt
+                )
+                out = resp.text or ""
+                if out: return out
+            elif backend == "openai":
+                resp = request.app.state.openai_client.chat.completions.create(
+                    model=request.app.state.openai_model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=temperature,
+                )
+                out = resp.choices[0].message.content or ""
+                if out: return out
+            elif backend == "ollama":
+                resp = await asyncio.to_thread(
+                    requests.post,
+                    f"{os.getenv('OLLAMA_URL', 'http://localhost:11434')}/api/generate",
+                    json={"model": os.getenv("OLLAMA_MODEL", "exaone3.5:2.4b"), "prompt": prompt,
+                          "stream": False, "options": {"temperature": temperature}},
+                    timeout=60,
+                )
+                if resp.status_code != 200:
+                    raise RuntimeError(f"Ollama 응답 오류 {resp.status_code}: {resp.text}")
+                out = resp.json().get("response", "")
+                if out: return out
+        except Exception:
+            if backend == backends[-1]:
+                raise
+            continue  # try fallback
+    raise RuntimeError("All LLM backends failed")
 
 
 def _parse_chat_response(raw: str) -> tuple[str, list]:

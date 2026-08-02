@@ -32,6 +32,18 @@ from backend.routes.deps import (
     transcribe_with_vosk,
     parse_session_token,
 )
+
+
+def _get_backends(request: Request, override: str = "") -> list[str]:
+    """Return ordered list of backends to try (primary → fallback)."""
+    primary = override or request.app.state.model_backend
+    fallback = getattr(request.app.state, "model_backend_fallback", "")
+    backends = [primary] if primary else ["gemini"]
+    if fallback and fallback != backends[0]:
+        backends.append(fallback)
+    return backends
+
+
 from backend.services.dalle_service import (
     generate_image_dall_e,
     generate_image_gemini,
@@ -543,36 +555,44 @@ async def generate_content(
     중요: 응답은 반드시 마지막에 하나의 JSON 객체만 포함된 코드 블럭(```json ... ```)으로 반환하세요.
     """
 
-    selected_backend = backend or model_backend
     out = ""
     parsed = None
+    used_backend = ""
 
-    if selected_backend == "gemini":
-        gemini_client = request.app.state.gemini_client
-        gemini_model = model or request.app.state.gemini_model
-        if not gemini_client:
-            return JSONResponse(status_code=500, content={"error": "Gemini client not initialized"})
-        gen_resp = gemini_client.models.generate_content(model=gemini_model, contents=prompt)
-        out = gen_resp.text
-    elif selected_backend == "ollama":
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-        use_model = model or request.app.state.ollama_model
-        resp = requests.post(f"{ollama_url}/api/generate", json={"model": use_model, "prompt": prompt}, stream=True, timeout=30)
-        for line in resp.iter_lines(decode_unicode=True):
-            if line:
-                try:
-                    obj = json.loads(line)
-                    out += obj.get("response", "")
-                except: out += line
-    elif selected_backend == "openai":
-        openai_client = request.app.state.openai_client
-        use_model = model or request.app.state.openai_model
-        if not openai_client:
-            return JSONResponse(status_code=500, content={"error": "OpenAI client not initialized"})
-        response = openai_client.chat.completions.create(model=use_model, messages=[{"role": "user", "content": prompt}], temperature=0.7)
-        out = response.choices[0].message.content.strip()
-    else:
-        return JSONResponse(status_code=501, content={"error": "Unknown backend"})
+    for b in _get_backends(request, override=backend):
+        try:
+            if b == "gemini":
+                gemini_client = request.app.state.gemini_client
+                gemini_model_v = model or request.app.state.gemini_model
+                if not gemini_client:
+                    continue
+                gen_resp = gemini_client.models.generate_content(model=gemini_model_v, contents=prompt)
+                out = gen_resp.text
+            elif b == "ollama":
+                ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                use_model = model or request.app.state.ollama_model
+                resp = requests.post(f"{ollama_url}/api/generate", json={"model": use_model, "prompt": prompt}, stream=True, timeout=30)
+                for line in resp.iter_lines(decode_unicode=True):
+                    if line:
+                        try:
+                            obj = json.loads(line)
+                            out += obj.get("response", "")
+                        except: out += line
+            elif b == "openai":
+                openai_client = request.app.state.openai_client
+                use_model = model or request.app.state.openai_model
+                if not openai_client:
+                    continue
+                response = openai_client.chat.completions.create(model=use_model, messages=[{"role": "user", "content": prompt}], temperature=0.7)
+                out = response.choices[0].message.content.strip()
+            if out:
+                used_backend = b
+                break
+        except Exception:
+            continue  # try fallback
+
+    if not out:
+        return JSONResponse(status_code=501, content={"error": "All backends failed"})
 
     parsed = parse_model_output(out)
     if parsed:
@@ -590,10 +610,10 @@ async def generate_content(
                         pron = romanize_korean(item_text)
                     item["pronunciation"] = re.sub(r"\s+", " ", str(pron)).strip()
         except: pass
-        _log_ai_content(request, user_id, "dialogue", selected_backend, prompt, json.dumps(parsed, ensure_ascii=False))
+        _log_ai_content(request, user_id, "dialogue", used_backend, prompt, json.dumps(parsed, ensure_ascii=False))
         return JSONResponse(content=parsed)
 
-    _log_ai_content(request, user_id, "dialogue", selected_backend, prompt, out)
+    _log_ai_content(request, user_id, "dialogue", used_backend, prompt, out)
     return JSONResponse(content={"text": out})
 
 @router.post("/api/gemini/image")
@@ -669,36 +689,45 @@ async def chat_test(request: Request, user: dict = Depends(get_current_user)):
     prompt = data.get("prompt", "").strip()
     history = data.get("history", [])
     system_context = data.get("system_context", "")
-    selected_backend = data.get("backend") or request.app.state.model_backend
+    selected_backend = data.get("backend")  # per-request override, may be None
 
     system_prompt = "당신은 한국어 학습 코치입니다." + (f"\n\n현재 학습 중인 교재 내용:\n{system_context}" if system_context else "")
 
-    if selected_backend == "gemini":
-        gemini_client = request.app.state.gemini_client
-        contents = [{"role": "user", "parts": [{"text": system_prompt}]}, {"role": "model", "parts": [{"text": "알겠습니다!"}]}]
-        for h in history[-10:]:
-            contents.append({"role": "user" if h["role"] == "user" else "model", "parts": [{"text": h["content"]}]})
-        contents.append({"role": "user", "parts": [{"text": prompt}]})
-        resp = gemini_client.models.generate_content(model=request.app.state.gemini_model, contents=contents)
-        return JSONResponse(content={"model": request.app.state.gemini_model, "text": resp.text})
-    elif selected_backend == "openai":
-        client = request.app.state.openai_client
-        messages = [{"role": "system", "content": system_prompt}]
-        for h in history[-10:]:
-            messages.append({"role": h["role"], "content": h["content"]})
-        messages.append({"role": "user", "content": prompt})
-        completion = client.chat.completions.create(model=request.app.state.openai_model, messages=messages)
-        return JSONResponse(content={"model": request.app.state.openai_model, "text": completion.choices[0].message.content})
-    elif selected_backend == "ollama":
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-        use_model = request.app.state.ollama_model
-        resp = requests.post(f"{ollama_url}/api/generate", json={"model": use_model, "prompt": prompt}, stream=True, timeout=30)
-        out = ""
-        for line in resp.iter_lines(decode_unicode=True):
-            if line:
-                try: out += json.loads(line).get("response", "")
-                except: out += line
-        return JSONResponse(content={"model": use_model, "text": out})
+    for b in _get_backends(request, override=selected_backend):
+        try:
+            if b == "gemini":
+                gemini_client = request.app.state.gemini_client
+                contents = [{"role": "user", "parts": [{"text": system_prompt}]}, {"role": "model", "parts": [{"text": "알겠습니다!"}]}]
+                for h in history[-10:]:
+                    contents.append({"role": "user" if h["role"] == "user" else "model", "parts": [{"text": h["content"]}]})
+                contents.append({"role": "user", "parts": [{"text": prompt}]})
+                resp = gemini_client.models.generate_content(model=request.app.state.gemini_model, contents=contents)
+                text = resp.text
+                if text:
+                    return JSONResponse(content={"model": request.app.state.gemini_model, "text": text})
+            elif b == "openai":
+                client = request.app.state.openai_client
+                messages = [{"role": "system", "content": system_prompt}]
+                for h in history[-10:]:
+                    messages.append({"role": h["role"], "content": h["content"]})
+                messages.append({"role": "user", "content": prompt})
+                completion = client.chat.completions.create(model=request.app.state.openai_model, messages=messages)
+                text = completion.choices[0].message.content
+                if text:
+                    return JSONResponse(content={"model": request.app.state.openai_model, "text": text})
+            elif b == "ollama":
+                ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                use_model = request.app.state.ollama_model
+                resp = requests.post(f"{ollama_url}/api/generate", json={"model": use_model, "prompt": prompt}, stream=True, timeout=30)
+                out = ""
+                for line in resp.iter_lines(decode_unicode=True):
+                    if line:
+                        try: out += json.loads(line).get("response", "")
+                        except: out += line
+                if out:
+                    return JSONResponse(content={"model": use_model, "text": out})
+        except Exception:
+            continue  # try fallback
     return JSONResponse(status_code=501, content={"error": "Backend not supported"})
 
 @router.post("/api/fluency-check")
@@ -706,22 +735,28 @@ async def fluency_check(request: Request, user_text: str = Form(...), user_obj: 
     user_id = str(user_obj["id"])
     prompt = f'사용자가 쓴 한국어 문장입니다: "{user_text}". 이 문장의 자연스러움을 100점 만점으로 평가하고 교정된 문장과 피드백을 JSON으로 주세요: {{"score": 85, "corrected": "...", "feedback": "..."}}'
     
-    backend = request.app.state.model_backend
     out = ""
-    if backend == "ollama":
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-        resp = requests.post(f"{ollama_url}/api/generate", json={"model": request.app.state.ollama_model, "prompt": prompt}, stream=True, timeout=30)
-        for line in resp.iter_lines(decode_unicode=True):
-            if line:
-                try: out += json.loads(line).get("response", "")
-                except: out += line
-    elif backend == "gemini":
-        resp = request.app.state.gemini_client.models.generate_content(model=request.app.state.gemini_model, contents=prompt)
-        out = resp.text
-    elif backend == "openai":
-        resp = request.app.state.openai_client.chat.completions.create(model=request.app.state.openai_model, messages=[{"role": "user", "content": prompt}])
-        out = resp.choices[0].message.content
-    
+    for backend in _get_backends(request):
+        try:
+            if backend == "ollama":
+                ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                resp = requests.post(f"{ollama_url}/api/generate", json={"model": request.app.state.ollama_model, "prompt": prompt}, stream=True, timeout=30)
+                for line in resp.iter_lines(decode_unicode=True):
+                    if line:
+                        try: out += json.loads(line).get("response", "")
+                        except: out += line
+            elif backend == "gemini":
+                resp = request.app.state.gemini_client.models.generate_content(model=request.app.state.gemini_model, contents=prompt)
+                out = resp.text
+            elif backend == "openai":
+                resp = request.app.state.openai_client.chat.completions.create(model=request.app.state.openai_model, messages=[{"role": "user", "content": prompt}])
+                out = resp.choices[0].message.content
+            if out: break
+        except Exception:
+            if backend == _get_backends(request)[-1]:
+                raise
+            continue
+
     parsed = parse_model_output(out)
     try: request.app.state.learning_service.update_fluency_test(user_id)
     except: pass
@@ -731,20 +766,30 @@ async def fluency_check(request: Request, user_text: str = Form(...), user_obj: 
 async def situational_content(request: Request, situation: str = Form(...), level: str = Form(...), model: str = Form(None), backend: str = Form(None), user: dict = Depends(get_current_user)):
     user_id = user["id"]
     prompt = f"상황: {situation}, 난이도: {level}. 한국어 학습용 컨텐츠(설명, 표현, 대화, 단어)를 JSON으로 생성하세요."
-    selected_backend = backend or request.app.state.model_backend
-    
+    selected_backend = backend  # per-request override, may be None
     out = ""
-    if selected_backend == "gemini":
-        gemini_model = model or request.app.state.gemini_model
-        resp = request.app.state.gemini_client.models.generate_content(model=gemini_model, contents=prompt)
-        out = resp.text
-    elif selected_backend == "ollama":
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-        resp = requests.post(f"{ollama_url}/api/generate", json={"model": model or request.app.state.ollama_model, "prompt": prompt}, stream=True)
-        for line in resp.iter_lines(decode_unicode=True):
-            if line:
-                try: out += json.loads(line).get("response", "")
-                except: out += line
+    for b in _get_backends(request, override=backend):
+        try:
+            if b == "gemini":
+                gemini_model = model or request.app.state.gemini_model
+                resp = request.app.state.gemini_client.models.generate_content(model=gemini_model, contents=prompt)
+                out = resp.text
+            elif b == "ollama":
+                ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                resp = requests.post(f"{ollama_url}/api/generate", json={"model": model or request.app.state.ollama_model, "prompt": prompt}, stream=True)
+                for line in resp.iter_lines(decode_unicode=True):
+                    if line:
+                        try: out += json.loads(line).get("response", "")
+                        except: out += line
+            elif b == "openai":
+                oai_model = model or request.app.state.openai_model
+                resp = request.app.state.openai_client.chat.completions.create(model=oai_model, messages=[{"role": "user", "content": prompt}])
+                out = resp.choices[0].message.content or ""
+            if out: break
+        except Exception:
+            if b == _get_backends(request, override=backend)[-1]:
+                raise
+            continue
     
     parsed = parse_model_output(out)
     if parsed:
@@ -872,48 +917,55 @@ async def messenger_chat_api(request: Request, user: dict = Depends(get_current_
     prompt_parts.append("JSON 객체만 출력하세요.")
     prompt = "\n\n".join(prompt_parts)
 
-    backend = request.app.state.model_backend
     response_text = ""
-    try:
-        if backend == "gemini":
-            gemini_client = request.app.state.gemini_client
-            if not gemini_client:
-                raise RuntimeError("Gemini client not initialized")
-            resp = gemini_client.models.generate_content(
-                model=request.app.state.gemini_model,
-                contents=prompt,
-            )
-            response_text = (resp.text or "").strip()
-        elif backend == "openai":
-            openai_client = request.app.state.openai_client
-            if not openai_client:
-                raise RuntimeError("OpenAI client not initialized")
-            resp = openai_client.chat.completions.create(
-                model=request.app.state.openai_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": (f"이전 대화:\n{history_text}\n\n" if history_text else "") + f"학습자 입력: {user_message}\n\nJSON 객체만 출력하세요."},
-                ],
-                temperature=0.4,
-            )
-            response_text = (resp.choices[0].message.content or "").strip()
-        elif backend == "ollama":
-            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-            resp = requests.post(
-                f"{ollama_url}/api/generate",
-                json={
-                    "model": request.app.state.ollama_model,
-                    "prompt": prompt,
-                    "stream": False,
-                },
-                timeout=30,
-            )
-            resp.raise_for_status()
-            response_text = str(resp.json().get("response", "") or "").strip()
-        else:
-            return JSONResponse(status_code=501, content={"success": False, "message": "Unknown backend"})
-    except Exception as e:
-        logger.error(f"Messenger chat generation failed: {e}", exc_info=True)
+    last_error = None
+    for backend in _get_backends(request):
+        try:
+            if backend == "gemini":
+                gemini_client = request.app.state.gemini_client
+                if not gemini_client:
+                    raise RuntimeError("Gemini client not initialized")
+                resp = gemini_client.models.generate_content(
+                    model=request.app.state.gemini_model,
+                    contents=prompt,
+                )
+                response_text = (resp.text or "").strip()
+            elif backend == "openai":
+                openai_client = request.app.state.openai_client
+                if not openai_client:
+                    raise RuntimeError("OpenAI client not initialized")
+                resp = openai_client.chat.completions.create(
+                    model=request.app.state.openai_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": (f"이전 대화:\n{history_text}\n\n" if history_text else "") + f"학습자 입력: {user_message}\n\nJSON 객체만 출력하세요."},
+                    ],
+                    temperature=0.4,
+                )
+                response_text = (resp.choices[0].message.content or "").strip()
+            elif backend == "ollama":
+                ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                resp = requests.post(
+                    f"{ollama_url}/api/generate",
+                    json={
+                        "model": request.app.state.ollama_model,
+                        "prompt": prompt,
+                        "stream": False,
+                    },
+                    timeout=30,
+                )
+                resp.raise_for_status()
+                response_text = str(resp.json().get("response", "") or "").strip()
+            else:
+                last_error = RuntimeError(f"Unknown backend: {backend}")
+                continue
+            if response_text:
+                break
+        except Exception as e:
+            last_error = e
+            continue  # try fallback
+    if not response_text:
+        logger.error(f"Messenger chat generation failed with all backends. Last error: {last_error}")
         return JSONResponse(
             status_code=502,
             content={"success": False, "message": "문법 응답 생성에 실패했습니다."},
@@ -1140,32 +1192,47 @@ async def get_combined_feedback(request: Request, user: dict = Depends(get_curre
 음성과 발음이 모두 자연스러운 경우 칭찬하고, 특정 부분이 부자연스러운 경우 구체적으로 지적해주세요.
 한국어 학습자이므로 친근하고 이해하기 쉬운 표현으로 작성하세요.
 """
-        model_backend = getattr(request.app.state, "model_backend", "gemini")
         response_text = ""
+        for backend in _get_backends(request):
+            try:
+                if backend == "gemini":
+                    gemini_client = request.app.state.gemini_client
+                    if not gemini_client:
+                        continue
+                    response = gemini_client.models.generate_content(
+                        model=request.app.state.gemini_model, contents=prompt
+                    )
+                    response_text = response.text
+                elif backend == "ollama":
+                    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                    ollama_model = request.app.state.ollama_model
+                    payload = {"model": ollama_model, "prompt": prompt}
+                    resp = requests.post(f"{ollama_url}/api/generate", json=payload, stream=True, timeout=60)
+                    for line in resp.iter_lines(decode_unicode=True):
+                        if not line: continue
+                        try:
+                            obj = json.loads(line)
+                            if isinstance(obj, dict):
+                                response_text += obj.get("response", "") or obj.get("text", "")
+                        except Exception:
+                            response_text += line
+                elif backend == "openai":
+                    openai_client = request.app.state.openai_client
+                    if not openai_client:
+                        continue
+                    resp = openai_client.chat.completions.create(
+                        model=request.app.state.openai_model,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.7,
+                    )
+                    response_text = resp.choices[0].message.content or ""
+                if response_text:
+                    break
+            except Exception:
+                continue  # try fallback
 
-        if model_backend == "gemini":
-            gemini_client = request.app.state.gemini_client
-            if not gemini_client:
-                return JSONResponse(status_code=400, content={"error": "GEMINI_API_KEY not configured"})
-            response = gemini_client.models.generate_content(
-                model=request.app.state.gemini_model, contents=prompt
-            )
-            response_text = response.text
-        elif model_backend == "ollama":
-            ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-            ollama_model = request.app.state.ollama_model
-            payload = {"model": ollama_model, "prompt": prompt}
-            resp = requests.post(f"{ollama_url}/api/generate", json=payload, stream=True, timeout=60)
-            for line in resp.iter_lines(decode_unicode=True):
-                if not line: continue
-                try:
-                    obj = json.loads(line)
-                    if isinstance(obj, dict):
-                        response_text += obj.get("response", "") or obj.get("text", "")
-                except Exception:
-                    response_text += line
-        else:
-            return JSONResponse(status_code=501, content={"error": "Backend not configured"})
+        if not response_text:
+            return JSONResponse(status_code=501, content={"error": "All backends failed"})
 
         from backend.utils import parse_model_output
         parsed_feedback = parse_model_output(response_text)

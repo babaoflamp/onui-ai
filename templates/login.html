@@ -101,8 +101,8 @@ endblock %} {% block extra_css %}
       <div class="space-y-2">
         <label
           class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1"
-          data-i18n="sig.name"
-          >Nickname</label
+          data-i18n="auth.nickname"
+          ><span data-i18n="auth.nickname">Nickname</span></label
         >
         <input
           id="nicknameInput"
@@ -118,7 +118,7 @@ endblock %} {% block extra_css %}
         <label
           class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1"
           data-i18n="log.password"
-          >Password</label
+          ><span data-i18n="log.password">Password</span></label
         >
         <input
           id="passwordInput"
@@ -181,7 +181,7 @@ endblock %} {% block extra_css %}
       }
 
       // Suno Loading Animation logic
-      loginBtn.innerHTML = '<span class="animate-pulse">SIGNING IN...</span>';
+      loginBtn.innerHTML = '<span class="animate-pulse"><span data-i18n="auth.signing_in">SIGNING IN...</span></span>';
       loginBtn.disabled = true;
 
       try {

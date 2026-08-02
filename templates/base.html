@@ -25,7 +25,7 @@
         }
       })();
     </script>
-    <title data-i18n="app.title">OAI | Speech Intelligence</title>
+    <title data-i18n="app.title">OAI | <span data-i18n="app.tagline">Speech Intelligence</span></title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
@@ -909,7 +909,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
 
       <!-- 1. Top Header -->
       <div class="sidebar-header">
-        <a href="/" class="sidebar-logo" aria-label="OAI Home">OAI<br />Speech Intelligence</a>
+        <a href="/" class="sidebar-logo" aria-label="OAI Home">OAI<br /><span data-i18n="app.tagline">Speech Intelligence</span></a>
       </div>
 
       <div class="py-1 px-4 border-b border-white/5 relative">
@@ -951,7 +951,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
               U
             </div>
             <div class="flex-1 overflow-hidden">
-              <p id="dashboardNickname" class="text-sm font-bold truncate">User</p>
+              <p id="dashboardNickname" class="text-sm font-bold truncate" data-i18n="sidebar.user">User</p>
               <p class="text-[10px] text-white/60 font-black uppercase tracking-wider group-hover:text-orange-400 transition" data-i18n="auth.options">Options ▾</p>
             </div>
           </button>
@@ -959,7 +959,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
           <!-- Credit Bar -->
           <div id="sidebar-credits" class="px-3 pb-1">
             <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[10px] font-black text-white/35 uppercase tracking-widest">⚡ Credits</span>
+              <span class="text-[10px] font-black text-white/35 uppercase tracking-widest"><span data-i18n="sidebar.credits">⚡ Credits</span></span>
               <span id="credits-label" class="text-[10px] font-black text-white/50">— / 100</span>
 
             </div>
@@ -1005,7 +1005,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
           </a>
         </div>
 
-        <!-- Speak (core value: AI Speech Intelligence) -->
+        <!-- Speak (core value: AI <span data-i18n="app.tagline">Speech Intelligence</span>) -->
         <div>
           <div class="px-5 py-1 text-[10px] font-black text-white/50 uppercase tracking-[0.2em]" data-i18n="nav.group_speak">Speak</div>
           <a href="/voice-call" class="nav-item">
@@ -1064,35 +1064,37 @@ body.sidebar-collapsed #sidebar-lang-bar {
       <!-- Sidebar Bottom: Language Selector -->
       <div class="border-t border-white/5 px-3 py-2 flex items-center gap-1" id="sidebar-lang-bar">
         <!-- Expanded: flag row (wraps on narrow sidebar) -->
-        <div class="lang-flags-row flex items-center gap-0.5 flex-1 flex-wrap">
-          <span class="text-[10px] font-black text-white/25 uppercase tracking-widest mr-0.5">Lang</span>
-          <button onclick="changeLang('ko')" id="lang-btn-ko" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="한국어">
-            <span class="fi fi-kr rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('en')" id="lang-btn-en" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="English">
-            <span class="fi fi-us rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('ja')" id="lang-btn-ja" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="日本語">
-            <span class="fi fi-jp rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('zh')" id="lang-btn-zh" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="中文">
-            <span class="fi fi-cn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('vi')" id="lang-btn-vi" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Tiếng Việt">
-            <span class="fi fi-vn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('ne')" id="lang-btn-ne" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="नेपाली">
-            <span class="fi fi-np rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('id')" id="lang-btn-id" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Bahasa Indonesia (Google)" title="Indonesia · Google Translate">
-            <span class="fi fi-id rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('mn')" id="lang-btn-mn" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Монгол (Google)" title="Mongolian · Google Translate">
-            <span class="fi fi-mn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
-          <button onclick="changeLang('lo')" id="lang-btn-lo" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="ລາວ (Google)" title="Lao · Google Translate">
-            <span class="fi fi-la rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
-          </button>
+        <div class="lang-flags-row flex-1">
+          <span class="text-[10px] font-black text-white/25 uppercase tracking-widest block mb-0.5 pl-0.5" data-i18n="nav.lang_label">Lang</span>
+          <div class="flex items-center gap-0.5 flex-wrap">
+            <button onclick="changeLang('ko')" id="lang-btn-ko" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="한국어">
+              <span class="fi fi-kr rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('en')" id="lang-btn-en" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="English">
+              <span class="fi fi-us rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('ja')" id="lang-btn-ja" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="日本語">
+              <span class="fi fi-jp rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('zh')" id="lang-btn-zh" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="中文">
+              <span class="fi fi-cn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('vi')" id="lang-btn-vi" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Tiếng Việt">
+              <span class="fi fi-vn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('ne')" id="lang-btn-ne" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="नेपाली">
+              <span class="fi fi-np rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('id')" id="lang-btn-id" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Bahasa Indonesia (Google)" title="Indonesia · Google Translate">
+              <span class="fi fi-id rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('mn')" id="lang-btn-mn" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="Монгол (Google)" title="Mongolian · Google Translate">
+              <span class="fi fi-mn rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+            <button onclick="changeLang('lo')" id="lang-btn-lo" class="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-white/10 transition-all" aria-label="ລາວ (Google)" title="Lao · Google Translate">
+              <span class="fi fi-la rounded-sm" style="font-size:1rem" aria-hidden="true"></span>
+            </button>
+          </div>
         </div>
         <!-- Collapsed: single flag dropdown -->
         <div class="lang-collapsed-btn relative">
@@ -1119,17 +1121,17 @@ body.sidebar-collapsed #sidebar-lang-bar {
     {%- if request.url.path.startswith('/admin') and request.url.path != '/admin/login' %}
     <nav id="admin-sidebar" aria-label="Admin Navigation">
       <div class="admin-sidebar-logo">
-        <a href="/admin/dashboard">🛡 OAI Admin</a>
+        <a href="/admin/dashboard"><span data-i18n="sidebar.admin">🛡 OAI Admin</span></a>
       </div>
       <div class="admin-nav-items">
         <a href="/admin/dashboard" class="nav-item{% if request.url.path == '/admin/dashboard' %} active{% endif %}">
-          <span>📊</span><span>대시보드</span>
+          <span>📊</span><span><span data-i18n="sidebar.dashboard">대시보드</span></span>
         </a>
         <a href="/admin/users" class="nav-item{% if request.url.path == '/admin/users' %} active{% endif %}">
-          <span>👥</span><span>사용자 관리</span>
+          <span>👥</span><span><span data-i18n="sidebar.user_mgmt">사용자 관리</span></span>
         </a>
         <a href="/admin/logs" class="nav-item{% if request.url.path == '/admin/logs' %} active{% endif %}">
-          <span>📋</span><span>로그 콘솔</span>
+          <span>📋</span><span><span data-i18n="sidebar.logs">로그 콘솔</span></span>
         </a>
         <a href="/admin/system" class="nav-item{% if request.url.path == '/admin/system' %} active{% endif %}">
           <span>⚙️</span><span>시스템</span>
@@ -1140,7 +1142,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
       </div>
       <div class="admin-sidebar-footer">
         <button onclick="adminLogout()" class="nav-item">
-          <span>🚪</span><span>로그아웃</span>
+          <span>🚪</span><span><span data-i18n="sidebar.logout">로그아웃</span></span>
         </button>
       </div>
     </nav>
@@ -1177,12 +1179,12 @@ body.sidebar-collapsed #sidebar-lang-bar {
         {% block footer %}
         <footer class="mt-20 pb-12 text-[11px] text-white/60 font-bold uppercase tracking-widest border-t border-white/10 pt-8 px-8 flex justify-between items-center">
           <div class="flex gap-6">
-            <span class="text-white/80">&copy; <span id="footer-year">2026</span> OAI. All rights reserved.</span>
+            <span class="text-white/80" data-i18n="footer.copyright">&copy; <span id="footer-year">2026</span> OAI. All rights reserved.</span>
           </div>
           <div class="flex gap-8 items-center">
-            <a href="/privacy" class="text-white/70 hover:text-white transition-colors underline-offset-4 hover:underline">Privacy Policy</a>
+            <a href="/privacy" class="text-white/70 hover:text-white transition-colors underline-offset-4 hover:underline"><span data-i18n="footer.privacy">Privacy Policy</span></a>
             <span class="text-white/20">|</span>
-            <a href="/privacy" class="text-white/70 hover:text-white transition-colors font-medium underline-offset-4 hover:underline">개인정보 처리방침</a>
+            <a href="/privacy" class="text-white/70 hover:text-white transition-colors font-medium underline-offset-4 hover:underline"><span data-i18n="footer.privacy">개인정보 처리방침</span></a>
           </div>
         </footer>
         {% endblock %}

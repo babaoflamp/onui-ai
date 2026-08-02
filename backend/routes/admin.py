@@ -868,6 +868,7 @@ async def admin_get_user_detail(request: Request, user_id: int, admin: dict = De
 async def admin_get_settings(request: Request, admin: dict = Depends(get_current_admin_user)):
     settings = {
         "model_backend": os.getenv("MODEL_BACKEND"),
+        "model_backend_fallback": os.getenv("MODEL_BACKEND_FALLBACK", ""),
         "ollama_url": os.getenv("OLLAMA_URL"),
         "ollama_model": os.getenv("OLLAMA_MODEL"),
         "mztts_url": os.getenv("MZTTS_API_URL"),

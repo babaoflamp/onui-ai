@@ -325,10 +325,10 @@ Intelligence{% endblock %} {% block extra_css %}
 
       <div class="w-px h-4 bg-white/10 mx-0.5"></div>
 
-      <button onclick="openAuthModal('login')" class="px-5 py-2 text-[12px] font-black text-white uppercase tracking-[0.1em] hover:bg-white/10 rounded-full transition-all duration-300" data-i18n="auth.login">
+      <button onclick="openAuthModal('login')" class="px-5 py-2 text-[12px] font-black text-white uppercase tracking-[0.1em] hover:bg-white/10 rounded-full transition-all duration-300" data-i18n="auth.sign_in">
         SIGN IN
       </button>
-      <button onclick="openAuthModal('signup')" class="px-5 py-2 text-[12px] font-black text-white uppercase tracking-[0.1em] bg-orange-500 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:scale-[1.05] hover:bg-orange-400 active:scale-95 transition-all duration-300" data-i18n="auth.signup">
+      <button onclick="openAuthModal('signup')" class="px-5 py-2 text-[12px] font-black text-white uppercase tracking-[0.1em] bg-orange-500 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:scale-[1.05] hover:bg-orange-400 active:scale-95 transition-all duration-300" data-i18n="auth.sign_up">
         SIGN UP
       </button>
     </div>
@@ -415,8 +415,8 @@ Intelligence{% endblock %} {% block extra_css %}
         
         <div class="bg-black/40 rounded-[32px] p-6 mb-6 border border-white/5">
           <p class="text-xs font-black text-white/30 uppercase tracking-[0.2em] mb-3" data-i18n="land.read_this">이 문장을 읽어주세요</p>
-          <h3 id="demo-sentence" class="text-2xl md:text-3xl font-bold text-white mb-1">안녕하세요, 반갑습니다!</h3>
-          <p class="text-sm text-white/40 italic">An-nyeong-ha-se-yo, ban-gap-seum-ni-da!</p>
+          <h3 id="demo-sentence" class="text-2xl md:text-3xl font-bold text-white mb-1" data-i18n="land.pron_guide">안녕하세요, 반갑습니다!</h3>
+          <p class="text-sm text-white/40 italic" data-i18n="land.pron_roman">An-nyeong-ha-se-yo, ban-gap-seum-ni-da!</p>
         </div>
 
         <!-- Recording UI -->
@@ -469,7 +469,7 @@ Intelligence{% endblock %} {% block extra_css %}
       </div>
 
       <div class="bg-white/5 border border-white/5 rounded-3xl p-6 mb-8 text-left">
-        <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Detailed Analysis</p>
+        <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4" data-i18n="land.detailed_analysis">Detailed Analysis</p>
         <div id="demo-details" class="flex flex-wrap gap-3 justify-center">
           <!-- Syllable cards will be injected here -->
         </div>
@@ -787,36 +787,36 @@ Intelligence{% endblock %} {% block extra_css %}
   <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="closeAuthModal()"></div>
   <div class="relative w-full max-w-md glass-main-card rounded-[40px] p-10 overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-white/10">
     <div class="flex justify-between items-center mb-8">
-      <h2 id="auth-modal-title" class="text-3xl font-black text-white tracking-tight">SIGN IN</h2>
+      <h2 id="auth-modal-title" class="text-3xl font-black text-white tracking-tight" data-i18n="auth.sign_in">SIGN IN</h2>
       <button onclick="closeAuthModal()" class="text-white/40 hover:text-white text-2xl">✕</button>
     </div>
 
     <!-- Login Form -->
     <form id="login-form" onsubmit="handleAuthSubmit(event, 'login')" class="space-y-6">
       <div>
-        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Email Address</label>
+        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="auth.email">Email Address</label>
         <input type="email" name="username" autocomplete="username" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div>
-        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Password</label>
+        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="auth.password">Password</label>
         <input type="password" name="password" autocomplete="current-password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <button type="submit" class="w-full py-5 bg-orange-500 text-white rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(249,115,22,0.3)]">
-        SIGN IN NOW
+        <span data-i18n="auth.sign_in_now">SIGN IN NOW</span>
       </button>    </form>
 
     <!-- Sign Up Form -->
     <form id="signup-form" onsubmit="handleAuthSubmit(event, 'signup')" class="space-y-5 hidden">
       <div>
-        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Your Name</label>
+        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="auth.your_name">Your Name</label>
         <input type="text" name="nickname" required placeholder="User" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div>
-        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Email</label>
+        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="auth.email">Email</label>
         <input type="email" name="email" autocomplete="username" required placeholder="name@example.com" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div>
-        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">Password</label>
+        <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-3" data-i18n="auth.password">Password</label>
         <input type="password" name="password" autocomplete="new-password" required placeholder="••••••••" class="w-full bg-white/5 border border-white/10 focus:border-orange-500 rounded-2xl px-6 py-4 text-white outline-none transition-all placeholder:text-white/10 font-bold">
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -842,13 +842,13 @@ Intelligence{% endblock %} {% block extra_css %}
         </div>
       </div>
       <button type="submit" class="w-full py-5 bg-orange-500 text-white rounded-2xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(249,115,22,0.3)]">
-        CREATE ACCOUNT
+        <span data-i18n="auth.create_account">CREATE ACCOUNT</span>
       </button>
     </form>
     
     <div class="mt-8 text-center border-t border-white/5 pt-6">
-        <p id="auth-modal-alt-text" class="text-xs text-white/40 font-bold mb-2">Don't have an account?</p>
-        <button id="auth-modal-alt-btn" type="button" class="text-xs font-black text-orange-500 hover:text-orange-400 uppercase tracking-[0.2em]">Sign Up Free</button>
+        <p id="auth-modal-alt-text" class="text-xs text-white/40 font-bold mb-2" data-i18n="auth.no_account">Don't have an account?</p>
+        <button id="auth-modal-alt-btn" type="button" class="text-xs font-black text-orange-500 hover:text-orange-400 uppercase tracking-[0.2em]" data-i18n="auth.sign_up_free">Sign Up Free</button>
     </div>
     <p id="auth-status-msg" class="mt-4 text-xs font-bold text-center hidden"></p>
   </div>
@@ -863,7 +863,7 @@ Intelligence{% endblock %} {% block extra_css %}
     const statusMsg = document.getElementById('auth-status-msg');
     
     // UI Feedback: Loading
-    statusMsg.textContent = 'Processing...';
+    statusMsg.textContent = (translations && translations["auth.processing"]) || 'Processing...';
     statusMsg.classList.remove('hidden', 'text-red-500', 'text-green-500');
     statusMsg.classList.add('text-white/60');
     
@@ -954,18 +954,18 @@ Intelligence{% endblock %} {% block extra_css %}
       modal.classList.remove('hidden');
       
       if (type === 'login') {
-          title.textContent = 'SIGN IN';
+          title.textContent = (translations && translations["auth.sign_in"]) || 'SIGN IN';
           loginForm.classList.remove('hidden');
           signupForm.classList.add('hidden');
-          altText.textContent = "Don't have an account?";
-          altBtn.textContent = "Sign Up Free";
+          altText.textContent = (translations && translations["auth.no_account"]) || "Don't have an account?";
+          altBtn.textContent = (translations && translations["auth.sign_up_free"]) || "Sign Up Free";
           altBtn.onclick = () => openAuthModal('signup');
       } else {
-          title.textContent = 'SIGN UP';
+          title.textContent = (translations && translations["auth.sign_up"]) || 'SIGN UP';
           loginForm.classList.add('hidden');
           signupForm.classList.remove('hidden');
-          altText.textContent = "Already have an account?";
-          altBtn.textContent = "Sign In Instead";
+          altText.textContent = (translations && translations["auth.already_have"]) || "Already have an account?";
+          altBtn.textContent = (translations && translations["auth.sign_in_instead"]) || "Sign In Instead";
           altBtn.onclick = () => openAuthModal('login');
       }
   }
@@ -1266,7 +1266,7 @@ Intelligence{% endblock %} {% block extra_css %}
             detailsContainer.appendChild(card);
           });
         } else {
-          detailsContainer.innerHTML = "<p class='text-white/40 text-xs'>Detailed syllable data not available.</p>";
+          detailsContainer.innerHTML = "<p class='text-white/40 text-xs'>" + (translations && translations["land.no_syllable_data"] || "Detailed syllable data not available.") + "</p>";
         }
       } catch (err) {
         console.error("Error in showResults:", err);

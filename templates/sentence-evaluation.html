@@ -306,7 +306,7 @@
           </div>
         </div>
         ${syllables.length > 0 ? `
-          <p class="text-xs font-black text-white/30 uppercase tracking-widest mb-3">음절 분석</p>
+          <p class="text-xs font-black text-white/30 uppercase tracking-widest mb-3"><span data-i18n="se.syllable_analysis">음절 분석</span></p>
           <div class="flex flex-wrap gap-2">
             ${syllables.map(s => `
               <div class="px-3 py-2 rounded-xl text-center ${s.score >= 80 ? 'bg-green-500/20 border border-green-500/30' : 'bg-orange-500/20 border border-orange-500/30'}">
@@ -324,7 +324,7 @@
     const aiEl = document.getElementById("sp-ai-feedback-content");
     aiEl.innerHTML = `
       <div class="glass-sub-card p-6 rounded-2xl">
-        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4">AI Feedback</p>
+        <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-4"><span data-i18n="se.ai_feedback">AI Feedback</span></p>
         <p class="text-base text-white/80 leading-relaxed italic">
           "${data.ai_feedback || '피드백을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.'}"
         </p>

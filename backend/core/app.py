@@ -318,6 +318,7 @@ def create_app() -> FastAPI:
     app.state.check_and_consume_credits = check_and_consume_credits
 
     app.state.model_backend = settings.model_backend
+    app.state.model_backend_fallback = settings.model_backend_fallback
     app.state.ollama_url = settings.ollama_url
     app.state.ollama_model = settings.ollama_model
     app.state.gemini_model = settings.gemini_model

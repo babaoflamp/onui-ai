@@ -76,7 +76,7 @@
         <span data-i18n="my.studio">Personal Studio</span>
       </div>
       <h1 class="text-4xl font-black text-white mb-2 tracking-tighter">
-        My <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">Profile</span>
+        My <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500"><span data-i18n="myp.profile">Profile</span></span>
       </h1>
       <p class="text-white/50 font-medium" data-i18n="my.desc">Manage your learning settings and personal information.</p>
     </div>
@@ -187,7 +187,7 @@
         </div>
 
         <div class="space-y-4">
-          <label class="label-text ml-1">Interests</label>
+          <label class="label-text ml-1"><span data-i18n="myp.interests">Interests</span></label>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {% for it in [("Food", "음식"), ("K-Pop", "K-Pop"), ("Movie", "영화"), ("Drama", "드라마"), ("Travel", "여행"), ("Business", "비즈니스")] %}
             <label class="glass-sub-card p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:border-orange-500/50 transition-all">
@@ -199,7 +199,7 @@
         </div>
 
         <div class="flex justify-end gap-3 pt-6 border-t border-white/5">
-          <button type="button" id="cancelEditBtn" class="px-8 py-3 bg-white/5 text-white/40 font-bold rounded-xl hover:bg-white/10">CANCEL</button>
+          <button type="button" id="cancelEditBtn" class="px-8 py-3 bg-white/5 text-white/40 font-bold rounded-xl hover:bg-white/10"><span data-i18n="myp.cancel">CANCEL</span></button>
           <button type="submit" id="saveProfileBtn" class="px-10 py-3 btn-suno-primary" data-i18n="my.save_changes">SAVE CHANGES</button>
         </div>
       </form>
@@ -267,7 +267,7 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const btn = document.getElementById("saveProfileBtn");
-        btn.innerHTML = '<span class="animate-pulse">SAVING...</span>';
+        btn.innerHTML = '<span class="animate-pulse"><span data-i18n="myp.saving">SAVING...</span></span>';
         btn.disabled = true;
 
         const fd = new FormData(form);
