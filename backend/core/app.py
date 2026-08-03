@@ -31,7 +31,17 @@ from backend.services.speechpro_service import (
     get_or_build_speechpro_precomputed_sentence,
     load_speechpro_precomputed_sentences,
 )
-from backend.services.tts_service import convert_audio_bytes_to_wav16
+from backend.services.tts_service import (
+    amplify_pcm16,
+    call_mztts_api,
+    convert_audio_bytes_to_wav16,
+    get_mztts_server_info,
+    get_tts_cache,
+    get_tts_cache_key,
+    make_gemini_tts_caller,
+    pcm16_to_wav,
+    set_tts_cache,
+)
 from backend.utils import (
     ROLE_CHOICES,
     ROLE_INSTRUCTOR,
@@ -339,6 +349,21 @@ def create_app() -> FastAPI:
     app.state.gemini_tts_model = settings.gemini_tts_model
     app.state.gemini_tts_voice = settings.gemini_tts_voice
     app.state.gemini_tts_mime = settings.gemini_tts_mime
+
+    # TTS service helpers (cache + Gemini TTS API caller + MzTTS fallback)
+    app.state.tts_cache_key = get_tts_cache_key
+    app.state.get_tts_cache = get_tts_cache
+    app.state.set_tts_cache = set_tts_cache
+    app.state.amplify_pcm16 = amplify_pcm16
+    app.state.pcm16_to_wav = pcm16_to_wav
+    app.state.call_mztts_api = call_mztts_api if settings.mztts_api_url else None
+    app.state.get_mztts_server_info = get_mztts_server_info
+    if gemini_client:
+        app.state.call_gemini_tts_api = make_gemini_tts_caller(
+            gemini_client, settings.gemini_tts_model
+        )
+    else:
+        app.state.call_gemini_tts_api = None
 
     app.state.load_speechpro_precomputed_sentences = load_speechpro_precomputed_sentences
     app.state.find_precomputed_sentence = find_precomputed_sentence

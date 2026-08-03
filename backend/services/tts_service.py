@@ -1,6 +1,7 @@
 import json
 import base64
 import hashlib
+import logging
 import struct
 import tempfile
 import os
@@ -10,6 +11,8 @@ from pathlib import Path
 
 from backend.config import load_settings
 from backend.utils import ensure_wav_16k_mono
+
+logger = logging.getLogger(__name__)
 
 settings = load_settings()
 
@@ -129,4 +132,102 @@ def convert_audio_bytes_to_wav16(audio_bytes: bytes) -> bytes:
         try: ensure_wav_16k_mono(src, dst)
         except Exception: raise RuntimeError("ffmpeg failed")
         with open(dst, "rb") as f: return f.read()
+
+
+def call_mztts_api(text: str, *, output_type: str = "file", speaker: int = 0,
+                   tempo: float = 1.0, pitch: float = 1.0, gain: float = 1.0) -> dict:
+    """Call the MzTTS server to generate speech. Returns {audio_data, content_type}."""
+    api_url = settings.mztts_api_url
+    if not api_url:
+        raise RuntimeError("MZTTS_API_URL is not configured")
+
+    try:
+        resp = requests.post(
+            api_url,
+            json={
+                "text": text,
+                "output_type": output_type,
+                "speaker": speaker,
+                "tempo": tempo,
+                "pitch": pitch,
+                "gain": gain,
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        raise RuntimeError(f"MzTTS API call failed: {e}") from e
+
+    content_type = resp.headers.get("Content-Type", "audio/wav")
+    return {"audio_data": resp.content, "content_type": content_type}
+
+
+def get_mztts_server_info() -> dict:
+    """Return server info for the MzTTS backend."""
+    api_url = settings.mztts_api_url
+    return {
+        "url": api_url or "",
+        "available": bool(api_url),
+    }
+
+
+def make_gemini_tts_caller(gemini_client, model: str):
+    """
+    Factory that returns a call_gemini_tts_api function bound to a specific
+    Gemini client and model.  The returned callable has the signature
+        call_gemini(text: str, voice: str | None) -> dict
+    and returns ``{"audio_data": bytes, "content_type": str}``.
+    """
+    try:
+        from google.genai import types as genai_types
+    except ImportError:
+        genai_types = None
+
+    def call_gemini_tts(text: str, voice: Optional[str] = None) -> dict:
+        if genai_types is None:
+            raise RuntimeError("google-genai SDK is not installed")
+        if gemini_client is None:
+            raise RuntimeError("Gemini client is not initialized")
+
+        config_kwargs: dict = {}
+        if voice:
+            try:
+                config_kwargs["speech_config"] = genai_types.SpeechConfig(
+                    voice_config=genai_types.VoiceConfig(
+                        prebuilt_voice_config=genai_types.PrebuiltVoiceConfig(
+                            voice_name=voice
+                        )
+                    )
+                )
+            except Exception:
+                logger.warning(
+                    "[TTS] Failed to set speech_config voice=%s, continuing without it",
+                    voice,
+                )
+
+        config = genai_types.GenerateContentConfig(**config_kwargs)
+
+        resp = gemini_client.models.generate_content(
+            model=model,
+            contents=text,
+            config=config,
+        )
+
+        # Access the response object directly rather than model_dump().
+        # model_dump() already base64-decodes inline_data, which would
+        # conflict with extract_gemini_audio's own base64 decoding.
+        candidates = getattr(resp, "candidates", None) or []
+        for cand in candidates:
+            parts = getattr(cand.content, "parts", None) or []
+            for part in parts:
+                inline = getattr(part, "inline_data", None)
+                if inline and inline.data:
+                    return {
+                        "audio_data": inline.data,
+                        "content_type": inline.mime_type or GEMINI_TTS_MIME,
+                    }
+
+        raise RuntimeError("Gemini TTS response did not include audio data")
+
+    return call_gemini_tts
 

@@ -67,6 +67,7 @@ class Settings:
         "voice": 5,
     })
 
+    mztts_api_url: str | None = field(default_factory=lambda: os.getenv("MZTTS_API_URL"))
     stt_backend: str = field(default_factory=lambda: os.getenv("STT_BACKEND", "openai"))
     clarity_project_id: str = field(default_factory=lambda: os.getenv("CLARITY_PROJECT_ID", ""))
     google_client_id: str | None = field(default_factory=lambda: os.getenv("GOOGLE_CLIENT_ID"))
