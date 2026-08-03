@@ -101,8 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function hasAudioInputDevice() {
+    // Use enumerateDevices for a permission-free check first.
+    // This won't trigger a permission prompt and works even when no physical mic is present.
     if (!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices !== 'function') {
-      return null;
+      return null; // can't determine
     }
 
     try {
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return devices.some((device) => device.kind === 'audioinput');
     } catch (error) {
       console.warn('Unable to enumerate media devices:', error);
-      return null;
+      return null; // can't determine
     }
   }
 
@@ -341,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {}
   }
 
-  window.prepareCall = function(scenario) {
+  window.prepareCall = async function(scenario) {
     currentScenario = scenario;
     closeSummaryModal();
     lobby.classList.add('hidden');
@@ -353,6 +355,16 @@ document.addEventListener('DOMContentLoaded', () => {
     resetChatLog();
     resetControls('vc.waiting', 'vc.press_to_start');
     if (creditNotice) creditNotice.classList.remove('hidden');
+
+    // Proactively check for microphone availability
+    const hasMic = await hasAudioInputDevice();
+    if (hasMic === false) {
+      setStatus(getMicSetupMessage({ name: 'NotFoundError' }));
+      startCallBtn.disabled = true;
+      startCallBtn.classList.add('opacity-50');
+      recordLabel.textContent = t('vc.mic_no_device', 'No microphone detected. Please connect a microphone and try again.');
+    }
+
     fetchAndUpdateCredits();
   };
 
@@ -638,6 +650,28 @@ document.addEventListener('DOMContentLoaded', () => {
     startCallBtn.disabled = true;
 
     try {
+      // Pre-check for audio input devices before attempting anything else
+      const hasMic = await hasAudioInputDevice();
+      if (hasMic === false) {
+        const noDeviceError = new Error('No audio input device found');
+        noDeviceError.name = 'NotFoundError';
+        throw noDeviceError;
+      }
+
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        throw new Error('getUserMedia not supported');
+      }
+
+      // Get microphone access — this also handles the permission prompt
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+      // Create AudioContext only after mic access is confirmed
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) {
         throw new Error('AudioContext not supported');
@@ -649,29 +683,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (audioContext.state === 'suspended') {
         await audioContext.resume();
       }
-      
-      if (!audioContext) return;
-
-      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-        throw new Error('getUserMedia not supported');
-      }
-
-      const hasAudioInput = await hasAudioInputDevice();
-      if (hasAudioInput === false) {
-        const noDeviceError = new Error('No audio input device found');
-        noDeviceError.name = 'NotFoundError';
-        throw noDeviceError;
-      }
-
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
-      
-      if (!audioContext) return;
     } catch (error) {
       console.warn('Initial audio/mic setup failed:', error);
       resetControls('vc.ready', 'vc.press_to_start');
