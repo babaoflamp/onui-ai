@@ -116,7 +116,9 @@
       startBtn.disabled = false;
       statusText.textContent = 'READY';
     } catch (e) {
-      appState.selectedSentence = null;
+      // Keep the text so TTS and display still work even without precomputed data
+      appState.selectedSentence = targetText || null;
+      startBtn.disabled = false;
       statusText.textContent = 'READY';
       alert('문장 준비 실패: ' + e.message);
     }
@@ -164,7 +166,16 @@
   }
 
   async function playTTS() {
-    const text = getSelectedSentenceText();
+    let text = getSelectedSentenceText();
+    // Fallback: read directly from the free-input display element
+    if (!text && appState.mode === 'free') {
+      const displayEl = document.getElementById('free-sentence-display');
+      if (displayEl) {
+        text = (displayEl.textContent || '').trim();
+        // Don't use the placeholder text
+        if (text === '문장을 입력해주세요 👆') text = '';
+      }
+    }
     if (!text) return;
     try {
       const res = await fetch('/api/tts/generate', {
@@ -172,6 +183,11 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert('TTS 오류: ' + (err.message || err.details || `HTTP ${res.status}`));
+        return;
+      }
       const blob = await res.blob();
       new Audio(URL.createObjectURL(blob)).play();
     } catch (e) { console.error(e); }

@@ -53,7 +53,7 @@ def _resolve_voice(backend: str, requested: Optional[str], default_voice: Option
     return voice or default_voice
 
 
-def _gemini_voice_candidates(requested: Optional[str]) -> list[Optional[str]]:
+def _gemini_voice_candidates(requested: Optional[str], default_voice: Optional[str] = None) -> list[Optional[str]]:
     voice = (requested or "").strip()
     normalized = voice.lower()
     female_aliases = {"female", "woman", "jisoo", "지수", "aoede", "kore"}
@@ -65,6 +65,8 @@ def _gemini_voice_candidates(requested: Optional[str]) -> list[Optional[str]]:
         candidates = ["Aoede", "Kore", "Leda", "Zephyr", None]
     elif voice:
         candidates = [voice, None]
+    elif default_voice:
+        candidates = [default_voice, None]
     else:
         candidates = [None]
 
@@ -296,7 +298,8 @@ async def generate_tts(request: Request, payload: TTSRequest):
             result = None
             cache_key = None
             last_error = None
-            for candidate_voice in _gemini_voice_candidates(payload.voice):
+            gemini_default_voice = _get_state(request, "gemini_tts_voice")
+            for candidate_voice in _gemini_voice_candidates(payload.voice, gemini_default_voice):
                 candidate_cache_key = cache_key_fn(text, gemini_model, "gemini", candidate_voice or "")
                 cached = get_cache(candidate_cache_key)
                 if cached:

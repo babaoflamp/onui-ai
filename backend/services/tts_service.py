@@ -189,7 +189,9 @@ def make_gemini_tts_caller(gemini_client, model: str):
         if gemini_client is None:
             raise RuntimeError("Gemini client is not initialized")
 
-        config_kwargs: dict = {}
+        config_kwargs: dict = {
+            "response_modalities": ["AUDIO"],
+        }
         if voice:
             try:
                 config_kwargs["speech_config"] = genai_types.SpeechConfig(
