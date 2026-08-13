@@ -49,6 +49,7 @@ from backend.utils import (
     ROLE_SYSTEM_ADMIN,
     active_sessions,
     check_and_consume_credits,
+    refund_consumed_credits,
     clear_user_cache,
     create_session_token,
     get_session,
@@ -326,6 +327,7 @@ def create_app() -> FastAPI:
     app.state.daily_credits = settings.daily_credits
     app.state.credit_costs = settings.credit_costs
     app.state.check_and_consume_credits = check_and_consume_credits
+    app.state.refund_consumed_credits = refund_consumed_credits
 
     app.state.model_backend = settings.model_backend
     app.state.model_backend_fallback = settings.model_backend_fallback

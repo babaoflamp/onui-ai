@@ -502,5 +502,117 @@
     "reason": "landing_signup",
     "native_lang": "ko",
     "ts": 1783929802.7214317
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "en",
+    "ts": 1785811214.2000546
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "en",
+    "ts": 1785811220.6443033
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785811290.1083858
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785811306.631709
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785811313.3981628
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785811313.5084088
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829021.8992698
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829024.522638
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829269.5614617
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829286.6573524
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829294.5524824
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829300.9477065
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1785829302.7253425
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "en",
+    "ts": 1786166346.5091686
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1786431569.949425
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1786431576.9189532
   }
 ]

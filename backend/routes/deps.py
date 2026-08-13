@@ -14,6 +14,7 @@ from backend.utils import (
     load_json_data,
     get_user_credits,
     check_and_consume_credits,
+    refund_consumed_credits,
     ensure_rag_tables,
     rag_chunk_text,
     rag_get_settings,

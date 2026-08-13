@@ -23,7 +23,9 @@ class TTSRequest(BaseModel):
     source: Optional[str] = None
 
 
-def _resolve_voice(backend: str, requested: Optional[str], default_voice: Optional[str]) -> Optional[str]:
+def _resolve_voice(
+    backend: str, requested: Optional[str], default_voice: Optional[str]
+) -> Optional[str]:
     voice = (requested or "").strip()
     normalized = voice.lower()
     female_aliases = {"female", "woman", "jisoo", "지수", "aoede", "kore"}
@@ -53,20 +55,47 @@ def _resolve_voice(backend: str, requested: Optional[str], default_voice: Option
     return voice or default_voice
 
 
-def _gemini_voice_candidates(requested: Optional[str]) -> list[Optional[str]]:
-    voice = (requested or "").strip()
+def _gemini_voice_candidates(
+    requested: Optional[str], default_voice: Optional[str] = None
+) -> list[Optional[str]]:
+    requested_voice = (requested or "").strip()
+    configured_default = (default_voice or "").strip()
+    voice = requested_voice or configured_default
     normalized = voice.lower()
     female_aliases = {"female", "woman", "jisoo", "지수", "aoede", "kore"}
     male_aliases = {"male", "man", "minjun", "민준", "charon", "orus", "puck", "fenrir"}
+
+    supported_voices = {
+        "achernar", "achird", "algieba", "algenib", "aoede", "autonoe",
+        "callirrhoe", "charon", "despina", "enceladus", "erinome", "fenrir",
+        "gacrux", "iapetus", "kore", "laomedeia", "leda", "orus",
+        "pulcherrima", "puck", "rasalgethi", "sadachbia", "sadaltager",
+        "schedar", "sulafat", "umbriel", "vindemiatrix", "zephyr",
+        "zubenelgenubi",
+    }
 
     if normalized in male_aliases:
         candidates: list[Optional[str]] = ["Charon", "Orus", "Puck", "Fenrir", None]
     elif normalized in female_aliases:
         candidates = ["Aoede", "Kore", "Leda", "Zephyr", None]
-    elif voice:
-        candidates = [voice, None]
     else:
-        candidates = [None]
+        canonical_requested = (
+            requested_voice.title()
+            if requested_voice.lower() in supported_voices
+            else None
+        )
+        canonical_default = (
+            configured_default.title()
+            if configured_default.lower() in supported_voices
+            else None
+        )
+        # Do not send invalid values such as the historical literal "default"
+        # to Gemini. Prefer a valid configured default, then a known-good voice.
+        candidates = [
+            candidate
+            for candidate in (canonical_requested, canonical_default, "Aoede")
+            if candidate
+        ] + [None]
 
     deduped: list[Optional[str]] = []
     for candidate in candidates:
@@ -85,7 +114,9 @@ def _is_fixed_dialogue_request(payload: TTSRequest) -> bool:
     return normalized in {"female", "male", "jisoo", "minjun", "지수", "민준"}
 
 
-def _mztts_response(call_mztts, text: str, payload: TTSRequest, filename_hash: str) -> Response:
+def _mztts_response(
+    call_mztts, text: str, payload: TTSRequest, filename_hash: str
+) -> Response:
     result = call_mztts(
         text=text,
         output_type="file",
@@ -165,7 +196,10 @@ async def generate_tts(request: Request, payload: TTSRequest):
     extract_session = _get_state(request, "extract_session_from_request")
     user = extract_session(request) if callable(extract_session) else None
     if not user:
-        return JSONResponse(status_code=401, content={"success": False, "message": "로그인이 필요합니다."})
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "로그인이 필요합니다."},
+        )
     check_credits = _get_state(request, "check_and_consume_credits")
     credit_costs = _get_state(request, "credit_costs") or {}
     db_path = _get_state(request, "db_path")
@@ -179,7 +213,14 @@ async def generate_tts(request: Request, payload: TTSRequest):
         except TypeError:
             credit = check_credits(user_id, credit_costs.get("tts", 1))
         if not credit["ok"]:
-            return JSONResponse(status_code=429, content={"success": False, "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})", "remaining": credit["remaining"]})
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "success": False,
+                    "message": f"오늘의 크레딧이 부족합니다. 자정에 리셋됩니다. (남은 크레딧: {credit['remaining']})",
+                    "remaining": credit["remaining"],
+                },
+            )
 
     logger.info(
         f"[API_CALL] endpoint={request.url.path} method={request.method} params={{'text': payload.text, 'speaker': payload.speaker, 'tempo': payload.tempo, 'pitch': payload.pitch, 'gain': payload.gain, 'language_code': payload.language_code, 'voice': payload.voice}}"
@@ -197,7 +238,11 @@ async def generate_tts(request: Request, payload: TTSRequest):
         filename_hash = hashlib.md5(text.encode("utf-8")).hexdigest()[:8]
 
         call_mztts = _get_state(request, "call_mztts_api")
-        if tts_backend == "gemini" and _is_fixed_dialogue_request(payload) and callable(call_mztts):
+        if (
+            tts_backend == "gemini"
+            and _is_fixed_dialogue_request(payload)
+            and callable(call_mztts)
+        ):
             logger.info(
                 "[TTS] route=fixed-dialogue-mztts text_len=%s speaker=%s voice=%s",
                 len(text),
@@ -210,15 +255,20 @@ async def generate_tts(request: Request, payload: TTSRequest):
             client = _get_state(request, "openai_client")
             openai_api_key = _get_state(request, "openai_api_key")
             openai_model = _get_state(request, "openai_tts_model") or "tts-1"
-            openai_voice = _resolve_voice("openai", payload.voice, _get_state(request, "openai_tts_voice") or "alloy")
+            openai_voice = _resolve_voice(
+                "openai",
+                payload.voice,
+                _get_state(request, "openai_tts_voice") or "alloy",
+            )
             openai_format = _get_state(request, "openai_tts_format") or "mp3"
-            
+
             if client is None:
                 if not openai_api_key:
                     raise RuntimeError("OpenAI API key (OPENAI_API_KEY) not found")
                 from openai import OpenAI
+
                 client = OpenAI(api_key=openai_api_key)
-                
+
             response = client.audio.speech.create(
                 model=openai_model,
                 voice=openai_voice,
@@ -231,7 +281,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
                 audio_bytes = response.read() if hasattr(response, "read") else None
             if not audio_bytes:
                 raise RuntimeError("No audio data received from OpenAI TTS")
-            
+
             media_type = (
                 "audio/wav"
                 if openai_format == "wav"
@@ -252,7 +302,9 @@ async def generate_tts(request: Request, payload: TTSRequest):
             google_lang = payload.language_code or _get_state(
                 request, "google_tts_language"
             )
-            google_voice = _resolve_voice("google", payload.voice, _get_state(request, "google_tts_voice"))
+            google_voice = _resolve_voice(
+                "google", payload.voice, _get_state(request, "google_tts_voice")
+            )
             if not callable(call_google):
                 raise RuntimeError("Google TTS is not configured")
 
@@ -276,6 +328,7 @@ async def generate_tts(request: Request, payload: TTSRequest):
 
         if tts_backend == "gemini":
             gemini_model = _get_state(request, "gemini_tts_model")
+            gemini_default_voice = _get_state(request, "gemini_tts_voice")
             cache_key_fn = _get_state(request, "tts_cache_key")
             get_cache = _get_state(request, "get_tts_cache")
             set_cache = _get_state(request, "set_tts_cache")
@@ -296,14 +349,24 @@ async def generate_tts(request: Request, payload: TTSRequest):
             result = None
             cache_key = None
             last_error = None
-            for candidate_voice in _gemini_voice_candidates(payload.voice):
-                candidate_cache_key = cache_key_fn(text, gemini_model, "gemini", candidate_voice or "")
+            for candidate_voice in _gemini_voice_candidates(
+                payload.voice, gemini_default_voice
+            ):
+                candidate_cache_key = cache_key_fn(
+                    text, gemini_model, "gemini", candidate_voice or ""
+                )
                 cached = get_cache(candidate_cache_key)
                 if cached:
-                    logger.info("[TTS] cache=hit text_len=%s voice=%s", len(text), candidate_voice or "default")
+                    logger.info(
+                        "[TTS] cache=hit text_len=%s voice=%s",
+                        len(text),
+                        candidate_voice or "default",
+                    )
                     content_type = cached["content_type"]
                     audio_data = cached["audio_data"]
-                    ext = "wav" if content_type in ("audio/wav", "audio/x-wav") else "bin"
+                    ext = (
+                        "wav" if content_type in ("audio/wav", "audio/x-wav") else "bin"
+                    )
                     return Response(
                         content=audio_data,
                         media_type=content_type,
@@ -333,9 +396,14 @@ async def generate_tts(request: Request, payload: TTSRequest):
 
             if result is None or cache_key is None:
                 if callable(call_mztts):
-                    logger.warning("[TTS] falling back to MzTTS after Gemini failure: %s", str(last_error))
+                    logger.warning(
+                        "[TTS] falling back to MzTTS after Gemini failure: %s",
+                        str(last_error),
+                    )
                     return _mztts_response(call_mztts, text, payload, filename_hash)
-                raise RuntimeError(str(last_error) if last_error else "Gemini TTS failed")
+                raise RuntimeError(
+                    str(last_error) if last_error else "Gemini TTS failed"
+                )
 
             content_type = result.get("content_type") or "application/octet-stream"
             audio_data = result["audio_data"]

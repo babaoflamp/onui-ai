@@ -450,6 +450,7 @@ def enhance_prompt_for_korean_learning(
     style_descriptions = {
         "watercolor": "soft watercolor textbook illustration, gentle colors, clear educational composition",
         "illustration": "clean modern textbook illustration, flat design, friendly educational style, bright balanced colors",
+        "roleplay-card": "high-quality stylized 3D animated Korean character render, centered single character, friendly expressive face, polished smooth 3D modeling, soft rounded features, detailed hair and clothing, gentle studio lighting, soft pastel colors, bright near-white background, consistent educational game card style",
         "cartoon": "cheerful 2D educational cartoon illustration, clear outlines, classroom-friendly and age-neutral",
         "photorealistic": "realistic educational textbook photo style, natural lighting, clear documentary composition",
         "oil-painting": "classic painted textbook illustration, controlled brushwork, warm and readable educational scene",
@@ -465,6 +466,8 @@ def enhance_prompt_for_korean_learning(
     enhanced_prompt = f"{korean_situation}, {style_desc}, "
     enhanced_prompt += "designed for Korean language textbook content, suitable for classroom learning materials, "
     enhanced_prompt += "one clear everyday scene that helps learners understand the situation visually, "
+    if style == "roleplay-card":
+        enhanced_prompt += "square 1:1 composition, single 3D character as the clear focal point, generous margin around the character, no collage, no multiple panels, no busy scenery, no flat 2D illustration, no photorealism, "
     enhanced_prompt += "Korean cultural context, culturally accurate details, age-neutral and inclusive characters, "
     enhanced_prompt += "simple uncluttered background, bright and clear, safe for educational use, "
     enhanced_prompt += "no text, no letters, no words, no writing, no captions, no speech bubbles, no signs with text, no logos"

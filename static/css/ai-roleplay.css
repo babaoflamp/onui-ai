@@ -37,3 +37,23 @@
         background: #f97316 !important;
         color: white !important;
     }
+
+
+.roleplay-form-input {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.05);
+    color: white;
+    outline: none;
+}
+.roleplay-form-input:focus { border-color: rgba(249,115,22,.7); box-shadow: 0 0 0 2px rgba(249,115,22,.15); }
+.roleplay-form-input option { background: #221b2b; color: white; }
+
+
+.custom-scenario-card { cursor: grab; }
+.custom-scenario-card.is-dragging { opacity: .45; transform: scale(.98); }
+.custom-scenario-card.drag-over { border-color: rgba(249,115,22,.85); box-shadow: 0 0 0 3px rgba(249,115,22,.22), 0 20px 40px rgba(249,115,22,.18); }

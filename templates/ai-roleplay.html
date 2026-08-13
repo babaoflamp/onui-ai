@@ -2,6 +2,10 @@
 
 {% block title %}AI Roleplay - OAI Speech Intelligence{% endblock %}
 
+{% block extra_head %}
+<script>window.DISABLE_GOOGLE_TRANSLATE = true;</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/ai-roleplay.css" />
 {% endblock %}
@@ -23,7 +27,7 @@
                 AI <span class="bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent italic pb-2 pr-2"><span data-i18n="rp.title_sub">Roleplay</span></span>
             </h1>
             <p class="text-white/60 text-base font-medium leading-relaxed max-w-md" data-i18n="rp.desc">
-                Practice real-life conversations with AI 'OAI' in various scenarios like cafes, airports, and hospitals!
+                Practice Korean through immersive conversations with famous Korean historical figures like King Sejong and Admiral Yi Sun-sin.
             </p>
             <div class="flex flex-wrap gap-2 mt-4">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 border border-orange-500/20 rounded-full text-[10px] font-black text-orange-400 uppercase tracking-wider">
@@ -47,6 +51,59 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             </div>
         </div>
+    </div>
+
+    <!-- Custom Scenario Toolbar -->
+    <div class="flex items-center justify-between gap-4 mb-4">
+        <h2 class="text-sm font-black text-white/70 uppercase tracking-widest" data-i18n="rp.scenarios">Scenarios</h2>
+        <button id="create-scenario-btn" type="button" class="px-4 py-2 bg-gradient-to-r from-orange-500 to-pink-600 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:scale-105 transition-all notranslate" translate="no" data-i18n="rp.create_scenario">
+            + Create My Roleplay
+        </button>
+    </div>
+
+    <div id="custom-scenario-editor" class="hidden mb-8 glass-main-card rounded-[32px] p-6 border border-orange-500/20 notranslate" translate="no">
+        <div class="flex items-center justify-between mb-5">
+            <button id="back-scenario-btn" type="button" class="px-3 py-2 bg-white/5 text-white/60 rounded-xl text-xs font-bold hover:bg-white/10" data-i18n="rp.back_to_scenarios">← Scenarios</button>
+            <h2 id="custom-editor-title" class="text-lg font-black text-white" data-i18n="rp.create_scenario">Create My Roleplay</h2>
+            <button id="cancel-scenario-btn" type="button" class="text-white/50 hover:text-white text-xl" aria-label="Close">×</button>
+        </div>
+        <form id="custom-scenario-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2 rounded-2xl bg-orange-500/10 border border-orange-500/20 p-4">
+                <label class="text-xs text-orange-200/80"><span data-i18n="rp.example_label">Start with an example</span>
+                    <select id="roleplay-example-select" class="roleplay-form-input" aria-describedby="roleplay-example-help">
+                        <option value="" data-i18n="rp.example_none">Choose an example (optional)</option>
+                        <option value="hanok" data-i18n="rp.example_hanok">Tea master in a hanok</option>
+                        <option value="pansori" data-i18n="rp.example_pansori">Pansori master</option>
+                        <option value="market" data-i18n="rp.example_market">Traditional market shopkeeper</option>
+                        <option value="jeju" data-i18n="rp.example_jeju">Jeju haenyeo diver</option>
+                        <option value="kpop" data-i18n="rp.example_kpop">K-pop producer</option>
+                        <option value="royal" data-i18n="rp.example_royal">Joseon royal scholar</option>
+                        <option value="temple" data-i18n="rp.example_temple">Temple stay guide</option>
+                        <option value="webtoon" data-i18n="rp.example_webtoon">K-webtoon artist</option>
+                        <option value="baseball" data-i18n="rp.example_baseball">Korean baseball commentator</option>
+                        <option value="snack" data-i18n="rp.example_snack">Street-food shop owner</option>
+                    </select>
+                </label>
+                <p id="roleplay-example-help" class="text-[11px] text-white/40 mt-2" data-i18n="rp.example_help">Choose an example to fill in the form, then customize it freely.</p>
+            </div>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_title">Title</span> *<input name="title" required maxlength="100" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_level">Level</span><input name="level" value="B1" maxlength="30" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60 md:col-span-2"><span data-i18n="rp.form_description">Description</span><input name="description" maxlength="300" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60 md:col-span-2"><span data-i18n="rp.form_initial">Opening message</span> *<textarea name="initial_message" required maxlength="1000" rows="2" class="roleplay-form-input"></textarea></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_persona">Character</span><input name="persona" value="대화 상대" maxlength="100" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_era">Setting / era</span><input name="era" value="현대" maxlength="150" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60 md:col-span-2"><span data-i18n="rp.form_style">Speaking style</span><input name="speaking_style" value="친절하고 자연스러운 말투" maxlength="200" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_topics">Topics</span><input name="topics" placeholder="쉼표로 구분" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_goals">Learning goals</span><input name="goals" placeholder="쉼표로 구분" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_keywords">Keywords</span><input name="keywords" placeholder="쉼표로 구분" class="roleplay-form-input"></label>
+            <label class="text-xs text-white/60"><span data-i18n="rp.form_voice">TTS voice</span><select name="tts_voice" class="roleplay-form-input"><option value="Kore">Kore</option><option value="Charon">Charon</option><option value="Orus">Orus</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option></select></label>
+            <input type="hidden" name="image">
+            <div class="md:col-span-2 flex justify-end gap-3 pt-2">
+                <button id="delete-scenario-btn" type="button" class="hidden px-5 py-3 bg-red-500/10 text-red-300 rounded-xl text-xs font-bold" data-i18n="rp.delete_scenario">Delete</button>
+                <button id="cancel-scenario-btn-bottom" type="button" class="px-5 py-3 bg-white/5 text-white/60 rounded-xl text-xs font-bold" data-i18n="rp.cancel">Cancel</button>
+                <button type="submit" class="px-5 py-3 bg-orange-500 text-white rounded-xl text-xs font-bold" data-i18n="rp.save_scenario">Save</button>
+            </div>
+        </form>
     </div>
 
     <!-- Scenario Selection -->

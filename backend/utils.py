@@ -185,6 +185,39 @@ def check_and_consume_credits(db_path: str, user_id: int, cost: int, daily_limit
         conn.rollback(); return {"ok": False, "remaining": 0}
     finally: conn.close()
 
+def refund_consumed_credits(db_path: str, user_id: int, cost: int, daily_limit: int = 100) -> dict:
+    """Undo a prior credit reservation for the current credit day.
+
+    This is intentionally bounded so a failed request cannot create credits or
+    alter a previous day's usage.
+    """
+    if cost <= 0:
+        return {"ok": True}
+    today = datetime.now().strftime("%Y-%m-%d")
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute(
+            "SELECT credits_used, credits_reset_date FROM users WHERE id=?",
+            (user_id,),
+        ).fetchone()
+        if not row or row[1] != today:
+            conn.rollback()
+            return {"ok": False}
+        used = max(int(row[0] or 0) - cost, 0)
+        conn.execute(
+            "UPDATE users SET credits_used=? WHERE id=?",
+            (used, user_id),
+        )
+        conn.commit()
+        return {"ok": True, "remaining": max(daily_limit - used, 0)}
+    except Exception:
+        conn.rollback()
+        return {"ok": False}
+    finally:
+        conn.close()
+
+
 def romanize_korean(text: str) -> str:
     """Revised Romanization of Korean (국립국어원 표준). Syllable-table lookup, no dependencies."""
     try:

@@ -62,9 +62,9 @@
   --font-display: clamp(2rem, 4vw, 2.75rem);  /* Display */
   --font-headline: 1.5rem;                     /* Headline */
   --font-title: 1.125rem;                      /* Title */
-  --font-body: 0.9375rem;                      /* Body */
-  --font-label: 0.8125rem;                     /* Label */
-  --font-label-sm: 0.6875rem;                  /* Label Small */
+  --font-body: 1rem;                            /* Body */
+  --font-label: 0.875rem;                       /* Label */
+  --font-label-sm: 0.75rem;                    /* Label Small */
 }
 
 /* ==========================================

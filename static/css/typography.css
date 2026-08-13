@@ -1,0 +1,43 @@
+/* Global readable typography
+   Keeps Korean UI comfortable at normal zoom without changing display headings. */
+html {
+  font-size: 16px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body, button, input, select, textarea {
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+
+body {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+/* Tailwind utility defaults are unusually small for Korean text. */
+.text-xs {
+  font-size: 0.8125rem !important;
+  line-height: 1.45 !important;
+}
+.text-sm {
+  font-size: 0.9375rem !important;
+  line-height: 1.5 !important;
+}
+
+input, select, textarea, button {
+  line-height: 1.45;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  font-size: 1rem;
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 0.9375rem;
+  }
+}

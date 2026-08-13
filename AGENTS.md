@@ -1,91 +1,28 @@
-# Repository Guidelines
+# Agent Guidelines for Onui Korean (OAI)
 
-## Project Overview
-**Onui Korean** (오누이 한국어) is an AI-powered Korean language learning web app. Backend: FastAPI + SQLite. Frontend: Jinja2 + Tailwind (CDN). Dev/prod server port: **9002**.
+## Core Commands
+- **Run dev server**: `.venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload` (or `.venv/bin/python main.py`)
+- **Run all tests**: `.venv/bin/python -m pytest` (*Must* use `.venv/bin/python -m pytest` or set `PYTHONPATH=.`; bare `pytest` fails on `backend` imports)
+- **Run single test**: `.venv/bin/python -m pytest tests/unit/test_config.py`
+- **Audit OnuiTube catalog**: `.venv/bin/python scripts/audit_onuitube_catalog.py`
+- **PM2 operations**: `./start-service.sh` | `./stop-service.sh` | `./restart.sh` | `pm2 logs onui-ai`
 
-## Project Structure
-- `main.py` — thin entry: `create_app()`, DB init, uvicorn on port 9002
-- `backend/config.py` — `Settings` dataclass + `load_settings()` (env-driven)
-- `backend/core/app.py` — app factory: middleware, `app.state`, router mounts
-- `backend/database.py` — SQLite schema init/migrations (`initialize_database`)
-- `backend/utils.py` — auth, credits, romanizer, RAG helpers, audio utils
-- `backend/routes/` — FastAPI routers (import deps from `deps.py`, not `main`)
-- `backend/services/` — SpeechPro, TTS, DALL-E, FluencyPro, learning progress, etc.
-- `templates/` — Jinja2 pages; `templates/components/` for partials
-- `static/js|css/` — feature assets (kebab-case, co-located by feature)
-- `data/` — JSON datasets, locales, SQLite (`users.db`), TTS cache
-- `tests/unit/` — pytest suite
-- `scripts/` — one-off data/image/domain utilities (not runtime)
+## Architecture & Code Conventions
+- **App entrypoint & wiring**: `main.py` initializes DB and calls `create_app()`. Router mounting, middleware, and `app.state` bindings live in `backend/core/app.py`.
+- **Router dependencies**: Route files in `backend/routes/` MUST import dependencies from `backend.routes.deps` (not directly from `main`). Access clients and config via `request.app.state`.
+- **Database & schema**: SQLite DB at `data/users.db`. Tables and column migrations are handled automatically in `backend/database.py` via `initialize_database()` and `_add_missing_columns()`. No Alembic or external migration tools are used.
+- **Frontend & templates**: Jinja2 templates (`templates/`) with Tailwind CSS via CDN. No frontend build/bundling step. Pair JS/CSS files in `static/js/` and `static/css/` named in kebab-case matching the template.
+- **Package pinning**: `openai` is pinned to `<2.0.0` (`requirements.txt`). Do not use OpenAI SDK v1+ client syntax in backend calls.
+- **System dependency**: `ffmpeg` must be installed on the host for audio processing (SpeechPro/TTS).
 
-## Build, Test, and Development
-```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env   # never commit real secrets
+## Multilingual / i18n Rules
+- **Hybrid i18n (`static/js/i18n.js`)**:
+  - **Static locales**: `ko`, `en`, `ja`, `zh`, `vi`, `ne` stored in `data/locales/{lang}.json`.
+  - **Dynamic locales**: `id`, `mn`, `lo` render English UI and rely on hidden Google Website Translate element.
+- **Adding UI text**: Any new UI string key MUST be added to all 6 static locale files (`ko/en/ja/zh/vi/ne`).
+- **Protect Korean practice content**: Wrap practice text elements in `class="notranslate"` or `translate="no"` so Google Translate does not alter practice text.
 
-# Dev (hot reload) — always port 9002
-python -m uvicorn main:app --host 0.0.0.0 --port 9002 --reload
-# or: python main.py
-
-pkill -f uvicorn       # stop dev server
-python -m pytest
-python -m pytest tests/unit
-```
-
-### Production (PM2)
-```bash
-./start-service.sh     # start via PM2
-./stop-service.sh
-./restart.sh
-pm2 status | pm2 logs onui-ai | pm2 restart onui-ai
-```
-PM2 config: `ecosystem.config.js`. Logs: `logs/pm2-out.log`, `logs/pm2-error.log`.
-
-Host dependency: **ffmpeg** (audio conversion for SpeechPro / FluencyPro).
-
-## Coding Style
-- Python: 4-space indent, snake_case modules/functions
-- Templates: match existing Tailwind patterns; no new CSS frameworks
-- Static assets: kebab-case; keep CSS/JS paired with the feature template
-- Prefer mirroring surrounding style over reformatting
-- Routes: use `request.app.state` for clients/settings; import helpers from `backend.routes.deps`
-- Commit style: `feat:`, `fix:`, `refactor:`, `chore:` (+ optional scope)
-
-## Testing
-- Tests live under `tests/unit` (`test_*.py` / `test_*`)
-- Run: `python -m pytest` or `python -m pytest tests/unit`
-
-## Configuration & Secrets
-- Configure via `.env` (see `.env.example` and `backend/config.py`)
-- Key selectors: `MODEL_BACKEND` (`gemini`|`openai`|`ollama`), `TTS_BACKEND`, `STT_BACKEND`
-- Production requires `APP_ENV=production` + `SECRET_KEY`
-- Do not commit secrets, `.env`, or local DB copies
-
-## Architecture Notes (for agents)
-- Routers are mounted in `backend/core/app.py`, not `main.py`
-- Cookie sessions (`session_token`); roles: `learner` | `instructor` | `system_admin`
-- AI endpoints gated by daily credits (`DAILY_CREDITS` / `app.state.credit_costs`)
-- i18n hybrid (`static/js/i18n.js`):
-  - **Static locales** (curated JSON): `ko`, `en`, `ja`, `zh`, `vi`, `ne` → `data/locales/{lang}.json`
-  - **Google Website Translate**: `id`, `mn`, `lo` (and any non-static lang) → English UI + hidden Google Element
-- New curated UI strings: add keys to **all static** locale files (`ko/en/ja/zh/vi/ne`)
-- Korean learning content: mark with `class="notranslate"` / `translate="no"` so Google does not translate practice text
-- `openai` package is pinned `<2.0.0` — do not upgrade without migration
-
-## Feature URL Map
-| Feature | Route |
-|---|---|
-| Dashboard | `/dashboard` |
-| Daily Expression | `/daily-expression` |
-| OnuiTube | `/video-learning` |
-| Onui Beats | `/onui-beats` |
-| AI Voice Call | `/voice-call` |
-| AI Roleplay | `/roleplay` |
-| Content Generation | `/content-generation` |
-| Pronunciation (SpeechPro) | `/speechpro-practice` |
-| Sentence Evaluation | `/sentence-evaluation` |
-| Learning Progress | `/learning-progress` |
-| AI Grammar Coach | `/onui-grammar` |
-
-## PRs
-- Concise summary, test notes, and screenshots for UI changes
+## Config & Environment
+- Config loaded via `backend/config.py` from `.env`.
+- Key backend selectors: `MODEL_BACKEND` (`gemini`|`openai`|`ollama`), `TTS_BACKEND`, `STT_BACKEND`.
+- Production requires `APP_ENV=production` and `SECRET_KEY`.

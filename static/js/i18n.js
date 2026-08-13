@@ -122,6 +122,9 @@ function _applyGoogleCombo(googleCode) {
 }
 
 function triggerGoogleTranslate(appLang) {
+    // Some pages intentionally run without the third-party Google widget.
+    // Keep their UI in English instead of creating blocked third-party requests.
+    if (window.DISABLE_GOOGLE_TRANSLATE) return;
     const googleCode = GOOGLE_LANG_MAP[appLang] || appLang;
     _pendingGoogleLang = googleCode;
     _setCookie("googtrans", "/en/" + googleCode, 1);
@@ -166,6 +169,15 @@ async function setAppLang(lang) {
     const willGoogle = usesGoogleTranslate(lang);
 
     localStorage.setItem("app_lang", lang);
+
+    if (window.DISABLE_GOOGLE_TRANSLATE && willGoogle) {
+        clearGoogleTranslateCookies();
+        await loadTranslations("en");
+        applyTranslations();
+        syncLangUI(lang);
+        notifyTranslationsUpdated();
+        return;
+    }
 
     // Switching away from Google → reload clean page (DOM is polluted by font tags)
     if (wasGoogle && !willGoogle) {
@@ -304,6 +316,10 @@ function _detectBrowserLang() {
  * Call from inline head or DOMContentLoaded start.
  */
 function ensureTranslateCookieMatchesAppLang(lang) {
+    if (window.DISABLE_GOOGLE_TRANSLATE) {
+        clearGoogleTranslateCookies();
+        return;
+    }
     if (usesGoogleTranslate(lang)) {
         const code = GOOGLE_LANG_MAP[lang] || lang;
         _setCookie("googtrans", "/en/" + code, 1);

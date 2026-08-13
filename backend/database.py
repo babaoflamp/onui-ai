@@ -22,6 +22,7 @@ def initialize_database(db_path: str = DEFAULT_DB_PATH) -> None:
     conn = connect(db_path)
     try:
         ensure_core_tables(conn)
+        ensure_roleplay_tables(conn)
         ensure_learning_aux_tables(conn)
         ensure_content_tables(conn)
         ensure_lms_tables(conn)
@@ -100,6 +101,42 @@ def ensure_core_tables(conn: sqlite3.Connection) -> None:
         );
         """
     )
+
+
+def ensure_roleplay_tables(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS user_roleplay_scenarios (
+            id TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL DEFAULT '',
+            level TEXT NOT NULL DEFAULT 'B1',
+            initial_message TEXT NOT NULL,
+            persona TEXT NOT NULL DEFAULT '대화 상대',
+            era TEXT NOT NULL DEFAULT '현대',
+            speaking_style TEXT NOT NULL DEFAULT '친절하고 자연스러운 말투',
+            topics_json TEXT NOT NULL DEFAULT '[]',
+            goals_json TEXT NOT NULL DEFAULT '[]',
+            keywords_json TEXT NOT NULL DEFAULT '[]',
+            tts_voice TEXT NOT NULL DEFAULT 'Kore',
+            image TEXT,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    _add_missing_columns(conn, "user_roleplay_scenarios", {
+        "sort_order": "INTEGER NOT NULL DEFAULT 0",
+    })
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_user_roleplay_scenarios_user
+            ON user_roleplay_scenarios(user_id, sort_order ASC, updated_at DESC);
+        """
+    )
+
 
 
 def ensure_learning_aux_tables(conn: sqlite3.Connection) -> None:

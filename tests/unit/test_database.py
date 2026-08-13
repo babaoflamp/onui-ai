@@ -18,6 +18,7 @@ def test_initialize_database_creates_cross_feature_tables(tmp_path):
             )
         }
         assert "users" in tables
+        assert "user_roleplay_scenarios" in tables
         assert "saved_textbooks" in tables
         assert "ai_content_history" in tables
         assert "sentence_score_history" in tables

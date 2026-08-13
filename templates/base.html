@@ -67,6 +67,7 @@
     <link rel="stylesheet" href="/static/css/floating-buttons.css" />
     <!-- Dark Glass Global Overrides -->
     <link rel="stylesheet" href="/static/css/dark-glass.css" />
+    <link rel="stylesheet" href="/static/css/typography.css" />
 
     <style>
       :root {
@@ -85,7 +86,10 @@
 
       html,
       body {
-        font-family: "Pretendard", sans-serif;
+        font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+        letter-spacing: 0.005em;
         background-color: var(--bg-main);
         color: var(--text-main);
         margin: 0;
@@ -860,6 +864,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
       }
     </style>
     {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
   </head>
   <body class="glass-dark{%- if request.url.path == '/admin/login' %} no-sidebar{%- elif request.url.path.startswith('/admin') %} admin-sidebar{%- endif %}">
     <!-- Skip to main content (accessibility) -->
@@ -1197,7 +1202,8 @@ body.sidebar-collapsed #sidebar-lang-bar {
     <script src="/static/js/i18n.js?v=1.1.0" defer></script>
     <script src="/static/js/auth.js" defer></script>
 
-    <!-- Hidden Google Website Translator (used for id / mn / lo UI languages) -->
+    <!-- Hidden Google Website Translator (disabled on roleplay to avoid third-party widget failures) -->
+    {% if request.url.path != '/roleplay' %}
     <div id="google_translate_element" aria-hidden="true"></div>
     <script>
       function googleTranslateElementInit() {
@@ -1220,6 +1226,7 @@ body.sidebar-collapsed #sidebar-lang-bar {
       }
     </script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
+    {% endif %}
     <script>
     function adminLogout() {
       const token = localStorage.getItem('auth_token');
