@@ -614,5 +614,26 @@
     "reason": "landing_signup",
     "native_lang": "ko",
     "ts": 1786431576.9189532
+  },
+  {
+    "goal": "topik",
+    "level": "elementary",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1786677274.415692
+  },
+  {
+    "goal": "workplace",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "en",
+    "ts": 1787013572.3863795
+  },
+  {
+    "goal": "daily_conversation",
+    "level": "beginner",
+    "reason": "landing_signup",
+    "native_lang": "ko",
+    "ts": 1787029472.9674156
   }
 ]
