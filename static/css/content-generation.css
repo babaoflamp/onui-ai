@@ -429,7 +429,7 @@
     overflow: hidden;
     transition: max-height 0.4s ease;
   }
-  .quiz-wrap.open { max-height: 400px; overflow-y: auto; }
+  .quiz-wrap.open { max-height: 800px; overflow-y: auto; }
   .quiz-inner { padding: 12px 16px; }
   .quiz-q { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.6; }
   .quiz-blank { background: rgba(255,255,255,0.05); border: none; border-bottom: 2px solid rgba(255,255,255,0.25); color: #fb923c; width: 80px; padding: 1px 4px; outline: none; text-align: center; font-weight: 700; font-size: 14px; border-radius: 0; transition: all 0.2s; }
@@ -443,7 +443,7 @@
   .quiz-score { text-align: center; font-size: 14px; font-weight: 900; color: white; margin-top: 8px; }
 
   /* ── 장면 이미지 ── */
-  #scene-image-wrap img { width: 100%; border-radius: 14px; height: auto; max-height: 360px; object-fit: cover; margin-bottom: 16px; }
+  #scene-image-wrap img { width: 100%; border-radius: 14px; height: auto; max-height: 500px; object-fit: contain; background: rgba(0,0,0,0.2); margin-bottom: 16px; }
   .credit-cost { font-size: 11px; color: rgba(255,255,255,0.25); font-weight: 700; letter-spacing: 0; }
 
   /* ── 레벨업 배너 ── */

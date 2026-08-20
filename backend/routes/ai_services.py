@@ -588,7 +588,8 @@ async def generate_content(
             if out:
                 used_backend = b
                 break
-        except Exception:
+        except Exception as e:
+            logger.exception(f"Backend '{b}' failed in generate_content")
             continue  # try fallback
 
     if not out:
@@ -1001,11 +1002,48 @@ async def generate_textbook_quiz(request: Request, user: dict = Depends(get_curr
             f"대화:\n{dialogue_text}"
         )
 
-        resp = request.app.state.gemini_client.models.generate_content(
-            model=request.app.state.gemini_model,
-            contents=prompt,
-        )
-        parsed = _extract_json_payload(getattr(resp, "text", "") or "")
+        out = ""
+        for b in _get_backends(request):
+            try:
+                if b == "gemini":
+                    gemini_client = request.app.state.gemini_client
+                    if not gemini_client:
+                        continue
+                    resp = gemini_client.models.generate_content(
+                        model=request.app.state.gemini_model,
+                        contents=prompt,
+                    )
+                    out = getattr(resp, "text", "") or ""
+                elif b == "openai":
+                    openai_client = request.app.state.openai_client
+                    if not openai_client:
+                        continue
+                    resp = openai_client.chat.completions.create(
+                        model=request.app.state.openai_model,
+                        messages=[{"role": "user", "content": prompt}],
+                        temperature=0.7
+                    )
+                    out = resp.choices[0].message.content.strip()
+                elif b == "ollama":
+                    ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+                    use_model = request.app.state.ollama_model
+                    resp = requests.post(f"{ollama_url}/api/generate", json={"model": use_model, "prompt": prompt}, stream=True, timeout=30)
+                    for line in resp.iter_lines(decode_unicode=True):
+                        if line:
+                            try:
+                                obj = json.loads(line)
+                                out += obj.get("response", "")
+                            except: out += line
+                if out:
+                    break
+            except Exception as exc:
+                logger.warning(f"Quiz backend '{b}' failed: {exc}")
+                continue
+
+        if not out:
+            raise RuntimeError("All backends failed to generate quiz")
+
+        parsed = _extract_json_payload(out)
         if isinstance(parsed, list):
             parsed = {"questions": parsed}
         questions = parsed.get("questions") if isinstance(parsed, dict) else None
