@@ -9,7 +9,8 @@
   let isGenerating = false, abortController = null;
   let currentTopic = "", currentLevel = "중급";
   let currentDialogue = [], currentVocabulary = [];
-  let currentImageUrl = null, currentAudio = null, isSpeaking = false;
+  let currentImageUrl = null, currentAudio = null, currentAudioUrl = null, isSpeaking = false;
+  let ttsAbortController = null, ttsFinish = null, ttsPlaybackId = 0, currentTtsCard = null;
   let coachHistory = [];
   let currentQuizQuestions = null, currentQuizKey = "";
   const actionDefaultCosts = {};
@@ -222,8 +223,42 @@
   }
 
   // ── TTS ─────────────────────────────────────────────────────────
+  function resetTTSUi() {
+    document.querySelectorAll(".dialogue-card.playing").forEach(card => card.classList.remove("playing"));
+    const icon = document.getElementById("btn-listen")?.querySelector(".ac-icon");
+    if (icon) icon.textContent = "🔊";
+  }
+
+  function stopTTSPlayback() {
+    isSpeaking = false;
+    ttsPlaybackId += 1;
+    if (ttsAbortController) {
+      ttsAbortController.abort();
+      ttsAbortController = null;
+    }
+    if (ttsFinish) ttsFinish();
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio.onended = null;
+      currentAudio.onerror = null;
+      currentAudio.src = "";
+      currentAudio = null;
+    }
+    if (currentAudioUrl) {
+      URL.revokeObjectURL(currentAudioUrl);
+      currentAudioUrl = null;
+    }
+    ttsFinish = null;
+    currentTtsCard = null;
+    resetTTSUi();
+  }
+
   async function playTTS(text, options = {}) {
     if (!text) return;
+    const playbackId = ++ttsPlaybackId;
+    const controller = new AbortController();
+    ttsAbortController = controller;
     try {
       const payload = {
         text,
@@ -231,7 +266,12 @@
         voice: options.voice || undefined,
         source: "content-generation"
       };
-      const res = await fetch("/api/tts/generate", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+      const res = await fetch("/api/tts/generate", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload),
+        signal: controller.signal
+      });
       if (!res.ok) {
         let message = `TTS failed (${res.status})`;
         try {
@@ -241,44 +281,80 @@
         throw new Error(message);
       }
       const blob = await res.blob();
-      const audio = new Audio(URL.createObjectURL(blob));
-      currentAudio = audio; await audio.play();
-      return new Promise(r => { audio.onended = r; audio.onerror = r; });
+      if (playbackId !== ttsPlaybackId) return;
+
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      currentAudio = audio;
+      currentAudioUrl = audioUrl;
+      ttsAbortController = null;
+
+      return new Promise(resolve => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          audio.onended = null;
+          audio.onerror = null;
+          if (currentAudio === audio) {
+            currentAudio = null;
+            currentAudioUrl = null;
+            URL.revokeObjectURL(audioUrl);
+          }
+          if (ttsFinish === finish) ttsFinish = null;
+          resolve();
+        };
+        ttsFinish = finish;
+        audio.onended = finish;
+        audio.onerror = finish;
+        audio.play().catch(finish);
+      });
     } catch(e) {
+      if (e.name === "AbortError" || playbackId !== ttsPlaybackId) return;
       console.error(e);
       showToast(e.message || "TTS playback failed.");
       throw e;
+    } finally {
+      if (ttsAbortController === controller) ttsAbortController = null;
     }
   }
 
   function speakDialogueCard(card) {
     if (!card) return;
-    if(currentAudio) currentAudio.pause();
+    if (currentTtsCard === card) {
+      stopTTSPlayback();
+      return;
+    }
+    stopTTSPlayback();
+    currentTtsCard = card;
+    card.classList.add("playing");
     playTTS(card.dataset.text, {
       speaker: Number(card.dataset.ttsSpeaker || 0),
       voice: card.dataset.ttsVoice || undefined
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => {
+      if (currentTtsCard === card) {
+        currentTtsCard = null;
+        card.classList.remove("playing");
+      }
+    });
   }
 
-  function speakText(txt) { if(currentAudio) currentAudio.pause(); playTTS(txt); }
+  function speakText(txt) { stopTTSPlayback(); playTTS(txt).catch(() => {}); }
 
   async function speakDialogue() {
     if (isSpeaking) {
-      isSpeaking = false;
-      if(currentAudio) currentAudio.pause();
-      const icon = document.getElementById("btn-listen").querySelector(".ac-icon");
-      if (icon) icon.textContent = "🔊";
+      stopTTSPlayback();
       return;
     }
     if (!currentDialogue.length) { showToast(translations["cg.err_gen_first"] || "먼저 레슨을 생성해주세요."); return; }
+    stopTTSPlayback();
     isSpeaking = true;
     const listenBtn = document.getElementById("btn-listen");
     const icon = listenBtn.querySelector(".ac-icon");
-    if (icon) icon.textContent = "⏸️";
+    if (icon) icon.textContent = "⏹️";
 
     const cards = [...document.querySelectorAll(".dialogue-card")];
-    for (let i = 0; i < cards.length; i++) {
-      if (!isSpeaking) break;
+    for (let i = 0; i < cards.length && isSpeaking; i++) {
       cards.forEach(c => c.classList.remove("playing"));
       cards[i].classList.add("playing");
       cards[i].scrollIntoView({ behavior:"smooth", block:"nearest" });
@@ -291,10 +367,9 @@
         break;
       }
     }
-    cards.forEach(c => c.classList.remove("playing"));
-    isSpeaking = false;
-    if (icon) icon.textContent = "🔊";
-    showLevelUp();
+    const completed = isSpeaking;
+    stopTTSPlayback();
+    if (completed) showLevelUp();
   }
 
   // ── 레벨업 ──────────────────────────────────────────────────────
